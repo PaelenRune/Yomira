@@ -1,0 +1,28 @@
+# Yomira - Git Ignore
+
+node_modules/
+dist/
+build/
+.cache/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment & Secrets
+.env
+.env.local
+*.pem
+
+# Android & Desktop builds
+android/.gradle
+android/app/build
+android/build
+out/

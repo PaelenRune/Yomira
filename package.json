@@ -1,0 +1,26 @@
+{
+  "name": "yomira-workspace",
+  "version": "1.0.0",
+  "description": "Yomira - Universal Comic & Manga Reader with Multi-Device Sync (PC & Android)",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:core": "npm --workspace=packages/yomira-core run build",
+    "dev:desktop": "npm --workspace=apps/yomira-desktop run dev",
+    "dev:mobile": "npm --workspace=apps/yomira-mobile run dev",
+    "typecheck": "npm run --workspaces --if-present typecheck"
+  },
+  "keywords": [
+    "manga",
+    "webtoon",
+    "comics",
+    "reader",
+    "sync",
+    "google-drive"
+  ],
+  "author": "Yomira Team",
+  "license": "MIT"
+}
