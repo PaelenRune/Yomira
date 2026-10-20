@@ -7,7 +7,10 @@ import {
   ExtensionManifest,
   LibraryItem,
   ReadingProgress,
-  SeriesType
+  SeriesType,
+  RepositoryManager,
+  ExtensionRuntime,
+  RemoteExtensionPackage
 } from '@yomira/core';
 
 import { MobileHeader } from './components/MobileHeader';
@@ -28,13 +31,18 @@ import {
   ShieldAlert, 
   Moon, 
   Info,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+  Globe
 } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Core Services
   const aggregator = useMemo(() => new CascadingAggregator(), []);
   const syncService = useMemo(() => new GoogleDriveSyncService(), []);
+  const runtime = useMemo(() => new ExtensionRuntime(), []);
 
   // State
   const [activeTab, setActiveTab] = useState<MobileTab>('DISCOVER');
@@ -53,11 +61,22 @@ export const App: React.FC = () => {
   const [library, setLibrary] = useState<LibraryItem[]>([]);
   const [readingProgress, setReadingProgress] = useState<ReadingProgress[]>([]);
 
-  // Repos & Extensions
-  const [installedRepoUrls, setInstalledRepoUrls] = useState<string[]>([
-    'https://raw.githubusercontent.com/yomira/repo-official/index.json'
-  ]);
-  const [installedExtensions, setInstalledExtensions] = useState<string[]>(['mangadex']);
+  // Community Repos & Dynamic Extensions
+  const defaultRepoUrls = useMemo(
+    () => ['https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json'],
+    []
+  );
+  const [installedRepoUrls, setInstalledRepoUrls] = useState<string[]>(defaultRepoUrls);
+  const repoManager = useMemo(
+    () => new RepositoryManager(runtime, defaultRepoUrls),
+    [runtime, defaultRepoUrls]
+  );
+  const [installedExtensions, setInstalledExtensions] = useState<ExtensionManifest[]>([]);
+  const [availableExtensions, setAvailableExtensions] = useState<RemoteExtensionPackage[]>([]);
+  const [extensionsLoading, setExtensionsLoading] = useState<boolean>(false);
+  const [busyExtensionId, setBusyExtensionId] = useState<string | null>(null);
+  const [extensionError, setExtensionError] = useState<string | null>(null);
+  const [extensionLang, setExtensionLang] = useState<string>('ALL');
   const [newRepoInput, setNewRepoInput] = useState<string>('');
 
   // Initial Load
@@ -72,6 +91,32 @@ export const App: React.FC = () => {
     }, 350);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Load dynamic extensions whenever the Extensions tab opens or repos change
+  useEffect(() => {
+    if (activeTab !== 'EXTENSIONS') return;
+
+    let cancelled = false;
+    const loadExtensions = async () => {
+      setExtensionsLoading(true);
+      setExtensionError(null);
+      try {
+        const extensions = await repoManager.getAllAvailableExtensions();
+        if (!cancelled) setAvailableExtensions(extensions);
+      } catch (err) {
+        if (!cancelled) {
+          setExtensionError(err instanceof Error ? err.message : 'Repo indeksi yüklenemedi.');
+        }
+      } finally {
+        if (!cancelled) setExtensionsLoading(false);
+      }
+    };
+
+    loadExtensions();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, installedRepoUrls, repoManager]);
 
   const loadSeries = async (query = '') => {
     setLoading(true);
@@ -150,16 +195,66 @@ export const App: React.FC = () => {
 
   const handleAddRepo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRepoInput.trim()) return;
-    setInstalledRepoUrls(prev => [...prev, newRepoInput.trim()]);
+    const trimmed = newRepoInput.trim();
+    if (!trimmed) return;
+    if (installedRepoUrls.includes(trimmed)) {
+      setExtensionError('Bu repo zaten ekli.');
+      return;
+    }
+    repoManager.addRepoUrl(trimmed);
+    setInstalledRepoUrls(prev => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
     setNewRepoInput('');
+    setExtensionError(null);
   };
 
-  const handleToggleExtension = (id: string) => {
-    setInstalledExtensions(prev => 
-      prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
-    );
+  const handleRemoveRepo = (url: string) => {
+    repoManager.removeRepoUrl(url);
+    setInstalledRepoUrls(prev => prev.filter(u => u !== url));
   };
+
+  const handleRefreshExtensions = async () => {
+    setExtensionsLoading(true);
+    setExtensionError(null);
+    try {
+      const extensions = await repoManager.getAllAvailableExtensions();
+      setAvailableExtensions(extensions);
+    } catch (err) {
+      setExtensionError(err instanceof Error ? err.message : 'Repo indeksi yüklenemedi.');
+    } finally {
+      setExtensionsLoading(false);
+    }
+  };
+
+  const handleToggleExtension = async (pkg: RemoteExtensionPackage) => {
+    setBusyExtensionId(pkg.id);
+    setExtensionError(null);
+    try {
+      if (repoManager.isInstalled(pkg.id)) {
+        repoManager.uninstallExtension(pkg.id);
+        setInstalledExtensions(prev => prev.filter(e => e.id !== pkg.id));
+      } else {
+        const source = await repoManager.installExtension(pkg);
+        setInstalledExtensions(prev => (
+          prev.some(e => e.id === source.manifest.id) ? prev : [...prev, source.manifest]
+        ));
+      }
+    } catch (err) {
+      setExtensionError(
+        err instanceof Error
+          ? `"${pkg.name}" işlemi başarısız: ${err.message}`
+          : `"${pkg.name}" işlemi başarısız.`
+      );
+    } finally {
+      setBusyExtensionId(null);
+    }
+  };
+
+  const filteredExtensions = availableExtensions.filter(ext => {
+    if (extensionLang === 'ALL') return true;
+    return ext.lang.toLowerCase() === extensionLang.toLowerCase();
+  });
+
+  const installedExtensionIds = installedExtensions.map(e => e.id);
 
   const categories = [
     { id: 'ALL', label: 'Tümü' },
@@ -221,7 +316,7 @@ export const App: React.FC = () => {
                     key={series.id}
                     series={series}
                     onClick={() => setSelectedSeries(series)}
-                    isBound={series.metadataSources.some(s => installedExtensions.includes(s.providerId))}
+                    isBound={series.metadataSources.some(s => installedExtensionIds.includes(s.providerId))}
                   />
                 ))}
               </div>
@@ -242,44 +337,126 @@ export const App: React.FC = () => {
         {/* TAB 3: EKLENTİLER / EXTENSIONS */}
         {activeTab === 'EXTENSIONS' && (
           <div className="p-4 space-y-4">
-            <div>
-              <h2 className="text-sm font-bold text-white mb-1">Eklenti ve Kaynaklar</h2>
-              <p className="text-xs text-slate-400">Çizgi roman sitelerini okunabilir kılmak için eklentileri aktif edin.</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-white mb-1">Eklenti ve Kaynaklar</h2>
+                <p className="text-xs text-slate-400">
+                  Keiyoushi ve eklediğiniz repolardan dinamik eklenti yönetimi.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-2 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
+                  {installedExtensions.length} kurulu
+                </span>
+                <button
+                  onClick={handleRefreshExtensions}
+                  disabled={extensionsLoading}
+                  className="p-2 rounded-xl bg-[#12111d] border border-white/10 text-slate-300 disabled:opacity-60"
+                  title="Repoları Yenile"
+                >
+                  <RefreshCw className={`w-4 h-4 ${extensionsLoading ? 'animate-spin text-purple-400' : ''}`} />
+                </button>
+              </div>
             </div>
 
-            {/* Extension toggles */}
+            {extensionError && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-[11px] text-rose-300">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed flex-1">{extensionError}</span>
+                <button onClick={() => setExtensionError(null)} className="text-rose-400">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Language filters */}
+            <div className="flex items-center gap-1 text-[10px]">
+              {['ALL', 'TR', 'EN'].map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setExtensionLang(lang)}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                    extensionLang === lang
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-[#12111d] border border-white/5 text-slate-400'
+                  }`}
+                >
+                  {lang === 'ALL' ? 'Tümü' : lang}
+                </button>
+              ))}
+            </div>
+
+            {/* Dynamic extension list from community repositories */}
             <div className="space-y-2">
-              {[
-                { id: 'mangadex', name: 'MangaDex (Manga & Webtoon)', nsfw: false },
-                { id: 'asurascans', name: 'Asura Scans (Aksiyon Manhwa)', nsfw: false },
-                { id: 'marveldc', name: 'ReadComics (Marvel & DC)', nsfw: false },
-                { id: 'toonily', name: 'Toonily (+18 Yetişkin Webtoon)', nsfw: true }
-              ].map((ext) => {
-                const isInstalled = installedExtensions.includes(ext.id);
+              {extensionsLoading && (
+                <div className="py-10 flex flex-col items-center gap-2 text-xs text-purple-400 font-semibold">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Repodaki eklentiler yükleniyor...</span>
+                </div>
+              )}
+
+              {!extensionsLoading && filteredExtensions.length === 0 && (
+                <div className="py-10 flex flex-col items-center gap-2 text-center text-xs text-slate-500">
+                  <Puzzle className="w-6 h-6 text-slate-600" />
+                  <span>Bu repolarda seçili dilde eklenti bulunamadı. Aşağıdan yeni repo ekleyebilirsiniz.</span>
+                </div>
+              )}
+
+              {!extensionsLoading && filteredExtensions.map((ext) => {
+                const isInstalled = installedExtensionIds.includes(ext.id);
+                const isBusy = busyExtensionId === ext.id;
+
                 return (
                   <div
                     key={ext.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#12111d] border border-white/5"
+                    className="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#12111d] border border-white/5"
                   >
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-white">{ext.name}</span>
-                        {ext.nsfw && (
-                          <span className="px-1 py-0.2 rounded bg-rose-950/60 border border-rose-800/40 text-[8px] font-bold text-rose-400">
-                            +18
-                          </span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-9 h-9 rounded-lg bg-purple-950/40 border border-purple-800/30 flex items-center justify-center text-xs font-bold text-purple-300 shrink-0 overflow-hidden">
+                        {ext.iconUrl ? (
+                          <img
+                            src={ext.iconUrl}
+                            alt={ext.name}
+                            className="w-5 h-5 object-contain rounded"
+                            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          ext.name.charAt(0)
                         )}
                       </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-bold text-white truncate max-w-[150px]">{ext.name}</span>
+                          <span className="text-[9px] text-slate-500">v{ext.version}</span>
+                          <span className="px-1 py-0.2 rounded bg-purple-900/30 border border-purple-700/30 text-[8px] font-bold text-purple-300 uppercase">
+                            {ext.lang}
+                          </span>
+                          {ext.isNsfw && (
+                            <span className="px-1 py-0.2 rounded bg-rose-950/60 border border-rose-800/40 text-[8px] font-bold text-rose-400">
+                              +18
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-slate-400 truncate">{ext.description || 'Topluluk eklentisi.'}</p>
+                      </div>
                     </div>
+
                     <button
-                      onClick={() => handleToggleExtension(ext.id)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                      onClick={() => handleToggleExtension(ext)}
+                      disabled={isBusy}
+                      className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all shrink-0 disabled:opacity-60 ${
                         isInstalled
                           ? 'bg-purple-600/20 border border-purple-500/40 text-purple-300'
                           : 'bg-purple-600 text-white'
                       }`}
                     >
-                      {isInstalled ? '✓ Aktif' : '+ Kur'}
+                      {isBusy ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : isInstalled ? (
+                        '✓ Kaldır'
+                      ) : (
+                        '+ Kur'
+                      )}
                     </button>
                   </div>
                 );
@@ -287,30 +464,49 @@ export const App: React.FC = () => {
             </div>
 
             {/* Repos section */}
-            <div className="pt-2">
-              <span className="text-xs font-bold text-slate-300 block mb-2">Harici Repo Ekle</span>
-              <form onSubmit={handleAddRepo} className="flex gap-2 mb-3">
+            <div className="pt-2 space-y-2">
+              <span className="text-xs font-bold text-slate-300 block">Harici Repo Ekle</span>
+              <form onSubmit={handleAddRepo} className="flex gap-2">
                 <input
                   type="url"
                   value={newRepoInput}
                   onChange={(e) => setNewRepoInput(e.target.value)}
-                  placeholder="https://.../index.json"
+                  placeholder="https://.../index.min.json"
                   className="flex-1 bg-[#12111d] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-bold"
                 >
+                  <Plus className="w-3.5 h-3.5" />
                   Ekle
                 </button>
               </form>
 
+              {/* Keiyoushi preset */}
+              <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#12111d] border border-white/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Globe className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold text-white">Keiyoushi Topluluk Reposu</div>
+                    <div className="text-[9px] text-slate-500 truncate">Mihon / Tachiyomi eklenti arşivi</div>
+                  </div>
+                </div>
+                <span className="px-2 py-1 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 shrink-0">
+                  {installedRepoUrls.includes(defaultRepoUrls[0]) ? '✓ Ekli' : 'Hazır'}
+                </span>
+              </div>
+
               <div className="space-y-1.5">
-                {installedRepoUrls.map((url, i) => (
-                  <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[#12111d] border border-white/5 text-[11px] text-slate-400">
+                {installedRepoUrls.map((url) => (
+                  <div key={url} className="flex items-center justify-between p-2 rounded-lg bg-[#12111d] border border-white/5 text-[11px] text-slate-400">
                     <span className="truncate pr-2">{url}</span>
-                    <button onClick={() => setInstalledRepoUrls(prev => prev.filter(u => u !== url))}>
-                      <Trash2 className="w-3.5 h-3.5 text-slate-600 hover:text-rose-400" />
+                    <button
+                      onClick={() => handleRemoveRepo(url)}
+                      className="p-1 text-slate-500 hover:text-rose-400"
+                      title="Repoyu Kaldır"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}

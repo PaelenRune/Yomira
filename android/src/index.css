@@ -19,3 +19,122 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
+
+/* ------------------------------------------------------------------ */
+/* Mobile Reader: touch scroller, fast page slider & feedback motion  */
+/* ------------------------------------------------------------------ */
+
+.reader-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.yomira-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.yomira-range::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #a855f7 0%,
+    #d946ef var(--reader-progress, 0%),
+    rgba(255, 255, 255, 0.14) var(--reader-progress, 0%),
+    rgba(255, 255, 255, 0.14) 100%
+  );
+}
+
+.yomira-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6.5px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 3px solid #a855f7;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.85);
+}
+
+.yomira-range:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+  box-shadow: 0 0 18px rgba(217, 70, 239, 0.95);
+}
+
+.yomira-range::-moz-range-track {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.yomira-range::-moz-range-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: #a855f7;
+}
+
+.yomira-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 3px solid #a855f7;
+}
+
+.reader-page-image {
+  backface-visibility: hidden;
+}
+
+@keyframes reader-shimmer {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.reader-shimmer {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(168, 85, 247, 0.1),
+    transparent
+  );
+  animation: reader-shimmer 1.6s linear infinite;
+}
+
+@keyframes reader-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reader-end-card {
+  animation: reader-rise 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes reader-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reader-fade-in {
+  animation: reader-fade-in 0.25s ease-out both;
+}

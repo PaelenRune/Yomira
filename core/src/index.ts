@@ -25,3 +25,6 @@ export * from './resolver/SourceResolver.js';
 // Sandboxed Community Extension Runtime
 export * from './runtime/BaseExtension.js';
 export * from './runtime/ExtensionRuntime.js';
+
+// Dynamic Community Repository Manager (Keiyoushi / Mihon Architecture)
+export * from './repository/RepositoryManager.js';

@@ -22,7 +22,7 @@ export const SeriesDetailModal: React.FC<SeriesDetailModalProps> = ({
   if (!series) return null;
 
   const [selectedSource, setSelectedSource] = useState<string>(
-    installedExtensions[0]?.id || 'mangadex'
+    installedExtensions[0]?.id || ''
   );
 
   // Generate simulated chapters based on totalChapters or default list
@@ -182,9 +182,13 @@ export const SeriesDetailModal: React.FC<SeriesDetailModalProps> = ({
                   onChange={(e) => setSelectedSource(e.target.value)}
                   className="bg-[#181726] border border-purple-500/30 rounded-lg px-2.5 py-1 text-xs text-purple-200 focus:outline-none focus:border-purple-500"
                 >
-                  <option value="mangadex">MangaDex (Otomatik Eşleşti)</option>
-                  <option value="asurascans">Asura Scans</option>
-                  <option value="toonily">Toonily (+18 Webtoon)</option>
+                  {installedExtensions.length === 0 ? (
+                    <option value="">Kurulu eklenti yok</option>
+                  ) : (
+                    installedExtensions.map((ext) => (
+                      <option key={ext.id} value={ext.id}>{ext.name}</option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>

@@ -505,10 +505,13 @@ const SANDBOX_BOOTSTRAP = String.raw`(function (hostRequest) {
     var exportedManifest = null;
     try { exportedManifest = target.manifest || null; } catch (error) { exportedManifest = null; }
     extensionTarget = target;
-    return { manifest: exportedManifest || manifest || null, methods: present };
+    return { manifest: exportedManifest || manifest || extensionManifest || null, methods: present };
   }
 
   function install(value, manifest) {
+    // The wrapper calls install(value, null); the manifest supplied to the
+    // runtime is captured above and must reach class/factory constructors.
+    if (!manifest) manifest = extensionManifest;
     if (!value) {
       throw new TypeError('Extension did not export anything. Assign module.exports or call defineExtension().');
     }
@@ -690,6 +693,20 @@ export class ExtensionRuntime {
     );
 
     return this.createSource(entry, resolvedManifest);
+  }
+
+  /**
+   * Load an extension from JavaScript source.
+   *
+   * This is the explicit, self-describing alias of {@link loadExtension} used
+   * for bundled reference scrapers and for tests that exercise a community
+   * source string without downloading it first.
+   */
+  async loadExtensionSource(
+    sourceCode: string,
+    manifest?: ExtensionManifest
+  ): Promise<ExtensionSource> {
+    return this.loadExtension(sourceCode, manifest);
   }
 
   /**

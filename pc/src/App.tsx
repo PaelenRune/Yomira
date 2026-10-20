@@ -6,7 +6,10 @@ import {
   ContentRatingClassifier, 
   GoogleDriveSyncService,
   ExtensionManifest,
-  LibraryItem
+  LibraryItem,
+  RepositoryManager,
+  ExtensionRuntime,
+  RemoteExtensionPackage
 } from '@yomira/core';
 
 import { Navbar } from './components/Navbar';
@@ -21,13 +24,14 @@ export const App: React.FC = () => {
   // Core Services
   const aggregator = useMemo(() => new CascadingAggregator(), []);
   const syncService = useMemo(() => new GoogleDriveSyncService(), []);
+  const runtime = useMemo(() => new ExtensionRuntime(), []);
 
   // Application State
   const [seriesList, setSeriesList] = useState<Series[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('ALL');
-  
+
   // Modals & Reader
   const [selectedSeries, setSelectedSeries] = useState<Series | null>(null);
   const [readingState, setReadingState] = useState<{ series: Series; chapter: Chapter } | null>(null);
@@ -39,25 +43,17 @@ export const App: React.FC = () => {
   const [lastSyncedText, setLastSyncedText] = useState<string>('Şimdi');
   const [library, setLibrary] = useState<LibraryItem[]>([]);
 
-  // Repos & Installed Extensions
-  const [installedRepoUrls, setInstalledRepoUrls] = useState<string[]>([
-    'https://raw.githubusercontent.com/yomira/repo-official/index.json',
-    'https://raw.githubusercontent.com/yomira/repo-western/index.json'
-  ]);
-  const [installedExtensions, setInstalledExtensions] = useState<ExtensionManifest[]>([
-    {
-      id: 'mangadex',
-      name: 'MangaDex Eklentisi',
-      version: '1.4.2',
-      iconUrl: '',
-      author: 'Yomira Team',
-      description: 'Manga ve Webtoon arşivi.',
-      baseUrl: 'https://mangadex.org',
-      supportedLanguages: ['tr', 'en'],
-      isNsfw: false,
-      repoUrl: ''
-    }
-  ]);
+  // Community Repos & Dynamically Installed Extensions
+  const defaultRepoUrls = useMemo(
+    () => ['https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json'],
+    []
+  );
+  const [installedRepoUrls, setInstalledRepoUrls] = useState<string[]>(defaultRepoUrls);
+  const repoManager = useMemo(
+    () => new RepositoryManager(runtime, defaultRepoUrls),
+    [runtime, defaultRepoUrls]
+  );
+  const [installedExtensions, setInstalledExtensions] = useState<ExtensionManifest[]>([]);
 
   // Initial Data Fetch
   useEffect(() => {
@@ -145,26 +141,32 @@ export const App: React.FC = () => {
     setLastSyncedText(`Bölüm ${chapterNumber} : ${percentage}%`);
   };
 
-  const handleToggleExtension = (id: string) => {
-    setInstalledExtensions(prev => {
-      const exists = prev.some(e => e.id === id);
-      if (exists) {
-        return prev.filter(e => e.id !== id);
-      } else {
-        return [...prev, {
-          id,
-          name: id,
-          version: '1.0.0',
-          iconUrl: '',
-          author: 'Community',
-          description: '',
-          baseUrl: '',
-          supportedLanguages: ['en'],
-          isNsfw: false,
-          repoUrl: ''
-        }];
-      }
-    });
+  const handleRefreshRepos = async (): Promise<RemoteExtensionPackage[]> => {
+    return repoManager.getAllAvailableExtensions();
+  };
+
+  const handleAddRepoUrl = (url: string) => {
+    const trimmed = url.trim();
+    if (!trimmed || installedRepoUrls.includes(trimmed)) return;
+    repoManager.addRepoUrl(trimmed);
+    setInstalledRepoUrls(prev => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
+  };
+
+  const handleRemoveRepoUrl = (url: string) => {
+    repoManager.removeRepoUrl(url);
+    setInstalledRepoUrls(prev => prev.filter(u => u !== url));
+  };
+
+  const handleToggleExtension = async (pkg: RemoteExtensionPackage) => {
+    if (repoManager.isInstalled(pkg.id)) {
+      repoManager.uninstallExtension(pkg.id);
+      setInstalledExtensions(prev => prev.filter(e => e.id !== pkg.id));
+    } else {
+      const source = await repoManager.installExtension(pkg);
+      setInstalledExtensions(prev => (
+        prev.some(e => e.id === source.manifest.id) ? prev : [...prev, source.manifest]
+      ));
+    }
   };
 
   const featuredSeries = seriesList[0];
@@ -249,10 +251,11 @@ export const App: React.FC = () => {
         <ExtensionManagerModal
           onClose={() => setIsExtensionModalOpen(false)}
           installedRepoUrls={installedRepoUrls}
-          onAddRepoUrl={(url) => setInstalledRepoUrls(prev => [...prev, url])}
-          onRemoveRepoUrl={(url) => setInstalledRepoUrls(prev => prev.filter(u => u !== url))}
+          onAddRepoUrl={handleAddRepoUrl}
+          onRemoveRepoUrl={handleRemoveRepoUrl}
           installedExtensions={installedExtensions}
           onToggleExtension={handleToggleExtension}
+          onRefreshRepos={handleRefreshRepos}
         />
       )}
 
