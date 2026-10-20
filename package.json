@@ -4,13 +4,16 @@
   "description": "Yomira - Universal Comic & Manga Reader with Multi-Device Sync (PC & Android)",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "core",
+    "pc",
+    "android"
   ],
   "scripts": {
-    "build:core": "npm --workspace=packages/yomira-core run build",
-    "dev:desktop": "npm --workspace=apps/yomira-desktop run dev",
-    "dev:mobile": "npm --workspace=apps/yomira-mobile run dev",
+    "build:core": "npm --workspace=core run build",
+    "dev:pc": "npm --workspace=pc run dev",
+    "dev:android": "npm --workspace=android run dev",
+    "build:pc": "npm --workspace=pc run build",
+    "build:android": "npm --workspace=android run build",
     "typecheck": "npm run --workspaces --if-present typecheck"
   },
   "keywords": [

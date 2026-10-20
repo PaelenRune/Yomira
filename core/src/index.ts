@@ -21,3 +21,7 @@ export * from './sync/GoogleDriveSyncService.js';
 
 // Extension & Source Resolver
 export * from './resolver/SourceResolver.js';
+
+// Sandboxed Community Extension Runtime
+export * from './runtime/BaseExtension.js';
+export * from './runtime/ExtensionRuntime.js';
