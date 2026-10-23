@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LibraryBooks
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -38,7 +39,7 @@ fun MangaArtwork(url: String?, title: String, modifier: Modifier = Modifier) {
             CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
         } },
         error = { Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(CardSurface, NeonPurple.copy(alpha = .25f)))), contentAlignment = Alignment.Center) {
-            Icon(Icons.Default.MenuBook, contentDescription = "Kapak görseli yok", modifier = Modifier.size(40.dp), tint = TextMuted)
+            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Kapak görseli yok", modifier = Modifier.size(40.dp), tint = TextMuted)
         } },
     )
 }
@@ -51,15 +52,16 @@ fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier
     Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         HorizontalPager(state = pager, contentPadding = PaddingValues(horizontal = 20.dp), pageSpacing = 12.dp, key = { manga[it].id }) { index ->
             val item = manga[index]
-            Box(Modifier.fillMaxWidth().heightIn(min = 340.dp).clip(RoundedCornerShape(28.dp))) {
+            BoxWithConstraints(Modifier.fillMaxWidth().heightIn(min = 340.dp).clip(RoundedCornerShape(28.dp))) {
+                val coverWidth = (maxWidth * .3f).coerceIn(64.dp, 112.dp)
                 MangaArtwork(item.bannerUrl ?: item.coverUrl, item.title, Modifier.matchParentSize().blur(24.dp))
                 Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(accent.copy(alpha = .12f), DeepOledBlack.copy(alpha = .96f)))))
                 Row(Modifier.align(Alignment.Center).padding(20.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    MangaArtwork(item.coverUrl, item.title, Modifier.width(112.dp).aspectRatio(.66f).clip(RoundedCornerShape(16.dp)))
+                    MangaArtwork(item.coverUrl, item.title, Modifier.width(coverWidth).aspectRatio(.66f).clip(RoundedCornerShape(16.dp)))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         item.score?.let { ScoreBadge(it) }
                         Text(item.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                        Text(item.genres.take(3).joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                        Text(item.genres.take(3).joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = TextMuted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         if (item.contentRating == ContentRating.MATURE) Text("16+ / Mature", color = TextMuted, style = MaterialTheme.typography.labelSmall)
                         Button(onClick = { onRead(item) }, colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = Color.White)) {
                             Text("Hemen oku")
@@ -126,7 +128,7 @@ enum class MainDestination(val route: String, val label: String, val icon: Image
 fun YomiraBottomNavBar(selected: String?, onSelect: (MainDestination) -> Unit) {
     NavigationBar(Modifier.padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(28.dp)), containerColor = CardSurface.copy(alpha = .9f), tonalElevation = 0.dp) {
         MainDestination.entries.forEach { destination ->
-            NavigationBarItem(selected = selected == destination.route, onClick = { onSelect(destination) }, icon = { Icon(destination.icon, contentDescription = destination.label) }, label = { Text(destination.label, maxLines = 1) },
+            NavigationBarItem(selected = selected == destination.route, onClick = { onSelect(destination) }, icon = { Icon(destination.icon, contentDescription = destination.label) }, label = { Text(destination.label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 colors = NavigationBarItemDefaults.colors(selectedIconColor = NeonPurple, indicatorColor = NeonPurple.copy(alpha = .16f)))
         }
     }
@@ -135,7 +137,7 @@ fun YomiraBottomNavBar(selected: String?, onSelect: (MainDestination) -> Unit) {
 @Composable
 fun CatalogEmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(Icons.Default.MenuBook, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(40.dp))
+        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(40.dp))
         Text(title, style = MaterialTheme.typography.titleMedium)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
     }

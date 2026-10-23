@@ -27,17 +27,19 @@ data class HomeUiState(
     val error: String? = null,
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(state: HomeUiState, onQuery: (String) -> Unit, onColumns: (Int) -> Unit, onManga: (Manga) -> Unit, onRetry: () -> Unit, title: String = "Yomira", showHero: Boolean = true) {
+    val columns = state.columns.coerceIn(2, 4)
     val visible = publicCatalog(state.manga).filter { it.title.contains(state.query, ignoreCase = true) || it.genres.any { genre -> genre.contains(state.query, true) } }
-    LazyVerticalGrid(columns = GridCells.Fixed(state.columns.coerceIn(2, 4)), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    LazyVerticalGrid(columns = GridCells.Fixed(columns), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(title, style = MaterialTheme.typography.headlineLarge)
                 OutlinedTextField(value = state.query, onValueChange = onQuery, modifier = Modifier.fillMaxWidth(), placeholder = { Text("Seri veya tür ara") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Senin vitrinin", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-                    GridColumnSelector(state.columns, onColumns)
+                    GridColumnSelector(columns, onColumns)
                 }
             }
         }
@@ -50,11 +52,11 @@ fun HomeScreen(state: HomeUiState, onQuery: (String) -> Unit, onColumns: (Int) -
             item(span = { GridItemSpan(maxLineSpan) }) { MangaRail("Trendler", publicCatalog(state.trending), onManga) }
             item(span = { GridItemSpan(maxLineSpan) }) { MangaRail("Son güncellenenler", publicCatalog(state.updated), onManga) }
         }
-        if (visible.isEmpty() && !state.loading) item(span = { GridItemSpan(maxLineSpan) }) {
+        if (visible.isEmpty() && !state.loading && state.error == null) item(span = { GridItemSpan(maxLineSpan) }) {
             CatalogEmptyState(if (state.query.isBlank()) "Vitrinin henüz boş" else "Sonuç bulunamadı", if (state.query.isBlank()) "Bir kaynak ekleyip seri meta verilerini eşitlediğinde serilerin burada görünür." else "Başka bir seri adı veya tür dene.")
         }
         items(visible, key = { it.id }) { manga ->
-            MangaCard(manga, state.columns, { onManga(manga) }, Modifier.padding(horizontal = 4.dp))
+            MangaCard(manga, columns, { onManga(manga) }, Modifier.padding(horizontal = 4.dp))
         }
     }
 }

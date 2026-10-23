@@ -2,6 +2,8 @@ package com.yomira.feature.reader
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,7 +35,7 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
     Box(Modifier.fillMaxSize().background(if (state.oled) Color.Black else Color(0xFF24232A))) {
         when {
             state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
-            state.error != null -> Column(Modifier.align(Alignment.Center).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            state.error != null -> Column(Modifier.align(Alignment.Center).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(state.error.orEmpty())
                 Button(onClick = { model.open(mangaId, chapterId) }) { Text("Yeniden dene") }
                 TextButton(onClick = onBack) { Text("Geri dön") }
@@ -43,10 +45,12 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
                 else PagerReader(state, loader, jump, { jump = null }, model::recordPage, model::toggleHud)
             }
         }
-        if (state.hudVisible) ReaderOverlay(state, onBack, { jump = null; model.setMode(it) }, { jump = it }, model::toggleOled, model::toggleInvert)
+        key(mangaId, chapterId) {
+            if (state.hudVisible) ReaderOverlay(state, onBack, { jump = null; model.setMode(it) }, { jump = it }, model::toggleOled, model::toggleInvert)
+        }
         state.progressError?.let { message ->
             Surface(Modifier.align(Alignment.Center).padding(24.dp), color = MaterialTheme.colorScheme.errorContainer) {
-                Column(Modifier.padding(16.dp)) { Text(message); TextButton(onClick = model::retryProgress) { Text("Kaydetmeyi yeniden dene") } }
+                Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) { Text(message); TextButton(onClick = model::retryProgress) { Text("Kaydetmeyi yeniden dene") } }
             }
         }
     }

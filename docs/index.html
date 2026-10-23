@@ -4,7 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yomira — Evrensel Çizgi Roman & Manga Ekosistemi</title>
-  <meta name="description" content="Android için evrendeki tüm Manga, Webtoon, Manhua ve Western serilerini bir araya getiren Dribbble ilhamlı OLED okuma platformu.">
+  <meta name="description" content="Yomira: Android için açık kaynak manga, webtoon ve çizgi roman okuyucu. OLED arayüzü keşfet ve v0.1.0-beta APK dosyasını indir.">
+  <meta name="theme-color" content="#06050C">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="PaelenRune">
+  <link rel="canonical" href="https://paelenrune.github.io/Yomira/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:site_name" content="Yomira">
+  <meta property="og:url" content="https://paelenrune.github.io/Yomira/">
+  <meta property="og:title" content="Yomira — Evrensel Çizgi Roman &amp; Manga Ekosistemi">
+  <meta property="og:description" content="Android için açık kaynak manga, webtoon ve çizgi roman okuyucu. OLED arayüzü keşfet ve v0.1.0-beta APK dosyasını indir.">
+  <meta property="og:image" content="https://paelenrune.github.io/Yomira/art/banner.png">
+  <meta property="og:image:alt" content="Yomira manga ve çizgi roman okuma platformu">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Yomira — Evrensel Çizgi Roman &amp; Manga Ekosistemi">
+  <meta name="twitter:description" content="Android için açık kaynak manga, webtoon ve çizgi roman okuyucu. v0.1.0-beta sürümünü keşfet.">
+  <meta name="twitter:image" content="https://paelenrune.github.io/Yomira/art/banner.png">
+  <meta name="twitter:image:alt" content="Yomira manga ve çizgi roman okuma platformu">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌌</text></svg>">
   <style>
     :root {
@@ -16,8 +33,8 @@
       --accent-vault: #FF0055;
       --star: #FFB703;
       --text: #FFFFFF;
-      --text-muted: #8E8D9A;
-      --text-dim: #5C5873;
+      --text-muted: #AAA6BA;
+      --text-dim: #AAA6BA;
     }
 
     * {
@@ -32,6 +49,27 @@
       color: var(--text);
       overflow-x: hidden;
       line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    :where(a, button):focus-visible {
+      outline: 3px solid var(--star);
+      outline-offset: 4px;
+    }
+
+    [id] { scroll-margin-top: 140px; }
+
+    .skip-link { position: absolute; top: -100px; left: 16px; z-index: 200; }
+    .skip-link:focus { top: 12px; background: var(--card-bg); padding: 12px; color: white; }
+
+    .btn-primary, .btn-secondary, .btn-github, .tab-btn {
+      min-height: 44px;
+      transition: transform 0.15s, background-color 0.2s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:active, .btn-secondary:active, .btn-github:active, .tab-btn:active {
+      transform: scale(0.97);
     }
 
     /* Ambient background glows */
@@ -40,7 +78,7 @@
       top: -150px;
       left: 50%;
       transform: translateX(-50%);
-      width: 600px;
+      width: min(600px, 100%);
       height: 600px;
       background: radial-gradient(circle, rgba(157, 78, 221, 0.25) 0%, rgba(255, 0, 127, 0.1) 40%, transparent 70%);
       pointer-events: none;
@@ -70,6 +108,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .logo {
@@ -86,6 +126,7 @@
       display: flex;
       gap: 20px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .nav-links a {
@@ -182,7 +223,7 @@
       font-weight: 600;
       text-decoration: none;
       border: 1px solid var(--card-border);
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
 
     .btn-secondary:hover {
@@ -211,7 +252,7 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
     }
 
     .tab-btn.active {
@@ -235,11 +276,17 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 600px;
+      min-height: 280px;
+      flex-direction: column;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     }
 
     .preview-img {
+      display: block;
+      width: min(100%, 600px);
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-fit: contain;
       max-width: 100%;
       max-height: 750px;
       border-radius: 20px;
@@ -273,7 +320,7 @@
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
       gap: 24px;
     }
 
@@ -319,7 +366,7 @@
 
     .rating-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
       gap: 20px;
       margin-top: 24px;
     }
@@ -355,31 +402,53 @@
     }
 
     @media (max-width: 768px) {
+      header { padding: 16px 0; }
+      .container { padding-inline: 16px; }
+      .nav-links { gap: 12px; }
+      .nav-links a { font-size: 0.85rem; }
+      .hero { padding-block: 48px 28px; }
+      .badge-pill { flex-wrap: wrap; justify-content: center; }
+      .cta-group > a { justify-content: center; }
+      .rating-box, .feature-card { padding: 24px; }
       .hero-title {
-        font-size: 2.4rem;
+        font-size: clamp(1.9rem, 6vw, 2.4rem);
       }
       .preview-container {
         padding: 20px 10px;
       }
     }
+
+    @media (max-width: 480px) {
+      .nav-links { width: 100%; justify-content: space-between; gap: 8px; }
+      .btn-github { padding: 8px; }
+      .cta-group > a { width: 100%; padding-inline: 16px; }
+      .tab-bar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tab-btn { padding: 10px 8px; font-size: 0.85rem; }
+      .section-title { font-size: 1.8rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
 <body>
-  <div class="glow-top"></div>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
+  <div class="glow-top" aria-hidden="true"></div>
 
   <header>
     <div class="container nav-content">
       <a href="#" class="logo">YOMIRA</a>
-      <div class="nav-links">
+      <nav class="nav-links" aria-label="Ana gezinme">
         <a href="#features">Özellikler</a>
         <a href="#showcase">Arayüz</a>
         <a href="#classification">İçerik Ayrımı</a>
-        <a href="https://github.com/PaelenRune/Yomira" class="btn-github" target="_blank">GitHub</a>
-      </div>
+        <a href="https://github.com/PaelenRune/Yomira" class="btn-github" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <section class="hero container">
       <div class="badge-pill">
         <span>✨ v0.1.0-beta Yayında</span>
@@ -397,7 +466,7 @@
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
           Beta APK İndir (v0.1.0-beta)
         </a>
-        <a href="https://github.com/PaelenRune/Yomira" class="btn-secondary" target="_blank">
+        <a href="https://github.com/PaelenRune/Yomira" class="btn-secondary" target="_blank" rel="noopener noreferrer">
           GitHub'da İncele
         </a>
       </div>
@@ -405,15 +474,16 @@
 
     <!-- Interactive Showcase Section -->
     <section class="showcase-section container" id="showcase">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchMockup('../art/mockup_home.svg', this)">📱 Ana Sayfa & Vitrin</button>
-        <button class="tab-btn vault-tab" onclick="switchMockup('../art/mockup_vault.svg', this)">🔒 +18 Kasa (Vault)</button>
-        <button class="tab-btn" onclick="switchMockup('../art/mockup_reader.svg', this)">📖 Evrensel Okuyucu</button>
-        <button class="tab-btn" onclick="switchMockup('../art/mockup_smart_match.svg', this)">✦ Akıllı Kaynak Eşleştirici</button>
+      <div class="tab-bar" role="group" aria-label="Uygulama ekranları">
+        <button type="button" class="tab-btn active" aria-pressed="true" aria-controls="mockupImage" data-src="art/mockup_home.svg" data-alt="Yomira ana sayfa ve vitrin tasarımı">📱 Ana Sayfa & Vitrin</button>
+        <button type="button" class="tab-btn vault-tab" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_vault.svg" data-alt="Yomira kilitli yetişkin kasası tasarımı">🔒 +18 Kasa (Vault)</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_reader.svg" data-alt="Yomira evrensel okuyucu tasarımı">📖 Evrensel Okuyucu</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_smart_match.svg" data-alt="Yomira akıllı kaynak eşleştirici tasarımı">✦ Akıllı Kaynak Eşleştirici</button>
       </div>
 
       <div class="preview-container">
-        <img id="mockupImage" class="preview-img" src="../art/mockup_home.svg" alt="Yomira Mockup">
+        <img id="mockupImage" class="preview-img" src="art/mockup_home.svg" alt="Yomira ana sayfa ve vitrin tasarımı" width="800" height="1000" decoding="async">
+        <p id="previewStatus" role="status" aria-live="polite"></p>
       </div>
     </section>
 
@@ -513,17 +583,41 @@
   </footer>
 
   <script>
-    function switchMockup(src, btn) {
-      const img = document.getElementById('mockupImage');
-      img.style.opacity = '0';
-      setTimeout(() => {
-        img.src = src;
-        img.style.opacity = '1';
-      }, 150);
+    const img = document.getElementById('mockupImage');
+    const status = document.getElementById('previewStatus');
+    const buttons = [...document.querySelectorAll('.tab-btn')];
+    let requestId = 0;
 
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    // Commit only the latest successfully loaded selection; keep the old image on failure.
+    async function switchMockup(btn) {
+      const currentRequest = ++requestId;
+      status.textContent = '';
+      img.setAttribute('aria-busy', 'true');
+      const preview = new Image();
+      preview.src = btn.dataset.src;
+      try {
+        await preview.decode();
+        if (currentRequest !== requestId) return;
+        img.src = preview.src;
+        img.alt = btn.dataset.alt;
+        buttons.forEach(button => {
+          const selected = button === btn;
+          button.classList.toggle('active', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        });
+        status.textContent = btn.dataset.alt;
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          img.getAnimations().forEach(animation => animation.cancel());
+          img.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 180 });
+        }
+      } catch {
+        if (currentRequest === requestId) status.textContent = 'Önizleme yüklenemedi. Yeniden denemek için ekran düğmesine bas.';
+      } finally {
+        if (currentRequest === requestId) img.setAttribute('aria-busy', 'false');
+      }
     }
+
+    buttons.forEach(button => button.addEventListener('click', () => switchMockup(button)));
   </script>
 </body>
 </html>

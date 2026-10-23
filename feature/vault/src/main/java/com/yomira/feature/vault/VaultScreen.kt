@@ -1,6 +1,8 @@
 package com.yomira.feature.vault
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.*
@@ -30,10 +32,11 @@ fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): 
     return manga.filter { item -> item.contentRating == ContentRating.EXPLICIT && (genre == null || item.genres.any { it.lowercase(java.util.Locale.ROOT) in aliases }) }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit) {
     if (!unlocked) {
-        Column(Modifier.fillMaxSize().padding(28.dp), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(Icons.Default.Lock, null, Modifier.size(64.dp), tint = NeonFuchsia)
             Text("Sadece sana ait", style = MaterialTheme.typography.headlineLarge)
             Text("+18 Vault ayrı ve kilitli bir vitrindir. Devam ederek 18 yaşından büyük olduğunu onaylarsın.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -45,11 +48,12 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
         return
     }
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
+    val gridColumns = columns.coerceIn(2, 4)
     val adult = vaultCatalog(manga, unlocked)
     val visible = vaultCatalog(manga, unlocked, selected)
-    LazyVerticalGrid(columns = GridCells.Fixed(columns.coerceIn(2, 4)), contentPadding = PaddingValues(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+    LazyVerticalGrid(columns = GridCells.Fixed(gridColumns), contentPadding = PaddingValues(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Vault", style = MaterialTheme.typography.headlineLarge, color = NeonFuchsia)
                 FilledTonalButton(onClick = onPanic) { Icon(Icons.Default.Lock, null); Spacer(Modifier.width(8.dp)); Text("Hızlı kilitle") }
             }
@@ -68,12 +72,12 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Özel koleksiyon", style = MaterialTheme.typography.titleLarge)
-                GridColumnSelector(columns, onColumns)
+                GridColumnSelector(gridColumns, onColumns)
             }
         }
-        if (visible.isEmpty() && !loading) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState("Bu vitrin boş", "Seçili türde yetişkin serisi bulunmuyor. Kaynaklarını eşitle veya filtreyi değiştir.") }
-        items(visible, key = { it.id }) { item -> MangaCard(item, columns, { onManga(item) }, Modifier.padding(horizontal = 4.dp)) }
+        if (visible.isEmpty() && !loading && error == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState("Bu vitrin boş", "Seçili türde yetişkin serisi bulunmuyor. Kaynaklarını eşitle veya filtreyi değiştir.") }
+        items(visible, key = { it.id }) { item -> MangaCard(item, gridColumns, { onManga(item) }, Modifier.padding(horizontal = 4.dp)) }
     }
 }
