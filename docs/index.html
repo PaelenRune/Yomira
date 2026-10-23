@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yomira — Evrensel Çizgi Roman & Manga Ekosistemi</title>
+  <meta name="description" content="Android için evrendeki tüm Manga, Webtoon, Manhua ve Western serilerini bir araya getiren Dribbble ilhamlı OLED okuma platformu.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌌</text></svg>">
+  <style>
+    :root {
+      --bg: #06050C;
+      --card-bg: #12101F;
+      --card-border: rgba(157, 78, 221, 0.25);
+      --primary: #9D4EDD;
+      --accent: #FF007F;
+      --accent-vault: #FF0055;
+      --star: #FFB703;
+      --text: #FFFFFF;
+      --text-muted: #8E8D9A;
+      --text-dim: #5C5873;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Ambient background glows */
+    .glow-top {
+      position: absolute;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(157, 78, 221, 0.25) 0%, rgba(255, 0, 127, 0.1) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navbar */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 5, 12, 0.85);
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn-github {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff !important;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 80px 0 50px 0;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(157, 78, 221, 0.15);
+      border: 1px solid rgba(157, 78, 221, 0.4);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #D4A5FF;
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-size: 3.4rem;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #FFFFFF 40%, #A59FBF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 36px auto;
+    }
+
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(255, 0, 127, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(255, 0, 127, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid var(--card-border);
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #1a172e;
+    }
+
+    /* Interactive Showcase */
+    .showcase-section {
+      padding: 40px 0 80px 0;
+    }
+
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(157, 78, 221, 0.4);
+    }
+
+    .tab-btn.vault-tab.active {
+      background: var(--accent-vault);
+      border-color: var(--accent-vault);
+      box-shadow: 0 4px 16px rgba(255, 0, 85, 0.4);
+    }
+
+    .preview-container {
+      background: radial-gradient(circle at center, rgba(30, 20, 50, 0.6) 0%, rgba(6, 5, 12, 0.95) 70%);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 600px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .preview-img {
+      max-width: 100%;
+      max-height: 750px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      transition: opacity 0.3s;
+    }
+
+    /* Pillars Grid */
+    .features-section {
+      padding: 60px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-badge {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 32px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
+
+    .feature-icon {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .feature-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Rating Classification Spotlight Box */
+    .rating-box {
+      margin-top: 60px;
+      background: linear-gradient(135deg, #170d24, #0c0817);
+      border: 1px solid #362254;
+      border-radius: 24px;
+      padding: 40px;
+    }
+
+    .rating-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .rating-card {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      border-radius: 14px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .rating-card.level1 {
+      border-left-color: var(--accent);
+    }
+
+    .rating-card.level2 {
+      border-left-color: var(--accent-vault);
+    }
+
+    .rating-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 40px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.4rem;
+      }
+      .preview-container {
+        padding: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-top"></div>
+
+  <header>
+    <div class="container nav-content">
+      <a href="#" class="logo">YOMIRA</a>
+      <div class="nav-links">
+        <a href="#features">Özellikler</a>
+        <a href="#showcase">Arayüz</a>
+        <a href="#classification">İçerik Ayrımı</a>
+        <a href="https://github.com/PaelenRune/Yomira" class="btn-github" target="_blank">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container">
+      <div class="badge-pill">
+        <span>✨ v0.1.0-beta Yayında</span>
+        <span>•</span>
+        <span>100% Açık Kaynak Android</span>
+      </div>
+
+      <h1 class="hero-title">Evrendeki Tüm Çizgi Romanlar.<br>Tek Bir Dokunuşla.</h1>
+      <p class="hero-subtitle">
+        Manga, Webtoon, Manhua ve Western çizgi romanları. Kademeli metadata şelalesi, Dribbble ilhamlı OLED arayüz ve Keiyoushi eklenti motoruyla sınırsız okuma ekosistemi.
+      </p>
+
+      <div class="cta-group">
+        <a href="https://github.com/PaelenRune/Yomira/releases/download/v0.1.0-beta/yomira-v0.1.0-beta.apk" class="btn-primary">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+          Beta APK İndir (v0.1.0-beta)
+        </a>
+        <a href="https://github.com/PaelenRune/Yomira" class="btn-secondary" target="_blank">
+          GitHub'da İncele
+        </a>
+      </div>
+    </section>
+
+    <!-- Interactive Showcase Section -->
+    <section class="showcase-section container" id="showcase">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchMockup('../art/mockup_home.svg', this)">📱 Ana Sayfa & Vitrin</button>
+        <button class="tab-btn vault-tab" onclick="switchMockup('../art/mockup_vault.svg', this)">🔒 +18 Kasa (Vault)</button>
+        <button class="tab-btn" onclick="switchMockup('../art/mockup_reader.svg', this)">📖 Evrensel Okuyucu</button>
+        <button class="tab-btn" onclick="switchMockup('../art/mockup_smart_match.svg', this)">✦ Akıllı Kaynak Eşleştirici</button>
+      </div>
+
+      <div class="preview-container">
+        <img id="mockupImage" class="preview-img" src="../art/mockup_home.svg" alt="Yomira Mockup">
+      </div>
+    </section>
+
+    <!-- Core Pillars -->
+    <section class="features-section container" id="features">
+      <div class="section-header">
+        <div class="section-badge">MİMARİ PRENSİPLER</div>
+        <h2 class="section-title">Neden Yomira Farklı?</h2>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3 class="feature-name">İçeriksiz Çekirdek (Content-Free)</h3>
+          <p class="feature-desc">
+            Uygulama içinde tek bir telifli görsel veya bölüm barındırmaz. Saf, yasal bir metadata tarayıcısı ve gelişmiş okuyucu motorudur.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌊</div>
+          <h3 class="feature-name">Kademeli Metadata Şelalesi</h3>
+          <p class="feature-desc">
+            Baka-Updates omurgasından başlayıp AniList (GraphQL), MangaDex, Kitsu ve ComicVine ile eksik alanları otomatik tamamlayan akıllı birleştirici.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3 class="feature-name">Dribbble OLED UI & Izgara</h3>
+          <p class="feature-desc">
+            Deep OLED Black (#06050C) zemin, cam efektli kartlar, neon vurgular ve tek dokunuşla 2, 3 veya 4 sütun arasında değişebilen poster ızgarası.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-name">Akıllı Eşleştirici (Smart Match)</h3>
+          <p class="feature-desc">
+            Kullanıcı seriye tıkladığında seçilen dile (TR/EN) göre en güncel kaynağı arka planda belirler; eksikse tek tıkla kurma modalı sunar.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-name">Evrensel Okuyucu Motoru</h3>
+          <p class="feature-desc">
+            Webtoon kesintisiz dikey kaydırma, Manga (RTL) ve Western (LTR) sayfa geçişleri, Smart Zoom ve OLED Gece Modu filtreleri.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3 class="feature-name">Google Drive AppData Sync</h3>
+          <p class="feature-desc">
+            Sıfır kota tüketimi! Gizli drive.appdata alanında hafif JSON ile "Max Progress Wins" mantığıyla çalışan kesintisiz senkronizasyon.
+          </p>
+        </div>
+      </div>
+
+      <!-- Rating Classification Box -->
+      <div class="rating-box" id="classification">
+        <h3 style="font-size: 1.5rem; font-weight: 800;">Hassas İçerik Derecelendirme Motoru (+18 vs. Pornografi)</h3>
+        <p style="color: var(--text-muted); margin-top: 8px;">
+          Yomira, erotik/yetişkin temalı hikayeler ile saf pornografik içerikleri yapay olarak birbirine karıştırmaz; 3 seviyeli taksonomi kullanır:
+        </p>
+
+        <div class="rating-grid">
+          <div class="rating-card">
+            <div class="rating-title" style="color: #9D4EDD;">Level 0: SAFE</div>
+            <p style="font-size: 0.9rem; color: #B3AFC9;">Genel izleyici serileri (One Piece, Solo Leveling, Spider-Man). Ana sayfada özgürce listelenir.</p>
+          </div>
+
+          <div class="rating-card level1">
+            <div class="rating-title" style="color: #FF007F;">Level 1: MATURE / ECCHI</div>
+            <p style="font-size: 0.9rem; color: #B3AFC9;">
+              <strong>"I Formed a MILF Party with the Heroes' Mothers"</strong>, <strong>"Kimi wa Midara na Boku no Joou"</strong>, <strong>"Prison School"</strong>. Hikaye odaklı erotik seriler ana sayfada <strong>16+ MATURE</strong> rozetiyle görünür!
+            </p>
+          </div>
+
+          <div class="rating-card level2">
+            <div class="rating-title" style="color: #FF0055;">Level 2: EXPLICIT (KASA)</div>
+            <p style="font-size: 0.9rem; color: #B3AFC9;">
+              Saf Hentai, Porhwa ve yetişkin doujinshi'ler. Ana akıştan tamamen izole edilir; yalnızca PIN/Biyometrik kilitli <strong>+18 Vault</strong> sayfasında yer alır.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Yomira © 2026 • Geliştirici: <strong>PaelenRune</strong> • Apache License 2.0</p>
+      <p style="margin-top: 6px;">Android, Jetpack Compose ve Keiyoushi ekosistemi için sevgiyle geliştirildi.</p>
+    </div>
+  </footer>
+
+  <script>
+    function switchMockup(src, btn) {
+      const img = document.getElementById('mockupImage');
+      img.style.opacity = '0';
+      setTimeout(() => {
+        img.src = src;
+        img.style.opacity = '1';
+      }, 150);
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
