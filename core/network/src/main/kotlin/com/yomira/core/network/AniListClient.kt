@@ -32,25 +32,24 @@ class AniListClient(
                 put("search", JsonPrimitive(query))
                 put("perPage", JsonPrimitive(limit.coerceIn(1, 20)))
             }
-            val payload = buildJsonObject {
-                put("query", JsonPrimitive(SEARCH_QUERY))
-                put("variables", variables)
-            }.toString()
-            val request = Request.Builder()
-                .url(config.aniListEndpoint)
-                .commonHeaders(config.userAgent)
-                .post(payload.asJsonBody())
-                .build()
-            httpClient.executeChecked(request, sourceId).use { response ->
-                response.decodeJson<AniListResponse>(json, sourceId)
-            }.data?.page?.media.orEmpty().mapNotNull { it.toMetadata() }
+            execute(SEARCH_QUERY, variables)?.page?.media.orEmpty().mapNotNull { it.toMetadata() }
+        }
+
+    suspend fun trending(limit: Int = 20): List<RemoteMetadata> =
+        withContext(Dispatchers.IO) {
+            val variables = buildJsonObject { put("perPage", JsonPrimitive(limit.coerceIn(1, 50))) }
+            execute(TRENDING_QUERY, variables)?.page?.media.orEmpty().mapNotNull { it.toMetadata() }
         }
 
     override suspend fun findById(remoteId: String): RemoteMetadata? = withContext(Dispatchers.IO) {
         val id = remoteId.toIntOrNull() ?: return@withContext null
         val variables = buildJsonObject { put("id", JsonPrimitive(id)) }
+        execute(BY_ID_QUERY, variables)?.media?.toMetadata()
+    }
+
+    private suspend fun execute(query: String, variables: kotlinx.serialization.json.JsonObject): AniListData? {
         val payload = buildJsonObject {
-            put("query", JsonPrimitive(BY_ID_QUERY))
+            put("query", JsonPrimitive(query))
             put("variables", variables)
         }.toString()
         val request = Request.Builder()
@@ -58,9 +57,9 @@ class AniListClient(
             .commonHeaders(config.userAgent)
             .post(payload.asJsonBody())
             .build()
-        httpClient.executeChecked(request, sourceId).use { response ->
+        return httpClient.executeChecked(request, sourceId).use { response ->
             response.decodeJson<AniListResponse>(json, sourceId)
-        }.data?.media?.toMetadata()
+        }.data
     }
 
     private fun AniListMedia.toMetadata(): RemoteMetadata? {
@@ -171,6 +170,29 @@ class AniListClient(
             query (${'$'}search: String, ${'$'}perPage: Int) {
               Page(page: 1, perPage: ${'$'}perPage) {
                 media(search: ${'$'}search, type: MANGA, sort: SEARCH_MATCH) {
+                  id
+                  title { romaji english native }
+                  description(asHtml: false)
+                  coverImage { extraLarge large color }
+                  bannerImage
+                  averageScore
+                  popularity
+                  status
+                  genres
+                  format
+                  startDate { year }
+                  staff(perPage: 6) {
+                    edges { role node { name { full } } }
+                  }
+                }
+              }
+            }
+        """.trimIndent()
+
+        val TRENDING_QUERY = """
+            query (${'$'}perPage: Int) {
+              Page(page: 1, perPage: ${'$'}perPage) {
+                media(type: MANGA, sort: TRENDING_DESC, isAdult: false) {
                   id
                   title { romaji english native }
                   description(asHtml: false)

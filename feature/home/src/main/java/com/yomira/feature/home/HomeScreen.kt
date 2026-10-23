@@ -25,18 +25,28 @@ data class HomeUiState(
     val query: String = "",
     val loading: Boolean = false,
     val error: String? = null,
+    val searching: Boolean = false,
+    val searchMessage: String? = null,
 )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(state: HomeUiState, onQuery: (String) -> Unit, onColumns: (Int) -> Unit, onManga: (Manga) -> Unit, onRetry: () -> Unit, title: String = "Yomira", showHero: Boolean = true) {
     val columns = state.columns.coerceIn(2, 4)
-    val visible = publicCatalog(state.manga).filter { it.title.contains(state.query, ignoreCase = true) || it.genres.any { genre -> genre.contains(state.query, true) } }
+    val visible = publicCatalog(state.manga).filter {
+        it.title.contains(state.query, ignoreCase = true) ||
+            it.altTitles.any { alt -> alt.contains(state.query, ignoreCase = true) } ||
+            it.genres.any { genre -> genre.contains(state.query, true) }
+    }
     LazyVerticalGrid(columns = GridCells.Fixed(columns), contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(18.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(title, style = MaterialTheme.typography.headlineLarge)
                 OutlinedTextField(value = state.query, onValueChange = onQuery, modifier = Modifier.fillMaxWidth(), placeholder = { Text("Seri veya tür ara") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
+                if (state.searching) LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
+                state.searchMessage?.let { message ->
+                    Text(message, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Senin vitrinin", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
                     GridColumnSelector(columns, onColumns)

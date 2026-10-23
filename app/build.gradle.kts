@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
@@ -14,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-beta"
+        versionCode = 2
+        versionName = "0.2.0-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -31,12 +32,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        // BuildConfig.VERSION_NAME feeds the in-app update checker.
+        buildConfig = true
+    }
 }
 
 kotlin { jvmToolchain(17) }
 
 dependencies {
+    implementation(project(":data:extension"))
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.okhttp.mockwebserver)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(project(":domain:classifier"))
     implementation(project(":data:metadata"))
     implementation(project(":feature:home"))
     implementation(project(":feature:vault"))

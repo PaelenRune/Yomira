@@ -20,9 +20,28 @@ import okhttp3.OkHttpClient
 object MetadataModule {
     @Provides
     @Singleton
-    fun provideAggregator(client: OkHttpClient, cache: MetadataCacheDao): WaterfallMetadataAggregator =
+    fun provideAniListClient(client: OkHttpClient): AniListClient = AniListClient(client)
+
+    @Provides
+    @Singleton
+    fun provideMangaDexClient(client: OkHttpClient): MangaDexClient = MangaDexClient(client)
+
+    @Provides
+    @Singleton
+    fun provideAggregator(
+        client: OkHttpClient,
+        cache: MetadataCacheDao,
+        aniList: AniListClient,
+        mangaDex: MangaDexClient,
+    ): WaterfallMetadataAggregator =
         WaterfallMetadataAggregator(
-            listOf(BakaUpdatesClient(client), AniListClient(client), MangaDexClient(client), KitsuClient(client), ComicVineClient(client)),
+            listOf(
+                BakaUpdatesClient(client),
+                aniList,
+                mangaDex,
+                KitsuClient(client),
+                ComicVineClient(client),
+            ),
             RoomMetadataCache(cache),
         )
 }

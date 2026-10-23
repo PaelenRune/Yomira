@@ -5,7 +5,7 @@
 # 🌌 YOMIRA
 ### Evrensel Çizgi Roman & Manga Ekosistemi
 
-[![Release](https://img.shields.io/badge/Release-v0.1.0--beta-FF007F?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
+[![Release](https://img.shields.io/badge/Release-v0.2.0--beta-FF007F?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
 [![Platform](https://img.shields.io/badge/Platform-Android_8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
@@ -15,9 +15,18 @@
 
 **Manga, Webtoon, Manhwa, Manhua, Western (Marvel/DC/Image) ve Yetişkin (+18) serileri tek bir çatı altında birleştiren, Dribbble ilhamlı OLED arayüze ve Keiyoushi eklenti motoruna sahip yeni nesil Android okuma platformu.**
 
-[📱 **Beta APK İndir (v0.1.0-beta)**](https://github.com/PaelenRune/Yomira/releases/download/v0.1.0-beta/yomira-v0.1.0-beta.apk) • [🌐 **Ürün Tanıtım Sayfası (GitHub Pages)**](https://paelenrune.github.io/Yomira/) • [📋 **Sürüm Notları**](release/RELEASE_NOTES.md)
+[📱 **Beta APK İndir (v0.2.0-beta)**](https://github.com/PaelenRune/Yomira/releases/download/v0.2.0-beta/yomira-v0.2.0-beta.apk) • [🌐 **Ürün Tanıtım Sayfası (GitHub Pages)**](https://paelenrune.github.io/Yomira/) • [📋 **Sürüm Notları**](release/RELEASE_NOTES.md)
 
 </div>
+
+---
+
+## 🚀 v0.2.0-beta Öne Çıkan Yenilikler
+
+- 🌟 **İlk Kurulum Sihirbazı (Onboarding Wizard):** İlk açılışta okuma dili (TR/EN), +18 içerik izni (Level 1 vs Level 2 ayrımı) ve tek tıkla Keiyoushi repo bağlama.
+- 📦 **Asla Boş Kalmayan Evrensel Katalog:** Eklenti kurulu olmasa dahi 159 popüler seri (Solo Leveling, One Piece, Spider-Man, MILF Party, Kimi wa Midara, Silent War) afiş ve metadatalarıyla hazır gelir!
+- ⚡ **Otomatik Trend & Canlı Arama Şelalesi:** AniList GraphQL ve MangaDex'ten arka planda otomatik en güncel serileri çeken canlı keşif motoru.
+- 🔔 **Uygulama İçi Otomatik Güncelleme (In-App Auto-Updater):** Yeni sürüm çıktığında uygulama içinde OLED bildirim diyalogu gösterir ve doğrudan APK güncellemesi sunar.
 
 ---
 

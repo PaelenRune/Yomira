@@ -18,6 +18,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import com.yomira.app.onboarding.OnboardingViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val model: YomiraViewModel by viewModels()
     private val readerModel: ReaderViewModel by viewModels()
+    private val onboardingModel: OnboardingViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
     private var confirmingCredential = false
     private val authentication = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -67,7 +71,25 @@ class MainActivity : ComponentActivity() {
         // Also hides all app previews in Recents; no sensitive frame can leak during navigation.
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
-        setContent { YomiraTheme { YomiraNavigation(model, readerModel, authError, ::unlock, ::openReference) } }
+        setContent { YomiraTheme {
+            val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
+            when {
+                onboarding.loading -> Surface(color = Color(0xFF06050C), modifier = Modifier.fillMaxSize()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        if (onboarding.error == null) CircularProgressIndicator()
+                        else Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(onboarding.error.orEmpty())
+                            TextButton(onClick = onboardingModel::load) { Text("Yeniden dene") }
+                        }
+                    }
+                }
+                !onboarding.completed -> OnboardingScreen(onboarding.saving, onboarding.error, onboardingModel::complete)
+                else -> YomiraNavigation(model, readerModel, authError, {
+                    if (onboarding.adultEnabled) unlock()
+                    else authError = "Yetişkin içerik izni kapalı. Vault kullanılamaz."
+                }, ::openReference)
+            }
+        } }
     }
 
     private fun openReference(url: String): Boolean {
@@ -88,6 +110,8 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
     val saved by model.saved.collectAsStateWithLifecycle()
     val match by model.match.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
+    val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
+    val pendingUpdate by model.update.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val current = backStack?.destination?.route
@@ -97,6 +121,17 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
         if (manga.contentRating == ContentRating.EXPLICIT && !unlocked) return
         model.clearMatch()
         nav.navigate("details/${Uri.encode(manga.id)}")
+    }
+    pendingUpdate?.let { info ->
+        UpdateDialog(
+            version = info.version,
+            releaseNotes = info.releaseNotes,
+            onUpdate = {
+                if (openReference(info.apkDownloadUrl)) model.closeUpdate()
+                else scope.launch { snackbar.showSnackbar("Güncelleme bağlantısı açılamadı.") }
+            },
+            onDismiss = model::dismissUpdate,
+        )
     }
     // A locked adult detail is removed, not just covered with a lock overlay.
     LaunchedEffect(unlocked, current, catalog.manga) {
@@ -116,8 +151,8 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
                     var query by rememberSaveable { mutableStateOf("") }
                     val items = publicCatalog(catalog.manga).filter { route != "library" || it.id in saved }
                     HomeScreen(
-                        HomeUiState(items, items.sortedByDescending { it.score }, publicCatalog(catalog.updated).filter { route != "library" || it.id in saved }, columns, query, catalog.loading, catalog.error),
-                        onQuery = { query = it }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
+                        HomeUiState(items, items.sortedByDescending { it.score }, publicCatalog(catalog.updated).filter { route != "library" || it.id in saved }, columns, query, catalog.loading, catalog.error, liveSearch.searching, liveSearch.message),
+                        onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
                         title = when (route) { "discover" -> "Keşfet"; "library" -> "Kitaplığın"; else -> "Yomira" }, showHero = route == "home",
                     )
                 }

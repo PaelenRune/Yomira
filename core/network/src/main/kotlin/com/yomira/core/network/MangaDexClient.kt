@@ -68,6 +68,32 @@ class MangaDexClient(
         record.toMetadata(fetchStatistics(listOfNotNull(record.id))[record.id])
     }
 
+    /**
+     * Fallback trending feed for first-launch cache warming. Only the two
+     * non-explicit rating buckets are requested so nothing adult reaches the
+     * public home feed by accident.
+     */
+    suspend fun trending(limit: Int = 20): List<RemoteMetadata> = withContext(Dispatchers.IO) {
+        val url = "${config.mangaDexBaseUrl}/manga".toHttpUrlOrNull()?.newBuilder()
+            ?.addQueryParameter("limit", limit.coerceIn(1, 50).toString())
+            ?.addQueryParameter("order[followedCount]", "desc")
+            ?.addAll("includes[]", LIST_INCLUDES)
+            ?.addAll("contentRating[]", PUBLIC_RATINGS)
+            ?.build()
+            ?: return@withContext emptyList()
+        val request = Request.Builder()
+            .url(url)
+            .commonHeaders(config.userAgent)
+            .get()
+            .build()
+        val payload = httpClient.executeChecked(request, sourceId).use { response ->
+            response.decodeJson<MangaDexListResponse>(json, sourceId)
+        }
+        val records = payload.data
+        val statistics = fetchStatistics(records.mapNotNull { it.id })
+        records.mapNotNull { it.toMetadata(statistics[it.id]) }
+    }
+
     /** Statistics are optional: artwork, titles and tags survive a statistics outage. */
     private fun fetchStatistics(ids: List<String>): Map<String, MangaDexStatistics> {
         if (ids.isEmpty()) return emptyMap()
@@ -258,5 +284,6 @@ class MangaDexClient(
     private companion object {
         val LIST_INCLUDES = listOf("cover_art", "author", "artist")
         val ALL_RATINGS = listOf("safe", "suggestive", "erotica", "pornographic")
+        val PUBLIC_RATINGS = listOf("safe", "suggestive")
     }
 }

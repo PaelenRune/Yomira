@@ -23,6 +23,13 @@ interface MangaDao {
     @Query("SELECT * FROM manga WHERE id = :id")
     suspend fun getById(id: String): MangaEntity?
 
+    @Query("SELECT COUNT(*) FROM manga")
+    suspend fun count(): Int
+
+    /** Used by background sync so a seeded series is never duplicated by a remote id. */
+    @Query("SELECT EXISTS(SELECT 1 FROM manga WHERE title = :title COLLATE NOCASE)")
+    suspend fun existsByTitle(title: String): Boolean
+
     @Query("SELECT * FROM manga WHERE sourceId = :sourceId ORDER BY title COLLATE NOCASE, id")
     fun observeBySource(sourceId: String): Flow<List<MangaEntity>>
 

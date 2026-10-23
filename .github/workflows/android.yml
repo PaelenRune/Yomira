@@ -36,11 +36,16 @@ jobs:
     - name: Assemble Debug APK
       run: ./gradlew assembleDebug --no-daemon
 
+    - name: Prepare Release Artifacts
+      run: |
+        cp app/build/outputs/apk/debug/app-debug.apk release/yomira-v0.2.0-beta.apk
+        cd release && sha256sum yomira-v0.2.0-beta.apk > SHA256SUMS.txt && cd ..
+
     - name: Upload Debug APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: yomira-debug-apk
-        path: app/build/outputs/apk/debug/*.apk
+        name: yomira-v0.2.0-beta-apk
+        path: release/yomira-v0.2.0-beta.apk
 
     - name: Create GitHub Release on Tag
       if: startsWith(github.ref, 'refs/tags/v')
