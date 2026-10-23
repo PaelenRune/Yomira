@@ -1,0 +1,36 @@
+package com.yomira.domain.extension
+
+interface ExtensionRepository {
+    suspend fun addRepository(indexUrl: String)
+    suspend fun repositories(): List<String>
+    suspend fun refresh(): List<ExtensionDescriptor>
+    suspend fun available(): List<ExtensionDescriptor>
+    suspend fun installed(): List<InstalledExtension>
+}
+
+interface SourceBridge {
+    suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int = 1): List<SourceManga>
+    suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga): List<SourceChapter>
+    suspend fun getPageList(packageName: String, sourceId: String, chapter: SourceChapter): List<SourcePage>
+}
+
+/**
+ * Optional external catalog for UNINSTALLED sources. Repo indexes contain no titles or chapter counts.
+ * Implementations must match series identity, return factual observations, and not execute untrusted APKs.
+ */
+fun interface SourceDiscovery {
+    suspend fun discover(series: SeriesIdentity, extensions: List<ExtensionDescriptor>): List<SourceCandidate>
+}
+
+interface OnboardingStore {
+    suspend fun read(): OnboardingState?
+    /** Atomically persist the complete state; implementations should use DataStore or a transaction. */
+    suspend fun write(state: OnboardingState)
+}
+
+data class OnboardingState(
+    val preferences: ReaderPreferences,
+    val repositoryUrl: String?,
+    val suggestedPackages: List<String>,
+    val completed: Boolean,
+)

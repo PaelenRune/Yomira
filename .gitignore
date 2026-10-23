@@ -1,28 +1,26 @@
-# Yomira - Git Ignore
-
-node_modules/
-dist/
-build/
-.cache/
-*.log
-
-# OS
+# Android / Gradle / Kotlin generated output
+.gradle/
+.kotlin/
+**/build/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+captures/
+.externalNativeBuild/
+.cxx/
+# IDE and local configuration
+.idea/
+*.iml
 .DS_Store
 Thumbs.db
-
-# IDE & Editor
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Environment & Secrets
+*.jks
+*.keystore
+keystore.properties
 .env
-.env.local
-*.pem
-
-# Android & Desktop builds
-android/.gradle
-android/app/build
-android/build
-out/
+.env.*
+!.env.example
+node_modules/
+!release/*.apk

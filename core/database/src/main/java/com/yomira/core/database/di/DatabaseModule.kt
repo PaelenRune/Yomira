@@ -1,0 +1,44 @@
+package com.yomira.core.database.di
+
+import android.content.Context
+import androidx.room.Room
+import com.yomira.core.database.YomiraDatabase
+import com.yomira.core.database.MIGRATION_2_3
+import com.yomira.core.database.dao.ChapterDao
+import com.yomira.core.database.dao.MangaDao
+import com.yomira.core.database.dao.MetadataCacheDao
+import com.yomira.core.database.dao.SyncDao
+import com.yomira.core.database.dao.SyncDataDao
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): YomiraDatabase =
+        Room.databaseBuilder(context, YomiraDatabase::class.java, "yomira.db")
+            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3)
+            .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+            .build()
+
+    @Provides
+    fun provideMangaDao(database: YomiraDatabase): MangaDao = database.mangaDao()
+
+    @Provides
+    fun provideChapterDao(database: YomiraDatabase): ChapterDao = database.chapterDao()
+
+    @Provides
+    fun provideMetadataCacheDao(database: YomiraDatabase): MetadataCacheDao = database.metadataCacheDao()
+
+    @Provides
+    fun provideSyncDao(database: YomiraDatabase): SyncDao = database.syncDao()
+
+    @Provides
+    fun provideSyncDataDao(database: YomiraDatabase): SyncDataDao = database.syncDataDao()
+}
