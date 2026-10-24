@@ -1,14 +1,20 @@
 package com.yomira.app.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.yomira.core.model.ReadingMode
 import com.yomira.feature.settings.AppSettings
 import java.io.File
+import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -35,12 +41,12 @@ class DataStoreSettingsStoreTest {
             lockOnBackground = false,
             readingMode = ReadingMode.WEBTOON,
         )
-        try { store(file, firstScope).update { hidden } } finally { firstScope.cancel(); firstJob.join() }
+        try { store(file, firstScope).updateWithDiskRetry { hidden } } finally { firstScope.cancel(); firstJob.join() }
         val secondScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
             assertEquals(hidden, store(file, secondScope).read())
             // Toggling one switch must never disturb the others.
-            store(file, secondScope).update { it.copy(vaultVisible = true) }
+            store(file, secondScope).updateWithDiskRetry { it.copy(vaultVisible = true) }
             assertEquals(hidden.copy(vaultVisible = true), store(file, secondScope).read())
         } finally { secondScope.cancel() }
     }
@@ -48,10 +54,13 @@ class DataStoreSettingsStoreTest {
     @Test fun corruptValuesFallBackToDefaultsInsteadOfCrashing() = runTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
-            val store = store(File(temporary.root, "corrupt.preferences_pb"), scope)
-            store.update { it.copy(readingMode = ReadingMode.WESTERN_LTR) }
-            store.update { AppSettings(readingMode = ReadingMode.MANGA_RTL) }
-            assertEquals(AppSettings(), store.read())
+            val file = File(temporary.root, "corrupt.preferences_pb")
+            // Write raw garbage under the readingMode key; the typed store must
+            // fall back instead of crashing or propagating the unknown value.
+            val raw = PreferenceDataStoreFactory.create(scope = scope, produceFile = { file })
+            raw.edit { values -> values[stringPreferencesKey("readingMode")] = "NOT_A_REAL_MODE" }
+            assertEquals(ReadingMode.MANGA_RTL, DataStoreSettingsStore(raw).read().readingMode)
+            assertEquals(AppSettings(), DataStoreSettingsStore(raw).read())
         } finally { scope.cancel() }
     }
 
@@ -59,8 +68,8 @@ class DataStoreSettingsStoreTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
             val store = store(File(temporary.root, "atomic.preferences_pb"), scope)
-            store.update { it.copy(requireDeviceLock = false) }
-            store.update { current ->
+            store.updateWithDiskRetry { it.copy(requireDeviceLock = false) }
+            store.updateWithDiskRetry { current ->
                 assertEquals(false, current.requireDeviceLock)
                 current.copy(lockOnBackground = false)
             }
@@ -74,4 +83,24 @@ class DataStoreSettingsStoreTest {
     private fun store(file: File, scope: CoroutineScope) = DataStoreSettingsStore(
         PreferenceDataStoreFactory.create(scope = scope, produceFile = { file }),
     )
+
+    /**
+     * DataStore persists through temp-file + rename. On a busy Windows machine
+     * (antivirus or a lingering read handle) that rename can fail transiently
+     * even though nothing else touches these unique temp files; a failed write
+     * leaves the previous state intact, so retrying is safe and deterministic.
+     */
+    private suspend fun com.yomira.feature.settings.SettingsStore.updateWithDiskRetry(
+        transform: (AppSettings) -> AppSettings,
+    ) {
+        repeat(3) { attempt ->
+            try {
+                update(transform)
+                return
+            } catch (error: IOException) {
+                if (attempt == 2) throw error
+                withContext(Dispatchers.IO) { delay(150) }
+            }
+        }
+    }
 }

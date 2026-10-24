@@ -7,22 +7,26 @@ import com.yomira.domain.extension.ExtensionRepository
 import com.yomira.domain.extension.InstalledExtension
 import com.yomira.feature.settings.AppCacheCleaner
 import com.yomira.feature.settings.AppSettings
-import com.yomira.feature.settings.CuratedRepository
 import com.yomira.feature.settings.CuratedRepositories
 import com.yomira.feature.settings.SettingsStore
 import com.yomira.feature.settings.SettingsUiState
 import com.yomira.feature.settings.UpdateCheckStatus
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.backgroundScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -126,6 +130,7 @@ class SettingsViewModelTest {
     @Test fun `disabling a curated repository revokes the registration`() = runTest(scheduler) {
         val extensions = FakeExtensions()
         val model = model(extensions = extensions)
+        val states = model.recordStates(this)
         advanceUntilIdle()
         model.setRepositoryEnabled(CuratedRepositories.UNIVERSAL, true)
         advanceUntilIdle()
@@ -135,6 +140,7 @@ class SettingsViewModelTest {
 
         assertEquals(listOf(CuratedRepositories.UNIVERSAL.indexUrl), extensions.removed)
         assertFalse(model.state.value.repositories.contains(CuratedRepositories.UNIVERSAL.indexUrl))
+        assertFalse(states.last().repositories.contains(CuratedRepositories.UNIVERSAL.indexUrl))
     }
 
     @Test fun `a repository whose index cannot be fetched stays registered`() = runTest(scheduler) {
@@ -174,6 +180,7 @@ class SettingsViewModelTest {
     @Test fun `removing a custom repository drops only that url`() = runTest(scheduler) {
         val extensions = FakeExtensions()
         val model = model(extensions = extensions)
+        val states = model.recordStates(this)
         advanceUntilIdle()
         model.setRepositoryEnabled(CuratedRepositories.UNIVERSAL, true)
         model.addCustomRepository("https://custom.example.org/index.min.json")
@@ -185,6 +192,7 @@ class SettingsViewModelTest {
         val repositories = model.state.value.repositories
         assertTrue(CuratedRepositories.UNIVERSAL.indexUrl in repositories)
         assertFalse("https://custom.example.org/index.min.json" in repositories)
+        assertEquals(repositories, states.last().repositories)
     }
 
     @Test fun `cache clearing reports the freed bytes`() = runTest(scheduler) {
@@ -215,14 +223,14 @@ class SettingsViewModelTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody(release(tag = "v0.2.0-beta")))
             val model = model(updateChecker = checker(server))
-            val states = model.recordStates(this)
+            model.recordStates(this)
             advanceUntilIdle()
 
             model.checkUpdates()
-            advanceUntilIdle()
+            model.awaitUpdateCheck()
 
-            val status = states.last().updateCheck
-            assertTrue(status is UpdateCheckStatus.Available)
+            val status = model.state.value.updateCheck
+            assertTrue("expected Available but was $status", status is UpdateCheckStatus.Available)
             assertEquals("v0.2.0-beta", (status as UpdateCheckStatus.Available).version)
         }
     }
@@ -231,13 +239,13 @@ class SettingsViewModelTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setResponseCode(404))
             val model = model(updateChecker = checker(server))
-            val states = model.recordStates(this)
+            model.recordStates(this)
             advanceUntilIdle()
 
             model.checkUpdates()
-            advanceUntilIdle()
+            model.awaitUpdateCheck()
 
-            assertEquals(UpdateCheckStatus.UpToDate, states.last().updateCheck)
+            assertEquals(UpdateCheckStatus.UpToDate, model.state.value.updateCheck)
         }
     }
 
@@ -248,11 +256,29 @@ class SettingsViewModelTest {
         updateChecker: AppUpdateChecker = checker(MockWebServer().apply { enqueue(MockResponse().setResponseCode(404)) }),
     ) = SettingsViewModel(store, extensions, cacheCleaner, updateChecker)
 
-    /** Keeps [SettingsViewModel.state] hot so WhileSubscribed emissions reach the assertions. */
-    private fun SettingsViewModel.recordStates(scope: kotlinx.coroutines.CoroutineScope): List<SettingsUiState> {
+    /**
+     * Keeps [SettingsViewModel.state] subscribed for the whole test â€” `state` is
+     * WhileSubscribed, so without a collector it would never leave its initial
+     * value. backgroundScope cancels the collector automatically when the test
+     * body finishes, avoiding UncompletedCoroutinesError.
+     */
+    private fun SettingsViewModel.recordStates(scope: TestScope): List<SettingsUiState> {
         val collected = mutableListOf<SettingsUiState>()
-        scope.launch { state.toList(collected) }
+        scope.backgroundScope.launch { state.toList(collected) }
         return collected
+    }
+
+    /**
+     * The update checker performs a real HTTP call against MockWebServer on
+     * Dispatchers.IO; virtual-time advancing alone cannot observe its
+     * completion, so poll with real-time sleeps until the status settles.
+     */
+    private suspend fun SettingsViewModel.awaitUpdateCheck() {
+        val deadline = System.currentTimeMillis() + 10_000
+        while (state.value.updateCheck == UpdateCheckStatus.Checking) {
+            if (System.currentTimeMillis() > deadline) throw AssertionError("update check never settled")
+            withContext(Dispatchers.Default) { delay(20) }
+        }
     }
 
     private fun checker(server: MockWebServer) = AppUpdateChecker(
@@ -264,7 +290,7 @@ class SettingsViewModelTest {
     private fun release(
         tag: String,
         draft: Boolean = false,
-        body: String = "Performans ve kararlılık iyileştirmeleri.",
+        body: String = "Performans ve kararlÄ±lÄ±k iyileÅŸtirmeleri.",
     ) = """
         {"tag_name":"$tag","name":"$tag","body":"$body","html_url":"https://github.com/PaelenRune/Yomira/releases/tag/$tag",
         "draft":$draft,"prerelease":false,
