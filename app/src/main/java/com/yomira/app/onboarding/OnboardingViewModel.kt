@@ -19,11 +19,23 @@ data class OnboardingUiState(
     val completed: Boolean = false,
     val saving: Boolean = false,
     val adultEnabled: Boolean = false,
+    /**
+     * Reading language code ("tr"/"en") of the saved or just-completed setup. The host
+     * mirrors it into the UI locale via `LocaleManagerCompat`, so choosing English here
+     * switches every app string instantly.
+     */
+    val languageCode: String? = null,
     val error: String? = null,
 )
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWizardManager) : ViewModel() {
+    /** Stable error codes; the host maps them to localized strings (English/Turkish). */
+    companion object {
+        const val ERROR_LOAD = "onboarding-load-failed"
+        const val ERROR_SAVE = "onboarding-save-failed"
+    }
+
     private val mutableState = MutableStateFlow(OnboardingUiState())
     val state = mutableState.asStateFlow()
 
@@ -35,10 +47,11 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
             try {
                 val saved = withContext(Dispatchers.IO) { wizard.state() }
                 mutableState.value = OnboardingUiState(loading = false, completed = saved?.completed == true,
-                    adultEnabled = saved?.preferences?.allowAdultContent == true)
+                    adultEnabled = saved?.preferences?.allowAdultContent == true,
+                    languageCode = saved?.preferences?.language?.code)
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) {
-                mutableState.value = OnboardingUiState(error = "Kurulum bilgisi okunamadı. Yeniden dene.")
+                mutableState.value = OnboardingUiState(error = ERROR_LOAD)
             }
         }
     }
@@ -52,11 +65,11 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
                 withContext(Dispatchers.IO) {
                     wizard.complete(ReaderPreferences(language, adultEnabled), integrateRepository)
                 }
-                mutableState.value = OnboardingUiState(loading = false, completed = true, adultEnabled = adultEnabled)
+                mutableState.value = OnboardingUiState(loading = false, completed = true,
+                    adultEnabled = adultEnabled, languageCode = language.code)
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) {
-                mutableState.value = mutableState.value.copy(saving = false,
-                    error = "Kurulum tamamlanamadı. Bağlantını kontrol edip tekrar dene veya deposuz başla.")
+                mutableState.value = mutableState.value.copy(saving = false, error = ERROR_SAVE)
             }
         }
     }

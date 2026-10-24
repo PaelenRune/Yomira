@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Türkçe arayüz katmanı; values/strings.xml (İngilizce varsayılan) ile birebir aynı anahtarları taşır. -->
+<resources>
+    <string name="app_name">Yomira</string>
+    <string name="home_subtitle">Metadata kütüphanen. Okuma deneyimin.</string>
+    <string name="content_free_notice">Yomira telifli görsel veya bölüm barındırmaz.</string>
+
+    <!-- Dil değiştirici -->
+    <string name="language_toggle_description">Uygulama dilini değiştir</string>
+
+    <!-- Alt navigasyon -->
+    <string name="nav_home">Ana sayfa</string>
+    <string name="nav_discover">Keşfet</string>
+    <string name="nav_library">Kitaplık</string>
+    <string name="nav_vault">+18 Vault</string>
+
+    <!-- Ekran başlıkları -->
+    <string name="title_discover">Keşfet</string>
+    <string name="title_library">Kitaplığın</string>
+
+    <!-- Ana sayfa / vitrin -->
+    <string name="home_search_placeholder">Seri veya tür ara</string>
+    <string name="home_your_shelf">Senin vitrinin</string>
+    <string name="home_retry">Yeniden dene</string>
+    <string name="home_rail_trending">Trendler</string>
+    <string name="home_rail_updated">Son güncellenenler</string>
+    <string name="home_empty_title">Vitrinin henüz boş</string>
+    <string name="home_empty_message">Bir kaynak ekleyip seri meta verilerini eşitlediğinde serilerin burada görünür.</string>
+    <string name="search_empty_title">Sonuç bulunamadı</string>
+    <string name="search_empty_message">Başka bir seri adı veya tür dene.</string>
+    <string name="home_columns_2">2 sütun, büyük ve detaylı</string>
+    <string name="home_columns_3">3 sütun, standart</string>
+    <string name="home_columns_4">4 sütun, kompakt koleksiyon</string>
+
+    <!-- Etiket filtre matrisi -->
+    <string name="home_tags_heading">Etiketlerle daralt</string>
+    <string name="home_tags_clear">Filtreleri temizle</string>
+    <string name="tag_action">Aksiyon</string>
+    <string name="tag_adventure">Macera</string>
+    <string name="tag_comedy">Komedi</string>
+    <string name="tag_drama">Dram</string>
+    <string name="tag_ecchi">Ecchi</string>
+    <string name="tag_fantasy">Fantastik</string>
+    <string name="tag_horror">Korku</string>
+    <string name="tag_isekai">İsekai</string>
+    <string name="tag_mystery">Gizem</string>
+    <string name="tag_romance">Romantizm</string>
+    <string name="tag_sci_fi">Bilim Kurgu</string>
+    <string name="tag_slice_of_life">Günlük Yaşam</string>
+    <string name="tag_sports">Spor</string>
+    <string name="tag_supernatural">Doğaüstü</string>
+    <string name="tag_thriller">Gerilim</string>
+    <string name="tag_psychological">Psikolojik</string>
+    <string name="tag_harem">Harem</string>
+    <string name="tag_mature">Olgun</string>
+    <string name="tag_nudity">Çıplaklık</string>
+    <string name="tag_adult_cast">Yetişkin Karakter</string>
+    <string name="tag_gore">Şiddet</string>
+    <string name="tag_seinen">Seinen</string>
+    <string name="tag_shounen">Shounen</string>
+    <string name="tag_shoujo">Shoujo</string>
+    <string name="tag_josei">Josei</string>
+    <string name="tag_kids">Çocuk</string>
+    <string name="tag_school">Okul Hayatı</string>
+    <string name="tag_military">Askeri</string>
+    <string name="tag_mecha">Mecha</string>
+    <string name="tag_music">Müzik</string>
+    <string name="tag_cooking">Yemek</string>
+    <string name="tag_historical">Tarihi</string>
+    <string name="tag_vampire">Vampir</string>
+    <string name="tag_demons">Şeytan</string>
+    <string name="tag_magic">Büyü</string>
+    <string name="tag_martial_arts">Dövüş Sanatları</string>
+    <string name="tag_super_power">Süper Güç</string>
+    <string name="tag_video_game">Video Oyun</string>
+    <string name="tag_webtoon">Webtoon</string>
+    <string name="tag_western">Western</string>
+    <string name="tag_gender_bender">Cinsiyet Değişimi</string>
+    <string name="tag_award_winning">Ödüllü</string>
+
+    <!-- Ortak vitrin bileşenleri -->
+    <string name="catalog_read_now">Hemen oku</string>
+    <string name="catalog_mature_long">16+ / Mature</string>
+    <string name="catalog_mature_short">16+</string>
+    <string name="catalog_no_cover">Kapak görseli yok</string>
+    <string name="catalog_score">Puan</string>
+
+    <!-- Güncelleme diyaloğu -->
+    <string name="update_title">Yeni Sürüm Mevcut!</string>
+    <string name="update_changes">Değişiklikler</string>
+    <string name="update_apk_note">APK, GitHub Releases sayfası üzerinden tarayıcıda indirilir.</string>
+    <string name="update_now">Şimdi Güncelle</string>
+    <string name="update_later">Daha sonra</string>
+    <string name="update_link_failed">Güncelleme bağlantısı açılamadı.</string>
+    <string name="secure_link_failed">Güvenli indirme bağlantısı açılamadı.</string>
+    <string name="offline_download_notice">Çevrimdışı indirme için kaynak sayfa sağlayıcısı gerekli; bu sürüm yalnızca bölüm referanslarını saklar.</string>
+
+    <!-- Kurulum -->
+    <string name="onboarding_step_indicator">%1$d / %2$d</string>
+    <string name="onboarding_step_description">Kurulum adımı %1$d / %2$d</string>
+    <string name="onboarding_language_title">Hikâyeni hangi dilde okuyalım?</string>
+    <string name="onboarding_language_description">Kaynak önerilerini okuma diline göre hazırlayalım.</string>
+    <string name="onboarding_language_turkish">Türkçe</string>
+    <string name="onboarding_language_english">English</string>
+    <string name="onboarding_language_note">Arayüz ve kaynak önerileri anında seçtiğin dile geçer.</string>
+    <string name="onboarding_content_title">İçerik sınırlarını sen belirle</string>
+    <string name="onboarding_content_description">Yetişkin içerik varsayılan olarak kapalıdır.</string>
+    <string name="onboarding_adult_label">Yetişkin içerik (+18)</string>
+    <string name="onboarding_status_enabled">Açık</string>
+    <string name="onboarding_status_disabled">Kapalı</string>
+    <string name="onboarding_adult_switch">Yetişkin içerik izni</string>
+    <string name="onboarding_levels_title">İki farklı içerik seviyesi</string>
+    <string name="onboarding_level_one">Level 1 · Hikâye odaklı Mature seriler. MILF Party ve Kimi wa Midara gibi seriler yetişkin temalar içerir.</string>
+    <string name="onboarding_level_two">Level 2 · Saf Hentai / Porhwa. Açık cinsel içerik odaklı seriler yalnızca kilitli Vault alanında yer alır.</string>
+    <string name="onboarding_adult_consent">Açarak 18 yaşında veya daha büyük olduğunu onaylarsın. Bu izin Vault’un cihaz kilidini kaldırmaz.</string>
+    <string name="onboarding_source_title">Kaynaklarına bir kapı aç</string>
+    <string name="onboarding_source_description">Keiyoushi resmi eklenti deposunu tek dokunuşla bağla.</string>
+    <string name="onboarding_source_body">Dil ve içerik tercihlerine uygun eklenti önerileri hazırlanır.</string>
+    <string name="onboarding_source_privacy">Yalnızca depo listesi indirilir. Hiçbir APK otomatik yüklenmez veya güvenilir olarak işaretlenmez.</string>
+    <string name="onboarding_source_skippable">Depoyu daha sonra bağlamak istersen deposuz başlayabilirsin.</string>
+    <string name="onboarding_saving">Kurulum kaydediliyor…</string>
+    <string name="onboarding_connect_start">Depoyu Bağla ve Başla</string>
+    <string name="onboarding_continue">Devam et</string>
+    <string name="onboarding_skip_repo">Hadi Başlayalım · Deposuz devam et</string>
+    <string name="onboarding_back">Geri</string>
+    <string name="onboarding_failed_load">Kurulum bilgisi okunamadı. Yeniden dene.</string>
+    <string name="onboarding_failed_save">Kurulum tamamlanamadı. Bağlantını kontrol edip tekrar dene veya deposuz başla.</string>
+
+    <!-- Vault -->
+    <string name="vault_heading">Vault</string>
+    <string name="vault_locked_title">Sadece sana ait</string>
+    <string name="vault_locked_body">+18 Vault ayrı ve kilitli bir vitrindir. Devam ederek 18 yaşından büyük olduğunu onaylarsın.</string>
+    <string name="vault_locked_hint">Cihaz PIN’i, desen, şifre veya biyometri ile doğrula. Uygulama arka plana geçtiğinde kasa yeniden kilitlenir.</string>
+    <string name="vault_unlock_button">18 yaşındayım · Kilidi aç</string>
+    <string name="vault_back_home">Ana sayfaya dön</string>
+    <string name="vault_lock_fast">Hızlı kilitle</string>
+    <string name="vault_retry">Yeniden dene</string>
+    <string name="vault_filter_all">Tümü</string>
+    <string name="vault_collection_title">Özel koleksiyon</string>
+    <string name="vault_empty_title">Bu vitrin boş</string>
+    <string name="vault_empty_message">Seçili türde yetişkin serisi bulunmuyor. Kaynaklarını eşitle veya filtreyi değiştir.</string>
+    <string name="vault_unlock_prompt_title">Yomira Vault</string>
+    <string name="vault_unlock_prompt_body">Özel vitrinin için cihaz kilidini doğrula</string>
+    <string name="vault_auth_incomplete">Doğrulama tamamlanmadı. Yeniden deneyebilirsin.</string>
+    <string name="vault_no_screen_lock">Önce Android ayarlarından güvenli bir ekran kilidi (PIN, desen veya şifre) oluştur.</string>
+    <string name="vault_adult_disabled">Yetişkin içerik izni kapalı. Vault kullanılamaz.</string>
+
+    <!-- Detay -->
+    <string name="action_back">Geri dön</string>
+    <string name="detail_back">Geri</string>
+    <string name="detail_lock_fast">Hızlı kilitle</string>
+    <string name="detail_status_ongoing">Devam ediyor</string>
+    <string name="detail_status_completed">Tamamlandı</string>
+    <string name="detail_status_hiatus">Ara verildi</string>
+    <string name="detail_status_cancelled">İptal edildi</string>
+    <string name="detail_status_unknown">Yayın durumu bilinmiyor</string>
+    <string name="detail_save_add">Kitaplığa ekle</string>
+    <string name="detail_save_remove">Kitaplıktan çıkar</string>
+    <string name="detail_author">Yazar</string>
+    <string name="detail_artist">Çizer</string>
+    <string name="detail_not_specified">Belirtilmedi</string>
+    <string name="detail_synopsis_missing">Bu seri için özet henüz mevcut değil.</string>
+    <string name="detail_summary_expand">Özetin tamamı</string>
+    <string name="detail_summary_collapse">Daha az göster</string>
+    <string name="detail_read_now">Hemen oku</string>
+    <string name="detail_chapters_heading">Bölümler (%1$d)</string>
+    <string name="detail_sort_newest">En yeni</string>
+    <string name="detail_sort_oldest">En eski</string>
+    <string name="detail_chapters_empty_title">Henüz bölüm yok</string>
+    <string name="detail_chapters_empty_message">Türkçe kaynak eşleştirmesini çalıştır veya seri kaynağını eşitle.</string>
+    <string name="detail_chapter_fallback">Bölüm %1$s</string>
+    <string name="detail_date_missing">Tarih belirtilmedi</string>
+    <string name="detail_mark_read">Okundu olarak işaretle</string>
+    <string name="detail_mark_unread">Okunmadı olarak işaretle</string>
+    <string name="detail_downloaded">İndirildi</string>
+    <string name="detail_retry_download">İndirmeyi yeniden dene</string>
+    <string name="detail_download_chapter">Bölümü indir</string>
+    <string name="detail_match_title">Türkçe kaynak eşleştirmesi</string>
+    <string name="detail_match_comparing">Kaynaklar karşılaştırılıyor…</string>
+    <string name="detail_match_missing_extension">Bu seriyi Türkçe okumak için en iyi kaynak: %1$s (%2$d bölüm). Bu eklentiyi kurmak ister misin?</string>
+    <string name="detail_match_install">Eklentiyi kur</string>
+    <string name="detail_match_ready">%1$s hazır · %2$d bölüm</string>
+    <string name="detail_match_none">Türkçe kaynak bulunamadı. Eklenti kataloğunu güncelleyip yeniden dene.</string>
+    <string name="detail_match_unavailable">Kaynak eşleştirmesi kullanılamıyor.</string>
+    <string name="detail_match_idle">Yüklü ve kullanılabilir kaynaklar arasından Türkçe bölümü en fazla olanı bul.</string>
+    <string name="detail_match_find_best">En iyi kaynağı bul</string>
+    <string name="detail_match_rematch">Yeniden eşleştir</string>
+
+    <!-- Detay: bağlantılı seriler vitrinleri -->
+    <string name="detail_related_heading">İlgili Seriler</string>
+    <string name="detail_related_subtitle">Aynı evrenin diğer serileri</string>
+    <string name="detail_recommended_heading">Bu Seriye Benzerler</string>
+    <string name="detail_recommended_subtitle">Bunu okuyanlar bunları da beğendi</string>
+    <string name="detail_relation_prequel">Ön bölüm</string>
+    <string name="detail_relation_sequel">Devam serisi</string>
+    <string name="detail_relation_spin_off">Spin-off</string>
+    <string name="detail_relation_side_story">Yan hikaye</string>
+    <string name="detail_relation_adaptation">Uyarlama</string>
+    <string name="detail_relation_alternative">Alternatif sürüm</string>
+    <string name="detail_relation_source">Kaynak</string>
+    <string name="detail_relation_parent">Ana seri</string>
+    <string name="detail_relation_character">Karakter</string>
+    <string name="detail_relation_other">İlişkili</string>
+    <string name="detail_open_series_failed">Bu seri açılamadı.</string>
+    <string name="detail_not_found_title">Seri bulunamadı</string>
+    <string name="detail_not_found_message">Seri kaldırılmış veya katalog henüz yüklenmemiş olabilir.</string>
+
+    <!-- Okuyucu -->
+    <string name="reader_retry">Yeniden dene</string>
+    <string name="reader_back">Geri dön</string>
+    <string name="reader_back_short">Geri</string>
+    <string name="reader_save_retry">Kaydetmeyi yeniden dene</string>
+    <string name="reader_page_of">Sayfa %1$d / %2$d</string>
+    <string name="reader_page_description">Sayfa %1$d</string>
+    <string name="reader_page_failed">Sayfa %1$d yüklenemedi.</string>
+    <string name="reader_mode_webtoon">Webtoon</string>
+    <string name="reader_mode_manga">Manga</string>
+    <string name="reader_mode_western">Western</string>
+    <string name="reader_oled_black">OLED siyah</string>
+    <string name="reader_inverted_colors">Ters renkler</string>
+
+    <!-- Görüntüleyici modellerinden gelen katalog uyarıları -->
+    <string name="catalog_load_failed">Katalog yüklenemedi</string>
+    <string name="live_search_no_results">Çevrimiçi kaynaklarda sonuç bulunamadı.</string>
+    <string name="live_search_vault_only">Bu seri yalnızca +18 Vault içinde gösterilir.</string>
+    <string name="live_search_unavailable">Canlı arama şu anda yanıt vermiyor.</string>
+    <string name="match_engine_missing">Güvenilir eklenti çalışma ortamı henüz bağlanmadı.</string>
+    <string name="match_unreachable">Kaynağa erişilemedi</string>
+    <string name="retry_action">Yeniden dene</string>
+
+    <!-- Sonsuz kaydırma sayfalama -->
+    <string name="home_paging_loading">Daha fazla seri yükleniyor…</string>
+    <string name="home_paging_end">Tüm seriler yüklendi · %1$d seri</string>
+    <string name="vault_paging_loading">Daha fazla yetişkin serisi yükleniyor…</string>
+    <string name="vault_paging_end">Tüm yetişkin serileri yüklendi · %1$d seri</string>
+    <string name="paging_failed">Sonraki sayfa yüklenemedi. Bağlantını kontrol edip yeniden dene.</string>
+
+    <!-- Ayarlar ekranı -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_subtitle">Gizlilik, depolar ve okuma deneyimi</string>
+    <string name="settings_privacy_section">Gizlilik ve +18 Vault</string>
+    <string name="settings_vault_title">+18 Vault</string>
+    <string name="settings_vault_body">Kapatınca alt çubuktaki 🔒 +18 Kasa sekmesi tamamen kaybolur; telefonda yetişkin içerik olduğuna dair hiçbir iz kalmaz. Yeniden açmak için cihaz kilidi doğrulanır.</string>
+    <string name="settings_vault_hidden_badge">GİZLİ</string>
+    <string name="settings_reveal_denied">Cihaz kilidi doğrulanamadı; +18 Vault gizli kalmaya devam ediyor.</string>
+    <string name="settings_device_lock_title">Cihaz Kilidi ile Koru</string>
+    <string name="settings_device_lock_body">Vault’a her girişte PIN, desen veya biyometrik doğrulama istenir.</string>
+    <string name="settings_lock_background_title">Arka Plana Geçince Kilitle</string>
+    <string name="settings_lock_background_body">Uygulama arka plana alındığında Vault anında yeniden kilitlenir.</string>
+    <string name="settings_reveal_prompt_title">Yomira</string>
+    <string name="settings_reveal_prompt_body">+18 Vault’u yeniden göstermek için cihaz kilidini doğrula</string>
+    <string name="settings_repositories_section">Eklenti ve Depo Yöneticisi</string>
+    <string name="settings_repositories_section_body">Kaynak depolarını tek dokunuşla bağla veya kaldır; seçimler cihazda kalıcı saklanır.</string>
+    <string name="settings_add_repository">Özel Depo Ekle</string>
+    <string name="settings_add_repository_title">Özel Depo Ekle</string>
+    <string name="settings_add_repository_body">Depo indeksinin https:// ile başlayan JSON adresini gir.</string>
+    <string name="settings_add_repository_hint">https://ornek.depo/index.min.json</string>
+    <string name="settings_add">Ekle</string>
+    <string name="settings_cancel">Vazgeç</string>
+    <string name="settings_remove_repository">Depoyu kaldır</string>
+    <string name="settings_invalid_repository_url">Geçersiz adres: depo adresi mutlaka https ile başlayan tam bir JSON indeksi olmalı.</string>
+    <string name="settings_repository_error">Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
+    <string name="settings_custom_repositories">Özel depoların</string>
+    <string name="settings_reading_section">Okuma ve Dil</string>
+    <string name="settings_language_title">Arayüz Dili</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_reading_mode_title">Varsayılan Okuma Modu</string>
+    <string name="settings_app_section">Uygulama ve Önbellek</string>
+    <string name="settings_clear_cache">Önbelleği Temizle</string>
+    <string name="settings_clear_cache_body">Kapak görselleri ve geçici dosyalar silinir; kütüphanen ve ilerlemen etkilenmez.</string>
+    <string name="settings_cache_cleared">%1$s önbellek boşaltıldı.</string>
+    <string name="settings_cache_failed">Önbellek temizlenemedi.</string>
+    <string name="settings_check_updates">Güncellemeleri Denetle</string>
+    <string name="settings_update_checking">Denetleniyor…</string>
+    <string name="settings_update_up_to_date">Zaten güncelsin (v%1$s).</string>
+    <string name="settings_update_available">Yeni sürüm hazır: v%1$s</string>
+    <string name="settings_update_download">Güncellemeyi indir</string>
+    <string name="settings_version_title">Sürüm</string>
+    <string name="settings_github_title">GitHub’da Yomira</string>
+    <string name="settings_github_body">Kaynak kod, sürüm notları ve destek.</string>
+</resources>

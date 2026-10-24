@@ -78,6 +78,7 @@ class OnboardingViewModelTest {
     private fun model(store: OnboardingStore, failNetwork: Boolean = false): OnboardingViewModel {
         val extensions = object : ExtensionRepository {
             override suspend fun addRepository(indexUrl: String) = Unit
+            override suspend fun removeRepository(indexUrl: String) = Unit
             override suspend fun repositories(): List<String> = emptyList()
             override suspend fun refresh(): List<ExtensionDescriptor> {
                 if (failNetwork) throw IOException("offline")

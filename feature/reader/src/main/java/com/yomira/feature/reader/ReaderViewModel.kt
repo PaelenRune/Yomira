@@ -65,9 +65,9 @@ class ReaderViewModel @Inject constructor(
         }
     }
 
-    fun open(mangaId: String, chapterId: String) {
+    fun open(mangaId: String, chapterId: String, defaultMode: ReadingMode = ReadingMode.MANGA_RTL) {
         loadJob?.cancel()
-        mutableState.value = ReaderUiState(mangaId = mangaId, chapterId = chapterId)
+        mutableState.value = ReaderUiState(mangaId = mangaId, chapterId = chapterId, mode = defaultMode)
         loadJob = viewModelScope.launch {
             try {
                 val manga = checkNotNull(mangaDao.getById(mangaId)) { "Seri bulunamadı." }

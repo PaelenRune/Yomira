@@ -1,5 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default (English) interface strings. The Turkish overlay lives in
+  ../values-tr/strings.xml and carries the exact same keys.
+-->
 <resources>
     <string name="app_name">Yomira</string>
     <string name="home_subtitle">Your metadata library. Your reading experience.</string>
     <string name="content_free_notice">Yomira does not host copyrighted images or chapters.</string>
+
+    <!-- Language switcher -->
+    <string name="language_toggle_description">Change app language</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_discover">Discover</string>
+    <string name="nav_library">Library</string>
+    <string name="nav_vault">+18 Vault</string>
+
+    <!-- Screen titles -->
+    <string name="title_discover">Discover</string>
+    <string name="title_library">Your library</string>
+
+    <!-- Home / catalog -->
+    <string name="home_search_placeholder">Search series or genre</string>
+    <string name="home_your_shelf">Your shelf</string>
+    <string name="home_retry">Try again</string>
+    <string name="home_rail_trending">Trending</string>
+    <string name="home_rail_updated">Recently updated</string>
+    <string name="home_empty_title">Your shelf is empty</string>
+    <string name="home_empty_message">Add a source and sync series metadata, then your series will show up here.</string>
+    <string name="search_empty_title">No results</string>
+    <string name="search_empty_message">Try another series name or genre.</string>
+    <string name="home_columns_2">2 columns, large and detailed</string>
+    <string name="home_columns_3">3 columns, standard</string>
+    <string name="home_columns_4">4 columns, compact collection</string>
+
+    <!-- Tag filter matrix -->
+    <string name="home_tags_heading">Narrow by tags</string>
+    <string name="home_tags_clear">Clear filters</string>
+    <string name="tag_action">Action</string>
+    <string name="tag_adventure">Adventure</string>
+    <string name="tag_comedy">Comedy</string>
+    <string name="tag_drama">Drama</string>
+    <string name="tag_ecchi">Ecchi</string>
+    <string name="tag_fantasy">Fantasy</string>
+    <string name="tag_horror">Horror</string>
+    <string name="tag_isekai">Isekai</string>
+    <string name="tag_mystery">Mystery</string>
+    <string name="tag_romance">Romance</string>
+    <string name="tag_sci_fi">Sci-Fi</string>
+    <string name="tag_slice_of_life">Slice of Life</string>
+    <string name="tag_sports">Sports</string>
+    <string name="tag_supernatural">Supernatural</string>
+    <string name="tag_thriller">Thriller</string>
+    <string name="tag_psychological">Psychological</string>
+    <string name="tag_harem">Harem</string>
+    <string name="tag_mature">Mature</string>
+    <string name="tag_nudity">Nudity</string>
+    <string name="tag_adult_cast">Adult Cast</string>
+    <string name="tag_gore">Gore</string>
+    <string name="tag_seinen">Seinen</string>
+    <string name="tag_shounen">Shounen</string>
+    <string name="tag_shoujo">Shoujo</string>
+    <string name="tag_josei">Josei</string>
+    <string name="tag_kids">Kids</string>
+    <string name="tag_school">School Life</string>
+    <string name="tag_military">Military</string>
+    <string name="tag_mecha">Mecha</string>
+    <string name="tag_music">Music</string>
+    <string name="tag_cooking">Cooking</string>
+    <string name="tag_historical">Historical</string>
+    <string name="tag_vampire">Vampire</string>
+    <string name="tag_demons">Demons</string>
+    <string name="tag_magic">Magic</string>
+    <string name="tag_martial_arts">Martial Arts</string>
+    <string name="tag_super_power">Super Power</string>
+    <string name="tag_video_game">Video Game</string>
+    <string name="tag_webtoon">Webtoon</string>
+    <string name="tag_western">Western</string>
+    <string name="tag_gender_bender">Gender Bender</string>
+    <string name="tag_award_winning">Award Winning</string>
+
+    <!-- Shared catalog components -->
+    <string name="catalog_read_now">Read now</string>
+    <string name="catalog_mature_long">16+ / Mature</string>
+    <string name="catalog_mature_short">16+</string>
+    <string name="catalog_no_cover">No cover artwork</string>
+    <string name="catalog_score">Score</string>
+
+    <!-- Update dialog -->
+    <string name="update_title">New version available!</string>
+    <string name="update_changes">Changes</string>
+    <string name="update_apk_note">The APK is downloaded in the browser from the GitHub Releases page.</string>
+    <string name="update_now">Update now</string>
+    <string name="update_later">Later</string>
+    <string name="update_link_failed">Couldn’t open the update link.</string>
+    <string name="secure_link_failed">Couldn’t open the secure download link.</string>
+    <string name="offline_download_notice">Offline downloads need a source page provider; this build stores chapter references only.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step_indicator">%1$d / %2$d</string>
+    <string name="onboarding_step_description">Setup step %1$d of %2$d</string>
+    <string name="onboarding_language_title">Which language should we read your stories in?</string>
+    <string name="onboarding_language_description">We’ll tailor source suggestions to your reading language.</string>
+    <string name="onboarding_language_turkish">Türkçe</string>
+    <string name="onboarding_language_english">English</string>
+    <string name="onboarding_language_note">The interface and source suggestions switch to your chosen language instantly.</string>
+    <string name="onboarding_content_title">You set the content boundaries</string>
+    <string name="onboarding_content_description">Adult content is off by default.</string>
+    <string name="onboarding_adult_label">Adult content (+18)</string>
+    <string name="onboarding_status_enabled">On</string>
+    <string name="onboarding_status_disabled">Off</string>
+    <string name="onboarding_adult_switch">Adult content permission</string>
+    <string name="onboarding_levels_title">Two different content levels</string>
+    <string name="onboarding_level_one">Level 1 · Story-driven Mature series. Titles like MILF Party and Kimi wa Midara contain adult themes.</string>
+    <string name="onboarding_level_two">Level 2 · Pure Hentai / Porhwa. Explicitly sexual series live only in the locked Vault shelf.</string>
+    <string name="onboarding_adult_consent">By enabling this you confirm you are 18 or older. This permission does not unlock the Vault’s device lock.</string>
+    <string name="onboarding_source_title">Open a door to your sources</string>
+    <string name="onboarding_source_description">Connect the official Keiyoushi extension repository with one tap.</string>
+    <string name="onboarding_source_body">Extension suggestions are prepared based on your language and content preferences.</string>
+    <string name="onboarding_source_privacy">Only the repository list is downloaded. No APK is ever installed automatically or marked as trusted.</string>
+    <string name="onboarding_source_skippable">Want to connect the repository later? Start without it.</string>
+    <string name="onboarding_saving">Saving setup…</string>
+    <string name="onboarding_connect_start">Connect Repository and Start</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_skip_repo">Let’s Start · Continue without repository</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_failed_load">Couldn’t read the setup information. Try again.</string>
+    <string name="onboarding_failed_save">Setup couldn’t be completed. Check your connection and retry, or start without the repository.</string>
+
+    <!-- Vault -->
+    <string name="vault_heading">Vault</string>
+    <string name="vault_locked_title">Just for you</string>
+    <string name="vault_locked_body">The +18 Vault is a separate, locked shelf. By continuing you confirm you are over 18.</string>
+    <string name="vault_locked_hint">Verify with your device PIN, pattern, password or biometrics. The vault re-locks when the app goes to the background.</string>
+    <string name="vault_unlock_button">I’m 18 · Unlock</string>
+    <string name="vault_back_home">Back to home</string>
+    <string name="vault_lock_fast">Lock now</string>
+    <string name="vault_retry">Try again</string>
+    <string name="vault_filter_all">All</string>
+    <string name="vault_collection_title">Private collection</string>
+    <string name="vault_empty_title">This shelf is empty</string>
+    <string name="vault_empty_message">No adult series in the selected genre. Sync your sources or change the filter.</string>
+    <string name="vault_unlock_prompt_title">Yomira Vault</string>
+    <string name="vault_unlock_prompt_body">Verify your device lock for your private shelf</string>
+    <string name="vault_auth_incomplete">Verification didn’t complete. You can try again.</string>
+    <string name="vault_no_screen_lock">First set up a secure screen lock (PIN, pattern or password) in Android settings.</string>
+    <string name="vault_adult_disabled">Adult content permission is off. The Vault is unavailable.</string>
+
+    <!-- Details -->
+    <string name="action_back">Go back</string>
+    <string name="detail_back">Back</string>
+    <string name="detail_lock_fast">Lock now</string>
+    <string name="detail_status_ongoing">Ongoing</string>
+    <string name="detail_status_completed">Completed</string>
+    <string name="detail_status_hiatus">On hiatus</string>
+    <string name="detail_status_cancelled">Cancelled</string>
+    <string name="detail_status_unknown">Publishing status unknown</string>
+    <string name="detail_save_add">Add to library</string>
+    <string name="detail_save_remove">Remove from library</string>
+    <string name="detail_author">Author</string>
+    <string name="detail_artist">Artist</string>
+    <string name="detail_not_specified">Not specified</string>
+    <string name="detail_synopsis_missing">No synopsis is available for this series yet.</string>
+    <string name="detail_summary_expand">Full summary</string>
+    <string name="detail_summary_collapse">Show less</string>
+    <string name="detail_read_now">Read now</string>
+    <string name="detail_chapters_heading">Chapters (%1$d)</string>
+    <string name="detail_sort_newest">Newest</string>
+    <string name="detail_sort_oldest">Oldest</string>
+    <string name="detail_chapters_empty_title">No chapters yet</string>
+    <string name="detail_chapters_empty_message">Run the Turkish source match or sync the series source.</string>
+    <string name="detail_chapter_fallback">Chapter %1$s</string>
+    <string name="detail_date_missing">Date not specified</string>
+    <string name="detail_mark_read">Mark as read</string>
+    <string name="detail_mark_unread">Mark as unread</string>
+    <string name="detail_downloaded">Downloaded</string>
+    <string name="detail_retry_download">Retry download</string>
+    <string name="detail_download_chapter">Download chapter</string>
+    <string name="detail_match_title">Turkish source matching</string>
+    <string name="detail_match_comparing">Comparing sources…</string>
+    <string name="detail_match_missing_extension">The best source to read this series in Turkish: %1$s (%2$d chapters). Install this extension?</string>
+    <string name="detail_match_install">Install extension</string>
+    <string name="detail_match_ready">%1$s ready · %2$d chapters</string>
+    <string name="detail_match_none">No Turkish source found. Update the extension catalog and try again.</string>
+    <string name="detail_match_unavailable">Source matching is unavailable.</string>
+    <string name="detail_match_idle">Finds the source with the most Turkish chapters among installed, usable sources.</string>
+    <string name="detail_match_find_best">Find the best source</string>
+    <string name="detail_match_rematch">Match again</string>
+
+    <!-- Detail: connected series showcases -->
+    <string name="detail_related_heading">Related series</string>
+    <string name="detail_related_subtitle">The other series of the same universe</string>
+    <string name="detail_recommended_heading">Series like this</string>
+    <string name="detail_recommended_subtitle">Readers who enjoyed this also liked</string>
+    <string name="detail_relation_prequel">Prequel</string>
+    <string name="detail_relation_sequel">Sequel</string>
+    <string name="detail_relation_spin_off">Spin-off</string>
+    <string name="detail_relation_side_story">Side story</string>
+    <string name="detail_relation_adaptation">Adaptation</string>
+    <string name="detail_relation_alternative">Alternative version</string>
+    <string name="detail_relation_source">Source</string>
+    <string name="detail_relation_parent">Parent series</string>
+    <string name="detail_relation_character">Character</string>
+    <string name="detail_relation_other">Related</string>
+    <string name="detail_open_series_failed">This series could not be opened.</string>
+    <string name="detail_not_found_title">Series not found</string>
+    <string name="detail_not_found_message">The series may have been removed, or the catalog hasn’t loaded yet.</string>
+
+    <!-- Reader -->
+    <string name="reader_retry">Try again</string>
+    <string name="reader_back">Go back</string>
+    <string name="reader_back_short">Back</string>
+    <string name="reader_save_retry">Retry saving</string>
+    <string name="reader_page_of">Page %1$d / %2$d</string>
+    <string name="reader_page_description">Page %1$d</string>
+    <string name="reader_page_failed">Page %1$d couldn’t be loaded.</string>
+    <string name="reader_mode_webtoon">Webtoon</string>
+    <string name="reader_mode_manga">Manga</string>
+    <string name="reader_mode_western">Western</string>
+    <string name="reader_oled_black">OLED black</string>
+    <string name="reader_inverted_colors">Invert colors</string>
+
+    <!-- Catalog diagnostics surfaced from the view models -->
+    <string name="catalog_load_failed">Couldn’t load the catalog</string>
+    <string name="live_search_no_results">No results in online sources.</string>
+    <string name="live_search_vault_only">This series is shown only inside the +18 Vault.</string>
+    <string name="live_search_unavailable">Live search isn’t responding right now.</string>
+    <string name="match_engine_missing">No trusted extension runtime is attached yet.</string>
+    <string name="match_unreachable">Couldn’t reach the source</string>
+    <string name="retry_action">Try again</string>
+
+    <!-- Endless scroll paging -->
+    <string name="home_paging_loading">Loading more series…</string>
+    <string name="home_paging_end">All series loaded · %1$d series</string>
+    <string name="vault_paging_loading">Loading more adult series…</string>
+    <string name="vault_paging_end">All adult series loaded · %1$d series</string>
+    <string name="paging_failed">Couldn\'t load the next page. Check your connection and try again.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Privacy, repositories and reading experience</string>
+    <string name="settings_privacy_section">Privacy &amp; +18 Vault</string>
+    <string name="settings_vault_title">+18 Vault</string>
+    <string name="settings_vault_body">Turn off and the 🔒 +18 Vault tab disappears from the bottom bar completely; the phone keeps no hint that adult content exists. Verifying the device lock brings it back.</string>
+    <string name="settings_vault_hidden_badge">HIDDEN</string>
+    <string name="settings_reveal_denied">Device lock could not be verified; the +18 Vault stays hidden.</string>
+    <string name="settings_device_lock_title">Protect with Device Lock</string>
+    <string name="settings_device_lock_body">Every Vault entry asks for your PIN, pattern or biometric.</string>
+    <string name="settings_lock_background_title">Lock When Backgrounded</string>
+    <string name="settings_lock_background_body">The Vault re-locks instantly when the app goes to the background.</string>
+    <string name="settings_reveal_prompt_title">Yomira</string>
+    <string name="settings_reveal_prompt_body">Verify the device lock to show the +18 Vault again</string>
+    <string name="settings_repositories_section">Extensions &amp; Repository Manager</string>
+    <string name="settings_repositories_section_body">Connect or remove source repositories with one tap; choices persist on this device.</string>
+    <string name="settings_add_repository">Add Custom Repository</string>
+    <string name="settings_add_repository_title">Add Custom Repository</string>
+    <string name="settings_add_repository_body">Enter the https:// JSON index address of the repository.</string>
+    <string name="settings_add_repository_hint">https://example.repo/index.min.json</string>
+    <string name="settings_add">Add</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_remove_repository">Remove repository</string>
+    <string name="settings_invalid_repository_url">Invalid address: a repository must be a full https JSON index URL.</string>
+    <string name="settings_repository_error">Repository operation failed. Check your connection and try again.</string>
+    <string name="settings_custom_repositories">Your custom repositories</string>
+    <string name="settings_reading_section">Reading &amp; Language</string>
+    <string name="settings_language_title">Interface Language</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_reading_mode_title">Default Reading Mode</string>
+    <string name="settings_app_section">App &amp; Cache</string>
+    <string name="settings_clear_cache">Clear Cache</string>
+    <string name="settings_clear_cache_body">Deletes cover art and temporary files; your library and progress stay intact.</string>
+    <string name="settings_cache_cleared">%1$s of cache cleared.</string>
+    <string name="settings_cache_failed">Cache could not be cleared.</string>
+    <string name="settings_check_updates">Check for Updates</string>
+    <string name="settings_update_checking">Checking…</string>
+    <string name="settings_update_up_to_date">You are up to date (v%1$s).</string>
+    <string name="settings_update_available">New version available: v%1$s</string>
+    <string name="settings_update_download">Download update</string>
+    <string name="settings_version_title">Version</string>
+    <string name="settings_github_title">Yomira on GitHub</string>
+    <string name="settings_github_body">Source code, release notes and support.</string>
 </resources>

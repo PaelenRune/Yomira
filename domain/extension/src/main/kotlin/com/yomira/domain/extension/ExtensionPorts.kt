@@ -2,6 +2,8 @@ package com.yomira.domain.extension
 
 interface ExtensionRepository {
     suspend fun addRepository(indexUrl: String)
+    /** Withdraws consent for a repository; implementations must also drop its cached entries. */
+    suspend fun removeRepository(indexUrl: String)
     suspend fun repositories(): List<String>
     suspend fun refresh(): List<ExtensionDescriptor>
     suspend fun available(): List<ExtensionDescriptor>

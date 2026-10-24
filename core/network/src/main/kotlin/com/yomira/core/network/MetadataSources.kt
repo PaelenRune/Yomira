@@ -10,6 +10,7 @@ object MetadataSources {
     const val MANGADEX = "mangadex"
     const val KITSU = "kitsu"
     const val COMICVINE = "comicvine"
+    const val OPENLIBRARY = "openlibrary"
 
-    val all: Set<String> = setOf(BAKA_UPDATES, ANILIST, MANGADEX, KITSU, COMICVINE)
+    val all: Set<String> = setOf(BAKA_UPDATES, ANILIST, MANGADEX, KITSU, COMICVINE, OPENLIBRARY)
 }

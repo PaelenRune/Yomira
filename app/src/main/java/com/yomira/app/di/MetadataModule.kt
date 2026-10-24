@@ -6,7 +6,10 @@ import com.yomira.core.network.BakaUpdatesClient
 import com.yomira.core.network.ComicVineClient
 import com.yomira.core.network.KitsuClient
 import com.yomira.core.network.MangaDexClient
+import com.yomira.core.network.NetworkConfiguration
+import com.yomira.core.network.OpenLibraryClient
 import com.yomira.data.metadata.RoomMetadataCache
+import com.yomira.data.metadata.SeriesConnectionRepository
 import com.yomira.data.metadata.WaterfallMetadataAggregator
 import dagger.Module
 import dagger.Provides
@@ -28,11 +31,36 @@ object MetadataModule {
 
     @Provides
     @Singleton
+    fun provideNetworkConfiguration(): NetworkConfiguration = NetworkConfiguration()
+
+    @Provides
+    @Singleton
+    fun provideComicVineClient(
+        client: OkHttpClient,
+        config: NetworkConfiguration,
+    ): ComicVineClient = ComicVineClient(client, config = config)
+
+    @Provides
+    @Singleton
+    fun provideOpenLibraryClient(
+        client: OkHttpClient,
+        config: NetworkConfiguration,
+    ): OpenLibraryClient = OpenLibraryClient(client, config = config)
+
+    @Provides
+    @Singleton
+    fun provideSeriesConnectionRepository(aniList: AniListClient): SeriesConnectionRepository =
+        SeriesConnectionRepository(aniList)
+
+    @Provides
+    @Singleton
     fun provideAggregator(
         client: OkHttpClient,
         cache: MetadataCacheDao,
         aniList: AniListClient,
         mangaDex: MangaDexClient,
+        comicVine: ComicVineClient,
+        openLibrary: OpenLibraryClient,
     ): WaterfallMetadataAggregator =
         WaterfallMetadataAggregator(
             listOf(
@@ -40,7 +68,8 @@ object MetadataModule {
                 aniList,
                 mangaDex,
                 KitsuClient(client),
-                ComicVineClient(client),
+                comicVine,
+                openLibrary,
             ),
             RoomMetadataCache(cache),
         )

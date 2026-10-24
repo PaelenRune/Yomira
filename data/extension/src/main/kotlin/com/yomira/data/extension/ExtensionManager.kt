@@ -38,7 +38,7 @@ class ExtensionManager(
         if (indexUrl !in urls) store.write(urls + indexUrl)
     }
 
-    suspend fun removeRepository(indexUrl: String) = mutex.withLock {
+    override suspend fun removeRepository(indexUrl: String) = mutex.withLock {
         store.write(store.read().filterNot { it == indexUrl })
         // Do not retain entries from a repository whose consent has been revoked.
         snapshot = emptyList()

@@ -25,7 +25,7 @@ private val invertMatrix = ColorMatrix(floatArrayOf(
 
 @Composable
 internal fun ReaderPage(page: SourcePage, imageLoader: ImageLoader, inverted: Boolean, webtoon: Boolean,
-    onTap: () -> Unit, onZoomed: (Boolean) -> Unit) {
+    onTap: () -> Unit, onZoomed: (Boolean) -> Unit, copy: ReaderCopy = ReaderCopy()) {
     val context = LocalContext.current
     var aspect by remember(page.imageUrl) { mutableFloatStateOf(.7f) }
     var retry by remember(page.imageUrl) { mutableIntStateOf(0) }
@@ -42,7 +42,7 @@ internal fun ReaderPage(page: SourcePage, imageLoader: ImageLoader, inverted: Bo
         SmartZoom(frame, onTap, onZoomed) {
             SubcomposeAsyncImage(
                 model = request, imageLoader = imageLoader,
-                contentDescription = "Sayfa ${page.index + 1}",
+                contentDescription = String.format(copy.pageDescription, page.index + 1),
                 modifier = Modifier.fillMaxSize(), contentScale = if (webtoon) ContentScale.FillWidth else ContentScale.Fit,
                 colorFilter = if (inverted) ColorFilter.colorMatrix(invertMatrix) else null,
                 onSuccess = { success ->
@@ -53,8 +53,8 @@ internal fun ReaderPage(page: SourcePage, imageLoader: ImageLoader, inverted: Bo
                 },
                 loading = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp)) } },
                 error = { Column(Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    Text("Sayfa ${page.index + 1} yüklenemedi.")
-                    TextButton(onClick = { retry++ }) { Text("Yeniden dene") }
+                    Text(String.format(copy.pageLoadFailed, page.index + 1))
+                    TextButton(onClick = { retry++ }) { Text(copy.retry) }
                 } },
             )
         }

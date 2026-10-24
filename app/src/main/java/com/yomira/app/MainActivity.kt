@@ -6,21 +6,30 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.yomira.app.catalog.catalogTagChips
+import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.onboarding.OnboardingViewModel
+import com.yomira.app.settings.SettingsViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -29,40 +38,66 @@ import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
 import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.YomiraTheme
+import com.yomira.feature.details.DetailCopy
 import com.yomira.feature.home.*
-import com.yomira.feature.vault.VaultScreen
-import com.yomira.feature.details.MangaDetailScreen
+import com.yomira.feature.reader.ReaderCopy
 import com.yomira.feature.reader.ReaderScreen
 import com.yomira.feature.reader.ReaderViewModel
+import com.yomira.feature.settings.*
+import com.yomira.feature.vault.VaultCopy
+import com.yomira.feature.vault.VaultScreen
+import com.yomira.feature.details.MangaDetailScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val model: YomiraViewModel by viewModels()
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
+    private val settingsModel: SettingsViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
     private var confirmingCredential = false
+    /** Set while a settings action (e.g. revealing the Vault) awaits the credential verdict. */
+    private var credentialResult: ((Boolean) -> Unit)? = null
     private val authentication = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         confirmingCredential = false
-        model.unlocked.value = result.resultCode == Activity.RESULT_OK
-        authError = if (result.resultCode == Activity.RESULT_OK) null else "Doğrulama tamamlanmadı. Yeniden deneyebilirsin."
+        val verified = result.resultCode == Activity.RESULT_OK
+        val callback = credentialResult
+        credentialResult = null
+        if (callback != null) callback(verified) else onVaultUnlockResult(verified)
     }
 
+    private fun onVaultUnlockResult(verified: Boolean) {
+        model.unlocked.value = verified
+        authError = if (verified) null else getString(R.string.vault_auth_incomplete)
+    }
+
+    /** One reusable device-credential gate for both the Vault entry and the settings reveal flow. */
     @Suppress("DEPRECATION")
-    private fun unlock() {
+    private fun confirmCredentials(title: String, subtitle: String, onResult: (Boolean) -> Unit) {
         if (confirmingCredential) return
         val keyguard = getSystemService(KeyguardManager::class.java)
-        val intent = keyguard.createConfirmDeviceCredentialIntent("Yomira Vault", "Özel vitrinin için cihaz kilidini doğrula")
-        if (intent == null) { authError = "Önce Android ayarlarından güvenli bir ekran kilidi (PIN, desen veya şifre) oluştur."; return }
+        val intent = keyguard.createConfirmDeviceCredentialIntent(title, subtitle)
+        if (intent == null) {
+            authError = getString(R.string.vault_no_screen_lock)
+            onResult(false)
+            return
+        }
         confirmingCredential = true
+        credentialResult = onResult
         authentication.launch(intent)
     }
 
+    private fun unlock() = confirmCredentials(
+        getString(R.string.vault_unlock_prompt_title),
+        getString(R.string.vault_unlock_prompt_body),
+    ) { verified -> onVaultUnlockResult(verified) }
+
     override fun onStop() {
         // The credential activity itself must not invalidate an authentication request.
-        if (!confirmingCredential) model.lock()
+        // The Vault only re-locks in the background while the user asked for that guard.
+        if (!confirmingCredential && settingsModel.settings.value.lockOnBackground) model.lock()
         super.onStop()
     }
 
@@ -73,21 +108,46 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent { YomiraTheme {
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
+            // The reading language chosen in the wizard is also the UI language: applying
+            // it through LocaleManagerCompat recreates this activity with the new resource
+            // locale, so every string switches to English/Turkish instantly. Applying the
+            // same tag again is a no-op, which keeps this effect idempotent.
+            LaunchedEffect(onboarding.completed, onboarding.languageCode) {
+                if (onboarding.completed) onboarding.languageCode?.let(LocaleManagerCompat::setApplicationLocales)
+            }
             when {
                 onboarding.loading -> Surface(color = Color(0xFF06050C), modifier = Modifier.fillMaxSize()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         if (onboarding.error == null) CircularProgressIndicator()
                         else Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(onboarding.error.orEmpty())
-                            TextButton(onClick = onboardingModel::load) { Text("Yeniden dene") }
+                            Text(localizedOnboardingError(onboarding.error).orEmpty())
+                            TextButton(onClick = onboardingModel::load) { Text(stringResource(R.string.retry_action)) }
                         }
                     }
                 }
-                !onboarding.completed -> OnboardingScreen(onboarding.saving, onboarding.error, onboardingModel::complete)
-                else -> YomiraNavigation(model, readerModel, authError, {
-                    if (onboarding.adultEnabled) unlock()
-                    else authError = "Yetişkin içerik izni kapalı. Vault kullanılamaz."
-                }, ::openReference)
+                !onboarding.completed -> OnboardingScreen(
+                    onboarding.saving, localizedOnboardingError(onboarding.error), onboardingModel::complete,
+                    copy = onboardingCopy(), initialLanguage = LocaleManagerCompat.currentApplicationTag(),
+                )
+                else -> {
+                    val settings by settingsModel.settings.collectAsStateWithLifecycle()
+                    YomiraNavigation(
+                        model, readerModel, settingsModel, settings, authError,
+                        onUnlockVault = {
+                            if (onboarding.adultEnabled) {
+                                // "Protect with device lock" is the user's call; default is on.
+                                if (settings.requireDeviceLock) unlock() else model.unlocked.value = true
+                            } else authError = getString(R.string.vault_adult_disabled)
+                        },
+                        onRevealVault = {
+                            confirmCredentials(
+                                getString(R.string.settings_reveal_prompt_title),
+                                getString(R.string.settings_reveal_prompt_body),
+                            ) { verified -> settingsModel.onVaultRevealResult(verified) }
+                        },
+                        ::openReference,
+                    )
+                }
             }
         } }
     }
@@ -99,8 +159,25 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** Maps the view model's stable error codes to the strings of the active language. */
 @Composable
-private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewModel, authError: String?, onUnlock: () -> Unit, openReference: (String) -> Boolean) {
+private fun localizedOnboardingError(code: String?): String? = when (code) {
+    OnboardingViewModel.ERROR_LOAD -> stringResource(R.string.onboarding_failed_load)
+    OnboardingViewModel.ERROR_SAVE -> stringResource(R.string.onboarding_failed_save)
+    else -> code
+}
+
+@Composable
+private fun YomiraNavigation(
+    model: YomiraViewModel,
+    readerModel: ReaderViewModel,
+    settingsModel: SettingsViewModel,
+    settings: AppSettings,
+    authError: String?,
+    onUnlockVault: () -> Unit,
+    onRevealVault: () -> Unit,
+    openReference: (String) -> Boolean,
+) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val catalog by model.catalog.collectAsStateWithLifecycle()
@@ -111,10 +188,20 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
     val match by model.match.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
+    val selectedTags by model.selectedTags.collectAsStateWithLifecycle()
+    val discovery by model.discovery.collectAsStateWithLifecycle()
+    val vaultDiscovery by model.vaultDiscovery.collectAsStateWithLifecycle()
     val pendingUpdate by model.update.collectAsStateWithLifecycle()
+    val settingsState by settingsModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val current = backStack?.destination?.route
+    val catalogCopy = catalogCopy()
+    val updateLinkFailed = stringResource(R.string.update_link_failed)
+    val secureLinkFailed = stringResource(R.string.secure_link_failed)
+    val openSeriesFailed = stringResource(R.string.detail_open_series_failed)
+    val offlineNotice = stringResource(R.string.offline_download_notice)
+    val tagOptions = catalogTagChips()
     fun home() { nav.navigate("home") { popUpTo(nav.graph.id) { inclusive = false }; launchSingleTop = true } }
     fun panic() { model.lock(); home() }
     fun details(manga: Manga) {
@@ -128,9 +215,10 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
             releaseNotes = info.releaseNotes,
             onUpdate = {
                 if (openReference(info.apkDownloadUrl)) model.closeUpdate()
-                else scope.launch { snackbar.showSnackbar("Güncelleme bağlantısı açılamadı.") }
+                else scope.launch { snackbar.showSnackbar(updateLinkFailed) }
             },
             onDismiss = model::dismissUpdate,
+            copy = updateDialogCopy(),
         )
     }
     // A locked adult detail is removed, not just covered with a lock overlay.
@@ -138,10 +226,36 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
         val id = backStack?.arguments?.getString("id") ?: backStack?.arguments?.getString("mangaId")
         if (!unlocked && (current == "details/{id}" || current == "reader/{mangaId}/{chapterId}") && catalog.manga.any { it.id == id && it.contentRating == ContentRating.EXPLICIT }) panic()
     }
-    Scaffold(snackbarHost = { SnackbarHost(snackbar) }, bottomBar = {
-        if (current != "details/{id}" && current != "reader/{mangaId}/{chapterId}") YomiraBottomNavBar(current) { destination ->
-            if (destination != MainDestination.VAULT) model.lock()
-            nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
+    // Hiding the Vault must also lock it and leave its route: no back-stack entry
+    // may keep adult content reachable once the tab is gone.
+    LaunchedEffect(settings.vaultVisible) {
+        if (!settings.vaultVisible) {
+            model.lock()
+            if (nav.currentDestination?.route == "vault") home()
+        }
+    }
+    val showChrome = current == "home" || current == "discover" || current == "library" || current == "vault"
+    Scaffold(snackbarHost = { SnackbarHost(snackbar) }, topBar = {
+        if (showChrome) {
+            Surface(color = Color.Transparent) {
+                Row(
+                    Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LanguageSwitchButton { LocaleManagerCompat.toggleApplicationLocale() }
+                    IconButton(onClick = { nav.navigate("settings") }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                    }
+                }
+            }
+        }
+    }, bottomBar = {
+        if (current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings") {
+            YomiraBottomNavBar(current, onSelect = { destination ->
+                if (destination != MainDestination.VAULT) model.lock()
+                nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
+            }, copy = catalogCopy, vaultVisible = settings.vaultVisible)
         }
     }) { padding ->
         NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize()
@@ -149,29 +263,76 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
             listOf("home", "discover", "library").forEach { route ->
                 composable(route) {
                     var query by rememberSaveable { mutableStateOf("") }
+                    val paging = if (route == "library") DiscoveryState(hasMore = false) else discovery
                     val items = publicCatalog(catalog.manga).filter { route != "library" || it.id in saved }
                     HomeScreen(
-                        HomeUiState(items, items.sortedByDescending { it.score }, publicCatalog(catalog.updated).filter { route != "library" || it.id in saved }, columns, query, catalog.loading, catalog.error, liveSearch.searching, liveSearch.message),
+                        HomeUiState(
+                            manga = items,
+                            trending = items.sortedByDescending { it.score },
+                            updated = publicCatalog(catalog.updated).filter { route != "library" || it.id in saved },
+                            columns = columns,
+                            query = query,
+                            loading = catalog.loading,
+                            error = catalog.error,
+                            searching = liveSearch.searching,
+                            searchMessage = liveSearch.message,
+                            selectedTags = selectedTags,
+                            discovery = if (route == "library") emptyList() else paging.items,
+                            loadingMore = paging.loading,
+                            hasMore = paging.hasMore,
+                            pagingError = paging.error,
+                        ),
                         onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
-                        title = when (route) { "discover" -> "Keşfet"; "library" -> "Kitaplığın"; else -> "Yomira" }, showHero = route == "home",
+                        title = when (route) { "discover" -> stringResource(R.string.title_discover); "library" -> stringResource(R.string.title_library); else -> stringResource(R.string.app_name) },
+                        showHero = route == "home",
+                        tagOptions = tagOptions,
+                        onToggleTag = model::toggleTag,
+                        onClearTags = model::clearTags,
+                        copy = homeCopy(catalogCopy),
+                        onLoadMore = { if (route != "library") model.loadNextPage() },
                     )
                 }
             }
             composable("vault") {
                 BackHandler { panic() }
-                VaultScreen(unlocked, if (unlocked) catalog.manga else emptyList(), vaultColumns, { model.setColumns(it, true) }, onUnlock, ::panic, ::details, authError, catalog.loading, catalog.error, model::refresh)
+                if (!settings.vaultVisible) {
+                    // The tab is gone; a stale back-stack entry must not reveal the Vault.
+                    LaunchedEffect(Unit) { home() }
+                } else VaultScreen(
+                    unlocked = unlocked,
+                    manga = if (unlocked) catalog.manga else emptyList(),
+                    columns = vaultColumns,
+                    onColumns = { model.setColumns(it, true) },
+                    onUnlock = onUnlockVault,
+                    onPanic = ::panic,
+                    onManga = ::details,
+                    authError = authError,
+                    loading = catalog.loading,
+                    error = catalog.error,
+                    onRetry = model::refresh,
+                    discovered = vaultDiscovery.items,
+                    loadingMore = vaultDiscovery.loading,
+                    hasMore = vaultDiscovery.hasMore,
+                    pagingError = vaultDiscovery.error,
+                    onLoadMore = { if (unlocked) model.loadNextPage(adult = true) },
+                    copy = vaultCopy(catalogCopy),
+                )
             }
             composable("details/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->
                 val id = entry.arguments?.getString("id") ?: return@composable
                 val manga = catalog.manga.firstOrNull { it.id == id }
+                    ?: discovery.items.firstOrNull { it.id == id }
+                    ?: vaultDiscovery.items.firstOrNull { it.id == id }
                 if (manga == null) {
-                    Column { CatalogEmptyState("Seri bulunamadı", "Seri kaldırılmış veya katalog henüz yüklenmemiş olabilir."); TextButton(onClick = { nav.popBackStack() }) { Text("Geri dön") } }
+                    Column { CatalogEmptyState(stringResource(R.string.detail_not_found_title), stringResource(R.string.detail_not_found_message)); TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) } }
                 } else if (manga.contentRating != ContentRating.EXPLICIT || unlocked) {
                     val chapterFlow = remember(id) { model.chapters(id) }
                     val chapters by chapterFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+                    val connections by model.connections.collectAsStateWithLifecycle()
+                    LaunchedEffect(id) { model.loadConnections(manga) }
                     MangaDetailScreen(manga, chapters, match, matching, id in saved,
                         onBack = { model.clearMatch(); nav.popBackStack() }, onSave = { model.toggleSaved(id) }, onMatch = { model.findSource(manga) },
-                        onInstall = { url -> if (!openReference(url)) scope.launch { snackbar.showSnackbar("Güvenli indirme bağlantısı açılamadı.") } },
+                        onInstall = { url -> if (!openReference(url)) scope.launch { snackbar.showSnackbar(secureLinkFailed) } },
                         onRead = { chapter -> nav.navigate("reader/${Uri.encode(manga.id)}/${Uri.encode(chapter.id)}") },
                         onContinue = { fallback -> model.resumeChapter(manga.id, fallback.id) { chapterId ->
                             // An asynchronous Room result must not reopen a screen the user left.
@@ -180,8 +341,24 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
                             }
                         } },
                         onToggleRead = { model.toggleRead(it.id) },
-                        onDownload = { scope.launch { snackbar.showSnackbar("Çevrimdışı indirme için kaynak sayfa sağlayıcısı gerekli; bu sürüm yalnızca bölüm referanslarını saklar.") } },
+                        onDownload = { scope.launch { snackbar.showSnackbar(offlineNotice) } },
                         onPanic = if (manga.contentRating == ContentRating.EXPLICIT) ::panic else null,
+                        related = connections.related,
+                        recommended = connections.recommended,
+                        connectionsLoading = connections.loading,
+                        onOpenSeries = { seriesId, seriesTitle ->
+                            model.openSeries(seriesId, seriesTitle) { targetId ->
+                                // An asynchronous import must not reopen a screen the user left.
+                                if (nav.currentBackStackEntry == entry) {
+                                    if (targetId == null) scope.launch { snackbar.showSnackbar(openSeriesFailed) }
+                                    else {
+                                        model.clearMatch()
+                                        nav.navigate("details/${Uri.encode(targetId)}")
+                                    }
+                                }
+                            }
+                        },
+                        copy = detailCopy(catalogCopy),
                     )
                 }
             }
@@ -193,11 +370,264 @@ private fun YomiraNavigation(model: YomiraViewModel, readerModel: ReaderViewMode
                 val chapterId = entry.arguments?.getString("chapterId") ?: return@composable
                 val manga = catalog.manga.firstOrNull { it.id == mangaId }
                 if (manga != null && (manga.contentRating != ContentRating.EXPLICIT || unlocked)) {
-                    ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() })
+                    ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode, copy = readerCopy())
                 } else if (!catalog.loading && manga == null) {
-                    Column { Text("Seri bulunamadı"); TextButton(onClick = { nav.popBackStack() }) { Text("Geri dön") } }
+                    Column { Text(stringResource(R.string.detail_not_found_title)); TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) } }
                 }
+            }
+            composable("settings") {
+                SettingsScreen(
+                    state = settingsState,
+                    currentLanguage = AppLanguage.fromTag(LocaleManagerCompat.currentApplicationTag()),
+                    versionName = BuildConfig.VERSION_NAME,
+                    onBack = { nav.popBackStack() },
+                    // Hiding is instant; revealing must pass the device-credential gate first.
+                    onVaultVisibilityChange = { visible -> if (visible) onRevealVault() else settingsModel.setVaultVisible(false) },
+                    onRequireDeviceLockChange = settingsModel::setRequireDeviceLock,
+                    onLockOnBackgroundChange = settingsModel::setLockOnBackground,
+                    onLanguageChange = { language -> LocaleManagerCompat.setApplicationLocales(language.tag) },
+                    onReadingModeChange = settingsModel::setReadingMode,
+                    onRepositoryToggle = settingsModel::setRepositoryEnabled,
+                    onAddCustomRepository = settingsModel::addCustomRepository,
+                    onRemoveRepository = settingsModel::removeRepository,
+                    onClearCache = settingsModel::clearCache,
+                    onCheckUpdates = settingsModel::checkUpdates,
+                    onOpenLink = { openReference(it) },
+                    copy = settingsCopy(),
+                )
             }
         }
     }
 }
+
+/** Compact EN/TR toggle; switching recreates the activity in the new locale instantly. */
+@Composable
+private fun LanguageSwitchButton(onToggle: () -> Unit) {
+    val target = if (LocaleManagerCompat.isTurkish()) LocaleManagerCompat.ENGLISH else LocaleManagerCompat.TURKISH
+    val description = stringResource(R.string.language_toggle_description)
+    Surface(color = Color.Transparent) {
+        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 2.dp), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onToggle, modifier = Modifier.semantics {
+                contentDescription = "$description → $target"
+            }) { Text(target.uppercase()) }
+        }
+    }
+}
+
+@Composable
+private fun settingsCopy() = SettingsCopy(
+    title = stringResource(R.string.settings_title),
+    subtitle = stringResource(R.string.settings_subtitle),
+    back = stringResource(R.string.action_back),
+    privacySection = stringResource(R.string.settings_privacy_section),
+    vaultTitle = stringResource(R.string.settings_vault_title),
+    vaultBody = stringResource(R.string.settings_vault_body),
+    vaultHiddenBadge = stringResource(R.string.settings_vault_hidden_badge),
+    revealDenied = stringResource(R.string.settings_reveal_denied),
+    deviceLockTitle = stringResource(R.string.settings_device_lock_title),
+    deviceLockBody = stringResource(R.string.settings_device_lock_body),
+    lockBackgroundTitle = stringResource(R.string.settings_lock_background_title),
+    lockBackgroundBody = stringResource(R.string.settings_lock_background_body),
+    repositoriesSection = stringResource(R.string.settings_repositories_section),
+    repositoriesSectionBody = stringResource(R.string.settings_repositories_section_body),
+    addRepository = stringResource(R.string.settings_add_repository),
+    addRepositoryTitle = stringResource(R.string.settings_add_repository_title),
+    addRepositoryBody = stringResource(R.string.settings_add_repository_body),
+    addRepositoryHint = stringResource(R.string.settings_add_repository_hint),
+    add = stringResource(R.string.settings_add),
+    cancel = stringResource(R.string.settings_cancel),
+    removeRepository = stringResource(R.string.settings_remove_repository),
+    invalidRepositoryUrl = stringResource(R.string.settings_invalid_repository_url),
+    repositoryError = stringResource(R.string.settings_repository_error),
+    customRepositories = stringResource(R.string.settings_custom_repositories),
+    readingSection = stringResource(R.string.settings_reading_section),
+    languageTitle = stringResource(R.string.settings_language_title),
+    languageTurkish = stringResource(R.string.settings_language_turkish),
+    languageEnglish = stringResource(R.string.settings_language_english),
+    readingModeTitle = stringResource(R.string.settings_reading_mode_title),
+    modeWebtoon = stringResource(R.string.reader_mode_webtoon),
+    modeManga = stringResource(R.string.reader_mode_manga),
+    modeWestern = stringResource(R.string.reader_mode_western),
+    appSection = stringResource(R.string.settings_app_section),
+    clearCache = stringResource(R.string.settings_clear_cache),
+    clearCacheBody = stringResource(R.string.settings_clear_cache_body),
+    cacheCleared = stringResource(R.string.settings_cache_cleared),
+    cacheFailed = stringResource(R.string.settings_cache_failed),
+    checkUpdates = stringResource(R.string.settings_check_updates),
+    updateChecking = stringResource(R.string.settings_update_checking),
+    updateUpToDate = stringResource(R.string.settings_update_up_to_date),
+    updateAvailable = stringResource(R.string.settings_update_available),
+    updateDownload = stringResource(R.string.settings_update_download),
+    versionTitle = stringResource(R.string.settings_version_title),
+    githubTitle = stringResource(R.string.settings_github_title),
+    githubBody = stringResource(R.string.settings_github_body),
+)
+
+@Composable
+private fun catalogCopy() = CatalogCopy(
+    readNow = stringResource(R.string.catalog_read_now),
+    matureBadgeLong = stringResource(R.string.catalog_mature_long),
+    matureBadgeShort = stringResource(R.string.catalog_mature_short),
+    noCoverArtwork = stringResource(R.string.catalog_no_cover),
+    scoreDescription = stringResource(R.string.catalog_score),
+    columnDescriptions = listOf(
+        stringResource(R.string.home_columns_2),
+        stringResource(R.string.home_columns_3),
+        stringResource(R.string.home_columns_4),
+    ),
+    navHome = stringResource(R.string.nav_home),
+    navDiscover = stringResource(R.string.nav_discover),
+    navLibrary = stringResource(R.string.nav_library),
+    navVault = stringResource(R.string.nav_vault),
+)
+
+@Composable
+private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
+    searchPlaceholder = stringResource(R.string.home_search_placeholder),
+    yourShelf = stringResource(R.string.home_your_shelf),
+    retry = stringResource(R.string.home_retry),
+    railTrending = stringResource(R.string.home_rail_trending),
+    railUpdated = stringResource(R.string.home_rail_updated),
+    emptyShelfTitle = stringResource(R.string.home_empty_title),
+    emptyShelfMessage = stringResource(R.string.home_empty_message),
+    emptySearchTitle = stringResource(R.string.search_empty_title),
+    emptySearchMessage = stringResource(R.string.search_empty_message),
+    tagsHeading = stringResource(R.string.home_tags_heading),
+    clearTags = stringResource(R.string.home_tags_clear),
+    pagingLoading = stringResource(R.string.home_paging_loading),
+    pagingEnd = stringResource(R.string.home_paging_end),
+    catalog = catalog,
+)
+
+@Composable
+private fun vaultCopy(catalog: CatalogCopy) = VaultCopy(
+    heading = stringResource(R.string.vault_heading),
+    lockedTitle = stringResource(R.string.vault_locked_title),
+    lockedBody = stringResource(R.string.vault_locked_body),
+    lockedHint = stringResource(R.string.vault_locked_hint),
+    unlockButton = stringResource(R.string.vault_unlock_button),
+    backHome = stringResource(R.string.vault_back_home),
+    lockFast = stringResource(R.string.vault_lock_fast),
+    retry = stringResource(R.string.vault_retry),
+    filterAll = stringResource(R.string.vault_filter_all),
+    collectionTitle = stringResource(R.string.vault_collection_title),
+    emptyTitle = stringResource(R.string.vault_empty_title),
+    emptyMessage = stringResource(R.string.vault_empty_message),
+    pagingLoading = stringResource(R.string.vault_paging_loading),
+    pagingEnd = stringResource(R.string.vault_paging_end),
+    catalog = catalog,
+)
+
+@Composable
+private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
+    back = stringResource(R.string.detail_back),
+    lockFast = stringResource(R.string.detail_lock_fast),
+    statusOngoing = stringResource(R.string.detail_status_ongoing),
+    statusCompleted = stringResource(R.string.detail_status_completed),
+    statusHiatus = stringResource(R.string.detail_status_hiatus),
+    statusCancelled = stringResource(R.string.detail_status_cancelled),
+    statusUnknown = stringResource(R.string.detail_status_unknown),
+    saveAdd = stringResource(R.string.detail_save_add),
+    saveRemove = stringResource(R.string.detail_save_remove),
+    authorLine = stringResource(R.string.detail_author),
+    artistLine = stringResource(R.string.detail_artist),
+    notSpecified = stringResource(R.string.detail_not_specified),
+    synopsisMissing = stringResource(R.string.detail_synopsis_missing),
+    summaryCollapse = stringResource(R.string.detail_summary_collapse),
+    summaryExpand = stringResource(R.string.detail_summary_expand),
+    readNow = stringResource(R.string.detail_read_now),
+    chaptersHeading = stringResource(R.string.detail_chapters_heading),
+    sortNewest = stringResource(R.string.detail_sort_newest),
+    sortOldest = stringResource(R.string.detail_sort_oldest),
+    chaptersEmptyTitle = stringResource(R.string.detail_chapters_empty_title),
+    chaptersEmptyMessage = stringResource(R.string.detail_chapters_empty_message),
+    chapterFallback = stringResource(R.string.detail_chapter_fallback),
+    dateMissing = stringResource(R.string.detail_date_missing),
+    markRead = stringResource(R.string.detail_mark_read),
+    markUnread = stringResource(R.string.detail_mark_unread),
+    downloaded = stringResource(R.string.detail_downloaded),
+    retryDownload = stringResource(R.string.detail_retry_download),
+    downloadChapter = stringResource(R.string.detail_download_chapter),
+    matchTitle = stringResource(R.string.detail_match_title),
+    matchComparing = stringResource(R.string.detail_match_comparing),
+    matchMissingExtension = stringResource(R.string.detail_match_missing_extension),
+    matchInstall = stringResource(R.string.detail_match_install),
+    matchReady = stringResource(R.string.detail_match_ready),
+    matchNone = stringResource(R.string.detail_match_none),
+    matchUnavailable = stringResource(R.string.detail_match_unavailable),
+    matchIdle = stringResource(R.string.detail_match_idle),
+    matchFindBest = stringResource(R.string.detail_match_find_best),
+    matchRematch = stringResource(R.string.detail_match_rematch),
+    relatedHeading = stringResource(R.string.detail_related_heading),
+    relatedSubtitle = stringResource(R.string.detail_related_subtitle),
+    recommendedHeading = stringResource(R.string.detail_recommended_heading),
+    recommendedSubtitle = stringResource(R.string.detail_recommended_subtitle),
+    relationPrequel = stringResource(R.string.detail_relation_prequel),
+    relationSequel = stringResource(R.string.detail_relation_sequel),
+    relationSpinOff = stringResource(R.string.detail_relation_spin_off),
+    relationSideStory = stringResource(R.string.detail_relation_side_story),
+    relationAdaptation = stringResource(R.string.detail_relation_adaptation),
+    relationAlternative = stringResource(R.string.detail_relation_alternative),
+    relationSource = stringResource(R.string.detail_relation_source),
+    relationParent = stringResource(R.string.detail_relation_parent),
+    relationCharacter = stringResource(R.string.detail_relation_character),
+    relationOther = stringResource(R.string.detail_relation_other),
+    catalog = catalog,
+)
+
+@Composable
+private fun readerCopy() = ReaderCopy(
+    retry = stringResource(R.string.reader_retry),
+    back = stringResource(R.string.reader_back),
+    backShort = stringResource(R.string.reader_back_short),
+    saveRetry = stringResource(R.string.reader_save_retry),
+    pageOf = stringResource(R.string.reader_page_of),
+    pageDescription = stringResource(R.string.reader_page_description),
+    pageLoadFailed = stringResource(R.string.reader_page_failed),
+    modeWebtoon = stringResource(R.string.reader_mode_webtoon),
+    modeManga = stringResource(R.string.reader_mode_manga),
+    modeWestern = stringResource(R.string.reader_mode_western),
+    oledBlack = stringResource(R.string.reader_oled_black),
+    invertedColors = stringResource(R.string.reader_inverted_colors),
+)
+
+@Composable
+private fun updateDialogCopy() = UpdateDialogCopy(
+    title = stringResource(R.string.update_title),
+    changesLabel = stringResource(R.string.update_changes),
+    apkNote = stringResource(R.string.update_apk_note),
+    updateNow = stringResource(R.string.update_now),
+    later = stringResource(R.string.update_later),
+)
+
+@Composable
+private fun onboardingCopy() = OnboardingCopy(
+    stepIndicator = stringResource(R.string.onboarding_step_indicator),
+    stepDescription = stringResource(R.string.onboarding_step_description),
+    languageTitle = stringResource(R.string.onboarding_language_title),
+    languageDescription = stringResource(R.string.onboarding_language_description),
+    languageTurkish = stringResource(R.string.onboarding_language_turkish),
+    languageEnglish = stringResource(R.string.onboarding_language_english),
+    languageNote = stringResource(R.string.onboarding_language_note),
+    contentTitle = stringResource(R.string.onboarding_content_title),
+    contentDescription = stringResource(R.string.onboarding_content_description),
+    adultLabel = stringResource(R.string.onboarding_adult_label),
+    statusEnabled = stringResource(R.string.onboarding_status_enabled),
+    statusDisabled = stringResource(R.string.onboarding_status_disabled),
+    adultSwitchDescription = stringResource(R.string.onboarding_adult_switch),
+    levelsTitle = stringResource(R.string.onboarding_levels_title),
+    levelOne = stringResource(R.string.onboarding_level_one),
+    levelTwo = stringResource(R.string.onboarding_level_two),
+    adultConsent = stringResource(R.string.onboarding_adult_consent),
+    sourceTitle = stringResource(R.string.onboarding_source_title),
+    sourceDescription = stringResource(R.string.onboarding_source_description),
+    sourceBody = stringResource(R.string.onboarding_source_body),
+    sourcePrivacy = stringResource(R.string.onboarding_source_privacy),
+    // sourceRepo stays the literal URL default — repository addresses are not translated.
+    sourceSkippable = stringResource(R.string.onboarding_source_skippable),
+    saving = stringResource(R.string.onboarding_saving),
+    connectAndStart = stringResource(R.string.onboarding_connect_start),
+    continueLabel = stringResource(R.string.onboarding_continue),
+    skipRepository = stringResource(R.string.onboarding_skip_repo),
+    back = stringResource(R.string.onboarding_back),
+)

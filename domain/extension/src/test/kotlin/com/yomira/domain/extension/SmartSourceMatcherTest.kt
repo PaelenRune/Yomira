@@ -87,6 +87,7 @@ class SmartSourceMatcherTest {
         val installedPackages: Set<String> = emptySet(),
     ) : ExtensionRepository {
         override suspend fun addRepository(indexUrl: String) = Unit
+        override suspend fun removeRepository(indexUrl: String) = Unit
         override suspend fun repositories() = emptyList<String>()
         override suspend fun refresh() = entries
         override suspend fun available() = entries

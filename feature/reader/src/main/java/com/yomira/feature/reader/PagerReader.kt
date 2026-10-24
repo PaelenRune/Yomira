@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun PagerReader(state: ReaderUiState, imageLoader: ImageLoader, jumpTo: Int?, onJumpHandled: () -> Unit,
-    onPage: (Int) -> Unit, onTap: () -> Unit) {
+    onPage: (Int) -> Unit, onTap: () -> Unit, copy: ReaderCopy = ReaderCopy()) {
     val pager = rememberPagerState(initialPage = state.pageIndex) { state.pages.size }
     var zoomedPages by remember { mutableStateOf(emptySet<Int>()) }
     val callback by rememberUpdatedState(onPage)
@@ -25,7 +25,7 @@ fun PagerReader(state: ReaderUiState, imageLoader: ImageLoader, jumpTo: Int?, on
         HorizontalPager(pager, Modifier.fillMaxSize(), reverseLayout = state.mode.isRightToLeft(),
             userScrollEnabled = zoomedPages.isEmpty(), beyondViewportPageCount = 0, key = { state.pages[it].index }) { index ->
             ReaderPage(state.pages[index], imageLoader, state.inverted, webtoon = false, onTap = onTap,
-                onZoomed = { zoomedPages = if (it) zoomedPages + index else zoomedPages - index })
+                onZoomed = { zoomedPages = if (it) zoomedPages + index else zoomedPages - index }, copy = copy)
         }
     }
 }

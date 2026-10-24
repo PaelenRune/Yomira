@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.yomira.core.database.dao.findByAnyTitle
+import com.yomira.core.database.dao.observeByGenres
 import com.yomira.core.database.entity.ChapterEntity
 import com.yomira.core.database.entity.MangaEntity
 import com.yomira.core.database.entity.MetadataCacheEntity
@@ -91,6 +93,38 @@ class YomiraDatabaseTest {
         assertEquals(0, sync.advanceVersion("device", 1, 3, Date(300)))
         assertEquals(0, sync.advanceVersion("device", 2, 1, Date(300)))
         assertEquals(SyncStateEntity("device", Date(200), 2), sync.observeByDeviceId("device").first())
+    }
+
+    @Test
+    fun observeByGenresMatchesAnySelectedGenreAndDegradesToAll() = runTest {
+        val dao = database.mangaDao()
+        dao.upsertAll(listOf(
+            manga().copy(id = "s:1", title = "Berserk", genres = listOf("Action", "Horror")),
+            manga().copy(id = "s:2", title = "Yotsuba", genres = listOf("Comedy", "Slice of Life")),
+            manga().copy(id = "s:3", title = "Monster", genres = listOf("Psychological", "Mystery")),
+        ))
+        assertEquals(listOf("Berserk", "Monster"), dao.observeByGenres(listOf("Horror", "Mystery")).first().map { it.title })
+        assertEquals(listOf("Berserk", "Monster", "Yotsuba"), dao.observeByGenres(listOf("Action", "Comedy", "Mystery")).first().map { it.title })
+        // Empty selection = no filter, so the tag bar's "clear" never needs a second query path.
+        assertEquals(3, dao.observeByGenres(emptyList()).first().size)
+        // Whole-element JSON matching: "Action" must not match a genre that merely contains it.
+        dao.upsert(manga().copy(id = "s:4", title = "Super", genres = listOf("Super Action Squad")))
+        assertEquals(listOf("Berserk"), dao.observeByGenres(listOf("Action")).first().map { it.title })
+    }
+
+    @Test
+    fun findByAnyTitleFindsSeriesStoredUnderJapaneseOrAliasNames() = runTest {
+        val dao = database.mangaDao()
+        dao.upsert(manga().copy(
+            id = "seed:attack-on-titan",
+            title = "Shingeki no Kyojin",
+            altTitles = listOf("進撃の巨人", "Attack on Titan"),
+        ))
+        // The English waterfall record must merge into the row stored under the romaji name.
+        assertEquals("seed:attack-on-titan", dao.findByAnyTitle(listOf("Attack on Titan"))?.id)
+        // …and the same row is found through its exact canonical title, case-insensitively.
+        assertEquals("seed:attack-on-titan", dao.findByAnyTitle(listOf("shingeki NO kyojin"))?.id)
+        assertEquals(null, dao.findByAnyTitle(listOf("Berserk")))
     }
 
     private fun manga() = MangaEntity(id = "s:m", title = "Title", sourceId = "s")

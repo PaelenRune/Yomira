@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun WebtoonReader(state: ReaderUiState, imageLoader: ImageLoader, jumpTo: Int?, onJumpHandled: () -> Unit,
-    onPage: (Int) -> Unit, onTap: () -> Unit) {
+    onPage: (Int) -> Unit, onTap: () -> Unit, copy: ReaderCopy = ReaderCopy()) {
     val list = rememberLazyListState(initialFirstVisibleItemIndex = state.pageIndex)
     var zoomedPages by remember { mutableStateOf(emptySet<Int>()) }
     val pageCallback by rememberUpdatedState(onPage)
@@ -24,7 +24,7 @@ fun WebtoonReader(state: ReaderUiState, imageLoader: ImageLoader, jumpTo: Int?, 
     LazyColumn(Modifier.fillMaxSize(), state = list, userScrollEnabled = zoomedPages.isEmpty()) {
         itemsIndexed(state.pages, key = { _, page -> page.index }, contentType = { _, _ -> "reader-page" }) { _, page ->
             ReaderPage(page, imageLoader, state.inverted, webtoon = true, onTap = onTap,
-                onZoomed = { zoomedPages = if (it) zoomedPages + page.index else zoomedPages - page.index })
+                onZoomed = { zoomedPages = if (it) zoomedPages + page.index else zoomedPages - page.index }, copy = copy)
         }
     }
 }

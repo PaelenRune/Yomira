@@ -1,50 +1,71 @@
-# Yomira v0.2.0-beta
+# Yomira v0.3.0-beta
 
-**Universal Comic & Manga Ecosystem — Büyük Güncelleme & Katalog Lansmanı**
+**Universal Comic & Manga Ecosystem — Keşif, Filtreleme ve Kişiselleştirme Güncellemesi**
 
 ---
 
 ### 🌟 Öne Çıkan Yenilikler
 
-1. **İlk Kurulum Sihirbazı (Onboarding Wizard UI):**
-   - Uygulama ilk açıldığında kullanıcıyı karşılayan 3 adımlı şık OLED sihirbazı.
-   - Adım 1: Okuma Dili Tercihi (Türkçe [TR] / English [EN]).
-   - Adım 2: Yetişkin İçerik İzni (+18 Açık/Kapalı) — Hikaye odaklı Level 1 Mature ile saf Level 2 Explicit arasındaki farkı açıklar.
-   - Adım 3: Keiyoushi Resmi Depo Bağlantısı (Tek tıkla eklenti deposunu hazırlama).
-   - Tercihler kalıcı olarak saklanır; sonraki açılışlarda doğrudan ana akışa geçilir.
+1. **Sonsuz Kaydırma (Infinite Scroll):**
+   - Ana Sayfa, Keşfet ve +18 Vault ızgaraları artık sayfa sonuna yaklaşıldığında otomatik olarak yeni içerik yükler.
+   - AniList GraphQL, MangaDex, ComicVine ve OpenLibrary kaynaklarından paralel sayfalama (`PagedCatalogLoader`); bir kaynak hata verse bile diğerleri ızgarayı doldurmaya devam eder.
+   - Tekrarlı istekler engellenir, tükenen akışta "Tüm seriler yüklendi" durumu gösterilir; neon nabız göstergesiyle kesintisiz yükleme hissi.
+   - Vault'un kendi bağımsız sayfalama imleci vardır ve hiçbir zaman genel akışla karışmaz.
 
-2. **Asla Boş Kalmayan Evrensel Katalog (159 Seri Dahili Tohum):**
-   - Eklenti veya internet kurulu olmasa dahi vitrinler asla boş kalmaz!
-   - `assets/prepopulated_catalog.json` içinde 159 popüler seri:
-     - *Mainstream:* Solo Leveling, One Piece, Jujutsu Kaisen, Chainsaw Man, Berserk, Attack on Titan, Bleach, Naruto...
-     - *Webtoon/Manhwa:* Omniscient Reader, The Beginning After The End, Tower of God, Nano Machine...
-     - *Western Comics:* Spider-Man, Batman, Saga, Invincible, The Boys, Watchmen...
-     - *Level 1 (MATURE / ECCHI):* "I Formed a MILF Party with the Heroes' Mothers", "Kimi wa Midara na Boku no Joou", "Prison School", "Gantz" (Ana sayfada 16+ rozetiyle).
-     - *Level 2 (EXPLICIT):* "Silent War", "Boarding Diary", "Secret Class" (Yalnızca +18 Vault için).
-   - Gerçek AniList / MangaDex CDN afişleri, yazarlar, özetler ve puanlar.
+2. **42 Tag Matrisi (Çoklu Etiket Filtresi):**
+   - 42 etiketli kapsamlı filtreleme matrisi: Action, Adventure, Comedy, Drama, Ecchi, Fantasy, Horror, Isekai, Mystery, Romance, Sci-Fi, Slice of Life, Sports, Supernatural, Thriller, Psychological, Harem, Mature, Nudity, Adult Cast, Gore, Seinen, Shounen, Shoujo, Josei, Kids, School, Military, Mecha, Music, Cooking, Historical, Vampire, Demons, Magic, Martial Arts, Super Power, Video Game, Webtoon, Western, Gender Bender, Award Winning.
+   - Çoklu seçim AND mantığıyla çalışır: `Ecchi + Komedi` seçimi yalnızca her iki etiketi taşıyan serileri getirir.
+   - Etiketler yerelleştirilmiştir (TR/EN) ve Türkçe/İngilizce sağlayıcı tür adlarını (Aksiyon/Action, Bilim Kurgu/Sci-Fi vb.) aynı anda eşler.
 
-3. **Canlı Keşif ve Otomatik Trend Beslemesi (Waterfall Discovery):**
-   - Uygulama açılışında arka planda AniList GraphQL ve MangaDex'ten güncel trend serileri çekilir ve Room önbelleğine eklenir.
-   - Canlı Arama Şelalesi: Yerel veritabanında bulunamayan seriler Baka-Updates ve AniList şelalesinden aranıp anında yerel kataloğa kaydedilir.
+3. **Batı Çizgi Romanları Dünyası (Western Comics):**
+   - Ana sayfada **"🇺🇸 Amerikan & Batı Çizgi Roman Dünyası"** özel vitrin rayı: Marvel, DC, Image, Dark Horse, Vertigo, Skybound, IDW ve daha fazlası.
+   - Spider-Man, Batman, Superman, X-Men, Invincible, The Boys, Watchmen, Saga, Hellboy gibi marka seriler öncelikli sıralanır.
+   - ComicVine ve OpenLibrary entegrasyonu ile çevrimiçi keşif; paket içi katalogla çevrimdışı da doludur.
+   - Türkçe ve Batı çizgi romanları için imzalı topluluk depo indeksleri (`repositories/turkish`, `repositories/western`).
+   - Yanlış sınıflandırmaya karşı korumalı eşleştirme: `Saga` gibi ortak kelimeler yalnızca tam başlıkta eşleşir; `Vinland Saga` manga rafında kalır.
 
-4. **Uygulama İçi Otomatik Güncelleme Bildirimi (In-App Auto-Updater):**
-   - GitHub Releases API entegrasyonu.
-   - Yeni bir sürüm çıktığında ekranda OLED bildirim diyaloğu (`UpdateDialog.kt`) belirir.
-   - Değişiklik notlarını gösterir ve doğrudan tek tıkla APK güncellemesi sunar.
+4. **Kanonik Tekilleştirme (Canonical Deduplication):**
+   - `CatalogMerger` ve `CatalogRecordMapper`, aynı serinin farklı kaynaklardan gelen kopyalarını (romaji/İngilizce/Türkçe başlık) tek bir kanonik kayıtta birleştirir.
+   - Kaynak kimliği + normalize başlık + alternatif başlık eşleşmesiyle güncelleme; kopya kart oluşmaz.
+   - Sonsuz kaydırma, canlı arama ve trend beslemesi aynı birleştirme hattından geçer.
 
-5. **Dribbble OLED UI & Evrensel Okuyucu Motoru:**
-   - 2, 3, 4 Sütun Izgara Seçici.
-   - Webtoon kesintisiz dikey kaydırma, Manga (RTL) ve Western (LTR) sayfa çevirme motoru.
-   - Smart Zoom (çift dokunuş odaklama), OLED Gece Modu ve Ters Renkler filtresi.
-   - Bağımsız +18 Kasa, PIN kilidi ve tek tıkla oturumu kapatan Panik Butonu.
+5. **Çift Dilli Arayüz (Tam EN/TR i18n):**
+   - 185 string kaynağının tamamı İngilizce (`values/`) ve Türkçe (`values-tr/`) olarak eşlendi.
+   - Uygulama içi dil değiştirici ve Ayarlar ekranından anında geçiş; seçim yeniden başlatmada korunur.
+   - Android 13+ sistem dil kısayolu (`localeConfig`) ve 33 altı sürümler için AppCompat otomatik yerel ayar depolama.
+   - Katalog, okuyucu, detay, kasa, onboarding ve güncelleme diyaloğu dahil tüm yüzeyler çift dilli.
+
+6. **Yeni Ayarlar Ekranı:**
+   - OLED uyumlu, bölümlere ayrılmış yeni ayarlar merkezi.
+   - Gizlilik ve +18 Vault anahtarı, dil seçimi, eklenti depoları (Keiyoushi / Türkçe / Batı), özel depo URL'si, önbellek temizleme ve manuel güncelleme denetimi.
+   - Sürüm bilgisi ve tek dokunuşla güncelleme kontrolü.
+
+7. **Gizlenebilir Vault (Stealth Mode):**
+   - Vault sekmesi tek anahtarla arayüzden **tamamen kaldırılabilir**; kilitli sekme olarak bile görünmez.
+   - Tercih kalıcıdır; kapatıldığında kasa otomatik olarak kilitlenir.
+   - `FLAG_SECURE` ile son uygulamalar önizlemesinde hassas içerik sızıntısı engellenir; panik butonu anında ana sayfaya döner.
+
+8. **Yeni Neon İkon:**
+   - Yeni adaptif launcher ikonu: mor neon elmas portal, fuşya yörünge yayı ve beyaz "Y" kitap sayfaları.
+   - `mipmap-anydpi-v26` adaptif ikon + yuvarlak varyant; koyu OLED arka planla uyumlu.
+
+---
+
+### 🐛 İyileştirmeler ve Kalite
+
+- Katalog bileşenleri için ortak `CatalogCopy` / `UiCopy` katmanı; modüller string kaynağı tutmaz.
+- 42 etiket için birim testleri (`CatalogTagsTest`) ve kanonik birleştirme testleri (`CatalogMergerTest`).
+- Sonsuz kaydırma yüklenirken çift istek koruması ve hata durumunda "Yeniden dene" akışı.
+- Eklenti deposu indeksleri için `scripts/update-curated-repositories.ps1` doğrulama betiği.
 
 ---
 
 ### 📦 Kurulum ve İndirme
 
-- **Doğrudan APK:** `yomira-v0.2.0-beta.apk` (GitHub Releases üzerinden indirilebilir)
+- **Doğrudan APK:** `yomira-v0.3.0-beta.apk` (GitHub Releases üzerinden indirilebilir)
 - **Minimum Sistem:** Android 8.0+ (API 26+)
 - **SHA-256 Sağlama:** `SHA256SUMS.txt` ile doğrulanabilir.
+- **Sürüm:** versionCode `3` / versionName `0.3.0-beta`
 
 ### 🌐 Canlı Bağlantılar
 - **GitHub Repository:** https://github.com/PaelenRune/Yomira

@@ -5,7 +5,7 @@
 # 🌌 YOMIRA
 ### Evrensel Çizgi Roman & Manga Ekosistemi
 
-[![Release](https://img.shields.io/badge/Release-v0.2.0--beta-FF007F?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
+[![Release](https://img.shields.io/badge/Release-v0.3.0--beta-FF007F?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
 [![Platform](https://img.shields.io/badge/Platform-Android_8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
@@ -15,18 +15,22 @@
 
 **Manga, Webtoon, Manhwa, Manhua, Western (Marvel/DC/Image) ve Yetişkin (+18) serileri tek bir çatı altında birleştiren, Dribbble ilhamlı OLED arayüze ve Keiyoushi eklenti motoruna sahip yeni nesil Android okuma platformu.**
 
-[📱 **Beta APK İndir (v0.2.0-beta)**](https://github.com/PaelenRune/Yomira/releases/download/v0.2.0-beta/yomira-v0.2.0-beta.apk) • [🌐 **Ürün Tanıtım Sayfası (GitHub Pages)**](https://paelenrune.github.io/Yomira/) • [📋 **Sürüm Notları**](release/RELEASE_NOTES.md)
+[📱 **Beta APK İndir (v0.3.0-beta)**](https://github.com/PaelenRune/Yomira/releases/download/v0.3.0-beta/yomira-v0.3.0-beta.apk) • [🌐 **Ürün Tanıtım Sayfası (GitHub Pages)**](https://paelenrune.github.io/Yomira/) • [📋 **Sürüm Notları**](release/RELEASE_NOTES.md)
 
 </div>
 
 ---
 
-## 🚀 v0.2.0-beta Öne Çıkan Yenilikler
+## 🚀 v0.3.0-beta Öne Çıkan Yenilikler
 
-- 🌟 **İlk Kurulum Sihirbazı (Onboarding Wizard):** İlk açılışta okuma dili (TR/EN), +18 içerik izni (Level 1 vs Level 2 ayrımı) ve tek tıkla Keiyoushi repo bağlama.
-- 📦 **Asla Boş Kalmayan Evrensel Katalog:** Eklenti kurulu olmasa dahi 159 popüler seri (Solo Leveling, One Piece, Spider-Man, MILF Party, Kimi wa Midara, Silent War) afiş ve metadatalarıyla hazır gelir!
-- ⚡ **Otomatik Trend & Canlı Arama Şelalesi:** AniList GraphQL ve MangaDex'ten arka planda otomatik en güncel serileri çeken canlı keşif motoru.
-- 🔔 **Uygulama İçi Otomatik Güncelleme (In-App Auto-Updater):** Yeni sürüm çıktığında uygulama içinde OLED bildirim diyalogu gösterir ve doğrudan APK güncellemesi sunar.
+- ♾️ **Sonsuz Kaydırma (Infinite Scroll):** Ana Sayfa, Keşfet ve +18 Vault ızgaralarında sayfa sonuna gelindiğinde AniList, MangaDex, ComicVine ve OpenLibrary'den otomatik yeni sayfalar yüklenir.
+- 🏷️ **42 Tag Matrisi:** Action'dan Award Winning'e 42 etiketli çoklu filtreleme; `Ecchi + Komedi` gibi AND kombinasyonları ve tam TR/EN etiket desteği.
+- 🇺🇸 **Batı Çizgi Romanları:** Marvel, DC, Image, Dark Horse vitrini; Spider-Man, Batman, Invincible, The Boys, Watchmen ve geniş western rafı.
+- 🧬 **Kanonik Tekilleştirme:** Farklı kaynaklardan gelen aynı seriler romaji/İngilizce/Türkçe başlık eşleşmesiyle tek kayıtta birleşir; kopya kart oluşmaz.
+- 🌍 **Tam EN/TR Desteği:** 185 string kaynağının tamamı çift dilli; onboarding, katalog, okuyucu, detay, kasa ve ayarlar dahil anında dil geçişi.
+- ⚙️ **Yeni Ayarlar Ekranı:** Gizlilik, dil, eklenti depoları, önbellek temizleme ve güncelleme denetimi tek OLED ekranda.
+- 🕵️ **Gizlenebilir Vault:** +18 Kasa sekmesi tek anahtarla tamamen gizlenir; tercih kalıcıdır ve kasa otomatik kilitlenir.
+- 💎 **Yeni Neon İkon:** Mor neon elmas portal, fuşya yörünge ve "Y" kitap motifiyle yeni adaptif launcher ikonu.
 
 ---
 
@@ -94,14 +98,14 @@ Yomira'nın en hassas algoritması, erotik/hikaye dengeli seriler ile saf pornog
 
 ## 🚀 Hızlı Kurulum
 
-1. [Releases](https://github.com/PaelenRune/Yomira/releases) sayfasından en son `yomira-v0.1.0-beta.apk` dosyasını indirin.
+1. [Releases](https://github.com/PaelenRune/Yomira/releases) sayfasından en son `yomira-v0.3.0-beta.apk` dosyasını indirin.
 2. Android cihazınızda indirdiğiniz APK'yı açarak yüklemeyi onaylayın.
 3. İlk açılış Onboarding sihirbazında okuma dilinizi (Türkçe/İngilizce) seçin ve Keiyoushi deposunu bağlayın.
 4. Keyifle okumaya başlayın!
 
 ```bash
 # ADB ile doğrudan yükleme
-adb install -r release/yomira-v0.1.0-beta.apk
+adb install -r release/yomira-v0.3.0-beta.apk
 ```
 
 ---

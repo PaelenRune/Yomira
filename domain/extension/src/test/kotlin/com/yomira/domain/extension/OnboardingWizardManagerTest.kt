@@ -44,6 +44,7 @@ class OnboardingWizardManagerTest {
     private class Repository(val failRefresh: Boolean = false) : ExtensionRepository {
         val urls = mutableListOf<String>()
         override suspend fun addRepository(indexUrl: String) { urls += indexUrl }
+        override suspend fun removeRepository(indexUrl: String) { urls -= indexUrl }
         override suspend fun repositories() = urls.toList()
         override suspend fun refresh(): List<ExtensionDescriptor> {
             check(!failRefresh)

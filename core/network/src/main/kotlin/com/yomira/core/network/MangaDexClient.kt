@@ -2,6 +2,8 @@ package com.yomira.core.network
 
 import com.yomira.core.model.ExternalRating
 import com.yomira.core.model.MangaStatus
+import com.yomira.core.model.PageWindow
+import com.yomira.core.model.PageSlice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -73,14 +75,57 @@ class MangaDexClient(
      * non-explicit rating buckets are requested so nothing adult reaches the
      * public home feed by accident.
      */
-    suspend fun trending(limit: Int = 20): List<RemoteMetadata> = withContext(Dispatchers.IO) {
+    suspend fun trending(limit: Int = 20): List<RemoteMetadata> =
+        discover(page = 1, perPage = limit, includeAdult = false).items
+
+    /** One page of the infinite discovery feed (`offset += perPage` per call). */
+    suspend fun discover(
+        page: Int = 1,
+        perPage: Int = PageWindow.DEFAULT_PAGE_SIZE,
+        includeAdult: Boolean = false,
+    ): PageSlice<RemoteMetadata> = withContext(Dispatchers.IO) {
+        val window = PageWindow(page, perPage.coerceIn(1, PageWindow.MAX_PAGE_SIZE))
+        fetchPage(
+            window = window,
+            ratings = if (includeAdult) ADULT_RATINGS else PUBLIC_RATINGS,
+            order = "followedCount",
+            originalLanguage = null,
+        )
+    }
+
+    /**
+     * English-original records only. This is the western-comics fallback used by
+     * the spotlight and by the public infinite feed; `originalLanguage=en`
+     * excludes Japanese/Korean/Chinese originals regardless of translation.
+     */
+    suspend fun western(
+        page: Int = 1,
+        perPage: Int = PageWindow.DEFAULT_PAGE_SIZE,
+    ): PageSlice<RemoteMetadata> = withContext(Dispatchers.IO) {
+        val window = PageWindow(page, perPage.coerceIn(1, PageWindow.MAX_PAGE_SIZE))
+        fetchPage(
+            window = window,
+            ratings = PUBLIC_RATINGS,
+            order = "followedCount",
+            originalLanguage = "en",
+        )
+    }
+
+    private suspend fun fetchPage(
+        window: PageWindow,
+        ratings: List<String>,
+        order: String,
+        originalLanguage: String?,
+    ): PageSlice<RemoteMetadata> {
         val url = "${config.mangaDexBaseUrl}/manga".toHttpUrlOrNull()?.newBuilder()
-            ?.addQueryParameter("limit", limit.coerceIn(1, 50).toString())
-            ?.addQueryParameter("order[followedCount]", "desc")
+            ?.addQueryParameter("limit", window.pageSize.toString())
+            ?.addQueryParameter("offset", window.offset.toString())
+            ?.addQueryParameter("order[$order]", "desc")
             ?.addAll("includes[]", LIST_INCLUDES)
-            ?.addAll("contentRating[]", PUBLIC_RATINGS)
+            ?.addAll("contentRating[]", ratings)
+            ?.apply { originalLanguage?.let { addQueryParameter("originalLanguage[]", it) } }
             ?.build()
-            ?: return@withContext emptyList()
+            ?: return PageSlice(emptyList(), hasMore = false)
         val request = Request.Builder()
             .url(url)
             .commonHeaders(config.userAgent)
@@ -91,7 +136,11 @@ class MangaDexClient(
         }
         val records = payload.data
         val statistics = fetchStatistics(records.mapNotNull { it.id })
-        records.mapNotNull { it.toMetadata(statistics[it.id]) }
+        val items = records.mapNotNull { it.toMetadata(statistics[it.id]) }
+        val received = payload.offset ?: window.offset
+        val hasMore = payload.total?.let { received + records.size < it }
+            ?: (records.size >= window.pageSize)
+        return PageSlice(items, hasMore)
     }
 
     /** Statistics are optional: artwork, titles and tags survive a statistics outage. */
@@ -157,6 +206,10 @@ class MangaDexClient(
             remoteId = mangaId,
             title = canonical,
             altTitles = titleGroups,
+            // MangaDex keeps every locale in `title`/`altTitles`; the English key
+            // ("en") becomes the display-title candidate for the shelf, e.g.
+            // "Shingeki no Kyojin" is surfaced as "Attack on Titan".
+            englishTitle = titleGroups["en"]?.firstOrNull(),
             author = authorNames.joinToString(", ").ifBlank { null },
             artist = artistNames.joinToString(", ").ifBlank { null },
             description = cleanText(attributes.description.pickTitle()),
@@ -205,6 +258,9 @@ class MangaDexClient(
     private data class MangaDexListResponse(
         val result: String? = null,
         val data: List<MangaDexManga> = emptyList(),
+        val limit: Int? = null,
+        val offset: Int? = null,
+        val total: Int? = null,
     )
 
     @Serializable
@@ -285,5 +341,6 @@ class MangaDexClient(
         val LIST_INCLUDES = listOf("cover_art", "author", "artist")
         val ALL_RATINGS = listOf("safe", "suggestive", "erotica", "pornographic")
         val PUBLIC_RATINGS = listOf("safe", "suggestive")
+        val ADULT_RATINGS = listOf("erotica", "pornographic")
     }
 }

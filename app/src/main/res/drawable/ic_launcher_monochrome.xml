@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Monochrome layer of the Yomira launcher icon (Android 13+ themed icons).
+    The launcher tints this layer, so every shape is a single color with alpha
+    only — the portal ring, its glow and the open book stay legible in one hue.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Portal halo ring -->
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#55FFFFFF"
+        android:pathData="M33.5,42 a20.5,20.5 0 1,0 41,0 a20.5,20.5 0 1,0 -41,0 M38,42 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+
+    <!-- Portal core -->
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M40.5,42 a13.5,13.5 0 1,0 27,0 a13.5,13.5 0 1,0 -27,0" />
+
+    <!-- Main portal ring -->
+    <path
+        android:fillType="evenOdd"
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M37,42 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0 M40,42 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+
+    <!-- Highlight arc -->
+    <path
+        android:pathData="M43,31 A15.5,15.5 0 0,1 65,31"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+
+    <!-- Open book: both pages in one tint -->
+    <path
+        android:fillColor="#FFEEEEEE"
+        android:pathData="M31,69 C37,64.5 46.5,64.5 53,68.5 L53,79 C46.5,75 37,75 31,79 Z" />
+    <path
+        android:fillColor="#FFEEEEEE"
+        android:pathData="M77,69 C71,64.5 61.5,64.5 55,68.5 L55,79 C61.5,75 71,75 77,79 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M53,68.5 L55,68.5 L55,79 L53,79 Z" />
+
+    <!-- Sparkles -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M32,29.8 C32.6,31.9 32.6,31.9 35.2,33 C32.6,34.1 32.6,34.1 32,36.2 C31.4,34.1 31.4,34.1 28.8,33 C31.4,31.9 31.4,31.9 32,29.8 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M77,51.8 C77.6,53.9 77.6,53.9 80.2,55 C77.6,56.1 77.6,56.1 77,58.2 C76.4,56.1 76.4,56.1 73.8,55 C76.4,53.9 76.4,53.9 77,51.8 Z" />
+</vector>

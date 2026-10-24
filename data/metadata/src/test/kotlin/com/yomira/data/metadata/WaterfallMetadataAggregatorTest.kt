@@ -97,4 +97,41 @@ class WaterfallMetadataAggregatorTest {
     @Test fun noMatchReturnsNull() = runTest {
         assertNull(WaterfallMetadataAggregator(listOf(provider(MetadataSources.KITSU) { emptyList() }), Cache()).aggregate("Unknown"))
     }
+
+    @Test fun englishTitleBecomesDisplayTitleAndRomajiSurvivesAsAlias() = runTest {
+        val providers = listOf(provider(MetadataSources.ANILIST) {
+            listOf(RemoteMetadata(
+                sourceId = MetadataSources.ANILIST, remoteId = "431", title = "Shingeki no Kyojin",
+                altTitles = mapOf("ja" to listOf("進撃の巨人")), englishTitle = "Attack on Titan",
+            ))
+        })
+        val manga = WaterfallMetadataAggregator(providers, Cache(), clock = clock).aggregate("Attack on Titan")!!
+        // The shelf shows the known English name, never the romaji…
+        assertEquals("Attack on Titan", manga.title)
+        // …while every other known spelling stays searchable through the alt titles.
+        assertTrue(manga.altTitles.contains("Shingeki no Kyojin"))
+        assertTrue(manga.altTitles.contains("進撃の巨人"))
+    }
+
+    @Test fun recordsWithoutEnglishTitleFallBackToFirstCanonicalTitle() = runTest {
+        val providers = listOf(
+            provider(MetadataSources.BAKA_UPDATES) { listOf(record(MetadataSources.BAKA_UPDATES).copy(englishTitle = null)) },
+            provider(MetadataSources.ANILIST) { listOf(record(MetadataSources.ANILIST)) },
+        )
+        val manga = WaterfallMetadataAggregator(providers, Cache(), clock = clock).aggregate("One Piece")!!
+        assertEquals("One Piece", manga.title)
+    }
+
+    @Test fun duplicateCachedRecordsNeverMergeIntoTwoIdentities() = runTest {
+        val cache = Cache().apply {
+            payload = kotlinx.serialization.json.Json.encodeToString(
+                kotlinx.serialization.builtins.ListSerializer(RemoteMetadata.serializer()),
+                listOf(record(MetadataSources.KITSU), record(MetadataSources.KITSU)),
+            )
+            expiry = Long.MAX_VALUE
+        }
+        val manga = WaterfallMetadataAggregator(emptyList(), cache, clock = clock).aggregate("One Piece")!!
+        assertEquals("${MetadataSources.KITSU}:1", manga.id)
+        assertEquals("One Piece", manga.title)
+    }
 }

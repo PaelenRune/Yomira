@@ -15,6 +15,13 @@ data class RemoteMetadata(
     val remoteId: String,
     val title: String,
     val altTitles: Map<String, List<String>> = emptyMap(),
+    /**
+     * The known English display title (`title.english` on AniList, `title["en"]`
+     * on MangaDex, the canonical English title on MangaUpdates). Readers expect
+     * *Attack on Titan*, never the romaji *Shingeki no Kyojin*, so the waterfall
+     * aggregator promotes this value to the series display title whenever present.
+     */
+    val englishTitle: String? = null,
     val author: String? = null,
     val artist: String? = null,
     val description: String? = null,
@@ -54,6 +61,7 @@ data class RemoteMetadata(
                 if (trimmed.isNotEmpty() && seen.add(trimmed.lowercase(java.util.Locale.ROOT))) add(trimmed)
             }
             addTitle(title)
+            addTitle(englishTitle)
             altTitles.values.forEach { values -> values.forEach(::addTitle) }
         }
     }

@@ -29,6 +29,7 @@ fun UpdateDialog(
     onUpdate: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    copy: UpdateDialogCopy = UpdateDialogCopy(),
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -47,7 +48,7 @@ fun UpdateDialog(
         title = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "Yeni Sürüm Mevcut!",
+                    copy.title,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
@@ -61,7 +62,7 @@ fun UpdateDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Değişiklikler", style = MaterialTheme.typography.labelLarge, color = TextMuted)
+                Text(copy.changesLabel, style = MaterialTheme.typography.labelLarge, color = TextMuted)
                 Box(
                     Modifier
                         .fillMaxWidth()
@@ -75,7 +76,7 @@ fun UpdateDialog(
                     )
                 }
                 Text(
-                    "APK, GitHub Releases sayfası üzerinden tarayıcıda indirilir.",
+                    copy.apkNote,
                     style = MaterialTheme.typography.labelSmall,
                     color = TextMuted,
                 )
@@ -91,12 +92,12 @@ fun UpdateDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text("Şimdi Güncelle")
+                    Text(copy.updateNow)
                 }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Daha sonra", color = TextMuted) }
+            TextButton(onClick = onDismiss) { Text(copy.later, color = TextMuted) }
         },
     )
 }

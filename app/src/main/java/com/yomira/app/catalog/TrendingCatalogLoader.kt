@@ -1,15 +1,12 @@
 package com.yomira.app.catalog
 
 import com.yomira.core.database.dao.MangaDao
-import com.yomira.core.database.entity.MangaEntity
+import com.yomira.core.database.dao.findByAnyTitle
 import com.yomira.core.database.mapper.toEntity
-import com.yomira.core.model.ContentRating
-import com.yomira.core.model.ExternalRating
 import com.yomira.core.model.Manga
 import com.yomira.core.network.AniListClient
 import com.yomira.core.network.MangaDexClient
 import com.yomira.core.network.RemoteMetadata
-import com.yomira.domain.classifier.ClassificationInput
 import com.yomira.domain.classifier.ContentRatingClassifier
 import java.util.Locale
 import javax.inject.Inject
@@ -25,6 +22,11 @@ import kotlinx.coroutines.withContext
  * The network is best-effort: a failure is silent because the bundled seed
  * catalogue already guarantees a non-empty home screen. Results are stored
  * with their real provider source id so the waterfall can refresh them later.
+ *
+ * Titles follow the English-first display rule: `englishTitle` (Attack on Titan)
+ * beats provider romaji (Shingeki no Kyojin). Nothing is inserted blindly — every
+ * record first goes through [CatalogMerger] so a series that is already in the
+ * database under another language name is updated, never duplicated.
  */
 class TrendingCatalogLoader @Inject constructor(
     private val aniListClient: AniListClient,
@@ -37,17 +39,30 @@ class TrendingCatalogLoader @Inject constructor(
         val records = fetch(limit)
         if (records.isEmpty()) return@withContext 0
 
-        val seenTitles = HashSet<String>()
-        val entities = ArrayList<MangaEntity>(records.size)
+        val seenIdentities = HashSet<String>()
+        val mergedIds = HashSet<String>()
+        var written = 0
         for (record in records) {
             val manga = record.toMangaOrNull() ?: continue
-            if (!seenTitles.add(manga.title.lowercase(Locale.ROOT))) continue
-            if (mangaDao.existsByTitle(manga.title)) continue
-            entities += manga.toEntity(CatalogSeeder.readingModeFor(manga.genres))
+            // Cross-language de-duplication: the same trending series can arrive from
+            // AniList under one English title and from MangaDex under a slight variant.
+            if (!seenIdentities.add(manga.identityCandidates().joinToString("|") { it.lowercase(Locale.ROOT) })) continue
+            if (mangaDao.getById(manga.id) != null) continue
+            val conflict = mangaDao.findByAnyTitle(manga.identityCandidates())
+            when {
+                conflict == null -> {
+                    mangaDao.upsert(manga.toEntity(CatalogSeeder.readingModeFor(manga.genres)))
+                    written++
+                }
+                // A seed row holding the Japanese/romaji name absorbs the trending
+                // record under its original id; a second card never reaches the grid.
+                mergedIds.add(conflict.id) -> {
+                    mangaDao.upsert(CatalogMerger.mergedEntity(conflict, manga))
+                    written++
+                }
+            }
         }
-        if (entities.isEmpty()) return@withContext 0
-        mangaDao.upsertAll(entities)
-        entities.size
+        written
     }
 
     private suspend fun fetch(limit: Int): List<RemoteMetadata> = coroutineScope {
@@ -65,43 +80,12 @@ class TrendingCatalogLoader @Inject constructor(
         emptyList()
     }
 
-    private fun RemoteMetadata.toMangaOrNull(): Manga? {
-        val canonical = title.trim().takeIf { it.isNotEmpty() } ?: return null
-        val rating = classifier.classify(
-            ClassificationInput(
-                title = canonical,
-                altTitles = allTitles(),
-                genres = genres,
-                tags = tags,
-                externalRatings = listOfNotNull(contentRating),
-                isOfficialPublication = isOfficialPublication,
-                publicationType = publicationType,
-            ),
-        )
-        // The public feed never receives explicit titles from an uncurated remote feed.
-        if (rating == ContentRating.EXPLICIT || contentRating == ExternalRating.PORNOGRAPHIC) return null
-        return Manga(
-            id = "$sourceId:$remoteId",
-            title = canonical.take(MAX_TITLE_LENGTH),
-            altTitles = allTitles().filterNot { it.equals(canonical, ignoreCase = true) },
-            coverUrl = coverUrl.httpsOrNull(),
-            bannerUrl = bannerUrl.httpsOrNull(),
-            author = author?.trim()?.takeIf { it.isNotEmpty() },
-            artist = artist?.trim()?.takeIf { it.isNotEmpty() },
-            synopsis = description?.trim()?.takeIf { it.isNotEmpty() },
-            score = score?.takeIf { it.isFinite() }?.coerceIn(0.0, 10.0),
-            status = status,
-            genres = genres.map { it.trim() }.filter { it.isNotEmpty() }.distinct(),
-            contentRating = rating,
-            sourceId = sourceId,
-        )
-    }
-
-    private fun String?.httpsOrNull(): String? =
-        this?.trim()?.takeIf { it.startsWith("https://", ignoreCase = true) }
+    private fun RemoteMetadata.toMangaOrNull(): Manga? =
+        // Shared with the paging engine: same English-title-first rule and the
+        // same western-comics genre marker for trending records.
+        CatalogRecordMapper.toMangaOrNull(this, classifier, allowExplicit = false)
 
     companion object {
         const val DEFAULT_LIMIT = 24
-        private const val MAX_TITLE_LENGTH = 200
     }
 }

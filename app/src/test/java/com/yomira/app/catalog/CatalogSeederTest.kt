@@ -198,6 +198,13 @@ class CatalogSeederTest {
         override suspend fun getById(id: String): MangaEntity? = rows.firstOrNull { it.id == id }
         override suspend fun count(): Int = rows.size
         override suspend fun existsByTitle(title: String): Boolean = rows.any { it.title.equals(title, ignoreCase = true) }
+        override suspend fun findByTitleOrPattern(title: String, elementPattern: String): MangaEntity? =
+            rows.firstOrNull { stored ->
+                stored.title.equals(title, ignoreCase = true) ||
+                    stored.altTitles.any { it.equals(title, ignoreCase = true) }
+            }
+        override fun observeByRawQuery(query: androidx.sqlite.db.SupportSQLiteQuery): Flow<List<MangaEntity>> =
+            flowOf(rows.toList())
         override suspend fun upsert(manga: MangaEntity) {
             rows.removeAll { it.id == manga.id }
             rows += manga

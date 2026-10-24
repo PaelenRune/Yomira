@@ -14,6 +14,45 @@ class FallbackClientsTest {
         assertEquals(listOf("One Piece", "ワンピース"), record.allTitles())
     }
 
+    @Test fun englishTitleParticipatesInIdentityMatching() {
+        val record = RemoteMetadata("anilist", "1", "Shingeki no Kyojin", englishTitle = "Attack on Titan")
+        assertEquals(listOf("Shingeki no Kyojin", "Attack on Titan"), record.allTitles())
+    }
+
+    @Test fun aniListCapturesEnglishTitleOverProviderRomaji() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""
+                {"data":{"page":{"media":[{
+                  "id":431,
+                  "title":{"romaji":"Shingeki no Kyojin","english":"Attack on Titan","native":"進撃の巨人"},
+                  "genres":["Action","Drama"]
+                }]}}}
+            """.trimIndent()))
+            val client = AniListClient(OkHttpClient(), config = NetworkConfiguration(aniListEndpoint = server.url("/graphql").toString()))
+            val record = client.search("Attack on Titan", 5).single()
+            assertEquals("Shingeki no Kyojin", record.title)
+            assertEquals("Attack on Titan", record.englishTitle)
+            assertTrue(record.allTitles().containsAll(listOf("Shingeki no Kyojin", "Attack on Titan", "進撃の巨人")))
+        }
+    }
+
+    @Test fun mangaDexCapturesEnglishTitleFromTitleLocale() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""
+                {"data":[{"id":"a1","attributes":{
+                  "title":{"ja":"進撃の巨人","en":"Attack on Titan"},
+                  "status":"finished","year":2009
+                }}]}
+            """.trimIndent()))
+            server.enqueue(MockResponse().setBody("""{"statistics":{}}"""))
+            val client = MangaDexClient(OkHttpClient(), config = NetworkConfiguration(mangaDexBaseUrl = server.url("/").toString().trimEnd('/')))
+            val record = client.search("Attack on Titan", 5).single()
+            // pickTitle prefers `en`, and englishTitle exposes it for the display rule.
+            assertEquals("Attack on Titan", record.title)
+            assertEquals("Attack on Titan", record.englishTitle)
+        }
+    }
+
     @Test fun kitsuCategoriesStayScopedAndExplicitEvidenceIsPreserved() = runTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("""

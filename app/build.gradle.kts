@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0-beta"
+        versionCode = 3
+        versionName = "0.3.0-beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":feature:vault"))
     implementation(project(":feature:details"))
     implementation(project(":feature:reader"))
+    implementation(project(":feature:settings"))
     implementation(project(":domain:extension"))
     implementation(project(":domain:sync"))
     implementation(libs.androidx.navigation.compose)
@@ -63,6 +64,9 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:ui"))
     implementation(libs.androidx.core.ktx)
+    // AppCompat 1.6+ backs the in-app language switcher below API 33 and persists the
+    // chosen locale across restarts (AppLocalesMetadataHolderService autoStoreLocales).
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(platform(libs.androidx.compose.bom))

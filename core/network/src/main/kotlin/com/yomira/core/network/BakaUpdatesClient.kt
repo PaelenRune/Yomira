@@ -191,6 +191,9 @@ class BakaUpdatesClient(
             remoteId = seriesId,
             title = canonicalTitle,
             altTitles = mapOf("associated" to associatedTitles),
+            // MangaUpdates is an English-language database: its canonical title is
+            // the English display title the shelf should prefer over provider romaji.
+            englishTitle = canonicalTitle,
             author = authorNames.joinToString(", ").ifBlank { null },
             artist = artistNames.joinToString(", ").ifBlank { null },
             description = cleanText(description),

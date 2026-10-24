@@ -93,6 +93,7 @@ class KitsuClient(
             remoteId = remoteId,
             title = canonical,
             altTitles = alt,
+            englishTitle = attributes.titles?.en?.trim()?.takeIf { it.isNotEmpty() },
             description = cleanText(attributes.synopsis),
             coverUrl = attributes.posterImage?.original?.ifBlank { null }
                 ?: attributes.posterImage?.large?.ifBlank { null },
