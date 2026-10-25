@@ -29,3 +29,6 @@ include(":domain:sync", ":data:sync")
 include(":feature:home", ":feature:vault", ":feature:details")
 include(":feature:reader")
 include(":feature:settings")
+// Independent Windows desktop target (Phase 4-A): pure JVM, packages to .exe/.msi.
+include(":desktop")
+include(":domain:journey", ":feature:journey")

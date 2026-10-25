@@ -55,6 +55,7 @@ fun SettingsScreen(
     onLockOnBackgroundChange: (Boolean) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onReadingModeChange: (ReadingMode) -> Unit,
+    onGuidedViewChange: (Boolean) -> Unit,
     onRepositoryToggle: (CuratedRepository, Boolean) -> Unit,
     onAddCustomRepository: (String) -> Unit,
     onRemoveRepository: (String) -> Unit,
@@ -165,6 +166,8 @@ fun SettingsScreen(
                             ) { Text(copy.modeWestern) }
                         }
                     }
+                    RowDivider()
+                    SettingsSwitchRow(copy.guidedViewTitle, copy.guidedViewBody, state.settings.guidedView, onGuidedViewChange, NeonPurple)
                 }
             }
             item {

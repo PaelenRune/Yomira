@@ -12,6 +12,10 @@ import kotlinx.coroutines.withTimeout
  * IPC boundary, NOT an in-process DexClassLoader. The host must implement this using a separate
  * sandbox process and a compatible Mihon API runtime. Untrusted extension code must never run in
  * the app process. Calls must be cancellable and return DTOs only, not plugin-defined objects.
+ *
+ * The sandbox host builds itself from [SandboxIntegrityGuard.LoadableSandbox]: the dex files
+ * extracted by [SandboxExtensionInstaller] are re-hashed by [SandboxIntegrityGuard] and only
+ * then handed to a `DexClassLoader`. Extensions are never installed with `pm install`.
  */
 interface IsolatedExtensionRuntime : SourceBridge {
     /** Rechecks package certificate trust and verifies source ownership on every invocation. */

@@ -1,4 +1,4 @@
-package com.yomira.data.metadata
+package com.yomira.core.database.metadata
 
 import com.yomira.core.database.dao.MetadataCacheDao
 import com.yomira.core.database.entity.MetadataCacheEntity

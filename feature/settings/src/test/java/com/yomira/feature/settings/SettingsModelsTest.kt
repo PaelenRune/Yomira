@@ -19,16 +19,16 @@ class SettingsModelsTest {
         val destinations = visibleBottomDestinations(vaultVisible = false)
         assertFalse(MainDestination.VAULT in destinations)
         assertEquals(
-            listOf(MainDestination.HOME, MainDestination.DISCOVER, MainDestination.LIBRARY),
+            listOf(MainDestination.HOME, MainDestination.DISCOVER, MainDestination.LIBRARY, MainDestination.PROFILE),
             destinations,
         )
         // No placeholder, lock icon or disabled entry may survive the hide.
         assertTrue(destinations.none { it.route == MainDestination.VAULT.route })
     }
 
-    @Test fun `fresh settings keep the pre-settings security posture`() {
+    @Test fun `fresh settings hide private features and require device credentials`() {
         val defaults = AppSettings()
-        assertTrue(defaults.vaultVisible)
+        assertFalse(defaults.vaultVisible)
         assertTrue(defaults.requireDeviceLock)
         assertTrue(defaults.lockOnBackground)
         assertEquals(ReadingMode.MANGA_RTL, defaults.readingMode)

@@ -73,8 +73,10 @@ fun HomeScreen(
     onClearTags: () -> Unit = {},
     copy: HomeCopy = HomeCopy(),
     onLoadMore: () -> Unit = {},
+    /** Width bucket of the host window; phones get one column, tablets expand the grid. */
+    sizeClass: WindowSizeClass = WindowSizeClass.Medium,
 ) {
-    val columns = state.columns.coerceIn(2, 4)
+    val columns = AdaptiveLayout.catalogColumns(sizeClass, state.columns)
     // Room re-emits every discovered row. Appending the page list after the
     // Room snapshot keeps newly fetched cards at the end without duplicating
     // a series that is already on screen.
@@ -107,8 +109,11 @@ fun HomeScreen(
                 }
                 FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(copy.yourShelf, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp))
-                    GridColumnSelector(columns, onColumns, copy = copy.catalog)
-                }
+                    // A phone is intentionally single-column; showing a 2/3/4 selector
+                    // there would advertise a layout that cannot be applied.
+                    if (sizeClass != WindowSizeClass.Compact) {
+                        GridColumnSelector(columns, onColumns, copy = copy.catalog)
+                    }                }
             }
         }
         if (tagOptions.isNotEmpty()) {

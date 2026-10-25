@@ -4,11 +4,16 @@ import android.content.Context
 import androidx.room.Room
 import com.yomira.core.database.YomiraDatabase
 import com.yomira.core.database.MIGRATION_2_3
+import com.yomira.core.database.MIGRATION_3_4
 import com.yomira.core.database.dao.ChapterDao
+import com.yomira.core.database.dao.JourneyProfileDao
 import com.yomira.core.database.dao.MangaDao
 import com.yomira.core.database.dao.MetadataCacheDao
+import com.yomira.core.database.dao.ReadChapterDao
+import com.yomira.core.database.dao.ReadingActivityDao
 import com.yomira.core.database.dao.SyncDao
 import com.yomira.core.database.dao.SyncDataDao
+import com.yomira.core.database.dao.UnlockedBadgeDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +28,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): YomiraDatabase =
         Room.databaseBuilder(context, YomiraDatabase::class.java, "yomira.db")
-            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
             .build()
 
@@ -41,4 +46,16 @@ object DatabaseModule {
 
     @Provides
     fun provideSyncDataDao(database: YomiraDatabase): SyncDataDao = database.syncDataDao()
+
+    @Provides
+    fun provideReadingActivityDao(database: YomiraDatabase): ReadingActivityDao = database.readingActivityDao()
+
+    @Provides
+    fun provideReadChapterDao(database: YomiraDatabase): ReadChapterDao = database.readChapterDao()
+
+    @Provides
+    fun provideJourneyProfileDao(database: YomiraDatabase): JourneyProfileDao = database.journeyProfileDao()
+
+    @Provides
+    fun provideUnlockedBadgeDao(database: YomiraDatabase): UnlockedBadgeDao = database.unlockedBadgeDao()
 }

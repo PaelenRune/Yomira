@@ -20,18 +20,19 @@ enum class AppLanguage(val tag: String) {
 }
 
 /**
- * Device-local application settings. Defaults mirror the pre-settings
- * behaviour so a fresh install never weakens an existing security guarantee.
+ * Device-local application settings. A fresh install keeps private features hidden.
  */
 data class AppSettings(
     /** When false the +18 Vault tab is removed from the UI entirely, leaving no trace. */
-    val vaultVisible: Boolean = true,
+    val vaultVisible: Boolean = false,
     /** When true entering the Vault requires the device credential (PIN/pattern/biometric). */
     val requireDeviceLock: Boolean = true,
     /** When true the Vault re-locks as soon as the app is backgrounded. */
     val lockOnBackground: Boolean = true,
     /** Reader mode a series starts in before the user picks one explicitly. */
     val readingMode: ReadingMode = ReadingMode.MANGA_RTL,
+    /** When true the reader opens in Guided View (panel-by-panel cinematic reading). */
+    val guidedView: Boolean = false,
 )
 
 /** Reactive, atomically updated settings persistence. Implementations must be safe to call from any thread. */
@@ -67,14 +68,14 @@ object CuratedRepositories {
         id = "turkish",
         title = "Türkçe Çizgi Roman & Manga Deposu",
         subtitle = "Manga-TR, MangaDenizi, Hayalistic, Zenith Scans vb. 70+ yerel kaynak.",
-        indexUrl = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
+        indexUrl = OnboardingWizardManager.TURKISH_INDEX,
     )
 
     val WESTERN_COMICS = CuratedRepository(
         id = "western",
         title = "Batı Çizgi Romanları Deposu",
         subtitle = "Marvel/DC tarzı çizgi roman ve western webcomic kaynakları.",
-        indexUrl = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
+        indexUrl = OnboardingWizardManager.WESTERN_INDEX,
     )
 
     val ALL = listOf(UNIVERSAL, TURKISH_COMICS, WESTERN_COMICS)

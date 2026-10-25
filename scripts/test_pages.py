@@ -13,6 +13,10 @@ from playwright.sync_api import expect, sync_playwright
 BASE_URL = os.environ.get("YOMIRA_PAGES_URL", "http://127.0.0.1:8765/")
 SCREENSHOTS = Path(os.environ.get("LOCALAPPDATA", ".")) / "Temp/opencode"
 SCREENSHOTS.mkdir(parents=True, exist_ok=True)
+PUBLIC_COPY = re.compile(r"vault|\+18|ecchi|hentai|porhwa|porn|milf|midara", re.I)
+ROOT = Path(__file__).resolve().parents[1]
+for public_file in (ROOT / "README.md", ROOT / "docs/index.html", *ROOT.glob("art/*.svg"), *ROOT.glob("docs/art/*.svg")):
+    assert not PUBLIC_COPY.search(public_file.read_text(encoding="utf-8")), public_file
 
 
 with sync_playwright() as playwright:
@@ -23,6 +27,7 @@ with sync_playwright() as playwright:
     for width in (320, 360, 768, 1440):
         page.set_viewport_size({"width": width, "height": 900})
         page.goto(BASE_URL, wait_until="networkidle")
+        assert not PUBLIC_COPY.search(page.content())
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), width
         image = page.locator("#mockupImage")
         expect(image).to_have_js_property("complete", True)
@@ -62,7 +67,7 @@ with sync_playwright() as playwright:
     page.add_style_tag(content="html { font-size: 200%; }")
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
     expect(page.locator(".btn-primary")).to_have_attribute(
-        "href", "https://github.com/PaelenRune/Yomira/releases/download/v0.1.0-beta/yomira-v0.1.0-beta.apk"
+        "href", "https://github.com/PaelenRune/Yomira/releases/latest"
     )
     for selector in ('meta[property="og:image"]', 'meta[name="twitter:image"]'):
         url = page.locator(selector).get_attribute("content")

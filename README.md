@@ -1,151 +1,79 @@
 <div align="center">
 
-<img src="art/banner.png" alt="Yomira Banner" width="100%" style="border-radius: 16px; margin-bottom: 20px;" />
+<img src="art/banner.png" alt="Yomira — Evrensel çizgi roman ve manga okuyucu" width="100%" />
 
-# 🌌 YOMIRA
-### Evrensel Çizgi Roman & Manga Ekosistemi
+# YOMIRA
+### Hikâyenin ritmini yakala.
 
-[![Release](https://img.shields.io/badge/Release-v0.3.0--beta-FF007F?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
-[![Platform](https://img.shields.io/badge/Platform-Android_8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
-[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
-[![License](https://img.shields.io/badge/License-Apache_2.0-9D4EDD?style=for-the-badge)](LICENSE)
+[![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
+[![Windows](https://img.shields.io/badge/Windows-10%2B-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/PaelenRune/Yomira/releases)
+[![Compose](https://img.shields.io/badge/UI-Jetpack_Compose-9D4EDD?style=for-the-badge)](https://developer.android.com/jetpack/compose)
+[![License](https://img.shields.io/badge/License-Apache_2.0-FF007F?style=for-the-badge)](LICENSE)
 
-<br/>
+**Manga, webtoon, manhwa, manhua ve Batı çizgi romanları için açık kaynak çok platformlu okuma deneyimi. Android ve bağımsız Windows masaüstü, Dribbble ilhamlı OLED tasarım, Türkçe / English arayüz ve sana ait bir okuma yolculuğu.**
 
-**Manga, Webtoon, Manhwa, Manhua, Western (Marvel/DC/Image) ve Yetişkin (+18) serileri tek bir çatı altında birleştiren, Dribbble ilhamlı OLED arayüze ve Keiyoushi eklenti motoruna sahip yeni nesil Android okuma platformu.**
-
-[📱 **Beta APK İndir (v0.3.0-beta)**](https://github.com/PaelenRune/Yomira/releases/download/v0.3.0-beta/yomira-v0.3.0-beta.apk) • [🌐 **Ürün Tanıtım Sayfası (GitHub Pages)**](https://paelenrune.github.io/Yomira/) • [📋 **Sürüm Notları**](release/RELEASE_NOTES.md)
+[**Android için indir**](https://github.com/PaelenRune/Yomira/releases/latest) · [**Windows için indir (.EXE / .MSI)**](https://github.com/PaelenRune/Yomira/releases/latest) · [**Ürün vitrini**](https://paelenrune.github.io/Yomira/) · [**English overview**](#english)
 
 </div>
 
----
+## Okumaya odaklan
 
-## 🚀 v0.3.0-beta Öne Çıkan Yenilikler
+- **120 Hz akıcı okuyucu:** Uyumlu ekranlarda akıcı geçişler; manga için sağdan sola, Batı çizgi romanları için soldan sağa, webtoon için kesintisiz dikey akış. 120 Hz uyumlu seam sökücü ve donanım bitmap geri dönüşüm havuzu ile hafızada hafif, ekranda pürüzsüz. Gerçek yenileme hızı cihaz ve sistem ayarlarına bağlıdır.
+- **Guided View (Akıllı Panel):** Cihaz üzerinde, internet gerektirmeden çalışan panel dedektörü ile panelden panele sinematik akış ve konuşma balonlarına net odaklanma. **Çift Sayfa Birleştirici** iki sayfaya bölünmüş geniş sahneleri sıfır dikişle yan yana getirir.
+- **Yomira Reading Journey & Wrapped:** Cihazda kalan yerel okuma takip motoru; 4 kategori ve 4 kademeli rozetler, seviye & XP ilerlemesi. Aylık ve yıllık okuma alışkanlıklarını sinematik **Yomira Wrapped** slaytları ve paylaşılabilir kartlarla keşfet.
+- **Spoiler-Free Bölüm Hatırlatıcı:** Uzun ara verdiğin seriye dönerken yalnızca *okuduğun* bölümlere kadarki olayları ve karakterleri özetler; gelecekten asla spoiler vermez.
+- **Windows Masaüstü & Tablet 2-Pane:** Compose Multiplatform ile yazılmış bağımsız Windows uygulaması — 2K/4K monitörlerde 6-8 sütunlu poster ızgarası, F11 tam ekran, yön tuşları ve fare tekerleğiyle webtoon kaydırma. Tablet ve katlanabilirlerde dinamik 2-Pane düzen ve Yan Gezinme Rayı.
+- **JSON-first eklenti ekosistemi:** Eklentiler sistem yükleyicisi gerektirmeden Yomira sandbox'ında çalışır; Keiyoushi ve topluluk depolarını kendin bağla. **Mihon / Tachiyomi yedeklerini** (`.tachibk` veya JSON) tek dokunuşla içe aktar — kütüphane, kategoriler ve ilerlemeler seninle gelir.
+- **Batı çizgi romanları:** Marvel, DC ve Image gibi yayınevlerinin eserlerini metadata kataloğunda keşfet; erişim hakkın bulunan kaynaklarla oku.
+- **Dribbble OLED teması & çift dilli deneyim:** Derin siyah zemin, mor / fuşya vurgular, poster odaklı raflar; Türkçe [TR] ve English [EN] arayüz.
 
-- ♾️ **Sonsuz Kaydırma (Infinite Scroll):** Ana Sayfa, Keşfet ve +18 Vault ızgaralarında sayfa sonuna gelindiğinde AniList, MangaDex, ComicVine ve OpenLibrary'den otomatik yeni sayfalar yüklenir.
-- 🏷️ **42 Tag Matrisi:** Action'dan Award Winning'e 42 etiketli çoklu filtreleme; `Ecchi + Komedi` gibi AND kombinasyonları ve tam TR/EN etiket desteği.
-- 🇺🇸 **Batı Çizgi Romanları:** Marvel, DC, Image, Dark Horse vitrini; Spider-Man, Batman, Invincible, The Boys, Watchmen ve geniş western rafı.
-- 🧬 **Kanonik Tekilleştirme:** Farklı kaynaklardan gelen aynı seriler romaji/İngilizce/Türkçe başlık eşleşmesiyle tek kayıtta birleşir; kopya kart oluşmaz.
-- 🌍 **Tam EN/TR Desteği:** 185 string kaynağının tamamı çift dilli; onboarding, katalog, okuyucu, detay, kasa ve ayarlar dahil anında dil geçişi.
-- ⚙️ **Yeni Ayarlar Ekranı:** Gizlilik, dil, eklenti depoları, önbellek temizleme ve güncelleme denetimi tek OLED ekranda.
-- 🕵️ **Gizlenebilir Vault:** +18 Kasa sekmesi tek anahtarla tamamen gizlenir; tercih kalıcıdır ve kasa otomatik kilitlenir.
-- 💎 **Yeni Neon İkon:** Mor neon elmas portal, fuşya yörünge ve "Y" kitap motifiyle yeni adaptif launcher ikonu.
+## Arayüzden bir bakış
 
----
-
-## 📱 Görsel Vitrin & Arayüz
-
-Yomira, Ronas IT'nin ödüllü Dribbble tasarım dilinden ilham alarak **Deep OLED Black (`#06050C`)**, füme cam efektli kartlar ve mor/fuşya neon vurgular ile inşa edilmiştir.
-
-| 📱 Ana Sayfa & Vitrin | 🔒 +18 Vault (Kasa) |
+| Ana sayfa | Evrensel okuyucu |
 | :---: | :---: |
-| <img src="art/mockup_home.svg" width="380" alt="Yomira Ana Sayfa" /> | <img src="art/mockup_vault.svg" width="380" alt="Yomira +18 Vault" /> |
-| *Hero Carousel, 2/3/4 Sütun Izgara Seçici, Seviye 1 (Mature) Rozeti* | *PIN / Biyometrik Korumalı Bağımsız Ana Sayfa, Panik Butonu* |
+| <img src="art/mockup_home.svg" width="360" alt="Yomira ana sayfa tasarım önizlemesi" /> | <img src="art/mockup_reader.svg" width="360" alt="Yomira okuyucu tasarım önizlemesi" /> |
 
-| 📖 Evrensel Okuyucu | ✦ Akıllı Kaynak Eşleştirici |
-| :---: | :---: |
-| <img src="art/mockup_reader.svg" width="380" alt="Yomira Okuyucu Motoru" /> | <img src="art/mockup_smart_match.svg" width="380" alt="Akıllı Eşleştirici" /> |
-| *Webtoon Dikey Akış, Manga (RTL) / Western (LTR), OLED Siyah & Ters Renk* | *Tercih Edilen Dilde (TR/EN) En Güncel Kaynağı Tek Tıkla Kurma* |
+*Görseller tasarım önizlemeleridir; cihaz ve sürüme göre görünüm değişebilir.*
 
----
+## Üç platform, tek ritim
 
-## ✨ Temel Prensip ve Özellikler
+1. **Android:** [En güncel APK'yı](https://github.com/PaelenRune/Yomira/releases/latest) kur — telefon, tablet ve katlanabilirlerde uyarlanabilir düzen.
+2. **Windows:** [Masaüstü sürümü](https://github.com/PaelenRune/Yomira/releases/latest) (.EXE / .MSI) ile büyük ekranda 6-8 sütunlu vitrin.
+3. **Başla:** Okuma dilini seç (**Türkçe [TR] / English [EN]**), istersen Keiyoushi ve topluluk depolarını bağla ya da Mihon/Tachiyomi yedeğini içe aktar; hepsi daha sonra Ayarlar'dan da yönetilebilir.
 
-### 1. 🛡️ İçeriksiz Çekirdek (Content-Free Core)
-Yomira **içerik dağıtıcısı veya korsan barındırıcı değildir**. Uygulama içine tek bir telifli görsel veya bölüm gömülmez. Saf, yasal bir katalog tarayıcısı, görselleştirici ve okuma arayüzüdür. Okunabilir içerik, kullanıcıların harici Keiyoushi / Tachiyomi depoları bağlamasıyla yüklenir.
+## İçerik değil, okuma aracı
 
-### 2. 🌊 Kademeli Metadata Şelalesi (Waterfall Aggregator)
-Evrendeki her serinin afişi, konusu, yazarı ve puanı eksiksiz listelenir:
-```
-[Baka-Updates] (Kanonik Omurga, Yazar/Çizer, Alt Türler)
-       ↓ (Eksik alanları tamamla)
-[AniList GraphQL] (Ultra HD Kapak/Banner, Topluluk Puanı, Trendler)
-       ↓ (Alternatif başlıkları ve derecelendirmeyi doğrula)
-[MangaDex v5] (Çok Dilli Başlıklar, 4 Seviyeli ContentRating)
-       ↓ (Özet ve çıkış tarihi fallback'i)
-[Kitsu API]
-       ↓ (Marvel, DC, Image Comics Western serileri)
-[ComicVine API]
-```
+Yomira bölüm barındırmaz, dağıtmaz veya erişim hakkı sağlamaz. Katalog bilgileri ile okunabilir içerik birbirinden ayrıdır; eklentiler ve harici hizmetler kendi koşullarına tabidir. Yalnızca erişim hakkınız bulunan içerikleri kullanın ve eser sahiplerinin haklarına saygı gösterin. Yayıncı adları tanımlama amacıyla kullanılır; herhangi bir resmî ortaklık veya onay ima edilmez.
 
-### 3. ⚖️ Seviye 0–1–2 Akıllı İçerik Ayrıştırma Motoru
-Yomira'nın en hassas algoritması, erotik/hikaye dengeli seriler ile saf pornografik içerikleri yapay olarak karıştırmaz:
+## Geliştiriciler için
 
-| Seviye | Kategori | Örnekler | Görünürlük Kuralı |
-| :---: | :---: | :---: | :---: |
-| **Level 0** | **SAFE** | *One Piece, Solo Leveling, Spider-Man* | Genel vitrin, ana sayfa, keşfet ve her yerde serbest. |
-| **Level 1** | **MATURE / ECCHI** | *I Formed a MILF Party with the Heroes' Mothers*, *Kimi wa Midara na Boku no Joou*, *Prison School* | **Saf pornografi DEĞİLDİR!** Hikâye odaklıdır; ana sayfada **16+ / Mature** rozetiyle listelenir. |
-| **Level 2** | **EXPLICIT (PORNOGRAFİ)** | Saf Hentai mangaları, cinsel porhwa ve erotik webtoonlar | **Ana sayfadan tamamen izole edilir!** Yalnızca PIN/Biyometrik kilitli **+18 Vault** alanında görünür. |
+Kotlin, Jetpack Compose, Compose Multiplatform, Hilt, Room ve modüler mimari üzerine kuruludur.
 
-### 4. 🔌 Keiyoushi Eklenti Entegrasyonu & Akıllı Eşleştirici (Smart Matcher)
-- Kullanıcı onlarca fansub sitesinde arama yapmakla uğraşmaz.
-- Seriye tıklandığında seçilen dile (TR/EN) göre en güncel ve en yüksek bölüm sayılı kaynak arka planda tespit edilir.
-- Eklenti kurulu değilse: *"Bu seriyi Türkçe okumak için en iyi kaynak: [Manga-TR] (145 Bölüm). Bu eklentiyi tek tıkla kurmak ister misiniz?"* modalı çıkar ve tek dokunuşla hazır hale gelir.
+| Dizin | Sorumluluk |
+| --- | --- |
+| `app/` | Android uygulama başlangıcı, gezinme ve bağımlılık yönetimi |
+| `desktop/` | Bağımsız Windows masaüstü uygulaması (Compose Multiplatform, EXE/MSI) |
+| `core/` | Paylaşılan modeller, veri tabanı, ağ ve tasarım sistemi |
+| `data/` | Metadata, eklenti ve senkronizasyon uygulamaları |
+| `domain/` | İş kuralları, okuma yolculuğu motoru ve kaynak eşleştirme |
+| `feature/` | Katalog, okuyucu, yolculuk, detay ve ayarlar deneyimleri |
 
-### 5. 📖 Evrensel Okuyucu Motoru (Universal Reader Engine)
-- **Webtoon Modu:** Kesintisiz dikey kaydırma (`LazyColumn`), bellek korumalı donanım render'ı.
-- **Manga (RTL) & Western (LTR) Modu:** Akıcı yatay sayfa çevirme motoru.
-- **Smart Zoom:** Çift dokunuş panel odaklama ve serbest kıstırma (Pinch-to-zoom).
-- **OLED Gece Modu & Ters Renkler:** Gece okumaları için tam kontrast seçeneği.
-
-### 6. ☁️ Google Drive AppData Senkronizasyonu
-- Kullanıcının gizli `drive.appdata` alanında çalışan hafif JSON (`yomira_sync.json`).
-- Ana Drive'ı kirletmez, resim yüklemez, kullanıcı depolama kotasını tüketmez.
-- **"Max Progress Wins"** çakışma çözücü: Farklı cihazlar arasında en ileri okunan bölüm/sayfa korunur ve kütüphaneler birleştirilir.
-
----
-
-## 🚀 Hızlı Kurulum
-
-1. [Releases](https://github.com/PaelenRune/Yomira/releases) sayfasından en son `yomira-v0.3.0-beta.apk` dosyasını indirin.
-2. Android cihazınızda indirdiğiniz APK'yı açarak yüklemeyi onaylayın.
-3. İlk açılış Onboarding sihirbazında okuma dilinizi (Türkçe/İngilizce) seçin ve Keiyoushi deposunu bağlayın.
-4. Keyifle okumaya başlayın!
-
-```bash
-# ADB ile doğrudan yükleme
-adb install -r release/yomira-v0.3.0-beta.apk
+```powershell
+.\gradlew.bat assembleDebug
+.\gradlew.bat testDebugUnitTest
+.\gradlew.bat :desktop:packageDistributionForCurrentOS
 ```
 
----
+Sorun bildirimlerinde platformu, işletim sistemi sürümünü ve yeniden üretme adımlarını paylaşın. Katkılar ve erişilebilirlik iyileştirmeleri memnuniyetle karşılanır.
 
-## 🏗️ Teknoloji Yığını ve Modüller
+## English
 
-```
-yomira/
-├── app/                  # Application kökü, Hilt DI, Navigation Compose
-├── core/
-│   ├── model/            # Bağımsız Domain modelleri (Manga, Chapter, Rating)
-│   ├── database/         # Room Database v3, DAO'lar, Hibrit Önbellek
-│   ├── network/          # Ktor/OkHttp istemcileri (Baka, AniList, MangaDex, Kitsu, ComicVine)
-│   └── ui/               # OLED Tasarım Sistemi, Hero Carousel, Izgara Seçici
-├── data/
-│   ├── metadata/         # Waterfall Aggregator (Kademeli birleştirici)
-│   ├── extension/        # Keiyoushi Sandbox Eklenti Köprüsü
-│   └── sync/             # Google Drive AppData REST API istemcisi
-├── domain/
-│   ├── classifier/       # Level 0–1–2 İçerik Karar Motoru
-│   ├── extension/        # Smart Source Matcher & Onboarding Sihirbazı
-│   └── sync/             # Max Progress Wins Çakışma Çözücü
-└── feature/
-    ├── home/             # Ana Sayfa (Trendler, Güncellemeler, 2/3/4 Sütun)
-    ├── vault/            # +18 Kasa (PIN Kilitli İkinci Ana Sayfa, Panik Butonu)
-    ├── details/          # Seri Detay Ekranı ve Bölüm Listesi
-    └── reader/           # Evrensel Okuyucu Motoru (Webtoon, RTL, LTR, OLED)
-```
+**Yomira is an open-source reader for manga, webtoons and Western comics — on Android and on a standalone Windows desktop app.** Enjoy an OLED-first interface inspired by Dribbble, Turkish / English navigation, a reader targeting smooth 120 Hz interaction, on-device Guided View panel navigation with spread stitching, Yomira Reading Journey achievements with shareable monthly Wrapped summaries, spoiler-free chapter recaps, and a sandboxed JSON-first extension engine that imports your Mihon / Tachiyomi backup in one tap.
 
----
+Choose your reading language, then connect Keiyoushi and community repositories—or restore a backup; everything stays manageable in Settings. Yomira does not host chapters or grant access to copyrighted works. Use only content you are entitled to access; publisher names do not imply endorsement.
 
-## 🧪 Test ve Doğrulama Durumu
+[Download for Android](https://github.com/PaelenRune/Yomira/releases/latest) · [Download for Windows](https://github.com/PaelenRune/Yomira/releases/latest) · [Explore the product](https://paelenrune.github.io/Yomira/)
 
-- **Birim Testleri:** 96/96 test başarılı (`testDebugUnitTest`).
-- **Lint Durumu:** 0 hata (`lintReport`).
-- **Katalog İzolasyonu:** SAFE, MATURE ve EXPLICIT sınırlarının sızdırmazlığı birim testlerle kanıtlandı.
+## Lisans / License
 
----
-
-## 📄 Lisans
-
-Yomira, [Apache License 2.0](LICENSE) kapsamında açık kaynak olarak lisanslanmıştır.
-Telif Hakkı © 2026 **PaelenRune**. Tüm hakları saklıdır.
+[Apache License 2.0](LICENSE) · © 2026 PaelenRune

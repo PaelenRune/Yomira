@@ -1,6 +1,8 @@
 package com.yomira.feature.reader
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -13,7 +15,8 @@ import com.yomira.core.model.ReadingMode
 
 @Composable
 fun ReaderOverlay(state: ReaderUiState, onBack: () -> Unit, onMode: (ReadingMode) -> Unit,
-    onSeek: (Int) -> Unit, onOled: () -> Unit, onInvert: () -> Unit, copy: ReaderCopy = ReaderCopy()) {
+    onSeek: (Int) -> Unit, onOled: () -> Unit, onInvert: () -> Unit, onGuided: () -> Unit,
+    onRecap: () -> Unit, copy: ReaderCopy = ReaderCopy()) {
     var menu by remember { mutableStateOf(false) }
     var dragging by remember { mutableStateOf<Float?>(null) }
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
@@ -38,9 +41,19 @@ fun ReaderOverlay(state: ReaderUiState, onBack: () -> Unit, onMode: (ReadingMode
                 Slider(value = dragging ?: state.pageIndex.toFloat(), onValueChange = { dragging = it },
                     onValueChangeFinished = { dragging?.let { onSeek(it.toInt()) }; dragging = null },
                     valueRange = 0f..(state.pages.size - 1).coerceAtLeast(1).toFloat(), enabled = state.pages.size > 1)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     FilterChip(selected = state.oled, onClick = onOled, label = { Text(copy.oledBlack) })
                     FilterChip(selected = state.inverted, onClick = onInvert, label = { Text(copy.invertedColors) })
+                    // Guided View is off for webtoons: they are one continuous
+                    // column, there are no panels to hop between.
+                    if (state.mode != ReadingMode.WEBTOON) {
+                        FilterChip(selected = state.guidedView, onClick = onGuided, label = { Text(copy.guidedView) })
+                    }
+                    if (state.recap != null) {
+                        // Highlights when the reader notices a long break: the
+                        // recap only ever covers chapters up to this one.
+                        FilterChip(selected = state.recapDue, onClick = onRecap, label = { Text(copy.recapOpen) })
+                    }
                 }
             }
         }

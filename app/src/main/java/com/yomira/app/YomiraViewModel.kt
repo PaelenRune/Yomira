@@ -335,7 +335,7 @@ class YomiraViewModel @Inject constructor(
                 match.value = if (matcher.isPresent) withContext(Dispatchers.IO) {
                     val settings = onboardingStore.read()?.preferences ?: ReaderPreferences(ReadingLanguage.TURKISH)
                     matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
-                        settings.copy(allowAdultContent = settings.allowAdultContent && manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
+                        settings.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
                 } else SmartMatchResult.Unavailable(listOf(SourceFailure("runtime", context.getString(R.string.match_engine_missing))))
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (error: Exception) {

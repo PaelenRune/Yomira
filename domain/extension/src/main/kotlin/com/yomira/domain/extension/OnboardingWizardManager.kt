@@ -18,7 +18,7 @@ class OnboardingWizardManager(
     ): OnboardingState = mutex.withLock {
         val repoUrl = KEIYOUSHI_INDEX.takeIf { integrateKeiyoushi }
         val suggestions = if (repoUrl != null) {
-            extensions.addRepository(repoUrl)
+            ONBOARDING_INDEXES.forEach { extensions.addRepository(it) }
             extensions.refresh().filter { extension ->
                 (preferences.allowAdultContent || !extension.nsfw) &&
                     extension.sources.any { it.language == preferences.language.code || it.language == "all" }
@@ -29,5 +29,8 @@ class OnboardingWizardManager(
 
     companion object {
         const val KEIYOUSHI_INDEX = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
+        const val TURKISH_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json"
+        const val WESTERN_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json"
+        val ONBOARDING_INDEXES = listOf(KEIYOUSHI_INDEX, TURKISH_INDEX, WESTERN_INDEX)
     }
 }

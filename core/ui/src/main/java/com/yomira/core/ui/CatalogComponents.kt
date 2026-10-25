@@ -151,19 +151,31 @@ fun ScoreBadge(score: Double, copy: CatalogCopy = CatalogCopy()) {
 
 @Composable
 fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy()) {
-    require(columns in 2..4)
+    // Phones render a single hero-sized column, tablets up to six, the Windows
+    // desktop wall owns its own 6–8 column poster grid.
+    require(columns in 1..8) { "Poster grid supports 1–8 columns, got $columns" }
+    val roomy = columns <= 2
     Column(modifier.clip(RoundedCornerShape(14.dp)).clickable(onClick = onClick).semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box {
             MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f).clip(RoundedCornerShape(14.dp)), copy)
             if (manga.contentRating == ContentRating.MATURE) {
                 Surface(Modifier.align(Alignment.TopStart).padding(6.dp), color = CardSurface.copy(alpha = .9f), shape = RoundedCornerShape(6.dp)) {
-                    Text(if (columns == 2) copy.matureBadgeLong else copy.matureBadgeShort, Modifier.padding(5.dp), style = MaterialTheme.typography.labelSmall)
+                    Text(if (roomy) copy.matureBadgeLong else copy.matureBadgeShort, Modifier.padding(5.dp), style = MaterialTheme.typography.labelSmall)
                 }
             }
-            if (columns < 4) manga.score?.let { Box(Modifier.align(Alignment.BottomEnd).padding(6.dp)) { ScoreBadge(it, copy) } }
+            if (columns <= 4) manga.score?.let { Box(Modifier.align(Alignment.BottomEnd).padding(6.dp)) { ScoreBadge(it, copy) } }
         }
-        Text(manga.title, style = if (columns == 2) MaterialTheme.typography.titleSmall else MaterialTheme.typography.labelMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        if (columns == 2 && manga.genres.isNotEmpty()) Text(manga.genres.take(2).joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            manga.title,
+            style = when {
+                columns == 1 -> MaterialTheme.typography.titleMedium
+                columns == 2 -> MaterialTheme.typography.titleSmall
+                else -> MaterialTheme.typography.labelMedium
+            },
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (roomy && manga.genres.isNotEmpty()) Text(manga.genres.take(2).joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -182,8 +194,22 @@ enum class MainDestination(val route: String, val label: String, val icon: Image
     HOME("home", "Ana sayfa", Icons.Default.Home),
     DISCOVER("discover", "Keşfet", Icons.Default.Explore),
     LIBRARY("library", "Kitaplık", Icons.AutoMirrored.Filled.LibraryBooks),
+    PROFILE("profile", "Yolculuk", Icons.Default.Insights),
     VAULT("vault", "+18 Vault", Icons.Default.Lock),
 }
+
+/**
+ * Localized labels for every destination. [copy] carries the app's live locale;
+ * when omitted the enum defaults are used (module previews and tests). Shared by
+ * the bottom bar and the tablet rail so both spell destinations identically.
+ */
+internal fun navigationLabels(copy: CatalogCopy): Map<MainDestination, String> = mapOf(
+    MainDestination.HOME to copy.navHome,
+    MainDestination.DISCOVER to copy.navDiscover,
+    MainDestination.LIBRARY to copy.navLibrary,
+    MainDestination.PROFILE to copy.navProfile,
+    MainDestination.VAULT to copy.navVault,
+)
 
 /**
  * Bottom navigation. [copy] carries the localized destination labels; when omitted the
@@ -192,19 +218,67 @@ enum class MainDestination(val route: String, val label: String, val icon: Image
  */
 @Composable
 fun YomiraBottomNavBar(selected: String?, onSelect: (MainDestination) -> Unit, copy: CatalogCopy = CatalogCopy(), vaultVisible: Boolean = true) {
+    val labels = navigationLabels(copy)
+    NavigationBar(Modifier.padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(28.dp)), containerColor = CardSurface.copy(alpha = .9f), tonalElevation = 0.dp) {
+        MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
+            val label = labels.getValue(destination)
+            NavigationBarItem(selected = selected == destination.route, onClick = { onSelect(destination) }, icon = { Icon(destination.icon, contentDescription = label) }, label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                colors = NavigationBarItemDefaults.colors(selectedIconColor = NeonPurple, indicatorColor = NeonPurple.copy(alpha = .16f)))
+        }
+    }
+}
+
+/**
+ * Tablet / foldable navigation rail. Replaces the bottom bar from 600dp upwards,
+ * so the wide layout spends its height on content instead of a stretched phone bar.
+ * [vaultVisible] mirrors the settings switch exactly like the bottom bar.
+ */
+@Composable
+fun YomiraNavigationRail(
+    selected: String?,
+    onSelect: (MainDestination) -> Unit,
+    modifier: Modifier = Modifier,
+    copy: CatalogCopy = CatalogCopy(),
+    vaultVisible: Boolean = true,
+) {
     val labelFor: (MainDestination) -> String = { destination ->
         when (destination) {
             MainDestination.HOME -> copy.navHome
             MainDestination.DISCOVER -> copy.navDiscover
             MainDestination.LIBRARY -> copy.navLibrary
+            MainDestination.PROFILE -> copy.navProfile
             MainDestination.VAULT -> copy.navVault
         }
     }
-    NavigationBar(Modifier.padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(28.dp)), containerColor = CardSurface.copy(alpha = .9f), tonalElevation = 0.dp) {
+    NavigationRail(
+        modifier = modifier.width(96.dp),
+        containerColor = CardSurface.copy(alpha = .92f),
+        header = {
+            Surface(color = NeonPurple.copy(alpha = .16f), shape = RoundedCornerShape(14.dp)) {
+                Text(
+                    "Y",
+                    Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = NeonPurple,
+                )
+            }
+        },
+    ) {
+        Spacer(Modifier.height(18.dp))
         MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
             val label = labelFor(destination)
-            NavigationBarItem(selected = selected == destination.route, onClick = { onSelect(destination) }, icon = { Icon(destination.icon, contentDescription = label) }, label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                colors = NavigationBarItemDefaults.colors(selectedIconColor = NeonPurple, indicatorColor = NeonPurple.copy(alpha = .16f)))
+            NavigationRailItem(
+                selected = selected == destination.route,
+                onClick = { onSelect(destination) },
+                icon = { Icon(destination.icon, contentDescription = label) },
+                label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                alwaysShowLabel = true,
+                colors = NavigationRailItemDefaults.colors(
+                    selectedIconColor = NeonPurple,
+                    selectedTextColor = NeonPurple,
+                    indicatorColor = NeonPurple.copy(alpha = .16f),
+                ),
+            )
         }
     }
 }

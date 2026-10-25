@@ -103,6 +103,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setReadingMode(mode: ReadingMode) = updateSettings { it.copy(readingMode = mode) }
 
+    /** Default state of Guided View when a chapter opens. */
+    fun setGuidedView(enabled: Boolean) = updateSettings { it.copy(guidedView = enabled) }
+
     /** Registers or revokes a curated index; registration persists even when the refresh is offline. */
     fun setRepositoryEnabled(repository: CuratedRepository, enabled: Boolean) {
         toggleRepository(repository.indexUrl, enabled)

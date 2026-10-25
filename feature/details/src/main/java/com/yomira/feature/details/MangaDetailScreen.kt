@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -15,7 +16,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -108,7 +108,14 @@ data class DetailCopy(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * Series detail.
+ *
+ * On phones ([twoPane] = false) it stays a single scroll: hero, synopsis, then chapters.
+ * On expanded windows ([twoPane] = true) the chapter list becomes the left pane and the
+ * cover, synopsis and actions the right pane, so a tablet reader never loses the chapter
+ * they are browsing while reading the summary.
+ */
 @Composable
 fun MangaDetailScreen(
     manga: Manga,
@@ -130,81 +137,355 @@ fun MangaDetailScreen(
     connectionsLoading: Boolean = false,
     onOpenSeries: (id: String, title: String) -> Unit = { _, _ -> },
     copy: DetailCopy = DetailCopy(),
+    twoPane: Boolean = false,
+) {
+    if (twoPane) {
+        TwoPaneDetail(
+            manga = manga, chapters = chapters, match = match, matching = matching, saved = saved,
+            onBack = onBack, onSave = onSave, onMatch = onMatch, onInstall = onInstall,
+            onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
+            onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
+            connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
+        )
+    } else {
+        SinglePaneDetail(
+            manga = manga, chapters = chapters, match = match, matching = matching, saved = saved,
+            onBack = onBack, onSave = onSave, onMatch = onMatch, onInstall = onInstall,
+            onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
+            onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
+            connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
+        )
+    }
+}
+
+@Composable
+private fun SinglePaneDetail(
+    manga: Manga,
+    chapters: List<ChapterUiState>,
+    match: SmartMatchResult?,
+    matching: Boolean,
+    saved: Boolean,
+    onBack: () -> Unit,
+    onSave: () -> Unit,
+    onMatch: () -> Unit,
+    onInstall: (String) -> Unit,
+    onRead: (Chapter) -> Unit,
+    onToggleRead: (Chapter) -> Unit,
+    onDownload: (Chapter) -> Unit,
+    onPanic: (() -> Unit)?,
+    onContinue: ((Chapter) -> Unit)?,
+    related: List<RelatedSeries>,
+    recommended: List<RecommendedSeries>,
+    connectionsLoading: Boolean,
+    onOpenSeries: (String, String) -> Unit,
+    copy: DetailCopy,
 ) {
     var expanded by rememberSaveable(manga.id) { mutableStateOf(false) }
     var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
-    val sorted = remember(chapters, descending) { if (descending) chapters.sortedByDescending { it.chapter.chapterNumber } else chapters.sortedBy { it.chapter.chapterNumber } }
+    val sorted = remember(chapters, descending) {
+        if (descending) chapters.sortedByDescending { it.chapter.chapterNumber }
+        else chapters.sortedBy { it.chapter.chapterNumber }
+    }
     LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item {
-            Box(Modifier.fillMaxWidth().height(320.dp)) {
-                MangaArtwork(manga.bannerUrl ?: manga.coverUrl, manga.title, Modifier.matchParentSize(), copy.catalog)
-                Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(DeepOledBlack.copy(alpha = .25f), DeepOledBlack))))
-                IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) { Icon(Icons.AutoMirrored.Filled.ArrowBack, copy.back) }
-                onPanic?.let { action -> FilledTonalButton(onClick = action, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)) { Icon(Icons.Default.Lock, null); Text(copy.lockFast) } }
-                Row(Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.Bottom) {
-                    MangaArtwork(manga.coverUrl, manga.title, Modifier.width(120.dp).aspectRatio(.68f).clip(RoundedCornerShape(16.dp)), copy.catalog)
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(manga.title, style = MaterialTheme.typography.headlineMedium, maxLines = 4, overflow = TextOverflow.Ellipsis)
-                        manga.score?.let { ScoreBadge(it, copy.catalog) }
-                        Text(when (manga.status) {
-                            MangaStatus.ONGOING -> copy.statusOngoing
-                            MangaStatus.COMPLETED -> copy.statusCompleted
-                            MangaStatus.HIATUS -> copy.statusHiatus
-                            MangaStatus.CANCELLED -> copy.statusCancelled
-                            MangaStatus.UNKNOWN -> copy.statusUnknown
-                        }, style = MaterialTheme.typography.labelMedium, color = TextMuted)
-                    }
-                }
-            }
-        }
+        item { DetailHero(manga, onBack, onPanic, copy) }
         item {
             Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                FilledTonalButton(onClick = onSave) { Icon(if (saved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, null); Text(if (saved) copy.saveRemove else copy.saveAdd) }
-                Text("${copy.authorLine}: ${manga.author ?: copy.notSpecified}\n${copy.artistLine}: ${manga.artist ?: copy.notSpecified}", color = TextMuted)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    manga.genres.forEach { genre -> Surface(color = CardSurface, shape = RoundedCornerShape(10.dp)) {
-                        Text(genre, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), style = MaterialTheme.typography.labelMedium)
-                    } }
-                }
+                SaveButton(saved, onSave, copy)
+                MetadataBlock(manga, copy)
                 Text(manga.synopsis ?: copy.synopsisMissing, maxLines = if (expanded) Int.MAX_VALUE else 4, overflow = TextOverflow.Ellipsis)
-                if (!manga.synopsis.isNullOrBlank()) TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) copy.summaryCollapse else copy.summaryExpand) }
+                if (!manga.synopsis.isNullOrBlank()) TextButton(onClick = { expanded = !expanded }) {
+                    Text(if (expanded) copy.summaryCollapse else copy.summaryExpand)
+                }
                 SmartMatchBanner(match, matching, onMatch, onInstall, copy)
-                val nextChapter = chapters.filterNot { it.read }.minByOrNull { it.chapter.chapterNumber }
-                    ?: chapters.minByOrNull { it.chapter.chapterNumber }
-                Button(onClick = { nextChapter?.let { (onContinue ?: onRead)(it.chapter) } }, enabled = nextChapter != null, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Default.MenuBook, null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(copy.readNow)
-                }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text(String.format(copy.chaptersHeading, chapters.size), style = MaterialTheme.typography.titleLarge)
-                    TextButton(onClick = { descending = !descending }) { Icon(Icons.Default.Sort, null); Text(if (descending) copy.sortNewest else copy.sortOldest) }
-                }
+                ReadNowButton(chapters, onContinue, onRead, copy)
+                ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
             }
         }
         if (chapters.isEmpty()) item { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
         items(sorted, key = { it.chapter.id }) { entry ->
-            ListItem(
-                modifier = Modifier.clickable { onRead(entry.chapter) },
-                headlineContent = { Text(entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber)) },
-                supportingContent = { Text(entry.chapter.releaseDate?.atZone(ZoneId.systemDefault())?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: copy.dateMissing) },
-                leadingContent = { IconButton(onClick = { onToggleRead(entry.chapter) }) { Icon(if (entry.read) Icons.Default.Visibility else Icons.Default.VisibilityOff, if (entry.read) copy.markUnread else copy.markRead, tint = if (entry.read) NeonPurple else TextMuted) } },
-                trailingContent = { IconButton(onClick = { onDownload(entry.chapter) }, enabled = entry.download !in setOf(DownloadState.QUEUED, DownloadState.DOWNLOADING)) {
-                    when (entry.download) {
-                        DownloadState.DOWNLOADING, DownloadState.QUEUED -> CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                        DownloadState.DOWNLOADED -> Icon(Icons.Default.DownloadDone, copy.downloaded)
-                        DownloadState.FAILED -> Icon(Icons.Default.Refresh, copy.retryDownload)
-                        DownloadState.NOT_DOWNLOADED -> Icon(Icons.Default.Download, copy.downloadChapter)
-                    }
-                } },
-                colors = ListItemDefaults.colors(containerColor = DeepOledBlack),
+            ChapterRow(entry, onRead, onToggleRead, onDownload, copy)
+        }
+        item {
+            FranchiseShowcases(
+                related = related, recommended = recommended, connectionsLoading = connectionsLoading,
+                onOpenSeries = onOpenSeries, copy = copy,
             )
         }
-        // Franchise relations and community recommendations, right below the chapter list.
-        if (connectionsLoading) item {
-            LinearProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 20.dp), color = NeonPurple)
+    }
+}
+
+/**
+ * Expanded-window layout: a persistent chapter list on the left, the cover and full
+ * summary on the right. Both panes scroll independently, so browsing far down the
+ * chapter list never hides the series summary.
+ */
+@Composable
+private fun TwoPaneDetail(
+    manga: Manga,
+    chapters: List<ChapterUiState>,
+    match: SmartMatchResult?,
+    matching: Boolean,
+    saved: Boolean,
+    onBack: () -> Unit,
+    onSave: () -> Unit,
+    onMatch: () -> Unit,
+    onInstall: (String) -> Unit,
+    onRead: (Chapter) -> Unit,
+    onToggleRead: (Chapter) -> Unit,
+    onDownload: (Chapter) -> Unit,
+    onPanic: (() -> Unit)?,
+    onContinue: ((Chapter) -> Unit)?,
+    related: List<RelatedSeries>,
+    recommended: List<RecommendedSeries>,
+    connectionsLoading: Boolean,
+    onOpenSeries: (String, String) -> Unit,
+    copy: DetailCopy,
+) {
+    var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
+    val sorted = remember(chapters, descending) {
+        if (descending) chapters.sortedByDescending { it.chapter.chapterNumber }
+        else chapters.sortedBy { it.chapter.chapterNumber }
+    }
+    Row(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.weight(.42f).fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth().padding(start = 12.dp, end = 16.dp, top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, copy.back) }
+                Text(
+                    String.format(copy.chaptersHeading, chapters.size),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                TextButton(onClick = { descending = !descending }) {
+                    Icon(Icons.Default.Sort, null)
+                    Text(if (descending) copy.sortNewest else copy.sortOldest)
+                }
+            }
+            if (chapters.isEmpty()) {
+                CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
+            } else {
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
+                    items(sorted, key = { it.chapter.id }) { entry ->
+                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy)
+                    }
+                }
+            }
         }
-        if (related.isNotEmpty()) item {
+        Box(Modifier.width(1.dp).fillMaxHeight().background(MaterialTheme.colorScheme.outline.copy(alpha = .35f)))
+        LazyColumn(
+            Modifier.weight(.58f).fillMaxHeight(),
+            contentPadding = PaddingValues(28.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+            item { TwoPaneHero(manga, copy) }
+            item {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    SaveButton(saved, onSave, copy)
+                    onPanic?.let { action ->
+                        FilledTonalButton(onClick = action) {
+                            Icon(Icons.Default.Lock, null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(copy.lockFast)
+                        }
+                    }
+                }
+            }
+            item { MetadataBlock(manga, copy) }
+            item {
+                Text(
+                    manga.synopsis ?: copy.synopsisMissing,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+            item { SmartMatchBanner(match, matching, onMatch, onInstall, copy) }
+            item { ReadNowButton(chapters, onContinue, onRead, copy) }
+            item {
+                FranchiseShowcases(
+                    related = related, recommended = recommended, connectionsLoading = connectionsLoading,
+                    onOpenSeries = onOpenSeries, copy = copy,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailHero(manga: Manga, onBack: () -> Unit, onPanic: (() -> Unit)?, copy: DetailCopy) {
+    Box(Modifier.fillMaxWidth().height(320.dp)) {
+        MangaArtwork(manga.bannerUrl ?: manga.coverUrl, manga.title, Modifier.matchParentSize(), copy.catalog)
+        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(DeepOledBlack.copy(alpha = .25f), DeepOledBlack))))
+        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, copy.back)
+        }
+        onPanic?.let { action ->
+            FilledTonalButton(onClick = action, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)) {
+                Icon(Icons.Default.Lock, null)
+                Text(copy.lockFast)
+            }
+        }
+        Row(
+            Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            MangaArtwork(manga.coverUrl, manga.title, Modifier.width(120.dp).aspectRatio(.68f).clip(RoundedCornerShape(16.dp)), copy.catalog)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(manga.title, style = MaterialTheme.typography.headlineMedium, maxLines = 4, overflow = TextOverflow.Ellipsis)
+                manga.score?.let { ScoreBadge(it, copy.catalog) }
+                Text(statusLabel(manga, copy), style = MaterialTheme.typography.labelMedium, color = TextMuted)
+            }
+        }
+    }
+}
+
+/** Right-pane hero: landscape banner under a sharp scrim, portrait cover as fallback. */
+@Composable
+private fun TwoPaneHero(manga: Manga, copy: DetailCopy) {
+    val banner = manga.bannerUrl?.takeIf { it.isNotBlank() }
+    Box(
+        Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(24.dp)),
+    ) {
+        MangaArtwork(banner ?: manga.coverUrl, manga.title, Modifier.matchParentSize(), copy.catalog)
+        Box(
+            Modifier.matchParentSize().background(
+                Brush.verticalGradient(
+                    0.3f to DeepOledBlack.copy(alpha = .1f),
+                    1f to DeepOledBlack.copy(alpha = .94f),
+                ),
+            ),
+        )
+        Row(
+            Modifier.align(Alignment.BottomStart).padding(20.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            MangaArtwork(manga.coverUrl, manga.title, Modifier.width(150.dp).aspectRatio(.68f).clip(RoundedCornerShape(16.dp)), copy.catalog)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                manga.score?.let { ScoreBadge(it, copy.catalog) }
+                Text(manga.title, style = MaterialTheme.typography.headlineMedium, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text(statusLabel(manga, copy), style = MaterialTheme.typography.labelLarge, color = TextMuted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SaveButton(saved: Boolean, onSave: () -> Unit, copy: DetailCopy) {
+    FilledTonalButton(onClick = onSave) {
+        Icon(if (saved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, null)
+        Spacer(Modifier.width(8.dp))
+        Text(if (saved) copy.saveRemove else copy.saveAdd)
+    }
+}
+
+@Composable
+private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            "${copy.authorLine}: ${manga.author ?: copy.notSpecified}\n${copy.artistLine}: ${manga.artist ?: copy.notSpecified}",
+            color = TextMuted,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            manga.genres.forEach { genre ->
+                Surface(color = CardSurface, shape = RoundedCornerShape(10.dp)) {
+                    Text(genre, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReadNowButton(
+    chapters: List<ChapterUiState>,
+    onContinue: ((Chapter) -> Unit)?,
+    onRead: (Chapter) -> Unit,
+    copy: DetailCopy,
+) {
+    val nextChapter = chapters.filterNot { it.read }.minByOrNull { it.chapter.chapterNumber }
+        ?: chapters.minByOrNull { it.chapter.chapterNumber }
+    Button(onClick = { nextChapter?.let { (onContinue ?: onRead)(it.chapter) } }, enabled = nextChapter != null, modifier = Modifier.fillMaxWidth()) {
+        Icon(Icons.Default.MenuBook, null)
+        Spacer(Modifier.width(8.dp))
+        Text(copy.readNow)
+    }
+}
+
+@Composable
+private fun ChapterHeading(count: Int, descending: Boolean, onToggle: () -> Unit, copy: DetailCopy) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(String.format(copy.chaptersHeading, count), style = MaterialTheme.typography.titleLarge)
+        TextButton(onClick = onToggle) {
+            Icon(Icons.Default.Sort, null)
+            Text(if (descending) copy.sortNewest else copy.sortOldest)
+        }
+    }
+}
+
+@Composable
+private fun ChapterRow(
+    entry: ChapterUiState,
+    onRead: (Chapter) -> Unit,
+    onToggleRead: (Chapter) -> Unit,
+    onDownload: (Chapter) -> Unit,
+    copy: DetailCopy,
+) {
+    ListItem(
+        modifier = Modifier.clickable { onRead(entry.chapter) },
+        headlineContent = { Text(entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber)) },
+        supportingContent = {
+            Text(
+                entry.chapter.releaseDate?.atZone(ZoneId.systemDefault())
+                    ?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: copy.dateMissing,
+            )
+        },
+        leadingContent = {
+            IconButton(onClick = { onToggleRead(entry.chapter) }) {
+                Icon(
+                    if (entry.read) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    if (entry.read) copy.markUnread else copy.markRead,
+                    tint = if (entry.read) NeonPurple else TextMuted,
+                )
+            }
+        },
+        trailingContent = {
+            IconButton(
+                onClick = { onDownload(entry.chapter) },
+                enabled = entry.download !in setOf(DownloadState.QUEUED, DownloadState.DOWNLOADING),
+            ) {
+                when (entry.download) {
+                    DownloadState.DOWNLOADING, DownloadState.QUEUED -> CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                    DownloadState.DOWNLOADED -> Icon(Icons.Default.DownloadDone, copy.downloaded)
+                    DownloadState.FAILED -> Icon(Icons.Default.Refresh, copy.retryDownload)
+                    DownloadState.NOT_DOWNLOADED -> Icon(Icons.Default.Download, copy.downloadChapter)
+                }
+            }
+        },
+        colors = ListItemDefaults.colors(containerColor = DeepOledBlack),
+    )
+}
+
+@Composable
+private fun FranchiseShowcases(
+    related: List<RelatedSeries>,
+    recommended: List<RecommendedSeries>,
+    connectionsLoading: Boolean,
+    onOpenSeries: (String, String) -> Unit,
+    copy: DetailCopy,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (connectionsLoading) {
+            LinearProgressIndicator(Modifier.fillMaxWidth(), color = NeonPurple)
+        }
+        if (related.isNotEmpty()) {
             SeriesShowcaseRail(
                 title = copy.relatedHeading,
                 subtitle = copy.relatedSubtitle,
@@ -221,7 +502,7 @@ fun MangaDetailScreen(
                 copy = copy,
             )
         }
-        if (recommended.isNotEmpty()) item {
+        if (recommended.isNotEmpty()) {
             SeriesShowcaseRail(
                 title = copy.recommendedHeading,
                 subtitle = copy.recommendedSubtitle,
@@ -239,6 +520,14 @@ fun MangaDetailScreen(
             )
         }
     }
+}
+
+private fun statusLabel(manga: Manga, copy: DetailCopy): String = when (manga.status) {
+    MangaStatus.ONGOING -> copy.statusOngoing
+    MangaStatus.COMPLETED -> copy.statusCompleted
+    MangaStatus.HIATUS -> copy.statusHiatus
+    MangaStatus.CANCELLED -> copy.statusCancelled
+    MangaStatus.UNKNOWN -> copy.statusUnknown
 }
 
 /** One card of the connected-series showcases; [badge] carries the franchise role. */

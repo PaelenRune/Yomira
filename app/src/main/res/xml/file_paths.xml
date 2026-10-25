@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Wrapped share cards are written here and exposed read-only through FileProvider. -->
+    <cache-path name="wrapped" path="wrapped/" />
+</paths>

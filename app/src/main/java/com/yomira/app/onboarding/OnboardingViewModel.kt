@@ -18,7 +18,6 @@ data class OnboardingUiState(
     val loading: Boolean = true,
     val completed: Boolean = false,
     val saving: Boolean = false,
-    val adultEnabled: Boolean = false,
     /**
      * Reading language code ("tr"/"en") of the saved or just-completed setup. The host
      * mirrors it into the UI locale via `LocaleManagerCompat`, so choosing English here
@@ -47,7 +46,6 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
             try {
                 val saved = withContext(Dispatchers.IO) { wizard.state() }
                 mutableState.value = OnboardingUiState(loading = false, completed = saved?.completed == true,
-                    adultEnabled = saved?.preferences?.allowAdultContent == true,
                     languageCode = saved?.preferences?.language?.code)
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) {
@@ -56,17 +54,17 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
         }
     }
 
-    fun complete(languageCode: String, adultEnabled: Boolean, integrateRepository: Boolean) {
+    fun complete(languageCode: String, integrateRepository: Boolean) {
         if (mutableState.value.loading || mutableState.value.saving || mutableState.value.completed) return
         mutableState.value = mutableState.value.copy(saving = true, error = null)
         viewModelScope.launch {
             try {
                 val language = ReadingLanguage.entries.first { it.code == languageCode }
                 withContext(Dispatchers.IO) {
-                    wizard.complete(ReaderPreferences(language, adultEnabled), integrateRepository)
+                    wizard.complete(ReaderPreferences(language), integrateRepository)
                 }
                 mutableState.value = OnboardingUiState(loading = false, completed = true,
-                    adultEnabled = adultEnabled, languageCode = language.code)
+                    languageCode = language.code)
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) {
                 mutableState.value = mutableState.value.copy(saving = false, error = ERROR_SAVE)

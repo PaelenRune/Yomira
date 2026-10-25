@@ -23,4 +23,5 @@ keystore.properties
 .env.*
 !.env.example
 node_modules/
+.openchamber/
 !release/*.apk

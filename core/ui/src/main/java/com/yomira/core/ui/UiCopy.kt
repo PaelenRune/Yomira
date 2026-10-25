@@ -23,6 +23,7 @@ data class CatalogCopy(
     val navHome: String = "Ana sayfa",
     val navDiscover: String = "Keşfet",
     val navLibrary: String = "Kitaplık",
+    val navProfile: String = "Yolculuk",
     val navVault: String = "+18 Vault",
 )
 

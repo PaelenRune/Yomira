@@ -76,7 +76,7 @@ class DataStoreSettingsStoreTest {
             val settings = store.read()
             assertEquals(false, settings.requireDeviceLock)
             assertEquals(false, settings.lockOnBackground)
-            assertEquals(true, settings.vaultVisible)
+            assertEquals(false, settings.vaultVisible)
         } finally { scope.cancel() }
     }
 

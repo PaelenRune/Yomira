@@ -1,3 +1,55 @@
+# Yomira v0.4.0
+
+**Universal Comic & Manga Ecosystem — Okuma Yolculuğu, Akıllı Panel (Guided View), Windows Masaüstü ve JSON Eklenti Çağı**
+
+---
+
+### 🚀 JSON-First Eklenti Motoru & Mihon/Tachiyomi Yedek İçe Aktarma
+
+- Sistem paket yükleyicisi (`pm install`) ve "Bilinmeyen kaynaklar" güvenlik uyarıları tarihe karıştı; APK'lar Yomira sandbox'ına (`DexClassLoader`) çıkartılır ve hafif JSON fihristi olarak saklanır.
+- Tachiyomi ve Mihon `.tachibk` (Protobuf) veya JSON yedek dosyalarını doğrudan içe aktarma; kütüphane, kategoriler ve okuma ilerlemeleri tek dokunuşla aktarılır.
+
+### 🏆 Yomira Reading Journey & Aylık Yomira Wrapped
+
+- Cihaz üzerinde yüzde yüz yerel okuma takip motoru (`ReadingWeight` — 100 sayfalık çizgi roman ile 10 sayfalık manga ağırlığı dengelendi; 60 saniye hareketsizlikte otomatik duran aktif süre sayacı).
+- 4 Kategori (Okuma, İstikrar, Keşif, Özel) ve 4 Kademe (Bronz, Gümüş, Altın, Platin) rozet ve başarım sistemi. Seviye & XP ilerlemesi.
+- Spotify Wrapped benzeri koyu temalı sinematik aylık ve yıllık okuma özeti slaytları (`WrappedScreen`) ve sosyal medyada paylaşılabilir görsel kart (`WrappedShareCard`).
+
+### 👁️ Akıllı Panel Okuma (Guided View AI) & Çift Sayfa Birleştirme
+
+- Cihaz üzerinde internet gerektirmeden çalışan hafif panel dedektörü (`GuidedViewDetector`); panelden panele sinematik akış ve konuşma balonlarına net odaklanma.
+- Çift Sayfa Geniş Sahne Birleştirici (`SpreadStitcher`): İki sayfaya bölünmüş büyük çizimleri tespit edip sıfır dikişle yan yana birleştirir.
+- 120Hz ProMotion uyumlu webtoon seam sökücü ve donanım bitmap geri dönüşüm havuzu (`HardwareBitmapPool`).
+- Spoiler-Free AI Bölüm Hatırlatıcı (`SpoilerFreeRecapEngine`): Uzun ara verilen serilere dönüşte yalnızca okunan son bölüme kadar olan olayları ve karakterleri özetler, asla gelecekten spoiler vermez.
+
+### 🖥️ Bağımsız Windows Masaüstü Uygulaması (.EXE / .MSI) & Tablet 2-Pane UI
+
+- Compose Multiplatform ile geliştirilen bağımsız Windows masaüstü sürümü (`desktop/`): 2K/4K monitörler için 6-8 sütunlu poster ızgarası, F11 tam ekran modu, yön tuşları (`←`/`→`) ve fare tekerleğiyle akıcı webtoon kaydırma.
+- Tablet ve katlanabilir ekranlar için dinamik 2-Pane adaptif düzen ve sol Yan Gezinme Rayı (Navigation Rail).
+
+### 🛡️ Gizlilik & Kamuya Açık Vitrin Hijyeni
+
+- Onboarding sadeleştirildi (TR/EN dil tercihi + topluluk depoları). Yetişkin içerik sorusu baştan kaldırıldı; Kasa varsayılan kapalı (`stealth mode`), yalnızca Ayarlar'dan PIN ile açılabilir.
+- Kamuya açık alanda yüzde yüz güvenli ve saygın vitrin.
+
+---
+
+### 📦 Kurulum ve İndirme
+
+- **Android APK:** `yomira-v0.4.0.apk` (GitHub Releases üzerinden indirilebilir)
+- **Windows Masaüstü:** `Yomira-0.4.0-x64.exe` / `.msi` (GitHub Releases üzerinden indirilebilir)
+- **Minimum Sistem:** Android 8.0+ (API 26+) · Windows 10 ve üzeri
+- **SHA-256 Sağlama:** `SHA256SUMS.txt` ile doğrulanabilir.
+- **Sürüm:** versionCode `4` / versionName `0.4.0`
+
+### 🌐 Canlı Bağlantılar
+
+- **GitHub Repository:** https://github.com/PaelenRune/Yomira
+- **Ürün Tanıtım Sayfası:** https://paelenrune.github.io/Yomira/
+
+---
+---
+
 # Yomira v0.3.0-beta
 
 **Universal Comic & Manga Ecosystem — Keşif, Filtreleme ve Kişiselleştirme Güncellemesi**

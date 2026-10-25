@@ -49,24 +49,14 @@ data class OnboardingCopy(
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
     val languageNote: String = "Arayüz ve kaynak önerileri anında seçtiğin dile geçer.",
-    val contentTitle: String = "İçerik sınırlarını sen belirle",
-    val contentDescription: String = "Yetişkin içerik varsayılan olarak kapalıdır.",
-    val adultLabel: String = "Yetişkin içerik (+18)",
-    val statusEnabled: String = "Açık",
-    val statusDisabled: String = "Kapalı",
-    val adultSwitchDescription: String = "Yetişkin içerik izni",
-    val levelsTitle: String = "İki farklı içerik seviyesi",
-    val levelOne: String = "Level 1 · Hikâye odaklı Mature seriler. MILF Party ve Kimi wa Midara gibi seriler yetişkin temalar içerir.",
-    val levelTwo: String = "Level 2 · Saf Hentai / Porhwa. Açık cinsel içerik odaklı seriler yalnızca kilitli Vault alanında yer alır.",
-    val adultConsent: String = "Açarak 18 yaşında veya daha büyük olduğunu onaylarsın. Bu izin Vault’un cihaz kilidini kaldırmaz.",
     val sourceTitle: String = "Kaynaklarına bir kapı aç",
-    val sourceDescription: String = "Keiyoushi resmi eklenti deposunu tek dokunuşla bağla.",
-    val sourceBody: String = "Dil ve içerik tercihlerine uygun eklenti önerileri hazırlanır.",
+    val sourceDescription: String = "Keiyoushi ve topluluk depolarını tek dokunuşla bağla.",
+    val sourceBody: String = "Okuma diline uygun eklenti önerileri hazırlanır. Depoları daha sonra Ayarlar’dan yönetebilirsin.",
     val sourcePrivacy: String = "Yalnızca depo listesi indirilir. Hiçbir APK otomatik yüklenmez veya güvenilir olarak işaretlenmez.",
-    val sourceRepo: String = "raw.githubusercontent.com/keiyoushi/extensions",
+    val sourceRepo: String = "Keiyoushi · Türkçe · Western",
     val sourceSkippable: String = "Depoyu daha sonra bağlamak istersen deposuz başlayabilirsin.",
     val saving: String = "Kurulum kaydediliyor…",
-    val connectAndStart: String = "Depoyu Bağla ve Başla",
+    val connectAndStart: String = "Depoları Bağla ve Başla",
     val continueLabel: String = "Devam et",
     val skipRepository: String = "Hadi Başlayalım · Deposuz devam et",
     val back: String = "Geri",
@@ -77,7 +67,7 @@ data class OnboardingCopy(
 fun OnboardingScreen(
     saving: Boolean,
     error: String?,
-    onComplete: (languageCode: String, adultEnabled: Boolean, integrateRepository: Boolean) -> Unit,
+    onComplete: (languageCode: String, integrateRepository: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     copy: OnboardingCopy = OnboardingCopy(),
     initialLanguage: String = "tr",
@@ -86,7 +76,6 @@ fun OnboardingScreen(
     // Pre-selected from the active app locale so the highlighted option matches the
     // language the wizard is already rendered in.
     var language by rememberSaveable { mutableStateOf(if (initialLanguage == "en") "en" else "tr") }
-    var adultEnabled by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = step > 0 || saving) { if (!saving) step-- }
 
     Surface(modifier = modifier.fillMaxSize(), color = OnboardingBackground, contentColor = OnboardingText) {
@@ -95,12 +84,12 @@ fun OnboardingScreen(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("Yomira", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f))
-                Text(String.format(copy.stepIndicator, step + 1, 3), color = OnboardingMuted)
+                Text(String.format(copy.stepIndicator, step + 1, 2), color = OnboardingMuted)
             }
             Spacer(Modifier.height(24.dp))
-            Row(Modifier.semantics { contentDescription = String.format(copy.stepDescription, step + 1, 3) },
+            Row(Modifier.semantics { contentDescription = String.format(copy.stepDescription, step + 1, 2) },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                repeat(3) { index ->
+                repeat(2) { index ->
                     Box(Modifier.size(width = if (step == index) 32.dp else 8.dp, height = 8.dp)
                         .background(if (step == index) OnboardingPink else OnboardingPurple.copy(alpha = .3f), CircleShape))
                 }
@@ -122,28 +111,6 @@ fun OnboardingScreen(
                                 LanguageOption(copy.languageEnglish, "EN", language == "en", !saving) { language = "en" }
                             }
                             Text(copy.languageNote, color = OnboardingMuted)
-                        }
-                        1 -> {
-                            StepHeading(copy.contentTitle, copy.contentDescription)
-                            Surface(color = Color(0xFF171023), shape = RoundedCornerShape(20.dp)) {
-                                Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Column(Modifier.weight(1f)) {
-                                        Text(copy.adultLabel, fontWeight = FontWeight.SemiBold)
-                                        Text(if (adultEnabled) copy.statusEnabled else copy.statusDisabled, color = OnboardingMuted)
-                                    }
-                                    Switch(checked = adultEnabled, onCheckedChange = { adultEnabled = it }, enabled = !saving,
-                                        modifier = Modifier.semantics { contentDescription = copy.adultSwitchDescription },
-                                        colors = SwitchDefaults.colors(checkedTrackColor = OnboardingPurple))
-                                }
-                            }
-                            Surface(color = OnboardingPurple.copy(alpha = .12f), shape = RoundedCornerShape(16.dp)) {
-                                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    Text(copy.levelsTitle, fontWeight = FontWeight.SemiBold)
-                                    Text(copy.levelOne, color = OnboardingMuted)
-                                    Text(copy.levelTwo, color = OnboardingMuted)
-                                }
-                            }
-                            Text(copy.adultConsent, color = OnboardingMuted)
                         }
                         else -> {
                             StepHeading(copy.sourceTitle, copy.sourceDescription)
@@ -168,7 +135,7 @@ fun OnboardingScreen(
                     .semantics { stateDescription = error })
             }
             Button(onClick = {
-                if (step < 2) step++ else onComplete(language, adultEnabled, true)
+                if (step < 1) step++ else onComplete(language, true)
             }, enabled = !saving, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = OnboardingPink, contentColor = Color.White),
                 shape = RoundedCornerShape(18.dp)) {
@@ -176,10 +143,10 @@ fun OnboardingScreen(
                     CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                     Spacer(Modifier.width(12.dp))
                     Text(copy.saving)
-                } else Text(if (step == 2) copy.connectAndStart else copy.continueLabel)
+                } else Text(if (step == 1) copy.connectAndStart else copy.continueLabel)
             }
-            if (step == 2) {
-                TextButton(onClick = { onComplete(language, adultEnabled, false) }, enabled = !saving,
+            if (step == 1) {
+                TextButton(onClick = { onComplete(language, false) }, enabled = !saving,
                     modifier = Modifier.fillMaxWidth()) { Text(copy.skipRepository, color = OnboardingMuted) }
             }
             if (step > 0) {

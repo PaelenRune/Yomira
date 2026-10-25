@@ -1,4 +1,8 @@
-plugins { alias(libs.plugins.kotlin.jvm) }
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    // @Serializable JSON-first manifests (JsonSourceManifest).
+    alias(libs.plugins.kotlin.serialization)
+}
 
 kotlin { jvmToolchain(17) }
 

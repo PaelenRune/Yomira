@@ -17,9 +17,11 @@ android {
 }
 kotlin { jvmToolchain(17) }
 dependencies {
+    implementation(project(":core:ui"))
     implementation(project(":core:model"))
     implementation(project(":core:database"))
     implementation(project(":domain:extension"))
+    implementation(project(":domain:journey"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.icons)

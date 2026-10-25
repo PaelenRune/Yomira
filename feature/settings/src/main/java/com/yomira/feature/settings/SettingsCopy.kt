@@ -44,6 +44,8 @@ data class SettingsCopy(
     val modeWebtoon: String = "Webtoon Dikey",
     val modeManga: String = "Manga RTL",
     val modeWestern: String = "Western LTR",
+    val guidedViewTitle: String = "Guided View (Panel Takibi)",
+    val guidedViewBody: String = "Sayfalar panel panel, sinematik yakınlaşmayla okunur; tek dokunuşla açılıp kapatılır.",
 
     // Section 4 — application and cache.
     val appSection: String = "Uygulama ve Önbellek",

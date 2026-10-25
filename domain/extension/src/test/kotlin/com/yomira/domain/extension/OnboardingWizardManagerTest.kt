@@ -17,11 +17,11 @@ class OnboardingWizardManagerTest {
         assertEquals(result, store.state)
     }
 
-    @Test fun `one click adds official repo and prepares only allowed sources`() = runTest {
+    @Test fun `one click adds official and community repos and prepares only allowed sources`() = runTest {
         val store = Store()
         val repository = Repository()
         val result = OnboardingWizardManager(repository, store).complete(ReaderPreferences(ReadingLanguage.TURKISH), true)
-        assertEquals(listOf(OnboardingWizardManager.KEIYOUSHI_INDEX), repository.urls)
+        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, repository.urls)
         assertEquals(listOf("tr"), result.suggestedPackages)
     }
 

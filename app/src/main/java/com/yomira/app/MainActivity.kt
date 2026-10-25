@@ -40,6 +40,11 @@ import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.YomiraTheme
 import com.yomira.feature.details.DetailCopy
 import com.yomira.feature.home.*
+import com.yomira.feature.journey.JourneyCopy
+import com.yomira.feature.journey.JourneyViewModel
+import com.yomira.feature.journey.ProfileJourneyScreen
+import com.yomira.feature.journey.WrappedCopy
+import com.yomira.feature.journey.WrappedScreen
 import com.yomira.feature.reader.ReaderCopy
 import com.yomira.feature.reader.ReaderScreen
 import com.yomira.feature.reader.ReaderViewModel
@@ -56,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
     private val settingsModel: SettingsViewModel by viewModels()
+    private val journeyModel: JourneyViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
     private var confirmingCredential = false
     /** Set while a settings action (e.g. revealing the Vault) awaits the credential verdict. */
@@ -132,9 +138,9 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
                     YomiraNavigation(
-                        model, readerModel, settingsModel, settings, authError,
+                        model, readerModel, settingsModel, journeyModel, settings, authError,
                         onUnlockVault = {
-                            if (onboarding.adultEnabled) {
+                            if (settings.vaultVisible) {
                                 // "Protect with device lock" is the user's call; default is on.
                                 if (settings.requireDeviceLock) unlock() else model.unlocked.value = true
                             } else authError = getString(R.string.vault_adult_disabled)
@@ -172,6 +178,7 @@ private fun YomiraNavigation(
     model: YomiraViewModel,
     readerModel: ReaderViewModel,
     settingsModel: SettingsViewModel,
+    journeyModel: JourneyViewModel,
     settings: AppSettings,
     authError: String?,
     onUnlockVault: () -> Unit,
@@ -234,7 +241,13 @@ private fun YomiraNavigation(
             if (nav.currentDestination?.route == "vault") home()
         }
     }
-    val showChrome = current == "home" || current == "discover" || current == "library" || current == "vault"
+    val showChrome = current == "home" || current == "discover" || current == "library" || current == "profile" || current == "vault"
+    val showNavigation = current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings" && current != "wrapped"
+    // Tablet shell: at >=600dp the bottom bar becomes a left rail and the detail
+    // screen switches to its 2-pane master-detail geometry (AdaptiveLayout).
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+    val railLayout = AdaptiveLayout.usesNavigationRail(maxWidth.value)
+    val twoPaneDetail = AdaptiveLayout.prefersTwoPane(maxWidth.value)
     Scaffold(snackbarHost = { SnackbarHost(snackbar) }, topBar = {
         if (showChrome) {
             Surface(color = Color.Transparent) {
@@ -251,15 +264,22 @@ private fun YomiraNavigation(
             }
         }
     }, bottomBar = {
-        if (current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings") {
+        if (!railLayout && showNavigation) {
             YomiraBottomNavBar(current, onSelect = { destination ->
                 if (destination != MainDestination.VAULT) model.lock()
                 nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
             }, copy = catalogCopy, vaultVisible = settings.vaultVisible)
         }
     }) { padding ->
-        NavHost(nav, startDestination = "home", modifier = Modifier.fillMaxSize()
-            .then(if (current == "reader/{mangaId}/{chapterId}") Modifier else Modifier.padding(padding))) {
+        Row(Modifier.fillMaxSize()
+            .then(if (current == "reader/{mangaId}/{chapterId}" || current == "wrapped") Modifier else Modifier.padding(padding))) {
+            if (railLayout && showNavigation) {
+                YomiraNavigationRail(current, onSelect = { destination ->
+                    if (destination != MainDestination.VAULT) model.lock()
+                    nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
+                }, copy = catalogCopy, vaultVisible = settings.vaultVisible)
+            }
+            NavHost(nav, startDestination = "home", modifier = Modifier.weight(1f).fillMaxSize()) {
             listOf("home", "discover", "library").forEach { route ->
                 composable(route) {
                     var query by rememberSaveable { mutableStateOf("") }
@@ -290,6 +310,7 @@ private fun YomiraNavigation(
                         onClearTags = model::clearTags,
                         copy = homeCopy(catalogCopy),
                         onLoadMore = { if (route != "library") model.loadNextPage() },
+                        sizeClass = AdaptiveLayout.windowSizeClass(maxWidth),
                     )
                 }
             }
@@ -316,6 +337,26 @@ private fun YomiraNavigation(
                     pagingError = vaultDiscovery.error,
                     onLoadMore = { if (unlocked) model.loadNextPage(adult = true) },
                     copy = vaultCopy(catalogCopy),
+                )
+            }
+            composable("profile") {
+                val profile by journeyModel.profileState.collectAsStateWithLifecycle()
+                ProfileJourneyScreen(
+                    state = profile,
+                    onOpenWrapped = { nav.navigate("wrapped") { launchSingleTop = true } },
+                    onRefresh = journeyModel::refresh,
+                    copy = journeyCopy(),
+                )
+            }
+            composable("wrapped") {
+                BackHandler { nav.popBackStack() }
+                val wrapped by journeyModel.wrapped.collectAsStateWithLifecycle()
+                LaunchedEffect(Unit) { journeyModel.loadWrapped() }
+                WrappedScreen(
+                    state = wrapped,
+                    onClose = { nav.popBackStack() },
+                    onPeriodChange = { period -> journeyModel.loadWrapped(period) },
+                    copy = wrappedCopy(),
                 )
             }
             composable("details/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { entry ->
@@ -359,6 +400,7 @@ private fun YomiraNavigation(
                             }
                         },
                         copy = detailCopy(catalogCopy),
+                        twoPane = twoPaneDetail,
                     )
                 }
             }
@@ -370,7 +412,8 @@ private fun YomiraNavigation(
                 val chapterId = entry.arguments?.getString("chapterId") ?: return@composable
                 val manga = catalog.manga.firstOrNull { it.id == mangaId }
                 if (manga != null && (manga.contentRating != ContentRating.EXPLICIT || unlocked)) {
-                    ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode, copy = readerCopy())
+                    ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode,
+                        defaultGuidedView = settings.guidedView, copy = readerCopy())
                 } else if (!catalog.loading && manga == null) {
                     Column { Text(stringResource(R.string.detail_not_found_title)); TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) } }
                 }
@@ -387,6 +430,7 @@ private fun YomiraNavigation(
                     onLockOnBackgroundChange = settingsModel::setLockOnBackground,
                     onLanguageChange = { language -> LocaleManagerCompat.setApplicationLocales(language.tag) },
                     onReadingModeChange = settingsModel::setReadingMode,
+                    onGuidedViewChange = settingsModel::setGuidedView,
                     onRepositoryToggle = settingsModel::setRepositoryEnabled,
                     onAddCustomRepository = settingsModel::addCustomRepository,
                     onRemoveRepository = settingsModel::removeRepository,
@@ -396,7 +440,9 @@ private fun YomiraNavigation(
                     copy = settingsCopy(),
                 )
             }
+            }
         }
+    }
     }
 }
 
@@ -448,6 +494,8 @@ private fun settingsCopy() = SettingsCopy(
     modeWebtoon = stringResource(R.string.reader_mode_webtoon),
     modeManga = stringResource(R.string.reader_mode_manga),
     modeWestern = stringResource(R.string.reader_mode_western),
+    guidedViewTitle = stringResource(R.string.settings_guided_view_title),
+    guidedViewBody = stringResource(R.string.settings_guided_view_body),
     appSection = stringResource(R.string.settings_app_section),
     clearCache = stringResource(R.string.settings_clear_cache),
     clearCacheBody = stringResource(R.string.settings_clear_cache_body),
@@ -462,6 +510,14 @@ private fun settingsCopy() = SettingsCopy(
     githubTitle = stringResource(R.string.settings_github_title),
     githubBody = stringResource(R.string.settings_github_body),
 )
+
+/** Localized profile/journey copy; the module defaults are Turkish. */
+@Composable
+private fun journeyCopy() = if (LocaleManagerCompat.isTurkish()) JourneyCopy() else JourneyCopy.english()
+
+/** Localized Wrapped copy for the cinematic recap and its share card. */
+@Composable
+private fun wrappedCopy() = if (LocaleManagerCompat.isTurkish()) WrappedCopy() else WrappedCopy.english()
 
 @Composable
 private fun catalogCopy() = CatalogCopy(
@@ -478,6 +534,7 @@ private fun catalogCopy() = CatalogCopy(
     navHome = stringResource(R.string.nav_home),
     navDiscover = stringResource(R.string.nav_discover),
     navLibrary = stringResource(R.string.nav_library),
+    navProfile = stringResource(R.string.nav_profile),
     navVault = stringResource(R.string.nav_vault),
 )
 
@@ -589,6 +646,14 @@ private fun readerCopy() = ReaderCopy(
     modeWestern = stringResource(R.string.reader_mode_western),
     oledBlack = stringResource(R.string.reader_oled_black),
     invertedColors = stringResource(R.string.reader_inverted_colors),
+    guidedView = stringResource(R.string.reader_guided_view),
+    recapOpen = stringResource(R.string.reader_recap_open),
+    recapTitle = stringResource(R.string.reader_recap_title),
+    recapCharacters = stringResource(R.string.reader_recap_characters),
+    recapResume = stringResource(R.string.reader_recap_resume),
+    recapWithheld = stringResource(R.string.reader_recap_withheld),
+    recapEmpty = stringResource(R.string.reader_recap_empty),
+    recapClose = stringResource(R.string.reader_recap_close),
 )
 
 @Composable
@@ -609,21 +674,10 @@ private fun onboardingCopy() = OnboardingCopy(
     languageTurkish = stringResource(R.string.onboarding_language_turkish),
     languageEnglish = stringResource(R.string.onboarding_language_english),
     languageNote = stringResource(R.string.onboarding_language_note),
-    contentTitle = stringResource(R.string.onboarding_content_title),
-    contentDescription = stringResource(R.string.onboarding_content_description),
-    adultLabel = stringResource(R.string.onboarding_adult_label),
-    statusEnabled = stringResource(R.string.onboarding_status_enabled),
-    statusDisabled = stringResource(R.string.onboarding_status_disabled),
-    adultSwitchDescription = stringResource(R.string.onboarding_adult_switch),
-    levelsTitle = stringResource(R.string.onboarding_levels_title),
-    levelOne = stringResource(R.string.onboarding_level_one),
-    levelTwo = stringResource(R.string.onboarding_level_two),
-    adultConsent = stringResource(R.string.onboarding_adult_consent),
     sourceTitle = stringResource(R.string.onboarding_source_title),
     sourceDescription = stringResource(R.string.onboarding_source_description),
     sourceBody = stringResource(R.string.onboarding_source_body),
     sourcePrivacy = stringResource(R.string.onboarding_source_privacy),
-    // sourceRepo stays the literal URL default — repository addresses are not translated.
     sourceSkippable = stringResource(R.string.onboarding_source_skippable),
     saving = stringResource(R.string.onboarding_saving),
     connectAndStart = stringResource(R.string.onboarding_connect_start),

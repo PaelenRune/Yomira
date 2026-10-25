@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0-beta"
+        versionCode = 4
+        versionName = "0.4.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -55,13 +55,17 @@ dependencies {
     implementation(project(":feature:details"))
     implementation(project(":feature:reader"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:journey"))
     implementation(project(":domain:extension"))
+    implementation(project(":domain:journey"))
     implementation(project(":domain:sync"))
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(project(":core:model"))
     implementation(project(":core:database"))
+    // RoomBackupImportTarget runs its merge inside RoomDatabase.withTransaction.
+    implementation(libs.androidx.room.ktx)
     implementation(project(":core:ui"))
     implementation(libs.androidx.core.ktx)
     // AppCompat 1.6+ backs the in-app language switcher below API 33 and persists the

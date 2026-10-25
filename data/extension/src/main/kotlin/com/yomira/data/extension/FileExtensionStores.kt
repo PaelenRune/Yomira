@@ -66,7 +66,8 @@ class FileOnboardingStore(path: Path) : OnboardingStore {
     }
 }
 
-private class AtomicJsonFile(path: Path) {
+/** Shared by all file-backed stores in this module; replacement is atomic and failure-safe. */
+internal class AtomicJsonFile(path: Path) {
     private val path = path.toAbsolutePath()
     private val mutex = Mutex()
 

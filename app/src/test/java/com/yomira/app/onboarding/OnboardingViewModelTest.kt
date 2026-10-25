@@ -34,9 +34,8 @@ class OnboardingViewModelTest {
         val store = MemoryStore()
         val model = model(store)
         assertFalse(model.await { !it.loading }.completed)
-        model.complete("tr", false, false)
-        val completed = model.await { it.completed }
-        assertFalse(completed.adultEnabled)
+        model.complete("tr", false)
+        model.await { it.completed }
         assertEquals(ReaderPreferences(ReadingLanguage.TURKISH), store.saved?.preferences)
         assertEquals(null, store.saved?.repositoryUrl)
     }
@@ -46,21 +45,22 @@ class OnboardingViewModelTest {
         val model = model(MemoryStore(saved))
         val loaded = model.await { !it.loading }
         assertTrue(loaded.completed)
-        assertTrue(loaded.adultEnabled)
+        assertEquals("en", loaded.languageCode)
     }
 
     @Test fun failedRepositoryRefreshDoesNotCompleteAndCanRecoverWithoutRepository() = runBlocking {
         val store = MemoryStore()
         val model = model(store, failNetwork = true)
         model.await { !it.loading }
-        model.complete("en", true, true)
+        model.complete("en", true)
         val failed = model.await { it.error != null }
         assertFalse(failed.completed)
         assertFalse(failed.saving)
         assertNotNull(failed.error)
         assertEquals(null, store.saved)
-        model.complete("en", true, false)
-        assertTrue(model.await { it.completed }.adultEnabled)
+        model.complete("en", false)
+        model.await { it.completed }
+        assertFalse(store.saved!!.preferences.allowAdultContent)
         assertEquals(ReadingLanguage.ENGLISH, store.saved?.preferences?.language)
     }
 
