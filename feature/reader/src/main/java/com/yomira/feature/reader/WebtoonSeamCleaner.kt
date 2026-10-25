@@ -18,7 +18,7 @@ data class WebtoonSeamConfig(
     /** Ignore blank bands thinner than this fraction of the image height. */
     val minBlankFraction: Float = 0.004f,
     /** Never crop more than this fraction of an image from a single side. */
-    val maxTrimFraction: Float = 0.4f,
+    val maxTrimFraction: Float = 0.35f,
 ) {
     init {
         require(blankThreshold in 1..255) { "Blank threshold must be a luminance" }
@@ -50,7 +50,9 @@ object WebtoonSeamCleaner {
     fun trimFor(grid: LuminanceGrid, config: WebtoonSeamConfig = WebtoonSeamConfig()): TrimSpec {
         val top = leadingBlankRows(grid, config)
         val bottom = trailingBlankRows(grid, config, skip = top)
-        val limitTop = (grid.height * config.maxTrimFraction).toInt()
+        // Round the per-side budget up: a cap of "no more than the fraction"
+        // must not discard a whole pixel of a legitimately blank band.
+        val limitTop = kotlin.math.ceil(grid.height * config.maxTrimFraction).toInt()
         val trimmedTop = top.coerceAtMost(limitTop)
         val limitBottom = minOf(limitTop, grid.height - trimmedTop - 1)
         return TrimSpec(

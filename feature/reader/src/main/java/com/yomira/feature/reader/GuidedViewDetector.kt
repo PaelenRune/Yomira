@@ -34,7 +34,11 @@ class LuminanceGrid(val width: Int, val height: Int, private val values: ByteArr
 data class PanelDetectorConfig(
     /** Pixels at or above this luminance count as paper/gutter. */
     val backgroundThreshold: Int = 230,
-    /** Gaps up to this many grid pixels are bridged so one panel stays one box. */
+    /**
+     * Ink within this many grid pixels belongs to the same mass, so a panel
+     * broken by a thin rule stays one box. A gutter wider than twice this stays
+     * a real separation between two panels.
+     */
     val mergeRadius: Int = 1,
     /** Boxes smaller than this fraction of the page are treated as noise. */
     val minPanelAreaFraction: Float = 0.004f,

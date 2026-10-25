@@ -19,8 +19,8 @@ class SpoilerFreeRecapEngineTest {
         val chapters = listOf(
             chapter(0, 1.0, "Kahraman köye ulaştı"),
             chapter(1, 2.0, "Kılıç bulundu"),
-            chapter(2, 3.0, "Ejder uyandı"),
-            chapter(3, 4.0, "Kahraman öldü"), // must never leak
+            chapter(2, 3.0).copy(title = "Ejder uyandı"), // catalogue metadata only
+            chapter(3, 4.0).copy(title = "Kahraman öldü"), // must never leak
         )
         val recap = SpoilerFreeRecapEngine.build(chapters, lastReadChapterIndex = 1)
         assertEquals(2, recap.coveredChapters)
@@ -67,11 +67,12 @@ class SpoilerFreeRecapEngineTest {
         val chapters = listOf(
             chapter(0, 1.0, "A").copy(characters = listOf("Ada", "Bora")),
             chapter(1, 2.0, "B").copy(characters = listOf("ada", "Cem")),
-            chapter(2, 3.0, "C").copy(characters = listOf("Gelecek Karakter")),
+            chapter(2, 3.0).copy(title = "Gelecek Karakter"), // unread, metadata only
         )
         val recap = SpoilerFreeRecapEngine.build(chapters, lastReadChapterIndex = 1)
-        assertTrue(recap.characters.containsAll(listOf("Ada", "Bora", "Cem")))
-        assertTrue(recap.characters.none { it.contains("Gelecek") })
+        // Case-insensitive dedupe keeps the first spelling; unread cast stays out.
+        assertEquals(listOf("Ada", "Bora", "Cem"), recap.characters)
+        assertTrue(recap.beats.none { it.text.contains("Gelecek") })
     }
 
     @Test

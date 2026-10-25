@@ -81,13 +81,11 @@ object SpoilerFreeRecapEngine {
         config: RecapConfig = RecapConfig(),
     ): StoryRecap {
         require(lastReadChapterIndex >= 0) { "Last read chapter must exist" }
-        // Until the reader has finished at least one chapter, a source that
-        // already offers events past the horizon is still the initial recap;
-        // those chapters are withheld. Once real history exists, future events
-        // signal a caller bug and are rejected rather than silently trusted.
-        val guardFutureEvents = lastReadChapterIndex < 1
-        val misplaced = if (!guardFutureEvents) emptyList() else {
-            chapters.filter { it.index > lastReadChapterIndex && (it.events.isNotEmpty() || it.characters.isNotEmpty()) }
+        // A concise catalogue may legitimately list future chapters (title and
+        // number only), but it must never already carry their events. Anything
+        // past the horizon that does is a caller bug, not a recap source.
+        val misplaced = chapters.filter {
+            it.index > lastReadChapterIndex && (it.events.isNotEmpty() || it.characters.isNotEmpty())
         }
         check(misplaced.isEmpty()) { "Recap source offered events from unread chapters" }
 

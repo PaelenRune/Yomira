@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.yomira.domain.journey.recap.SpoilerFreeRecap
 
 /**
  * "Şimdiye kadar" sheet. It only ever renders the recap the engine produced,
@@ -29,7 +28,7 @@ import com.yomira.domain.journey.recap.SpoilerFreeRecap
  */
 @Composable
 internal fun RecapPanel(
-    recap: SpoilerFreeRecap?,
+    recap: StoryRecap?,
     onDismiss: () -> Unit,
     copy: ReaderCopy,
 ) {
@@ -48,21 +47,18 @@ internal fun RecapPanel(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(copy.recapTitle, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                recap.resumeChapter?.let { chapter ->
+                if (recap.coveredChapters > 0) {
                     Text(
-                        String.format(copy.recapResume, chapterLabel(chapter)),
+                        String.format(copy.recapResume, chapterLabel(recap.upToChapterNumber)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                recap.premise?.let { premise ->
-                    Text(premise, style = MaterialTheme.typography.bodyMedium)
-                }
-                if (recap.storyBeats.isEmpty()) {
+                if (recap.beats.isEmpty()) {
                     Text(copy.recapEmpty, style = MaterialTheme.typography.bodyMedium)
                 } else {
-                    recap.storyBeats.forEach { beat ->
-                        Text("•  $beat", style = MaterialTheme.typography.bodyMedium)
+                    recap.beats.forEach { beat ->
+                        Text("•  ${beat.text}", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 if (recap.characters.isNotEmpty()) {
@@ -73,7 +69,7 @@ internal fun RecapPanel(
                     )
                     Text(recap.characters.joinToString(", "), style = MaterialTheme.typography.bodyMedium)
                 }
-                if (recap.withheldChapters > 0) {
+                if (recap.condensed) {
                     Text(
                         copy.recapWithheld,
                         style = MaterialTheme.typography.bodySmall,

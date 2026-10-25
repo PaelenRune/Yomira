@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,12 @@ fun WebtoonReader(
     var zoomedPages by remember { mutableStateOf(emptySet<Int>()) }
     val pageCallback by rememberUpdatedState(onPage)
 
+    // Seam measurement reuses a few scratch bitmaps; the pool is released when
+    // the strip leaves composition so no decoded buffer outlives the chapter.
+    val pool = remember { HardwareBitmapPool() }
+    val seamTrim = remember(pool) { WebtoonSeamTransformation(pool) }
+    DisposableEffect(pool) { onDispose { pool.trim() } }
+
     LaunchedEffect(list) {
         snapshotFlow { list.firstVisibleItemIndex }.distinctUntilChanged().collect { pageCallback(it) }
     }
@@ -63,6 +70,7 @@ fun WebtoonReader(
                 copy = copy,
                 mode = state.mode,
                 guided = false,
+                seamTrim = seamTrim,
                 decodeMaxHeight = WEBTOON_DECODE_MAX_HEIGHT,
             )
         }

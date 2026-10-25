@@ -10,10 +10,6 @@ import com.yomira.core.model.ReadingMode
 import com.yomira.core.model.WesternComics
 import com.yomira.domain.extension.SourcePage
 import com.yomira.domain.journey.ReadingSessionTracker
-import com.yomira.domain.journey.recap.RecapChapter
-import com.yomira.domain.journey.recap.RecapRequest
-import com.yomira.domain.journey.recap.SpoilerFreeRecap
-import com.yomira.domain.journey.recap.SpoilerFreeRecapEngine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -36,7 +32,7 @@ data class ReaderUiState(
     /** Guided View: one-tap, panel-by-panel cinematic reading. */
     val guidedView: Boolean = false,
     /** "What happened so far", capped at the chapter the user has actually reached. */
-    val recap: SpoilerFreeRecap? = null,
+    val recap: StoryRecap? = null,
     /** True when the break since the last session is long enough to offer the recap. */
     val recapDue: Boolean = false,
     /** True while the recap sheet is on screen. */
@@ -52,6 +48,11 @@ class ReaderViewModel @Inject constructor(
     private val progress: ReaderProgressStore,
     private val journey: ReadingSessionTracker,
 ) : ViewModel() {
+    private companion object {
+        /** One week away from a series is enough to forget where the story stood. */
+        const val LONG_BREAK_MILLIS = 7L * 24 * 60 * 60 * 1000
+    }
+
     private val mutableState = MutableStateFlow(ReaderUiState())
     val state = mutableState.asStateFlow()
     private var loadJob: Job? = null
@@ -159,8 +160,8 @@ class ReaderViewModel @Inject constructor(
                     chapterIndex = chapters.indexOfFirst { item -> item.id == chapterId }.coerceAtLeast(0),
                     pages = pages, pageIndex = boundedPage(saved?.pageIndex ?: 0, pages.size), mode = manga.readingMode,
                     isLastChapter = isLastChapter, loading = false,
-                    recap = buildRecap(manga, chapters, chapterId),
-                    recapDue = SpoilerFreeRecapEngine.shouldOffer(saved?.updatedAt ?: 0L, System.currentTimeMillis())) }
+                    recap = buildRecap(chapters, chapterId),
+                    recapDue = shouldOfferRecap(saved?.updatedAt ?: 0L)) }
                 val genre = manga.genres.firstOrNull {
                     !it.equals(WesternComics.MARKER, ignoreCase = true)
                 } ?: "Genel"
@@ -214,22 +215,31 @@ class ReaderViewModel @Inject constructor(
      * generated text, so nothing can leak a future chapter.
      */
     private fun buildRecap(
-        manga: com.yomira.core.database.entity.MangaEntity,
         chapters: List<com.yomira.core.database.entity.ChapterEntity>,
         chapterId: String,
-    ): SpoilerFreeRecap {
+    ): StoryRecap? {
         val index = chapters.indexOfFirst { it.id == chapterId }
-        val readThrough = chapters.getOrNull(index - 1)?.chapterNumber ?: -1.0
-        val current = chapters.getOrNull(index)
-        return SpoilerFreeRecapEngine.build(
-            RecapRequest(
-                seriesTitle = manga.title,
-                readThroughChapter = readThrough,
-                chapters = chapters.map { RecapChapter(it.chapterNumber, it.title) },
-                premise = manga.synopsis,
-                resumeChapter = current?.chapterNumber,
-            ),
-        )
+        val horizon = index - 1
+        if (horizon < 0) return null
+        // Only chapters at or before the horizon are handed over: the engine
+        // rejects a source that already carries events from unread chapters.
+        val covered = chapters.take(horizon + 1).mapIndexed { position, chapter ->
+            val note = chapter.title?.takeIf { it.isNotBlank() }
+            RecapChapter(
+                index = position,
+                chapterNumber = chapter.chapterNumber,
+                title = note,
+                events = listOfNotNull(note),
+            )
+        }
+        if (covered.isEmpty()) return null
+        return SpoilerFreeRecapEngine.build(covered, lastReadChapterIndex = horizon)
+    }
+
+    /** A long break since the last saved page makes "what happened so far" useful. */
+    private fun shouldOfferRecap(lastReadAt: Long): Boolean {
+        if (lastReadAt <= 0L) return false
+        return System.currentTimeMillis() - lastReadAt >= LONG_BREAK_MILLIS
     }
 
     fun close(mangaId: String, chapterId: String) {
