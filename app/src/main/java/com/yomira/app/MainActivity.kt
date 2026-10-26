@@ -246,8 +246,10 @@ private fun YomiraNavigation(
     // Tablet shell: at >=600dp the bottom bar becomes a left rail and the detail
     // screen switches to its 2-pane master-detail geometry (AdaptiveLayout).
     BoxWithConstraints(Modifier.fillMaxSize()) {
-    val railLayout = AdaptiveLayout.usesNavigationRail(maxWidth.value)
-    val twoPaneDetail = AdaptiveLayout.prefersTwoPane(maxWidth.value)
+        val windowWidth = maxWidth
+        val windowSizeClass = AdaptiveLayout.windowSizeClass(windowWidth)
+        val railLayout = AdaptiveLayout.usesNavigationRail(windowWidth.value)
+        val twoPaneDetail = AdaptiveLayout.prefersTwoPane(windowWidth.value)
     Scaffold(snackbarHost = { SnackbarHost(snackbar) }, topBar = {
         if (showChrome) {
             Surface(color = Color.Transparent) {
@@ -310,7 +312,7 @@ private fun YomiraNavigation(
                         onClearTags = model::clearTags,
                         copy = homeCopy(catalogCopy),
                         onLoadMore = { if (route != "library") model.loadNextPage() },
-                        sizeClass = AdaptiveLayout.windowSizeClass(maxWidth),
+                        sizeClass = windowSizeClass,
                     )
                 }
             }
