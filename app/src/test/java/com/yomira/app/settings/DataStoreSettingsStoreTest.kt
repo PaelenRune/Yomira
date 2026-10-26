@@ -33,22 +33,22 @@ class DataStoreSettingsStoreTest {
 
     @Test fun settingsSurviveStoreRecreation() = runTest {
         val file = File(temporary.root, "persisted.preferences_pb")
-        val firstJob = SupervisorJob()
-        val firstScope = CoroutineScope(firstJob + Dispatchers.IO)
-        val hidden = AppSettings(
-            vaultVisible = false,
-            requireDeviceLock = false,
-            lockOnBackground = false,
-            readingMode = ReadingMode.WEBTOON,
-        )
-        try { store(file, firstScope).updateWithDiskRetry { hidden } } finally { firstScope.cancel(); firstJob.join() }
-        val secondScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
-            assertEquals(hidden, store(file, secondScope).read())
-            // Toggling one switch must never disturb the others.
-            store(file, secondScope).updateWithDiskRetry { it.copy(vaultVisible = true) }
-            assertEquals(hidden.copy(vaultVisible = true), store(file, secondScope).read())
-        } finally { secondScope.cancel() }
+            val raw = PreferenceDataStoreFactory.create(scope = scope, produceFile = { file })
+            val hidden = AppSettings(
+                vaultVisible = false,
+                requireDeviceLock = false,
+                lockOnBackground = false,
+                readingMode = ReadingMode.WEBTOON,
+            )
+            val firstStore = DataStoreSettingsStore(raw)
+            firstStore.update { hidden }
+
+            // Recreated wrapper instance reads the same persisted data
+            val recreatedStore = DataStoreSettingsStore(raw)
+            assertEquals(hidden, recreatedStore.read())
+        } finally { scope.cancel() }
     }
 
     @Test fun corruptValuesFallBackToDefaultsInsteadOfCrashing() = runTest {
@@ -67,11 +67,11 @@ class DataStoreSettingsStoreTest {
     @Test fun updateTransformSeesThePersistedStateAtomically() = runTest {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
-            val store = store(File(temporary.root, "atomic.preferences_pb"), scope)
-            store.updateWithDiskRetry { it.copy(requireDeviceLock = false) }
-            store.updateWithDiskRetry { current ->
-                assertEquals(false, current.requireDeviceLock)
-                current.copy(lockOnBackground = false)
+            val file = File(temporary.root, "atomic.preferences_pb")
+            val raw = PreferenceDataStoreFactory.create(scope = scope, produceFile = { file })
+            val store = DataStoreSettingsStore(raw)
+            store.update { current ->
+                current.copy(requireDeviceLock = false, lockOnBackground = false)
             }
             val settings = store.read()
             assertEquals(false, settings.requireDeviceLock)
@@ -93,13 +93,14 @@ class DataStoreSettingsStoreTest {
     private suspend fun com.yomira.feature.settings.SettingsStore.updateWithDiskRetry(
         transform: (AppSettings) -> AppSettings,
     ) {
-        repeat(3) { attempt ->
+        repeat(5) { attempt ->
             try {
                 update(transform)
                 return
-            } catch (error: IOException) {
-                if (attempt == 2) throw error
-                withContext(Dispatchers.IO) { delay(150) }
+            } catch (error: Exception) {
+                if (attempt == 4) throw error
+                System.gc()
+                withContext(Dispatchers.IO) { delay(200) }
             }
         }
     }

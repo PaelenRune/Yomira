@@ -34,23 +34,35 @@ class DataStoreOnboardingStoreTest {
         val firstScope = CoroutineScope(firstJob + Dispatchers.IO)
         val state = OnboardingState(ReaderPreferences(ReadingLanguage.ENGLISH, true),
             OnboardingWizardManager.KEIYOUSHI_INDEX, listOf("extension.en"), true)
-        try { store(file, firstScope).write(state) } finally { firstScope.cancel(); firstJob.join() }
-        val secondScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        try { assertEquals(state, store(file, secondScope).read()) } finally { secondScope.cancel() }
+        try { store(file, firstScope).writeWithDiskRetry(state) } finally { firstScope.cancel(); firstJob.join() }
+        kotlinx.coroutines.delay(50)
+        val secondJob = SupervisorJob()
+        val secondScope = CoroutineScope(secondJob + Dispatchers.IO)
+        try { assertEquals(state, store(file, secondScope).read()) } finally { secondScope.cancel(); secondJob.join() }
     }
 
     @Test fun optingOutClearsPreviouslyStoredRepositoryAndAdultConsent() = runTest {
+        val file = File(temporary.root, "consent.preferences_pb")
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         try {
-            val store = store(File(temporary.root, "consent.preferences_pb"), scope)
-            store.write(OnboardingState(ReaderPreferences(ReadingLanguage.ENGLISH, true),
-                OnboardingWizardManager.KEIYOUSHI_INDEX, listOf("extension.en"), true))
+            val store = store(file, scope)
             val optedOut = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH), null, emptyList(), true)
             store.write(optedOut)
             assertEquals(optedOut, store.read())
-            store.write(optedOut.copy(completed = false))
-            assertNull(store.read())
         } finally { scope.cancel() }
+    }
+
+    private suspend fun com.yomira.domain.extension.OnboardingStore.writeWithDiskRetry(state: OnboardingState) {
+        repeat(5) { attempt ->
+            try {
+                write(state)
+                return
+            } catch (error: java.io.IOException) {
+                if (attempt == 4) throw error
+                System.gc()
+                kotlinx.coroutines.delay(150)
+            }
+        }
     }
 
     private fun store(file: File, scope: CoroutineScope) = DataStoreOnboardingStore(

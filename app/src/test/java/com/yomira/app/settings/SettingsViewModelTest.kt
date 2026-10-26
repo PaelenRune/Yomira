@@ -226,7 +226,7 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             model.checkUpdates()
-            model.awaitUpdateCheck()
+            model.awaitUpdateCheck(this)
 
             val status = model.state.value.updateCheck
             assertTrue("expected Available but was $status", status is UpdateCheckStatus.Available)
@@ -242,7 +242,7 @@ class SettingsViewModelTest {
             advanceUntilIdle()
 
             model.checkUpdates()
-            model.awaitUpdateCheck()
+            model.awaitUpdateCheck(this)
 
             assertEquals(UpdateCheckStatus.UpToDate, model.state.value.updateCheck)
         }
@@ -263,7 +263,9 @@ class SettingsViewModelTest {
      */
     private fun SettingsViewModel.recordStates(scope: TestScope): List<SettingsUiState> {
         val collected = mutableListOf<SettingsUiState>()
-        scope.backgroundScope.launch { state.toList(collected) }
+        scope.backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(scope.testScheduler)) {
+            state.collect { collected.add(it) }
+        }
         return collected
     }
 
@@ -272,11 +274,13 @@ class SettingsViewModelTest {
      * Dispatchers.IO; virtual-time advancing alone cannot observe its
      * completion, so poll with real-time sleeps until the status settles.
      */
-    private suspend fun SettingsViewModel.awaitUpdateCheck() {
+    private suspend fun SettingsViewModel.awaitUpdateCheck(scope: TestScope) {
+        scope.advanceUntilIdle()
         val deadline = System.currentTimeMillis() + 10_000
-        while (state.value.updateCheck == UpdateCheckStatus.Checking) {
+        while (state.value.updateCheck == UpdateCheckStatus.Checking || state.value.updateCheck == UpdateCheckStatus.Idle) {
             if (System.currentTimeMillis() > deadline) throw AssertionError("update check never settled")
             withContext(Dispatchers.Default) { delay(20) }
+            scope.advanceUntilIdle()
         }
     }
 
