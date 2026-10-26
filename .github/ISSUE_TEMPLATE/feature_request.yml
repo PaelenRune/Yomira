@@ -1,0 +1,81 @@
+name: Feature Request
+description: Suggest a new feature or an improvement for Yomira.
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape Yomira. Please describe the problem first, then your idea.
+
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Pre-checks
+      description: Please confirm the following before submitting.
+      options:
+        - label: I searched the existing issues and this request has not been submitted yet.
+          required: true
+        - label: This request is about Yomira itself, not about content available through a third-party source.
+          required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform target
+      description: Which platform should this feature apply to?
+      options:
+        - Android Phone
+        - Android Tablet / Foldable
+        - Windows
+        - All platforms
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Module area
+      description: Which part of Yomira does this feature belong to?
+      options:
+        - Reader
+        - Library
+        - Extensions / Repositories
+        - Sync
+        - Guided View
+        - UI / Theme
+        - Settings
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem are you trying to solve? Describe the frustration or limitation.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would like to see. Mockups or references are welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or alternative designs have you tried or considered?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add screenshots, links, or anything else that helps explain the request.

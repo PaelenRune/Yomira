@@ -1,0 +1,131 @@
+name: Bug Report
+description: Report a crash, broken behavior, or visual glitch in Yomira.
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. The details below help us reproduce it quickly.
+
+        > **Security issues:** please do not report vulnerabilities here. Contact the maintainers privately instead.
+
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Pre-checks
+      description: Please confirm the following before submitting.
+      options:
+        - label: I searched the existing issues and this bug has not been reported yet.
+          required: true
+        - label: I am running the latest Yomira release.
+          required: true
+        - label: I read the documentation and troubleshooting notes.
+          required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Where does the problem occur?
+      options:
+        - Android Phone
+        - Android Tablet / Foldable
+        - Windows Portable (.exe)
+        - Windows Installer (.msi)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device model & OS version
+      description: Include the device, OS version, and manufacturer skin if applicable.
+      placeholder: e.g. Samsung Galaxy A37 / Android 14 One UI 6, or Windows 11 23H2 (desktop PC)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Yomira version
+      description: Which version are you running? You can find it in Settings → About.
+      options:
+        - v0.4.1
+        - v0.4.0
+        - v0.3.x or older
+        - Built from source (main branch)
+        - Other (mention it in the description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected module
+      description: Which part of Yomira is affected?
+      options:
+        - Reader
+        - Library
+        - Extensions / Repositories
+        - Sync
+        - Guided View
+        - UI / Theme
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps so we can trigger the bug.
+      placeholder: |
+        1. Open the Library
+        2. Tap the three-dot menu on a title
+        3. Choose "Download"
+        4. The app closes
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include the exact error message if there is one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Crash logs & screenshots
+      description: |
+        Paste stack traces or logs below. Drag and drop screenshots or a screen recording into this field.
+        Android logs can be captured with `adb logcat`; Windows logs are shown in the console.
+      render: shell
+      placeholder: Paste logs here, then drag screenshots into this area.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might help, such as network conditions, enabled extensions, or recent changes.
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I have removed any personal or sensitive information from the logs and screenshots.
+          required: true

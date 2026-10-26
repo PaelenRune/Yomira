@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Community Discussions
+    url: https://github.com/PaelenRune/Yomira/discussions
+    about: Ask questions, share reading setups, and discuss ideas with the community.
+  - name: Documentation & Guides
+    url: https://paelenrune.github.io/Yomira/
+    about: Read the download guide, feature overview, and platform documentation.
