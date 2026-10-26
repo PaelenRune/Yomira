@@ -14,9 +14,19 @@ class FileExtensionStoresTest {
 
     @Test fun `repo consent survives reopening store`() = runTest {
         val path = temporary.root.toPath().resolve("repositories.json")
-        assertTrue(FileRepositoryStore(path).read().isEmpty())
+        // Explicitly empty defaults keep this test about persistence, not seeding.
+        assertTrue(FileRepositoryStore(path, defaultRepositories = emptyList()).read().isEmpty())
         FileRepositoryStore(path).write(listOf("https://example.org/index.json"))
         assertEquals(listOf("https://example.org/index.json"), FileRepositoryStore(path).read())
+    }
+
+    @Test fun `a fresh install starts with the bundled repositories`() = runTest {
+        val path = temporary.root.toPath().resolve("repositories.json")
+        val repositories = FileRepositoryStore(path).read()
+
+        assertEquals(3, repositories.size)
+        assertTrue(repositories.all { it.startsWith("https://") })
+        assertTrue(repositories.any { it.contains("keiyoushi/extensions") })
     }
 
     @Test fun `onboarding state including null repo round trips`() = runTest {

@@ -112,11 +112,44 @@ class SettingsViewModelTest {
         assertEquals(ReadingMode.WESTERN_LTR, settings.readingMode)
     }
 
+    @Test fun `first run seeds every bundled repository as active`() = runTest(scheduler) {
+        val store = MemorySettingsStore()
+        val extensions = FakeExtensions()
+        val model = model(store = store, extensions = extensions)
+        val states = model.recordStates(this)
+        advanceUntilIdle()
+
+        val bundled = CuratedRepositories.ALL.map { it.indexUrl }
+        assertEquals(bundled, extensions.added)
+        assertEquals(bundled, model.state.value.repositories)
+        assertEquals(bundled, states.last().repositories)
+        assertTrue(store.snapshot().bundledRepositoriesSeeded)
+    }
+
+    @Test fun `a disabled bundled repository is not resurrected on the next launch`() = runTest(scheduler) {
+        val store = MemorySettingsStore()
+        val extensions = FakeExtensions()
+        val first = model(store = store, extensions = extensions)
+        advanceUntilIdle()
+        first.setRepositoryEnabled(CuratedRepositories.UNIVERSAL, false)
+        advanceUntilIdle()
+        val registrations = extensions.added.size
+
+        val next = model(store = store, extensions = extensions)
+        next.recordStates(this)
+        advanceUntilIdle()
+
+        assertEquals(registrations, extensions.added.size)
+        assertFalse(CuratedRepositories.UNIVERSAL.indexUrl in next.state.value.repositories)
+        assertTrue(CuratedRepositories.TURKISH_COMICS.indexUrl in next.state.value.repositories)
+    }
+
     @Test fun `enabling a curated repository registers and persists it`() = runTest(scheduler) {
         val extensions = FakeExtensions()
         val model = model(extensions = extensions)
         val states = model.recordStates(this)
         advanceUntilIdle()
+        extensions.added.clear()
 
         model.setRepositoryEnabled(CuratedRepositories.TURKISH_COMICS, true)
         advanceUntilIdle()
@@ -161,6 +194,7 @@ class SettingsViewModelTest {
         val model = model(extensions = extensions)
         val states = model.recordStates(this)
         advanceUntilIdle()
+        extensions.added.clear()
 
         model.addCustomRepository("http://insecure.example.org/index.min.json")
         advanceUntilIdle()

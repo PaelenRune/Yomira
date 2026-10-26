@@ -33,6 +33,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         lockOnBackground = this[lockBackground] ?: true,
         readingMode = readingModes[this[readingMode]] ?: ReadingMode.MANGA_RTL,
         guidedView = this[guidedView] ?: false,
+        bundledRepositoriesSeeded = this[bundledSeeded] ?: false,
     )
 
     private fun MutablePreferences.write(settings: AppSettings) {
@@ -41,6 +42,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         set(lockBackground, settings.lockOnBackground)
         set(readingMode, settings.readingMode.name)
         set(guidedView, settings.guidedView)
+        set(bundledSeeded, settings.bundledRepositoriesSeeded)
     }
 
     private companion object {
@@ -49,6 +51,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         val lockBackground = booleanPreferencesKey("lockOnBackground")
         val readingMode = stringPreferencesKey("readingMode")
         val guidedView = booleanPreferencesKey("guidedView")
+        val bundledSeeded = booleanPreferencesKey("bundledRepositoriesSeeded")
         val readingModes = ReadingMode.entries.associateBy { it.name }
     }
 }

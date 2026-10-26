@@ -42,6 +42,11 @@ class SettingsModelsTest {
         urls.forEach { url -> assertTrue(url.startsWith("https://")) }
     }
 
+    @Test fun `all curated repositories are enabled by default`() {
+        assertEquals(3, CuratedRepositories.ALL.size)
+        assertTrue(CuratedRepositories.ALL.all { it.enabledByDefault })
+    }
+
     @Test fun `universal switch mirrors the onboarding registration url`() {
         // If these diverge the switch would show "off" for a repo onboarding already registered.
         assertEquals(OnboardingWizardManager.KEIYOUSHI_INDEX, CuratedRepositories.UNIVERSAL.indexUrl)

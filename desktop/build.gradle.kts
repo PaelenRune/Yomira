@@ -55,7 +55,7 @@ compose.desktop {
             // Windows-first independent desktop app: an EXE launcher and an MSI installer.
             targetFormats(TargetFormat.Exe, TargetFormat.Msi)
             packageName = "Yomira"
-            packageVersion = "0.4.0"
+            packageVersion = "0.4.1"
             description = "Yomira — OLED manga, manhwa and western comics reader"
             copyright = "© 2026 Yomira"
             vendor = "Yomira"

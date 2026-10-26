@@ -15,13 +15,29 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.4.0"
+        versionCode = 5
+        versionName = "0.4.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Fixed, repo-committed keystore so every debug and release APK (local or CI)
+    // carries the exact same cryptographic signature. This lets devices upgrade
+    // in place instead of failing with "signatures do not match" and forcing an uninstall.
+    signingConfigs {
+        create("release") {
+            storeFile = file("signing/yomira_release.keystore")
+            storePassword = "yomirakeystorepass"
+            keyAlias = "yomira"
+            keyPassword = "yomirakeystorepass"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))

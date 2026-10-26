@@ -14,12 +14,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Yomira"
         android:usesCleartextTraffic="false">
-        <!-- HiltWorkerFactory replaces WorkManager's default startup initializer. -->
+        <!--
+            Keep AndroidX Startup: Compose, Lifecycle (ProcessLifecycleOwner) and EmojiCompat
+            depend on the initializers it hosts. Only WorkManager's default initializer is
+            removed, because YomiraApp implements Configuration.Provider and initializes
+            WorkManager on demand with HiltWorkerFactory.
+        -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
-            tools:node="remove" />
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
         <!-- Persists the in-app language choice below API 33 (setApplicationLocales). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

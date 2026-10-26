@@ -5,19 +5,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class OnboardingWizardManagerTest {
-    @Test fun `skip repo still persists language adult policy and completion`() = runTest {
+    @Test fun `bundled repositories are registered even when the legacy opt-in is false`() = runTest {
         val store = Store()
         val repository = Repository()
         val preferences = ReaderPreferences(ReadingLanguage.ENGLISH, true)
         val result = OnboardingWizardManager(repository, store).complete(preferences, false)
         assertEquals(preferences, result.preferences)
         assertTrue(result.completed)
-        assertNull(result.repositoryUrl)
-        assertTrue(repository.urls.isEmpty())
+        assertEquals(OnboardingWizardManager.KEIYOUSHI_INDEX, result.repositoryUrl)
+        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, repository.urls)
         assertEquals(result, store.state)
     }
 
-    @Test fun `one click adds official and community repos and prepares only allowed sources`() = runTest {
+    @Test fun `bundled repositories are registered and only allowed sources are suggested`() = runTest {
         val store = Store()
         val repository = Repository()
         val result = OnboardingWizardManager(repository, store).complete(ReaderPreferences(ReadingLanguage.TURKISH), true)
@@ -25,14 +25,17 @@ class OnboardingWizardManagerTest {
         assertEquals(listOf("tr"), result.suggestedPackages)
     }
 
-    @Test fun `failed refresh does not falsely mark onboarding completed`() = runTest {
+    @Test fun `failed refresh still completes with bundled repositories registered`() = runTest {
         val store = Store()
-        val manager = OnboardingWizardManager(Repository(failRefresh = true), store)
-        try {
-            manager.complete(ReaderPreferences(ReadingLanguage.TURKISH), true)
-            fail("Expected failure")
-        } catch (_: IllegalStateException) { }
-        assertNull(store.state)
+        val repository = Repository(failRefresh = true)
+        val result = OnboardingWizardManager(repository, store).complete(
+            ReaderPreferences(ReadingLanguage.TURKISH),
+            true,
+        )
+        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, repository.urls)
+        assertTrue(result.completed)
+        assertTrue(result.suggestedPackages.isEmpty())
+        assertEquals(result, store.state)
     }
 
     private class Store : OnboardingStore {

@@ -18,6 +18,9 @@ captures/
 Thumbs.db
 *.jks
 *.keystore
+# The repo-committed Yomira signing key: intentional exception so every CI/local
+# build signs with the identical key (see app/build.gradle.kts signingConfigs).
+!app/signing/yomira_release.keystore
 keystore.properties
 .env
 .env.*

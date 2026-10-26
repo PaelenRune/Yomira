@@ -8,6 +8,7 @@ import com.yomira.domain.extension.ExtensionRepository
 import com.yomira.domain.extension.requireHttps
 import com.yomira.feature.settings.AppCacheCleaner
 import com.yomira.feature.settings.AppSettings
+import com.yomira.feature.settings.CuratedRepositories
 import com.yomira.feature.settings.CuratedRepository
 import com.yomira.feature.settings.SettingsStore
 import com.yomira.feature.settings.SettingsUiState
@@ -66,18 +67,47 @@ class SettingsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     init {
-        refreshRepositories()
+        viewModelScope.launch {
+            seedBundledRepositories()
+            refreshRepositoriesNow()
+        }
     }
 
     fun refreshRepositories() {
-        viewModelScope.launch {
-            try {
-                repositories.value = extensions.repositories()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                // A store read failure leaves the previous snapshot; toggles still surface errors.
-            }
+        viewModelScope.launch { refreshRepositoriesNow() }
+    }
+
+    private suspend fun refreshRepositoriesNow() {
+        try {
+            repositories.value = extensions.repositories()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // A store read failure leaves the previous snapshot; toggles still surface errors.
+        }
+    }
+
+    /**
+     * Registers every bundled catalog once, so a fresh install (or an upgrade from a
+     * build without them) shows them as active without any user action. The persisted
+     * marker keeps a deliberately disabled repo from coming back on the next launch.
+     */
+    private suspend fun seedBundledRepositories() {
+        try {
+            if (store.read().bundledRepositoriesSeeded) return
+            val registered = extensions.repositories().toMutableSet()
+            val missing = CuratedRepositories.ALL
+                .filter { it.enabledByDefault && registered.add(it.indexUrl) }
+            missing.forEach { extensions.addRepository(it.indexUrl) }
+            // Publish the active list before touching the network so the switches
+            // show the bundled defaults immediately.
+            repositories.value = extensions.repositories()
+            store.update { it.copy(bundledRepositoriesSeeded = true) }
+            if (missing.isNotEmpty()) refreshBestEffort()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // Leave the marker unset; the next launch retries the local registration.
         }
     }
 

@@ -33,6 +33,11 @@ data class AppSettings(
     val readingMode: ReadingMode = ReadingMode.MANGA_RTL,
     /** When true the reader opens in Guided View (panel-by-panel cinematic reading). */
     val guidedView: Boolean = false,
+    /**
+     * Set once the bundled catalogs have been registered on a fresh install.
+     * Kept so a repo the user deliberately disables is never resurrected on relaunch.
+     */
+    val bundledRepositoriesSeeded: Boolean = false,
 )
 
 /** Reactive, atomically updated settings persistence. Implementations must be safe to call from any thread. */
@@ -53,6 +58,8 @@ data class CuratedRepository(
     val title: String,
     val subtitle: String,
     val indexUrl: String,
+    /** True for the catalogs shipped and activated automatically on a fresh install. */
+    val enabledByDefault: Boolean = true,
 )
 
 object CuratedRepositories {

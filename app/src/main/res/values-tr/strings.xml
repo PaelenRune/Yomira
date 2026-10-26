@@ -105,17 +105,16 @@
     <string name="onboarding_language_english">English</string>
     <string name="onboarding_language_note">Arayüz ve kaynak önerileri anında seçtiğin dile geçer.</string>
     <string name="onboarding_source_title">Kaynaklarına bir kapı aç</string>
-    <string name="onboarding_source_description">Keiyoushi ve topluluk depolarını tek dokunuşla bağla.</string>
+    <string name="onboarding_source_description">Keiyoushi, Türkçe ve Batı depoları hazır olarak bağlanır.</string>
     <string name="onboarding_source_body">Okuma diline uygun eklenti önerileri hazırlanır. Depoları daha sonra Ayarlar’dan yönetebilirsin.</string>
     <string name="onboarding_source_privacy">Yalnızca depo listesi indirilir. Hiçbir APK otomatik yüklenmez veya güvenilir olarak işaretlenmez.</string>
-    <string name="onboarding_source_skippable">Depoyu daha sonra bağlamak istersen deposuz başlayabilirsin.</string>
+    <string name="onboarding_source_skippable">Tüm depolar uygulamayla birlikte gelir; istediğin zaman Ayarlar’dan kapatabilirsin.</string>
     <string name="onboarding_saving">Kurulum kaydediliyor…</string>
-    <string name="onboarding_connect_start">Depoları Bağla ve Başla</string>
+    <string name="onboarding_connect_start">Başla ve Keşfet</string>
     <string name="onboarding_continue">Devam et</string>
-    <string name="onboarding_skip_repo">Hadi Başlayalım · Deposuz devam et</string>
     <string name="onboarding_back">Geri</string>
     <string name="onboarding_failed_load">Kurulum bilgisi okunamadı. Yeniden dene.</string>
-    <string name="onboarding_failed_save">Kurulum tamamlanamadı. Bağlantını kontrol edip tekrar dene veya deposuz başla.</string>
+    <string name="onboarding_failed_save">Kurulum tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
 
     <!-- Vault -->
     <string name="vault_heading">Vault</string>

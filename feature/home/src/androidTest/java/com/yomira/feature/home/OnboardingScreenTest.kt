@@ -26,11 +26,11 @@ class OnboardingScreenTest {
         compose.onNodeWithText("2 / 2").assertExists()
         compose.onNodeWithContentDescription("Yetişkin içerik izni").assertDoesNotExist()
         assertNull(result)
-        compose.onNodeWithText("Depoları Bağla ve Başla").performClick()
+        compose.onNodeWithText("Başla ve Keşfet").performClick()
         assertEquals("en" to true, result)
     }
 
-    @Test fun defaultsRemainSafeAndUserCanSkipRepository() {
+    @Test fun defaultsRemainSafeAndCompletionAlwaysKeepsBundledRepositories() {
         var result: Pair<String, Boolean>? = null
         compose.setContent { MaterialTheme {
             OnboardingScreen(false, null, { language, repository -> result = language to repository })
@@ -39,8 +39,8 @@ class OnboardingScreenTest {
         compose.onNodeWithText("Geri").performClick()
         compose.onNodeWithText("Türkçe").assertIsEnabled()
         compose.onNodeWithText("Devam et").performClick()
-        compose.onNodeWithText("Hadi Başlayalım · Deposuz devam et").performClick()
-        assertEquals("tr" to false, result)
+        compose.onNodeWithText("Başla ve Keşfet").performClick()
+        assertEquals("tr" to true, result)
     }
 
     @Test fun savingDisablesNavigationAndDuplicateSubmission() {

@@ -50,15 +50,14 @@ data class OnboardingCopy(
     val languageEnglish: String = "English",
     val languageNote: String = "Arayüz ve kaynak önerileri anında seçtiğin dile geçer.",
     val sourceTitle: String = "Kaynaklarına bir kapı aç",
-    val sourceDescription: String = "Keiyoushi ve topluluk depolarını tek dokunuşla bağla.",
+    val sourceDescription: String = "Keiyoushi, Türkçe ve Batı depoları hazır olarak bağlanır.",
     val sourceBody: String = "Okuma diline uygun eklenti önerileri hazırlanır. Depoları daha sonra Ayarlar’dan yönetebilirsin.",
     val sourcePrivacy: String = "Yalnızca depo listesi indirilir. Hiçbir APK otomatik yüklenmez veya güvenilir olarak işaretlenmez.",
     val sourceRepo: String = "Keiyoushi · Türkçe · Western",
-    val sourceSkippable: String = "Depoyu daha sonra bağlamak istersen deposuz başlayabilirsin.",
+    val sourceSkippable: String = "Tüm depolar uygulamayla birlikte gelir; istediğin zaman Ayarlar’dan kapatabilirsin.",
     val saving: String = "Kurulum kaydediliyor…",
-    val connectAndStart: String = "Depoları Bağla ve Başla",
+    val connectAndStart: String = "Başla ve Keşfet",
     val continueLabel: String = "Devam et",
-    val skipRepository: String = "Hadi Başlayalım · Deposuz devam et",
     val back: String = "Geri",
 )
 
@@ -144,10 +143,6 @@ fun OnboardingScreen(
                     Spacer(Modifier.width(12.dp))
                     Text(copy.saving)
                 } else Text(if (step == 1) copy.connectAndStart else copy.continueLabel)
-            }
-            if (step == 1) {
-                TextButton(onClick = { onComplete(language, false) }, enabled = !saving,
-                    modifier = Modifier.fillMaxWidth()) { Text(copy.skipRepository, color = OnboardingMuted) }
             }
             if (step > 0) {
                 TextButton(onClick = { step-- }, enabled = !saving, modifier = Modifier.fillMaxWidth()) {

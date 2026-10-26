@@ -1,3 +1,36 @@
+# Yomira v0.4.1
+
+**Acil Kararlılık & Gömülü Depo Güncellemesi — Samsung Galaxy Açılış Çökmesi Düzeltmesi, Sabit İmza ve Hazır Depo Ekosistemi**
+
+---
+
+### 🛠️ Samsung Galaxy & Android 14/15 Açılış Çökmesi Giderildi
+- **AndroidX Startup & Lifecycle Onarımı:** `AndroidManifest.xml` içerisindeki `InitializationProvider` tanımlaması `tools:node="merge"` ile düzeltildi; Jetpack Compose'un ihtiyaç duyduğu `ProcessLifecycleOwner` ve `EmojiCompat` sağlayıcılarının yok edilmesi engellenerek açılışta anında kapanma sorunu tamamen giderildi.
+- **Room Database Bütünlük Koruması:** `DatabaseModule.kt` içine `fallbackToDestructiveMigration(dropAllTables = true)` eklendi; olası eski şema kırıntılarının açılışta SQLite `IllegalStateException` fırlatması engellendi.
+- **Samsung One UI Recreate Koruması:** Samsung One UI 6 (Android 14) cihazlarda `AppCompatDelegate.setApplicationLocales` çağrısının aktiviteyi açılışta sonsuz yeniden başlatma döngüsüne sokması `syncApplicationLocalesOnStartup` bayrağıyla önlendi.
+
+### 🔑 Sabit İmzalama Keystore'u (Doğrudan Üzerine Güncelleme)
+- Repoya kalıcı ve tekrarlanabilir bir imza anahtarı (`yomira_release.keystore`) entegre edildi.
+- Hem `debug` hem `release` derlemeleri bu anahtara bağlandı; artık GitHub Actions tarafından üretilen APK'lar her zaman aynı sertifikayı taşır. Kullanıcıların eski sürümü silmesine gerek kalmadan doğrudan "Güncelle" butonuyla üzerine kurulabilir.
+
+### 📦 3 Ana Depo Uygulamaya Gömülü ve Aktif
+- **Keiyoushi Universal Deposu**, **Türkçe Çizgi Roman & Manga Deposu** ve **Batı Çizgi Romanları Deposu** uygulamanın ilk kurulumundan itibaren varsayılan olarak aktif ve gömülü gelir.
+- Kullanıcı herhangi bir URL girmek zorunda kalmadan binlerce Türkçe manga, manhwa, webtoon ve Marvel/DC serisine ilk andan itibaren doğrudan ulaşabilir.
+
+### 🖥️ Windows Masaüstü (.EXE / .MSI) Dağıtımı
+- GitHub Actions üzerinde bağımsız `windows-latest` sunucusu devreye alındı; her sürümde `Yomira-0.4.1.exe` ve `Yomira-0.4.1.msi` otomatik olarak derlenir ve GitHub Releases sayfasına yüklenir.
+
+---
+
+### 📦 Kurulum ve İndirme
+- **Android APK:** `yomira-v0.4.1.apk`
+- **Windows Masaüstü:** `Yomira-0.4.1.exe` & `Yomira-0.4.1.msi`
+- **Minimum Sistem:** Android 8.0+ (API 26+) · Windows 10/11
+- **Sürüm:** versionCode `5` / versionName `0.4.1`
+
+---
+---
+
 # Yomira v0.4.0
 
 **Universal Comic & Manga Ecosystem — Okuma Yolculuğu, Akıllı Panel (Guided View), Windows Masaüstü ve JSON Eklenti Çağı**

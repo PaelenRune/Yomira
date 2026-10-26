@@ -17,6 +17,9 @@ object LocaleManagerCompat {
     const val ENGLISH = "en"
     const val TURKISH = "tr"
 
+    /** Set once the onboarding language has been synced for this process. */
+    private var startupLocaleSynced = false
+
     /** Only these two UI languages ship; anything else falls back to English. */
     fun supportedTag(languageTag: String?): String =
         if (languageTag?.startsWith(TURKISH, ignoreCase = true) == true) TURKISH else ENGLISH
@@ -27,6 +30,21 @@ object LocaleManagerCompat {
         if (currentApplicationTag() == tag) return false
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
         return true
+    }
+
+    /**
+     * Startup sync of the language saved by the onboarding wizard.
+     *
+     * Applying a locale recreates every activity. On Samsung One UI 6 (Android 14) the
+     * framework can keep reporting the previous app locale for a moment while the activity
+     * is being recreated, so an unconditional re-apply on every `onCreate` turns into an
+     * endless recreate loop. This method applies the stored language at most once per
+     * process, which breaks that loop without dropping the choice on a later launch.
+     */
+    fun syncApplicationLocalesOnStartup(languageTag: String): Boolean {
+        if (startupLocaleSynced) return false
+        startupLocaleSynced = true
+        return setApplicationLocales(languageTag)
     }
 
     /**

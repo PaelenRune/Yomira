@@ -29,6 +29,10 @@ object DatabaseModule {
     fun provideDatabase(@ApplicationContext context: Context): YomiraDatabase =
         Room.databaseBuilder(context, YomiraDatabase::class.java, "yomira.db")
             .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            // A device that carries an older, partially migrated or otherwise incompatible
+            // schema must still start: rebuild the cache-like tables instead of throwing
+            // IllegalStateException out of Room during the first launch.
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
             .build()
 

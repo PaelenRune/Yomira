@@ -116,10 +116,11 @@ class MainActivity : AppCompatActivity() {
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
             // The reading language chosen in the wizard is also the UI language: applying
             // it through LocaleManagerCompat recreates this activity with the new resource
-            // locale, so every string switches to English/Turkish instantly. Applying the
-            // same tag again is a no-op, which keeps this effect idempotent.
+            // locale, so every string switches to English/Turkish instantly. The startup
+            // guard applies it at most once per process, because Samsung One UI 6 can keep
+            // reporting the old locale while recreating, which would otherwise loop forever.
             LaunchedEffect(onboarding.completed, onboarding.languageCode) {
-                if (onboarding.completed) onboarding.languageCode?.let(LocaleManagerCompat::setApplicationLocales)
+                if (onboarding.completed) onboarding.languageCode?.let(LocaleManagerCompat::syncApplicationLocalesOnStartup)
             }
             when {
                 onboarding.loading -> Surface(color = Color(0xFF06050C), modifier = Modifier.fillMaxSize()) {
@@ -684,6 +685,5 @@ private fun onboardingCopy() = OnboardingCopy(
     saving = stringResource(R.string.onboarding_saving),
     connectAndStart = stringResource(R.string.onboarding_connect_start),
     continueLabel = stringResource(R.string.onboarding_continue),
-    skipRepository = stringResource(R.string.onboarding_skip_repo),
     back = stringResource(R.string.onboarding_back),
 )

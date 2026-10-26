@@ -20,7 +20,6 @@ import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -30,14 +29,16 @@ class OnboardingViewModelTest {
     @Before fun setUp() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun tearDown() { Dispatchers.resetMain() }
 
-    @Test fun newInstallRequiresSetupAndSkipSavesSafeDefaults() = runBlocking {
+    @Test fun newInstallRequiresSetupAndAlwaysRegistersBundledRepositories() = runBlocking {
         val store = MemoryStore()
-        val model = model(store)
+        val added = mutableListOf<String>()
+        val model = model(store, added = added)
         assertFalse(model.await { !it.loading }.completed)
         model.complete("tr", false)
         model.await { it.completed }
         assertEquals(ReaderPreferences(ReadingLanguage.TURKISH), store.saved?.preferences)
-        assertEquals(null, store.saved?.repositoryUrl)
+        assertEquals(OnboardingWizardManager.KEIYOUSHI_INDEX, store.saved?.repositoryUrl)
+        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, added)
     }
 
     @Test fun completedSetupBypassesWizardAfterRestart() = runBlocking {
@@ -48,18 +49,18 @@ class OnboardingViewModelTest {
         assertEquals("en", loaded.languageCode)
     }
 
-    @Test fun failedRepositoryRefreshDoesNotCompleteAndCanRecoverWithoutRepository() = runBlocking {
+    @Test fun failedRefreshStillCompletesWithBundledRepositoriesRegistered() = runBlocking {
         val store = MemoryStore()
-        val model = model(store, failNetwork = true)
+        val added = mutableListOf<String>()
+        val model = model(store, failNetwork = true, added = added)
         model.await { !it.loading }
         model.complete("en", true)
-        val failed = model.await { it.error != null }
-        assertFalse(failed.completed)
-        assertFalse(failed.saving)
-        assertNotNull(failed.error)
-        assertEquals(null, store.saved)
-        model.complete("en", false)
-        model.await { it.completed }
+        val completed = model.await { it.completed || it.error != null }
+        assertTrue(completed.completed)
+        assertFalse(completed.saving)
+        assertEquals(null, completed.error)
+        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, added)
+        assertTrue(store.saved!!.suggestedPackages.isEmpty())
         assertFalse(store.saved!!.preferences.allowAdultContent)
         assertEquals(ReadingLanguage.ENGLISH, store.saved?.preferences?.language)
     }
@@ -75,9 +76,13 @@ class OnboardingViewModelTest {
         assertFalse(failed.completed)
     }
 
-    private fun model(store: OnboardingStore, failNetwork: Boolean = false): OnboardingViewModel {
+    private fun model(
+        store: OnboardingStore,
+        failNetwork: Boolean = false,
+        added: MutableList<String> = mutableListOf(),
+    ): OnboardingViewModel {
         val extensions = object : ExtensionRepository {
-            override suspend fun addRepository(indexUrl: String) = Unit
+            override suspend fun addRepository(indexUrl: String) { added += indexUrl }
             override suspend fun removeRepository(indexUrl: String) = Unit
             override suspend fun repositories(): List<String> = emptyList()
             override suspend fun refresh(): List<ExtensionDescriptor> {

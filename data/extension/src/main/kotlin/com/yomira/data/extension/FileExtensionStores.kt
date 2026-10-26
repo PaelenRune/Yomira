@@ -25,12 +25,19 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 /** Use one store instance per private application file. No APKs or copyrighted content are stored. */
-class FileRepositoryStore(path: Path) : RepositoryStore {
+class FileRepositoryStore(
+    path: Path,
+    private val defaultRepositories: List<String> = listOf(
+        "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
+        "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
+        "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
+    ),
+) : RepositoryStore {
     private val file = AtomicJsonFile(path)
 
     override suspend fun read(): List<String> = file.read()?.let { text ->
         Json.parseToJsonElement(text).jsonArray.map { it.jsonPrimitive.content.also(::requireHttps) }
-    } ?: emptyList()
+    } ?: defaultRepositories
 
     override suspend fun write(urls: List<String>) {
         urls.forEach(::requireHttps)
