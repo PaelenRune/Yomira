@@ -1,0 +1,393 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="100%" height="100%" role="img" aria-labelledby="desktopTitle desktopDesc">
+  <title id="desktopTitle">Yomira Windows masaüstü arayüzü</title>
+  <desc id="desktopDesc">Windows için Yomira masaüstü uygulaması: üst arama çubuğu, Ctrl+F kısayolu, 2K ve 4K ekranlar için sekiz sütunlu poster ızgarası ve F11 tam ekran deneyimi.</desc>
+
+  <defs>
+    <radialGradient id="dtAmbient" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#9D4EDD" stop-opacity="0.2"/>
+      <stop offset="52%" stop-color="#FF007F" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#06050C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="dtWindow" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#0C0A16"/>
+      <stop offset="58%" stop-color="#070510"/>
+      <stop offset="100%" stop-color="#090711"/>
+    </linearGradient>
+    <linearGradient id="dtFrame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#574C78"/>
+      <stop offset="30%" stop-color="#28213F"/>
+      <stop offset="72%" stop-color="#3D345E"/>
+      <stop offset="100%" stop-color="#161122"/>
+    </linearGradient>
+    <linearGradient id="dtNeon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF007F"/>
+      <stop offset="100%" stop-color="#9D4EDD"/>
+    </linearGradient>
+    <linearGradient id="dtNeonSoft" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C77DFF"/>
+      <stop offset="100%" stop-color="#FF007F"/>
+    </linearGradient>
+    <linearGradient id="dtHero" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0%" stop-color="#0A0614"/>
+      <stop offset="42%" stop-color="#231039"/>
+      <stop offset="100%" stop-color="#3A1356"/>
+    </linearGradient>
+    <linearGradient id="c1" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#2B0E55"/><stop offset="55%" stop-color="#7B35E8"/><stop offset="100%" stop-color="#120824"/>
+    </linearGradient>
+    <linearGradient id="c2" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#7C1D2F"/><stop offset="55%" stop-color="#E2582B"/><stop offset="100%" stop-color="#280A13"/>
+    </linearGradient>
+    <linearGradient id="c3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E3B3B"/><stop offset="55%" stop-color="#1D7770"/><stop offset="100%" stop-color="#071618"/>
+    </linearGradient>
+    <linearGradient id="c4" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#1A4AA8"/><stop offset="55%" stop-color="#2C87E8"/><stop offset="100%" stop-color="#0B1630"/>
+    </linearGradient>
+    <linearGradient id="c5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#25263A"/><stop offset="55%" stop-color="#565878"/><stop offset="100%" stop-color="#0A0A12"/>
+    </linearGradient>
+    <linearGradient id="c6" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#5C0B18"/><stop offset="55%" stop-color="#D9282E"/><stop offset="100%" stop-color="#21060A"/>
+    </linearGradient>
+    <linearGradient id="c7" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#142B5A"/><stop offset="55%" stop-color="#2F6BB5"/><stop offset="100%" stop-color="#081226"/>
+    </linearGradient>
+    <linearGradient id="c8" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#3E2A05"/><stop offset="55%" stop-color="#B58A1E"/><stop offset="100%" stop-color="#1B1203"/>
+    </linearGradient>
+    <linearGradient id="dtSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.15"/>
+      <stop offset="48%" stop-color="#FFFFFF" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.6"/>
+    </linearGradient>
+    <linearGradient id="rowFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#070510" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#070510" stop-opacity="1"/>
+    </linearGradient>
+    <filter id="dtShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="dtGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="dtWindowClip"><rect x="40" y="40" width="1360" height="820" rx="16"/></clipPath>
+    <clipPath id="dtHeroClip"><rect x="80" y="212" width="1280" height="226" rx="20"/></clipPath>
+    <clipPath id="cc1"><rect x="80" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc2"><rect x="242" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc3"><rect x="404" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc4"><rect x="566" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc5"><rect x="728" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc6"><rect x="890" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc7"><rect x="1052" y="478" width="146" height="198" rx="12"/></clipPath>
+    <clipPath id="cc8"><rect x="1214" y="478" width="146" height="198" rx="12"/></clipPath>
+  </defs>
+
+  <rect width="1440" height="900" fill="#06050C"/>
+  <rect width="1440" height="900" fill="url(#dtAmbient)"/>
+  <ellipse cx="720" cy="450" rx="620" ry="380" fill="#9D4EDD" opacity="0.14" filter="url(#dtShadow)"/>
+  <ellipse cx="720" cy="872" rx="520" ry="24" fill="#000000" opacity="0.85" filter="url(#dtShadow)"/>
+
+  <!-- Desktop window -->
+  <rect x="40" y="40" width="1360" height="820" rx="16" fill="url(#dtWindow)" stroke="url(#dtFrame)" stroke-width="2"/>
+
+  <g clip-path="url(#dtWindowClip)">
+    <!-- Title bar -->
+    <rect x="40" y="40" width="1360" height="38" fill="#0A0813"/>
+    <rect x="40" y="77" width="1360" height="1" fill="#262039"/>
+    <g transform="translate(64, 52)">
+      <rect x="0" y="0" width="15" height="15" rx="4" fill="#17112A" stroke="#3B2D5C"/>
+      <path d="M7.5 2.5 L12.5 7.5 L7.5 12.5 L2.5 7.5 Z" fill="url(#dtNeonSoft)"/>
+    </g>
+    <text x="88" y="63" fill="#BDB4D4" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="600">Yomira — Keşfet</text>
+    <text x="720" y="63" fill="#5F5878" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" text-anchor="middle">Yomira Desktop · v0.4.1</text>
+    <g fill="none" stroke="#8C84A6" stroke-width="1.4">
+      <path d="M1318 55 h10" stroke-linecap="round"/>
+      <rect x="1338" y="52" width="8" height="8" rx="1"/>
+      <path d="M1370 52 l8 8 M1378 52 l-8 8"/>
+    </g>
+    <rect x="1370" y="44" width="26" height="30" fill="#FFFFFF" opacity="0.03"/>
+
+    <!-- Masthead -->
+    <g transform="translate(96, 96)">
+      <rect x="0" y="0" width="34" height="34" rx="10" fill="#151026" stroke="#3D2D60"/>
+      <path d="M17 7 L27 17 L17 27 L7 17 Z" fill="url(#dtNeonSoft)"/>
+      <path d="M13 13 L17 17 L21 13" fill="none" stroke="#0B0614" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <text x="142" y="119" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="23" font-weight="900" letter-spacing="5">YOMIRA</text>
+    <text x="143" y="136" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" letter-spacing="0.2">Hikâyenin ritmini yakala.</text>
+
+    <!-- Search -->
+    <rect x="500" y="98" width="540" height="44" rx="22" fill="#121020" stroke="#3A2E57"/>
+    <circle cx="525" cy="119" r="6" fill="none" stroke="#9A92B3" stroke-width="1.8"/>
+    <line x1="529.5" y1="123.5" x2="535" y2="129" stroke="#9A92B3" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="548" y="124" fill="#615B7C" font-family="'Segoe UI', system-ui, sans-serif" font-size="11.5">Seri, yazar veya yayınevi ara...</text>
+    <rect x="974" y="108" width="50" height="24" rx="7" fill="#191631" stroke="#312850"/>
+    <text x="999" y="124" fill="#A99ED0" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Ctrl F</text>
+
+    <!-- Right controls -->
+    <rect x="1194" y="100" width="112" height="40" rx="20" fill="#121020" stroke="#2E2648"/>
+    <text x="1212" y="117" fill="#8E86A8" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.5" font-weight="600">2K / 4K</text>
+    <text x="1212" y="129" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800">8 SÜTUN</text>
+    <path d="M1264 112 h13 M1264 118 h13 M1264 124 h13" stroke="#C77DFF" stroke-width="1.6" stroke-linecap="round"/>
+
+    <rect x="1318" y="100" width="42" height="42" rx="12" fill="#141126" stroke="#3A2E5A"/>
+    <path d="M1333 111 v9 M1329 116 h8 M1329 125 h8" stroke="#C77DFF" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="1339" y="155" fill="#6F6888" font-family="'Segoe UI', system-ui, sans-serif" font-size="7" font-weight="700" text-anchor="middle">F11</text>
+
+    <rect x="80" y="168" width="1280" height="1" fill="#241E38"/>
+
+    <!-- Section heading -->
+    <text x="80" y="197" fill="#8E86A8" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" font-weight="800" letter-spacing="1.6">TREND KATALOĞU</text>
+    <rect x="206" y="193" width="1030" height="1" fill="#221C36"/>
+    <text x="1360" y="197" fill="#B57BFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800" text-anchor="end">128 SERİ</text>
+
+    <!-- Hero -->
+    <g clip-path="url(#dtHeroClip)">
+      <rect x="80" y="212" width="1280" height="226" fill="url(#dtHero)"/>
+      <circle cx="1110" cy="300" r="190" fill="#9D4EDD" opacity="0.22"/>
+      <circle cx="1210" cy="380" r="130" fill="#FF007F" opacity="0.13"/>
+      <path d="M890 438 L980 224 L1052 438 Z" fill="#0C061A" opacity="0.86"/>
+      <path d="M1010 438 L1110 206 L1240 438 Z" fill="#180A2C" opacity="0.92"/>
+      <path d="M1160 438 L1250 244 L1320 438 Z" fill="#090511" opacity="0.9"/>
+      <circle cx="1118" cy="268" r="26" fill="#FFD6FF" opacity="0.28"/>
+      <path d="M1050 438 L1128 308 L1180 438 Z" fill="#FFFFFF" opacity="0.04"/>
+      <rect x="80" y="212" width="660" height="226" fill="#070510" opacity="0.88"/>
+      <rect x="80" y="212" width="1280" height="226" fill="url(#dtSheen)" opacity="0.36"/>
+      <!-- decorative panel frames -->
+      <g fill="none" stroke="#FFFFFF" stroke-opacity="0.08">
+        <rect x="928" y="246" width="112" height="72" rx="3"/>
+        <rect x="1052" y="246" width="112" height="72" rx="3"/>
+        <rect x="928" y="330" width="236" height="78" rx="3"/>
+      </g>
+    </g>
+    <rect x="80" y="212" width="1280" height="226" rx="20" fill="none" stroke="#4A3A70"/>
+
+    <rect x="112" y="238" width="78" height="21" rx="10.5" fill="#FF007F" opacity="0.16" stroke="#FF007F" stroke-opacity="0.45"/>
+    <circle cx="123" cy="248.5" r="2.5" fill="#FF007F"/>
+    <text x="131" y="252" fill="#FF9CCB" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.6" font-weight="800" letter-spacing="1">ÖNE ÇIKAN</text>
+    <rect x="198" y="238" width="54" height="21" rx="10.5" fill="#000000" opacity="0.5"/>
+    <text x="225" y="252" fill="#FFB703" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="800" text-anchor="middle">★ 9.8</text>
+    <rect x="260" y="238" width="44" height="21" rx="10.5" fill="#000000" opacity="0.45"/>
+    <text x="282" y="252" fill="#D8CDF0" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">2024</text>
+    <rect x="312" y="238" width="82" height="21" rx="10.5" fill="#3DDC84" opacity="0.1" stroke="#3DDC84" stroke-opacity="0.32"/>
+    <text x="353" y="252" fill="#7BF0AC" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="700" text-anchor="middle">Devam Ediyor</text>
+
+    <text x="112" y="302" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="34" font-weight="900" letter-spacing="-0.8">Kızıl Ufuk</text>
+    <text x="112" y="328" fill="#B9AECF" font-family="'Segoe UI', system-ui, sans-serif" font-size="11">Kızıl ufkun ötesinde yeni bir sefer başlıyor. Panel panel ilerleyen sinematik bir okuma.</text>
+    <text x="112" y="345" fill="#8B83A3" font-family="'Segoe UI', system-ui, sans-serif" font-size="10">Fantastik · Aksiyon · Webtoon · 48 bölüm</text>
+
+    <rect x="112" y="366" width="128" height="40" rx="12" fill="url(#dtNeon)"/>
+    <path d="M128 380 l9 6 -9 6 z" fill="#FFFFFF"/>
+    <text x="146" y="391" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="800">Detaylar</text>
+    <rect x="252" y="366" width="118" height="40" rx="12" fill="#151126" stroke="#3A2E5A"/>
+    <path d="M269 379 v14 M262 386 h14" stroke="#C77DFF" stroke-width="1.7" stroke-linecap="round"/>
+    <text x="283" y="391" fill="#D8CDF0" font-family="'Segoe UI', system-ui, sans-serif" font-size="9.5" font-weight="700">Kitaplığa ekle</text>
+
+    <rect x="1168" y="232" width="162" height="46" rx="12" fill="#070510" opacity="0.68" stroke="#FFFFFF" stroke-opacity="0.12"/>
+    <text x="1184" y="250" fill="#C77DFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.4" font-weight="800" letter-spacing="1">MASAÜSTÜ VİTRİNİ</text>
+    <text x="1184" y="266" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="700">6–8 sütun · geniş görünüm</text>
+
+    <!-- Grid heading -->
+    <text x="80" y="465" fill="#8E86A8" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" font-weight="800" letter-spacing="1.6">SENİN VİTRİNİN</text>
+    <rect x="212" y="461" width="952" height="1" fill="#221C36"/>
+    <text x="1180" y="465" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" font-weight="600">Sırala: Trend</text>
+    <text x="1360" y="465" fill="#B57BFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="800" text-anchor="end">Tümünü gör</text>
+
+    <!-- Row 1 covers -->
+    <g>
+      <rect x="80" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc1)">
+        <rect x="80" y="478" width="146" height="198" fill="url(#c1)"/>
+        <circle cx="184" cy="508" r="52" fill="#C77DFF" opacity="0.38"/>
+        <path d="M80 676 L140 552 L176 622 L200 578 L226 676 Z" fill="#0C061B"/>
+        <path d="M114 478 L154 560 L138 676 L100 596 Z" fill="#FFFFFF" opacity="0.09"/>
+        <circle cx="126" cy="524" r="11" fill="#FFD6FF" opacity="0.68"/>
+        <rect x="80" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="94" y="510" fill="#F0DEFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">KIZIL</text>
+        <text x="94" y="523" fill="#F0DEFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.5">UFUK</text>
+        <rect x="94" y="644" width="44" height="18" rx="5" fill="#000000" opacity="0.64"/>
+        <text x="116" y="657" fill="#FFB703" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="800" text-anchor="middle">★ 9.8</text>
+      </g>
+      <rect x="80" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="80" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Kızıl Ufuk</text>
+      <text x="80" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">2024 · Devam Ediyor</text>
+    </g>
+
+    <g>
+      <rect x="242" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc2)">
+        <rect x="242" y="478" width="146" height="198" fill="url(#c2)"/>
+        <circle cx="316" cy="556" r="52" fill="#FFB703" opacity="0.38"/>
+        <path d="M242 614 Q285 580 328 614 T374 614 V676 H242 Z" fill="#280A13" opacity="0.88"/>
+        <path d="M242 640 Q285 606 328 640 T374 640" fill="none" stroke="#FFD6A0" stroke-width="2" opacity="0.45"/>
+        <path d="M296 478 L330 556 L310 676 L276 596 Z" fill="#FFFFFF" opacity="0.1"/>
+        <rect x="242" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="256" y="510" fill="#FFE1C7" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1">NEON GÖK</text>
+        <rect x="256" y="644" width="48" height="18" rx="5" fill="#000000" opacity="0.64"/>
+        <text x="280" y="657" fill="#FFB703" font-family="'Segoe UI', system-ui, sans-serif" font-size="8" font-weight="800" text-anchor="middle">★ 9.2</text>
+      </g>
+      <rect x="242" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="242" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Neon Gök</text>
+      <text x="242" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">1997 · Devam Ediyor</text>
+    </g>
+
+    <g>
+      <rect x="404" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc3)">
+        <rect x="404" y="478" width="146" height="198" fill="url(#c3)"/>
+        <path d="M404 676 C462 596 486 580 550 546" fill="none" stroke="#8CFFF1" stroke-width="2.4" opacity="0.3"/>
+        <circle cx="490" cy="556" r="38" fill="#8CFFF1" opacity="0.18"/>
+        <path d="M444 676 L486 550 L508 610 L528 552 L546 676 Z" fill="#061314"/>
+        <circle cx="486" cy="536" r="10" fill="#8CFFF1" opacity="0.6"/>
+        <rect x="404" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="418" y="510" fill="#D8FFF9" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.2" font-weight="900" letter-spacing="0.9">SESSİZ</text>
+        <text x="418" y="522" fill="#D8FFF9" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.2" font-weight="900" letter-spacing="0.9">ŞEHİR</text>
+      </g>
+      <rect x="404" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="404" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Sessiz Şehir</text>
+      <text x="404" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">2018 · Devam Ediyor</text>
+    </g>
+
+    <g>
+      <rect x="566" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc4)">
+        <rect x="566" y="478" width="146" height="198" fill="url(#c4)"/>
+        <circle cx="676" cy="516" r="46" fill="#7CC4FF" opacity="0.32"/>
+        <path d="M598 676 L630 558 L652 626 L674 570 L694 676 Z" fill="#08142C"/>
+        <path d="M620 548 l28 -30 20 40 -34 12 z" fill="#FFD84D" opacity="0.82"/>
+        <path d="M566 478 L610 556 L588 676 L564 578 Z" fill="#FFFFFF" opacity="0.1"/>
+        <rect x="566" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="580" y="510" fill="#DCEBFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1">DEMİR ORMAN</text>
+        <rect x="580" y="644" width="66" height="18" rx="5" fill="#FF007F"/>
+        <text x="613" y="657" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="7" font-weight="900" text-anchor="middle">BATI</text>
+      </g>
+      <rect x="566" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="566" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Demir Orman</text>
+      <text x="566" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">Bağımsız · 3 cilt</text>
+    </g>
+
+    <g>
+      <rect x="728" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc5)">
+        <rect x="728" y="478" width="146" height="198" fill="url(#c5)"/>
+        <circle cx="834" cy="510" r="42" fill="#D6D9FF" opacity="0.16"/>
+        <path d="M748 584 q30 -38 54 0 q24 -38 54 0 q-11 30 -54 41 q-43 -11 -54 -41 z" fill="#08080F"/>
+        <path d="M762 556 l16 -11 13 13 -16 11 z" fill="#FFC94D" opacity="0.7"/>
+        <path d="M822 556 l16 -11 13 13 -16 11 z" fill="#FFC94D" opacity="0.7"/>
+        <rect x="728" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="742" y="510" fill="#E7E8FF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.4">AY VADİSİ</text>
+        <text x="742" y="522" fill="#9CA0C4" font-family="'Segoe UI', system-ui, sans-serif" font-size="6.6" font-weight="700" letter-spacing="0.7">CİLT 3</text>
+      </g>
+      <rect x="728" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="728" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Ay Vadisi</text>
+      <text x="728" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">Batı · 3 cilt</text>
+    </g>
+
+    <g>
+      <rect x="890" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc6)">
+        <rect x="890" y="478" width="146" height="198" fill="url(#c6)"/>
+        <circle cx="1000" cy="518" r="46" fill="#FF8A5B" opacity="0.3"/>
+        <path d="M912 676 L942 560 L964 628 L988 552 L1008 676 Z" fill="#1D0509"/>
+        <path d="M890 478 L934 556 L914 676 L888 588 Z" fill="#FFFFFF" opacity="0.08"/>
+        <rect x="890" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="904" y="510" fill="#FFE0D6" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.2" font-weight="900" letter-spacing="0.9">GÖLGE</text>
+        <text x="904" y="522" fill="#FFE0D6" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.2" font-weight="900" letter-spacing="0.9">AVCISI</text>
+      </g>
+      <rect x="890" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="890" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Gölge Avcısı</text>
+      <text x="890" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">2018 · Devam Ediyor</text>
+    </g>
+
+    <g>
+      <rect x="1052" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc7)">
+        <rect x="1052" y="478" width="146" height="198" fill="url(#c7)"/>
+        <circle cx="1156" cy="520" r="48" fill="#9CD4FF" opacity="0.3"/>
+        <path d="M1074 676 L1112 556 L1136 620 L1160 556 L1198 676 Z" fill="#081226"/>
+        <path d="M1094 550 L1130 506 L1150 560 L1112 580 Z" fill="#FFFFFF" opacity="0.08"/>
+        <rect x="1052" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="1066" y="510" fill="#DCEBFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.3">KIYI HATTI</text>
+      </g>
+      <rect x="1052" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="1052" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Kıyı Hattı</text>
+      <text x="1052" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">2018 · Devam Ediyor</text>
+    </g>
+
+    <g>
+      <rect x="1214" y="478" width="146" height="198" rx="12" fill="#17142B"/>
+      <g clip-path="url(#cc8)">
+        <rect x="1214" y="478" width="146" height="198" fill="url(#c8)"/>
+        <circle cx="1320" cy="520" r="46" fill="#FFE08A" opacity="0.28"/>
+        <path d="M1236 676 L1270 556 L1294 626 L1316 566 L1340 676 Z" fill="#1B1203"/>
+        <path d="M1258 550 L1290 508 L1312 560 L1276 582 Z" fill="#FFFFFF" opacity="0.08"/>
+        <rect x="1214" y="478" width="146" height="198" fill="url(#dtSheen)"/>
+        <text x="1228" y="510" fill="#FFF0C4" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.6" font-weight="900" letter-spacing="1">BUZ</text>
+        <text x="1228" y="523" fill="#FFF0C4" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.6" font-weight="900" letter-spacing="1">KIRIĞI</text>
+      </g>
+      <rect x="1214" y="478" width="146" height="198" rx="12" fill="none" stroke="#3E335F"/>
+      <text x="1214" y="695" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Buz Kırığı</text>
+      <text x="1214" y="708" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8">2021 · Tamamlandı</text>
+    </g>
+
+    <!-- Continue-reading rail -->
+    <text x="80" y="738" fill="#8E86A8" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.5" font-weight="800" letter-spacing="1.6">OKUMAYA DEVAM ET</text>
+    <rect x="298" y="734" width="1062" height="1" fill="#221C36"/>
+
+    <g>
+      <rect x="80" y="750" width="416" height="54" rx="12" fill="#141126" stroke="#2A2344"/>
+      <rect x="88" y="756" width="34" height="42" rx="6" fill="url(#c1)"/>
+      <path d="M88 798 L104 776 L114 790 L124 778 L132 798 Z" fill="#0C061B" opacity="0.85"/>
+      <text x="134" y="772" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Kızıl Ufuk</text>
+      <text x="134" y="785" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.8">Bölüm 31 · 38 sayfa kaldı</text>
+      <rect x="134" y="790" width="196" height="3" rx="1.5" fill="#211B36"/>
+      <rect x="134" y="790" width="124" height="3" rx="1.5" fill="#FF007F"/>
+      <rect x="432" y="764" width="52" height="26" rx="8" fill="url(#dtNeon)"/>
+      <path d="M445 773 l8 5 l-8 5 z" fill="#FFFFFF"/>
+      <text x="458" y="781" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.4" font-weight="800">Devam</text>
+    </g>
+
+    <g>
+      <rect x="512" y="750" width="416" height="54" rx="12" fill="#141126" stroke="#2A2344"/>
+      <rect x="520" y="756" width="34" height="42" rx="6" fill="url(#c3)"/>
+      <path d="M520 798 L536 778 L546 792 L556 780 L564 798 Z" fill="#061314" opacity="0.85"/>
+      <text x="566" y="772" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Sessiz Şehir</text>
+      <text x="566" y="785" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.8">Bölüm 22 · yeni bölüm</text>
+      <rect x="566" y="790" width="196" height="3" rx="1.5" fill="#211B36"/>
+      <rect x="566" y="790" width="188" height="3" rx="1.5" fill="#3DDC84" opacity="0.8"/>
+      <rect x="864" y="764" width="52" height="26" rx="8" fill="#151126" stroke="#3A2E5A"/>
+      <text x="890" y="781" fill="#D8CDF0" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.4" font-weight="800" text-anchor="middle">İncele</text>
+    </g>
+
+    <g>
+      <rect x="944" y="750" width="416" height="54" rx="12" fill="#141126" stroke="#2A2344"/>
+      <rect x="952" y="756" width="34" height="42" rx="6" fill="url(#c4)"/>
+      <path d="M952 798 L968 778 L978 792 L988 780 L996 798 Z" fill="#08142C" opacity="0.85"/>
+      <text x="998" y="772" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="10" font-weight="700">Demir Orman</text>
+      <text x="998" y="785" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.8">Sayı #144 · Batı çizgi romanı</text>
+      <rect x="998" y="790" width="196" height="3" rx="1.5" fill="#211B36"/>
+      <rect x="998" y="790" width="70" height="3" rx="1.5" fill="#C77DFF" opacity="0.9"/>
+      <rect x="1296" y="764" width="52" height="26" rx="8" fill="#151126" stroke="#3A2E5A"/>
+      <text x="1322" y="781" fill="#D8CDF0" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.4" font-weight="800" text-anchor="middle">İncele</text>
+    </g>
+
+    <!-- Footer -->
+    <rect x="80" y="822" width="1280" height="1" fill="#241E38"/>
+    <text x="80" y="842" fill="#77708F" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.4">Fare tekerleği · Yön tuşları · F11 tam ekran · Ctrl F ara</text>
+    <g transform="translate(1134, 830)">
+      <rect x="0" y="0" width="26" height="24" rx="8" fill="#121020" stroke="#2E2648"/>
+      <path d="M15 6 L8 12 L15 18" fill="none" stroke="#A99ED0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="56" y="12" fill="#6F6888" font-family="'Segoe UI', system-ui, sans-serif" font-size="6.6" font-weight="700" text-anchor="middle">SAYFA</text>
+      <text x="56" y="21" fill="#FFFFFF" font-family="'Segoe UI', system-ui, sans-serif" font-size="8.6" font-weight="900" text-anchor="middle">01</text>
+      <rect x="86" y="0" width="26" height="24" rx="8" fill="#121020" stroke="#2E2648"/>
+      <path d="M11 6 L18 12 L11 18" fill="none" stroke="#A99ED0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <rect x="1292" y="828" width="68" height="26" rx="13" fill="#9D4EDD" opacity="0.12" stroke="#9D4EDD" stroke-opacity="0.35"/>
+    <circle cx="1306" cy="841" r="3" fill="#FF007F"/>
+    <text x="1316" y="844" fill="#DCC4FF" font-family="'Segoe UI', system-ui, sans-serif" font-size="7.4" font-weight="800">MASAÜSTÜ</text>
+  </g>
+
+  <rect x="40" y="40" width="1360" height="820" rx="16" fill="none" stroke="#6B5C96" stroke-opacity="0.25" stroke-width="1"/>
+</svg>

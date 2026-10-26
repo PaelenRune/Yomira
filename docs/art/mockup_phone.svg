@@ -1,0 +1,370 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" width="100%" height="100%" role="img" aria-labelledby="phoneTitle phoneDesc">
+  <title id="phoneTitle">Yomira Android telefon arayüzü</title>
+  <desc id="phoneDesc">Koyu OLED zeminde üç sütunlu poster vitrini, alt gezinme çubuğu ve Guided View yapay zekâ odaklanma kartı.</desc>
+  <defs>
+    <linearGradient id="pCanvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050409"/>
+      <stop offset="55%" stop-color="#080612"/>
+      <stop offset="100%" stop-color="#0D0718"/>
+    </linearGradient>
+    <radialGradient id="pAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#9D4EDD" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#FF007F" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#050409" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A0814"/>
+      <stop offset="100%" stop-color="#050409"/>
+    </linearGradient>
+    <linearGradient id="pNeon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF007F"/>
+      <stop offset="55%" stop-color="#C13BFF"/>
+      <stop offset="100%" stop-color="#7B2FF7"/>
+    </linearGradient>
+    <linearGradient id="pHeroArt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3B0A45"/>
+      <stop offset="45%" stop-color="#8E105F"/>
+      <stop offset="100%" stop-color="#F0596B"/>
+    </linearGradient>
+    <linearGradient id="pPoster1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2A0A2E"/>
+      <stop offset="55%" stop-color="#7A1356"/>
+      <stop offset="100%" stop-color="#FF5A5F"/>
+    </linearGradient>
+    <linearGradient id="pPoster2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#071B33"/>
+      <stop offset="60%" stop-color="#0B4C6E"/>
+      <stop offset="100%" stop-color="#28D6D0"/>
+    </linearGradient>
+    <linearGradient id="pPoster3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#160A2B"/>
+      <stop offset="60%" stop-color="#4B1B78"/>
+      <stop offset="100%" stop-color="#C94AE0"/>
+    </linearGradient>
+    <linearGradient id="pPoster4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#041A19"/>
+      <stop offset="60%" stop-color="#0E5148"/>
+      <stop offset="100%" stop-color="#52C7A5"/>
+    </linearGradient>
+    <linearGradient id="pPoster5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A0B2E"/>
+      <stop offset="55%" stop-color="#283B8F"/>
+      <stop offset="100%" stop-color="#9CB8FF"/>
+    </linearGradient>
+    <linearGradient id="pPoster6" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1C0B08"/>
+      <stop offset="55%" stop-color="#6B1D12"/>
+      <stop offset="100%" stop-color="#FF9A3C"/>
+    </linearGradient>
+    <linearGradient id="pTextGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF007F"/>
+      <stop offset="100%" stop-color="#B26BFF"/>
+    </linearGradient>
+    <linearGradient id="pNavFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A0814" stop-opacity="0.55"/>
+      <stop offset="35%" stop-color="#0A0814" stop-opacity="0.97"/>
+      <stop offset="100%" stop-color="#080610"/>
+    </linearGradient>
+    <pattern id="pDots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.6" cy="1.6" r="1.1" fill="#9D4EDD" fill-opacity="0.13"/>
+    </pattern>
+    <filter id="pGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <filter id="pSoftGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="pShadow" x="-30%" y="-20%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000000" flood-opacity="0.7"/>
+    </filter>
+    <clipPath id="pScreenClip">
+      <rect x="219" y="64" width="462" height="1072" rx="46"/>
+    </clipPath>
+    <clipPath id="pHeroClip">
+      <rect x="243" y="238" width="414" height="208" rx="22"/>
+    </clipPath>
+    <clipPath id="pCover1"><rect x="243" y="538" width="126" height="150" rx="13"/></clipPath>
+    <clipPath id="pCover2"><rect x="387" y="538" width="126" height="150" rx="13"/></clipPath>
+    <clipPath id="pCover3"><rect x="531" y="538" width="126" height="150" rx="13"/></clipPath>
+    <clipPath id="pCover4"><rect x="243" y="740" width="126" height="150" rx="13"/></clipPath>
+    <clipPath id="pCover5"><rect x="387" y="740" width="126" height="150" rx="13"/></clipPath>
+    <clipPath id="pCover6"><rect x="531" y="740" width="126" height="150" rx="13"/></clipPath>
+  </defs>
+
+  <!-- Stage -->
+  <rect width="900" height="1200" rx="40" fill="url(#pCanvas)"/>
+  <rect width="900" height="1200" rx="40" fill="url(#pDots)" opacity="0.55"/>
+  <ellipse cx="450" cy="560" rx="420" ry="540" fill="url(#pAura)" opacity="0.9"/>
+
+  <!-- Side buttons -->
+  <rect x="694" y="250" width="7" height="74" rx="3.5" fill="#2B2547"/>
+  <rect x="694" y="348" width="7" height="46" rx="3.5" fill="#2B2547"/>
+  <rect x="204" y="300" width="7" height="92" rx="3.5" fill="#2B2547"/>
+
+  <!-- Phone frame -->
+  <g filter="url(#pShadow)">
+    <rect x="205" y="50" width="490" height="1100" rx="58" fill="#0C0A18" stroke="#39305F" stroke-width="3"/>
+    <rect x="211" y="56" width="478" height="1088" rx="53" fill="none" stroke="#1B1730" stroke-width="2"/>
+  </g>
+  <rect x="219" y="64" width="462" height="1072" rx="46" fill="url(#pScreen)"/>
+
+  <g clip-path="url(#pScreenClip)">
+    <!-- Ambient glows inside screen -->
+    <ellipse cx="330" cy="360" rx="250" ry="220" fill="#9D4EDD" opacity="0.16" filter="url(#pSoftGlow)"/>
+    <ellipse cx="640" cy="780" rx="180" ry="240" fill="#FF007F" opacity="0.10" filter="url(#pSoftGlow)"/>
+
+    <!-- Status bar -->
+    <text x="255" y="104" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="14" font-weight="700">09:41</text>
+    <g fill="#FFFFFF" opacity="0.85">
+      <rect x="588" y="92" width="3" height="10" rx="1.5"/>
+      <rect x="594" y="88" width="3" height="14" rx="1.5"/>
+      <rect x="600" y="84" width="3" height="18" rx="1.5"/>
+      <path d="M616 91h13a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-13a3 3 0 0 1-3-3v-10a3 3 0 0 1 3-3z" fill="none" stroke="#FFFFFF" stroke-opacity="0.8" stroke-width="1.6"/>
+      <rect x="615" y="94" width="13" height="10" rx="1.5" fill="#FFFFFF" opacity="0.9"/>
+      <rect x="634" y="93" width="2.5" height="8" rx="1.2" fill="#FFFFFF" opacity="0.6"/>
+    </g>
+    <rect x="370" y="76" width="160" height="28" rx="14" fill="#000000"/>
+    <circle cx="429" cy="90" r="3.4" fill="#11101A" stroke="#2A2545" stroke-width="1"/>
+
+    <!-- Header -->
+    <text x="243" y="156" fill="url(#pTextGrad)" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="27" font-weight="900" letter-spacing="1.5">YOMIRA</text>
+    <text x="245" y="172" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9.5" letter-spacing="1.1">HİKÂYENİN RİTMİNİ YAKALA</text>
+    <g>
+      <circle cx="590" cy="151" r="17" fill="#12101F" stroke="#2A2445" stroke-width="1.2"/>
+      <circle cx="588" cy="149" r="5.2" fill="none" stroke="#C9C4DC" stroke-width="1.8"/>
+      <line x1="592" y1="153" x2="597" y2="158" stroke="#C9C4DC" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="633" cy="151" r="17" fill="#1B1330" stroke="#9D4EDD" stroke-opacity="0.6" stroke-width="1.2"/>
+      <text x="633" y="157" fill="#E6D6FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="12" font-weight="800" text-anchor="middle">R</text>
+      <circle cx="646" cy="139" r="4" fill="#FF007F" stroke="#050409" stroke-width="2"/>
+    </g>
+
+    <!-- Search -->
+    <rect x="243" y="186" width="414" height="40" rx="12" fill="#12101F" stroke="#262040" stroke-width="1.2"/>
+    <circle cx="266" cy="206" r="6" fill="none" stroke="#8C86A6" stroke-width="1.8"/>
+    <line x1="270.5" y1="210.5" x2="276" y2="216" stroke="#8C86A6" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="287" y="211" fill="#625C7C" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="12">Seri, yazar veya tür ara…</text>
+    <rect x="620" y="195" width="27" height="22" rx="6" fill="#1D1834" stroke="#332B55"/>
+    <text x="633.5" y="210" fill="#8E86AB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">⌘K</text>
+
+    <!-- Hero card -->
+    <g clip-path="url(#pHeroClip)">
+      <rect x="243" y="238" width="414" height="208" fill="url(#pHeroArt)"/>
+      <circle cx="590" cy="300" r="120" fill="#FFB36B" opacity="0.35" filter="url(#pSoftGlow)"/>
+      <circle cx="592" cy="336" r="58" fill="#FFD9A0" opacity="0.9"/>
+      <path d="M500 446 L566 330 L614 392 L646 344 L690 446 Z" fill="#2A071E" opacity="0.9"/>
+      <path d="M470 446 L530 366 L572 412 L604 382 L658 446 Z" fill="#18040F" opacity="0.95"/>
+      <path d="M243 238 H660 V300 C600 330 540 280 470 316 C400 352 320 316 243 348 Z" fill="#050409" opacity="0.35"/>
+      <g opacity="0.55" stroke="#FFD7C2" stroke-width="1">
+        <line x1="500" y1="250" x2="486" y2="286"/>
+        <line x1="560" y1="242" x2="548" y2="278"/>
+        <line x1="640" y1="252" x2="628" y2="284"/>
+      </g>
+      <rect x="243" y="238" width="414" height="208" fill="url(#pNavFade)" opacity="0.18"/>
+    </g>
+    <rect x="243" y="238" width="414" height="208" rx="22" fill="none" stroke="#B45CFF" stroke-opacity="0.55" stroke-width="1.4"/>
+
+    <rect x="259" y="254" width="132" height="23" rx="11.5" fill="#050409" fill-opacity="0.62" stroke="#FF007F" stroke-opacity="0.5"/>
+    <circle cx="273" cy="265.5" r="3.2" fill="#FF007F"/>
+    <text x="282" y="269.2" fill="#FFD3E8" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="800" letter-spacing="0.6">GUIDED VIEW HAZIR</text>
+
+    <rect x="566" y="254" width="74" height="23" rx="11.5" fill="#050409" fill-opacity="0.55"/>
+    <text x="580" y="269.2" fill="#FFB703" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="800">★ 9.6</text>
+
+    <text x="261" y="336" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="27" font-weight="900" letter-spacing="-0.6">Kızıl Ufuk</text>
+    <text x="261" y="355" fill="#F3D9E6" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" opacity="0.9">Fantastik • Aksiyon • Webtoon</text>
+    <rect x="261" y="366" width="150" height="3" rx="1.5" fill="#FFFFFF" opacity="0.16"/>
+    <rect x="261" y="366" width="86" height="3" rx="1.5" fill="#FF007F"/>
+
+    <rect x="261" y="386" width="146" height="38" rx="11" fill="url(#pNeon)" filter="url(#pGlow)"/>
+    <path d="M279 399 L290 405 L279 411 Z" fill="#FFFFFF"/>
+    <text x="300" y="410" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11.5" font-weight="800">Okumaya devam et</text>
+
+    <rect x="419" y="386" width="60" height="38" rx="11" fill="#050409" fill-opacity="0.42" stroke="#FFFFFF" stroke-opacity="0.35"/>
+    <path d="M440 398 v14 M433 405 h14" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Section heading + filter chips -->
+    <text x="243" y="486" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="17" font-weight="800">Senin Vitrinin</text>
+    <text x="657" y="486" fill="#B98CFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600" text-anchor="end">Tümünü gör →</text>
+
+    <rect x="243" y="498" width="49" height="24" rx="12" fill="#9D4EDD"/>
+    <text x="267.5" y="514" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle">Tümü</text>
+    <rect x="298" y="498" width="54" height="24" rx="12" fill="#12101F" stroke="#2C2548"/>
+    <text x="325" y="514" fill="#A49DBB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Manga</text>
+    <rect x="358" y="498" width="61" height="24" rx="12" fill="#12101F" stroke="#2C2548"/>
+    <text x="388.5" y="514" fill="#A49DBB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Webtoon</text>
+    <rect x="425" y="498" width="49" height="24" rx="12" fill="#12101F" stroke="#2C2548"/>
+    <text x="449.5" y="514" fill="#A49DBB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Batı</text>
+    <rect x="480" y="498" width="53" height="24" rx="12" fill="#12101F" stroke="#2C2548"/>
+    <text x="506.5" y="514" fill="#A49DBB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Manhwa</text>
+
+    <!-- Poster 1 -->
+    <g>
+      <rect x="243" y="538" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover1)">
+        <rect x="243" y="538" width="126" height="150" fill="url(#pPoster1)"/>
+        <circle cx="322" cy="584" r="27" fill="#FFC48A" opacity="0.92"/>
+        <path d="M243 650 L279 596 L310 636 L332 606 L369 656 V688 H243 Z" fill="#28061F"/>
+        <path d="M243 666 L289 626 L321 660 L345 638 L369 668 V688 H243 Z" fill="#150310"/>
+        <text x="256" y="574" fill="#FFE2EE" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.6">KIZIL</text>
+        <text x="256" y="586" fill="#FFE2EE" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.6">UFUK</text>
+      </g>
+      <rect x="243" y="538" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="253" y="667" width="46" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="264" y="677.5" fill="#FFB703" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">★ 9.6</text>
+      <text x="243" y="708" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Kızıl Ufuk</text>
+      <text x="243" y="721" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Bölüm 48 • Yeni</text>
+    </g>
+
+    <!-- Poster 2 -->
+    <g>
+      <rect x="387" y="538" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover2)">
+        <rect x="387" y="538" width="126" height="150" fill="url(#pPoster2)"/>
+        <rect x="398" y="600" width="18" height="88" fill="#04121F" opacity="0.9"/>
+        <rect x="421" y="576" width="26" height="112" fill="#061826" opacity="0.9"/>
+        <rect x="452" y="614" width="18" height="74" fill="#04121F" opacity="0.9"/>
+        <rect x="475" y="588" width="26" height="100" fill="#061826" opacity="0.9"/>
+        <g fill="#5FF5EA" opacity="0.85">
+          <rect x="401" y="610" width="4" height="4"/><rect x="408" y="626" width="4" height="4"/>
+          <rect x="427" y="590" width="4" height="4"/><rect x="436" y="608" width="4" height="4"/>
+          <rect x="457" y="624" width="4" height="4"/><rect x="481" y="600" width="4" height="4"/>
+        </g>
+        <circle cx="500" cy="560" r="34" fill="#50E3D2" opacity="0.25"/>
+        <text x="399" y="562" fill="#D9FFFB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.4">NEON</text>
+        <text x="399" y="574" fill="#D9FFFB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.4">GÖK</text>
+      </g>
+      <rect x="387" y="538" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="397" y="667" width="52" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="408" y="677.5" fill="#8FF3EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">YENİ SEZON</text>
+      <text x="387" y="708" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Neon Gök</text>
+      <text x="387" y="721" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Bölüm 22</text>
+    </g>
+
+    <!-- Poster 3 -->
+    <g>
+      <rect x="531" y="538" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover3)">
+        <rect x="531" y="538" width="126" height="150" fill="url(#pPoster3)"/>
+        <circle cx="598" cy="598" r="40" fill="#E9A7FF" opacity="0.35"/>
+        <path d="M531 664 L556 620 L578 650 L596 616 L620 656 L638 632 L657 664 V688 H531 Z" fill="#120525"/>
+        <rect x="578" y="572" width="2" height="44" fill="#F6DCFF" opacity="0.75"/>
+        <text x="544" y="562" fill="#F4DFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.4">SESSİZ</text>
+        <text x="544" y="574" fill="#F4DFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.4">ŞEHİR</text>
+      </g>
+      <rect x="531" y="538" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="541" y="667" width="47" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="552" y="677.5" fill="#FFB703" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">★ 9.1</text>
+      <text x="531" y="708" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Sessiz Şehir</text>
+      <text x="531" y="721" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Bölüm 31</text>
+    </g>
+
+    <!-- Poster 4 -->
+    <g>
+      <rect x="243" y="740" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover4)">
+        <rect x="243" y="740" width="126" height="150" fill="url(#pPoster4)"/>
+        <g stroke="#B8FFE9" stroke-opacity="0.55" stroke-width="1.2">
+          <path d="M243 868 L278 790 L296 824 L314 768 L336 840 L358 812 L369 862"/>
+          <path d="M243 882 L286 830 L306 856 L330 806 L352 872 L369 850"/>
+          <path d="M243 896 L268 868 L290 890 L318 850 L346 894 L369 876"/>
+        </g>
+        <circle cx="330" cy="786" r="18" fill="#A7FFE3" opacity="0.6"/>
+        <text x="256" y="764" fill="#DCFFF3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.2">DEMİR</text>
+        <text x="256" y="776" fill="#DCFFF3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.2">ORMAN</text>
+      </g>
+      <rect x="243" y="740" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="253" y="869" width="46" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="264" y="879.5" fill="#FFB703" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">★ 8.8</text>
+      <text x="243" y="910" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Demir Orman</text>
+      <text x="243" y="923" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Bölüm 17</text>
+    </g>
+
+    <!-- Poster 5 -->
+    <g>
+      <rect x="387" y="740" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover5)">
+        <rect x="387" y="740" width="126" height="150" fill="url(#pPoster5)"/>
+        <circle cx="474" cy="806" r="34" fill="#E7EEFF" opacity="0.85"/>
+        <circle cx="459" cy="796" r="30" fill="#283B8F" opacity="0.55"/>
+        <g fill="#EAF1FF" opacity="0.8">
+          <circle cx="414" cy="770" r="1.6"/><circle cx="443" cy="784" r="1.2"/>
+          <circle cx="502" cy="762" r="1.8"/><circle cx="493" cy="846" r="1.4"/>
+          <circle cx="425" cy="852" r="1.2"/><circle cx="457" cy="866" r="1.5"/>
+        </g>
+        <path d="M387 864 L420 834 L448 862 L474 838 L513 874 V890 H387 Z" fill="#080A24"/>
+        <text x="400" y="764" fill="#EAF1FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.3">AY</text>
+        <text x="400" y="776" fill="#EAF1FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.3">VADİSİ</text>
+      </g>
+      <rect x="387" y="740" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="397" y="869" width="44" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="407" y="879.5" fill="#AFC8FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">MANGA</text>
+      <text x="387" y="910" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Ay Vadisi</text>
+      <text x="387" y="923" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Cilt 3</text>
+    </g>
+
+    <!-- Poster 6 -->
+    <g>
+      <rect x="531" y="740" width="126" height="150" rx="13" fill="#141026"/>
+      <g clip-path="url(#pCover6)">
+        <rect x="531" y="740" width="126" height="150" fill="url(#pPoster6)"/>
+        <circle cx="632" cy="788" r="26" fill="#FFC46B" opacity="0.7"/>
+        <path d="M531 856 L562 812 L588 846 L608 800 L632 840 L655 822 V890 H531 Z" fill="#1C0704"/>
+        <path d="M560 812 l8 -24 l8 24 z" fill="#FFE0A8" opacity="0.8"/>
+        <text x="544" y="764" fill="#FFE9CE" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.2">GÖLGE</text>
+        <text x="544" y="776" fill="#FFE9CE" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="900" letter-spacing="1.2">AVCISI</text>
+      </g>
+      <rect x="531" y="740" width="126" height="150" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+      <rect x="541" y="869" width="52" height="15" rx="7.5" fill="#050409" fill-opacity="0.72"/>
+      <text x="552" y="879.5" fill="#FFC98A" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8" font-weight="800">BATI • DC</text>
+      <text x="531" y="910" fill="#F4F1FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Gölge Avcısı</text>
+      <text x="531" y="923" fill="#77718F" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5">Sayı #12</text>
+    </g>
+
+    <!-- Guided View AI focus card -->
+    <g>
+      <rect x="243" y="942" width="414" height="60" rx="15" fill="#100B1E" stroke="#9D4EDD" stroke-opacity="0.5"/>
+      <rect x="255" y="952" width="40" height="40" rx="9" fill="#08050F" stroke="#3A2A5E"/>
+      <rect x="261" y="958" width="28" height="11" rx="2" fill="#4B1745"/>
+      <rect x="261" y="971" width="13" height="15" rx="2" fill="#2C1538"/>
+      <rect x="276" y="971" width="13" height="15" rx="2" fill="#6A1E5A"/>
+      <rect x="261" y="958" width="28" height="11" rx="2" fill="none" stroke="#FF007F" stroke-width="1.4"/>
+      <rect x="261" y="971" width="13" height="15" rx="2" fill="none" stroke="#9D4EDD" stroke-width="1.2" stroke-dasharray="2.5 2"/>
+      <text x="308" y="963" fill="#F4EEFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="800">Guided View AI</text>
+      <text x="308" y="979" fill="#9A92B4" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">Panel 4 / 9 • konuşma balonuna odak</text>
+      <rect x="308" y="986" width="252" height="3" rx="1.5" fill="#241C3A"/>
+      <rect x="308" y="986" width="112" height="3" rx="1.5" fill="url(#pNeon)"/>
+      <rect x="572" y="955" width="72" height="24" rx="12" fill="#9D4EDD" fill-opacity="0.18" stroke="#9D4EDD" stroke-opacity="0.6"/>
+      <text x="608" y="971" fill="#D9C2FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">ÇEVRİMDIŞI</text>
+    </g>
+
+    <!-- Bottom navigation -->
+    <rect x="219" y="1008" width="462" height="86" fill="url(#pNavFade)"/>
+    <line x1="243" y1="1014" x2="657" y2="1014" stroke="#2A2344" stroke-width="1"/>
+    <rect x="243" y="1018" width="78" height="62" rx="16" fill="#9D4EDD" fill-opacity="0.16" stroke="#9D4EDD" stroke-opacity="0.35"/>
+
+    <!-- Home -->
+    <path d="M272 1038 l10 -9 l10 9 v12 a2 2 0 0 1 -2 2 h-16 a2 2 0 0 1 -2 -2 z" fill="none" stroke="#FF007F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="282" y="1074" fill="#FF7AB8" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">Ana Sayfa</text>
+
+    <!-- Explore -->
+    <circle cx="367" cy="1040" r="8.5" fill="none" stroke="#8B84A5" stroke-width="2"/>
+    <path d="M372 1045 l5 5" stroke="#8B84A5" stroke-width="2" stroke-linecap="round"/>
+    <text x="367" y="1074" fill="#8B84A5" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Keşfet</text>
+
+    <!-- Library -->
+    <path d="M441 1030 h6 v22 h-6 z M450 1030 h6 v22 h-6 z M459 1032 l6 20 l-5 2 l-6 -20 z" fill="#8B84A5" opacity="0.9"/>
+    <text x="454" y="1074" fill="#8B84A5" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Kitaplık</text>
+
+    <!-- Journey -->
+    <path d="M536 1032 l4 8 l9 1 l-7 6 l2 9 l-8 -4 l-8 4 l2 -9 l-7 -6 l9 -1 z" fill="none" stroke="#8B84A5" stroke-width="1.8" stroke-linejoin="round"/>
+    <text x="536" y="1074" fill="#8B84A5" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Yolculuk</text>
+
+    <!-- Settings -->
+    <circle cx="620" cy="1040" r="6.5" fill="none" stroke="#8B84A5" stroke-width="2"/>
+    <path d="M620 1026 v4 M620 1050 v4 M606 1040 h4 M630 1040 h4 M610 1030 l3 3 M627 1047 l3 3 M630 1030 l-3 3 M613 1047 l-3 3" stroke="#8B84A5" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="620" y="1074" fill="#8B84A5" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Ayarlar</text>
+
+    <rect x="370" y="1092" width="160" height="4" rx="2" fill="#514A6B"/>
+  </g>
+</svg>

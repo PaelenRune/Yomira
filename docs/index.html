@@ -232,6 +232,227 @@
       background: #1a172e;
     }
 
+    /* Release highlights */
+    .release-section {
+      padding: 8px 0 40px 0;
+    }
+
+    .release-box {
+      background: linear-gradient(160deg, #140e22, #0a0713);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px;
+    }
+
+    .release-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .release-version {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+
+    .release-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .release-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 22px;
+    }
+
+    .release-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+      gap: 14px;
+    }
+
+    .release-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .release-list span.release-ico {
+      font-size: 1.15rem;
+      line-height: 1.4;
+      flex: none;
+    }
+
+    .release-list strong { display: block; font-size: 0.95rem; margin-bottom: 3px; }
+    .release-list p { color: var(--text-muted); font-size: 0.87rem; line-height: 1.55; }
+
+    /* Download matrix */
+    .download-section { padding: 20px 0 60px 0; }
+
+    .download-table-wrap {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      overflow-x: auto;
+    }
+
+    table.download-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+      font-size: 0.92rem;
+    }
+
+    .download-table th,
+    .download-table td {
+      text-align: left;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      vertical-align: top;
+    }
+
+    .download-table th {
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #B9AECF;
+      background: rgba(157, 78, 221, 0.08);
+    }
+
+    .download-table tr:last-child td { border-bottom: 0; }
+
+    .download-table td:first-child { font-weight: 700; white-space: nowrap; }
+
+    .file-pill {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #FFC7E1;
+      background: rgba(255, 0, 127, 0.12);
+      border: 1px solid rgba(255, 0, 127, 0.35);
+      border-radius: 8px;
+      padding: 4px 9px;
+      margin-bottom: 6px;
+      white-space: nowrap;
+    }
+
+    .download-table td p { color: var(--text-muted); font-size: 0.86rem; line-height: 1.5; }
+
+    .inline-link {
+      color: #C9A7FF;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .inline-link:hover { text-decoration: underline; }
+
+    .note-line {
+      margin-top: 14px;
+      color: #8F88A9;
+      font-size: 0.84rem;
+    }
+
+    /* Device showcase */
+    .device-section { padding: 20px 0 70px 0; }
+
+    .device-hero {
+      border: 1px solid var(--card-border);
+      border-radius: 26px;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 0%, rgba(157, 78, 221, 0.16), rgba(6, 5, 12, 0.9) 70%);
+      margin-bottom: 30px;
+    }
+
+    .device-hero img { display: block; width: 100%; height: auto; }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .device-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .device-shot {
+      background: #050409;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 340px;
+      flex: none;
+    }
+
+    .device-shot img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .device-shot.portrait img { height: 100%; width: auto; }
+
+    .device-body { padding: 22px 22px 24px; flex: 1; }
+
+    .device-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .device-file {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.76rem;
+      color: #FF9CC8;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .device-list { list-style: none; display: grid; gap: 7px; }
+
+    .device-list li {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .device-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
     /* Interactive Showcase */
     .showcase-section {
       padding: 40px 0 80px 0;
@@ -279,15 +500,15 @@
 
     .preview-img {
       display: block;
-      width: min(100%, 600px);
+      width: min(100%, 980px);
       height: auto;
-      aspect-ratio: 4 / 5;
-      object-fit: contain;
       max-width: 100%;
-      max-height: 750px;
-      border-radius: 20px;
+      max-height: 620px;
+      object-fit: contain;
+      border-radius: 16px;
       box-shadow: 0 15px 40px rgba(0,0,0,0.7);
       transition: opacity 0.3s;
+      background: #050409;
     }
 
     /* Pillars Grid */
@@ -393,6 +614,40 @@
       font-size: 0.9rem;
     }
 
+
+    @media (max-width: 720px) {
+      .download-table-wrap { background: transparent; border: 0; overflow: visible; }
+      table.download-table { min-width: 0; display: block; }
+      .download-table thead { display: none; }
+      .download-table tbody { display: grid; gap: 14px; }
+      .download-table tr {
+        display: block;
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 16px 18px;
+      }
+      .download-table td {
+        display: block;
+        padding: 0;
+        border: 0;
+        white-space: normal;
+      }
+      .download-table td + td { margin-top: 12px; }
+      .download-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #8F88A9;
+        margin-bottom: 5px;
+      }
+      .download-table td:first-child { font-size: 1rem; }
+      .download-table td:first-child::before { margin-bottom: 2px; }
+    }
+
     @media (max-width: 768px) {
       header { padding: 16px 0; }
       .container { padding-inline: 16px; }
@@ -432,10 +687,12 @@
     <div class="container nav-content">
       <a href="#" class="logo">YOMIRA</a>
       <nav class="nav-links" aria-label="Ana gezinme">
+        <a href="#release">Sürüm</a>
+        <a href="#downloads">İndir</a>
+        <a href="#devices">Cihazlar</a>
         <a href="#features">Özellikler</a>
         <a href="#platforms">Platformlar</a>
         <a href="#showcase">Arayüz</a>
-        <a href="#journey">Reading Journey</a>
         <a href="https://github.com/PaelenRune/Yomira" class="btn-github" target="_blank" rel="noopener noreferrer">GitHub</a>
       </nav>
     </div>
@@ -444,11 +701,11 @@
   <main id="main" tabindex="-1">
     <section class="hero container">
       <div class="badge-pill">
-        <span>✨ Hikâyenin ritmini yakala</span>
-        <span>•</span>
-        <span>100% Açık Kaynak</span>
+        <span>✨ Son sürüm v0.4.1</span>
         <span>•</span>
         <span>Android &amp; Windows</span>
+        <span>•</span>
+        <span>100% Açık Kaynak</span>
       </div>
 
       <h1 class="hero-title">Bir panel daha.<br>Bir dünya daha.</h1>
@@ -457,13 +714,17 @@
       </p>
 
       <div class="cta-group">
-        <a href="https://github.com/PaelenRune/Yomira/releases/latest" class="btn-primary">
+        <a href="https://github.com/PaelenRune/Yomira/releases/latest/download/yomira-v0.4.1.apk" class="btn-primary">
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-          Android için indir
+          Android APK indir (.apk)
         </a>
-        <a href="https://github.com/PaelenRune/Yomira/releases/latest" class="btn-secondary">
+        <a href="https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-0.4.1.exe" class="btn-secondary">
           <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M9.384 12.369h6.141V5.119L24 3.585v8.784h-8.475zM9.384 13.11l-.006 8.298 6.147 1.054v-9.352zM8.519.394 0 1.793v9.387h8.519zM8.519 22.606l.013-9.416H0v9.011z"/></svg>
-          Windows masaüstü (.EXE / .MSI)
+          Windows .EXE indir
+        </a>
+        <a href="https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-0.4.1.msi" class="btn-secondary">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2 3 6v12l9 4 9-4V6l-9-4zm0 2.2 6.4 2.9L12 10l-6.4-2.9L12 4.2zM5 8.6l6 2.7v8.3l-6-2.7V8.6zm8 11V11.3l6-2.7v8.3l-6 2.7z"/></svg>
+          Windows .MSI indir
         </a>
         <a href="https://github.com/PaelenRune/Yomira" class="btn-secondary" target="_blank" rel="noopener noreferrer">
           GitHub'da İncele
@@ -471,16 +732,167 @@
       </div>
     </section>
 
+    <!-- Release highlights -->
+    <section class="release-section container" id="release">
+      <div class="release-box">
+        <div class="release-head">
+          <span class="release-version">v0.4.1</span>
+          <h2 class="release-title">Bu sürümde neler geldi?</h2>
+        </div>
+        <p class="release-sub">Acil kararlılık, sabit imza ve hazır depo güncellemesi. Açılış sorunları kapandı, güncelleme tek dokunuşa indi.</p>
+
+        <ul class="release-list">
+          <li>
+            <span class="release-ico" aria-hidden="true">🛡️</span>
+            <div>
+              <strong>Samsung Galaxy A37 açılış çökmesi giderildi</strong>
+              <p>AndroidX Startup lifecycle onarımı, Room geçiş güvencesi ve One UI 6 dil döngüsü düzeltmesi ile Android 14/15'te açılış artık kararlı.</p>
+            </div>
+          </li>
+          <li>
+            <span class="release-ico" aria-hidden="true">🔑</span>
+            <div>
+              <strong>Sabit imzalama keystore'u</strong>
+              <p>Tüm derlemeler aynı sertifikayı taşıyor; eski sürümü silmeden doğrudan “Güncelle” ile üzerine kurulur.</p>
+            </div>
+          </li>
+          <li>
+            <span class="release-ico" aria-hidden="true">📦</span>
+            <div>
+              <strong>3 ana depo gömülü geliyor</strong>
+              <p>Keiyoushi, Türkçe Çizgi Roman &amp; Manga ve Batı Çizgi Romanları depoları ilk kurulumdan itibaren aktif.</p>
+            </div>
+          </li>
+          <li>
+            <span class="release-ico" aria-hidden="true">🖥️</span>
+            <div>
+              <strong>Resmî Windows dağıtımı</strong>
+              <p><code>Yomira-0.4.1.exe</code> ve <code>Yomira-0.4.1.msi</code> GitHub Releases sayfasında yayında.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section class="download-section container" id="downloads">
+      <div class="section-header">
+        <p class="section-badge">İndirme rehberi</p>
+        <h2 class="section-title">Hangi dosyayı indirmeliyim?</h2>
+      </div>
+
+      <div class="download-table-wrap">
+        <table class="download-table">
+          <thead>
+            <tr>
+              <th scope="col">Cihaz</th>
+              <th scope="col">Dosya</th>
+              <th scope="col">Ne alıyorsun?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Cihaz">📱 Android telefon</td>
+              <td data-label="Dosya"><span class="file-pill">yomira-v0.4.1.apk</span><br><a class="inline-link" href="https://github.com/PaelenRune/Yomira/releases/latest/download/yomira-v0.4.1.apk">APK'yı indir →</a></td>
+              <td data-label="Ne alıyorsun?"><p>Alt gezinme çubuğu, 2–3 sütunlu poster vitrini ve Guided View AI panel odaklanması.</p></td>
+            </tr>
+            <tr>
+              <td data-label="Cihaz">📟 Android tablet / katlanabilir</td>
+              <td data-label="Dosya"><span class="file-pill">yomira-v0.4.1.apk</span><br><a class="inline-link" href="https://github.com/PaelenRune/Yomira/releases/latest/download/yomira-v0.4.1.apk">APK'yı indir →</a></td>
+              <td data-label="Ne alıyorsun?"><p><strong>Tek evrensel APK.</strong> Ekranı algılayıp otomatik olarak Navigation Rail ve 2-Pane moduna geçer; çift sayfa spread desteklenir.</p></td>
+            </tr>
+            <tr>
+              <td data-label="Cihaz">🖥️ Windows PC — hızlı başlatıcı</td>
+              <td data-label="Dosya"><span class="file-pill">Yomira-0.4.1.exe</span><br><a class="inline-link" href="https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-0.4.1.exe">EXE'yi indir →</a></td>
+              <td data-label="Ne alıyorsun?"><p>Kurulumsuz doğrudan çalışır; 2K/4K ekranlarda 6–8 sütunlu ızgara, <code>Ctrl+F</code> arama, <code>F11</code> tam ekran.</p></td>
+            </tr>
+            <tr>
+              <td data-label="Cihaz">🖥️ Windows PC — sistem kurucusu</td>
+              <td data-label="Dosya"><span class="file-pill">Yomira-0.4.1.msi</span><br><a class="inline-link" href="https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-0.4.1.msi">MSI'yi indir →</a></td>
+              <td data-label="Ne alıyorsun?"><p>Başlat menüsü kısayollu resmî kurulum; kaldırma kaydı ve sürüm yükseltmesi Windows tarafından yönetilir.</p></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note-line">Minimum sistem: Android 8.0+ (API 26+) · Windows 10/11. Dosya bütünlüğünü sürümle yayınlanan <code>SHA256SUMS.txt</code> ile doğrulayabilirsin. Telefon ve tablet için ayrı APK gerekmez.</p>
+    </section>
+
+    <!-- Devices -->
+    <section class="device-section container" id="devices">
+      <div class="section-header">
+        <p class="section-badge">Cihaz arayüz vitrini</p>
+        <h2 class="section-title">Üç ekran, üç kusursuz deneyim.</h2>
+      </div>
+
+      <div class="device-hero">
+        <img src="art/mockup_trio.svg" alt="Yomira telefon, tablet ve Windows masaüstü arayüzleri yan yana" width="1600" height="1000" decoding="async">
+      </div>
+
+      <div class="device-grid">
+        <article class="device-card">
+          <div class="device-shot portrait">
+            <img src="art/mockup_phone.svg" alt="Yomira Android telefon arayüzü: üç sütunlu vitrin, Guided View kartı ve alt gezinme çubuğu" width="900" height="1200" decoding="async">
+          </div>
+          <div class="device-body">
+            <h3 class="device-name">📱 Telefon</h3>
+            <p class="device-file">yomira-v0.4.1.apk</p>
+            <ul class="device-list">
+              <li>2 / 3 / 4 sütun arasında tek dokunuşla geçiş</li>
+              <li><code>YomiraBottomNavBar</code>: Ana Sayfa, Keşfet, Kitaplık, Yolculuk, Ayarlar</li>
+              <li>Guided View AI şeridi: panel ilerlemesi ve çevrimdışı odaklanma</li>
+              <li>Kaldığın bölümü hatırlayan “Okumaya devam et” kartı</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="device-card">
+          <div class="device-shot">
+            <img src="art/mockup_tablet.svg" alt="Yomira tablet arayüzü: sol Navigation Rail, bölüm listesi ve künye paneli, altta çift sayfa spread" width="1400" height="1000" decoding="async">
+          </div>
+          <div class="device-body">
+            <h3 class="device-name">📟 Tablet &amp; katlanabilir</h3>
+            <p class="device-file">yomira-v0.4.1.apk — aynı evrensel dosya</p>
+            <ul class="device-list">
+              <li>Sol Navigation Rail ile geniş ekranda tam yer kullanımı</li>
+              <li>2-Pane detay: bölüm listesi + kapak, künye ve ilerleme</li>
+              <li>Çift Sayfa Spread önizlemesi — 0 px dikiş</li>
+              <li>Spoiler-free bölüm hatırlatıcı kartı</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="device-card">
+          <div class="device-shot">
+            <img src="art/mockup_desktop.svg" alt="Yomira Windows masaüstü arayüzü: 8 sütunlu poster ızgarası, Ctrl+F arama ve F11 tam ekran" width="1440" height="900" decoding="async">
+          </div>
+          <div class="device-body">
+            <h3 class="device-name">🖥️ Windows masaüstü</h3>
+            <p class="device-file">Yomira-0.4.1.exe · Yomira-0.4.1.msi</p>
+            <ul class="device-list">
+              <li>2K/4K monitörlerde 6–8 sütunlu dev poster ızgarası</li>
+              <li><code>Ctrl+F</code> ile anında arama, <code>F11</code> ile tam ekran</li>
+              <li>Fare tekerleği ve yön tuşlarıyla webtoon kaydırma</li>
+              <li>Reading Journey seviye, XP ve haftalık özet</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <!-- Interactive Showcase Section -->
     <section class="showcase-section container" id="showcase">
       <div class="tab-bar" role="group" aria-label="Uygulama ekranları">
-        <button type="button" class="tab-btn active" aria-pressed="true" aria-controls="mockupImage" data-src="art/mockup_home.svg" data-alt="Yomira ana sayfa ve vitrin tasarımı">📱 Ana Sayfa & Vitrin</button>
+        <button type="button" class="tab-btn active" aria-pressed="true" aria-controls="mockupImage" data-src="art/mockup_trio.svg" data-alt="Yomira telefon, tablet ve Windows masaüstü arayüzleri yan yana">🌌 Üç Ekran Bir Arada</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_phone.svg" data-alt="Yomira Android telefon arayüzü">📱 Telefon</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_tablet.svg" data-alt="Yomira tablet 2-Pane arayüzü">📟 Tablet 2-Pane</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_desktop.svg" data-alt="Yomira Windows masaüstü arayüzü">🖥️ Windows</button>
+        <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_home.svg" data-alt="Yomira ana sayfa ve vitrin tasarımı">📚 Ana Sayfa &amp; Vitrin</button>
         <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_reader.svg" data-alt="Yomira evrensel okuyucu tasarımı">📖 Evrensel Okuyucu</button>
         <button type="button" class="tab-btn" aria-pressed="false" aria-controls="mockupImage" data-src="art/mockup_smart_match.svg" data-alt="Yomira akıllı kaynak eşleştirici tasarımı">✦ Akıllı Kaynak Eşleştirici</button>
       </div>
 
       <div class="preview-container">
-        <img id="mockupImage" class="preview-img" src="art/mockup_home.svg" alt="Yomira ana sayfa ve vitrin tasarımı" width="800" height="1000" decoding="async">
+        <img id="mockupImage" class="preview-img" src="art/mockup_trio.svg" alt="Yomira telefon, tablet ve Windows masaüstü arayüzleri yan yana" width="1600" height="1000" decoding="async">
         <p id="previewStatus" role="status" aria-live="polite"></p>
         <p class="feature-desc">Tasarım önizlemeleri; görünüm cihaz ve sürüme göre değişebilir.</p>
       </div>
@@ -496,25 +908,36 @@
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">📱</div>
-          <h3 class="feature-name">Android — telefon &amp; tablet</h3>
+          <h3 class="feature-name">Telefon — dikey okuma</h3>
           <p class="feature-desc">
-            OLED öncelikli arayüz, poster odaklı raflar ve uyarlanabilir ızgaralar. Tablet ve katlanabilir ekranlarda dinamik 2-Pane düzen ve sol Yan Gezinme Rayı (Navigation Rail).
+            Alt gezinme çubuğu, 2–3 sütunlu poster rafları ve tek elle ulaşılabilen denetimler. Guided View panel şeridi okuma sırasında ilerlemeyi gösterir.
           </p>
+          <p class="device-file" style="margin: 14px 0 0;">yomira-v0.4.1.apk</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📟</div>
+          <h3 class="feature-name">Tablet 2-Pane — geniş tuval</h3>
+          <p class="feature-desc">
+            Tek evrensel APK ekranı algılar; sol Navigation Rail ve iki panelli detay düzenine kendiliğinden geçer. Bölüm listesi solda, kapak ve künye sağda, altta dikişsiz çift sayfa önizlemesi.
+          </p>
+          <p class="device-file" style="margin: 14px 0 0;">yomira-v0.4.1.apk (aynı dosya)</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🖥️</div>
-          <h3 class="feature-name">Windows masaüstü (.EXE / .MSI)</h3>
+          <h3 class="feature-name">Windows masaüstü — 6–8 sütun</h3>
           <p class="feature-desc">
-            Compose Multiplatform ile yazılmış bağımsız masaüstü uygulaması: 2K/4K monitörlerde 6-8 sütunlu poster ızgarası, F11 tam ekran, yön tuşları ve fare tekerleğiyle akıcı webtoon kaydırma.
+            Compose Multiplatform ile yazılmış bağımsız uygulama: 2K/4K monitörlerde dev poster ızgarası, <code>Ctrl+F</code> arama, <code>F11</code> tam ekran, yön tuşları ve fare tekerleğiyle webtoon kaydırma.
           </p>
+          <p class="device-file" style="margin: 14px 0 0;">Yomira-0.4.1.exe · Yomira-0.4.1.msi</p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">🧩</div>
           <h3 class="feature-name">JSON-first eklenti ekosistemi</h3>
           <p class="feature-desc">
-            Eklentiler sistem yükleyicisi gerektirmeden Yomira sandbox'ında çalışır. Keiyoushi ve topluluk depolarını bağla; Mihon / Tachiyomi yedeğini (`.tachibk` veya JSON) tek dokunuşla içe aktar. Eklentiler otomatik kurulmaz veya güvenilir ilan edilmez.
+            Eklentiler sistem yükleyicisi gerektirmeden Yomira sandbox'ında çalışır. Keiyoushi, Türkçe ve Batı depoları gömülü gelir; Mihon / Tachiyomi yedeğini (`.tachibk` veya JSON) tek dokunuşla içe aktar. Eklentiler otomatik kurulmaz veya güvenilir ilan edilmez.
           </p>
         </div>
       </div>

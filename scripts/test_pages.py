@@ -66,9 +66,13 @@ with sync_playwright() as playwright:
     page.set_viewport_size({"width": 320, "height": 900})
     page.add_style_tag(content="html { font-size: 200%; }")
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-    expect(page.locator(".btn-primary")).to_have_attribute(
-        "href", "https://github.com/PaelenRune/Yomira/releases/latest"
-    )
+    # The primary call to action must resolve to an Android APK, either through
+    # the latest-release page or straight at the versioned release asset.
+    primary_href = page.locator(".btn-primary").get_attribute("href")
+    assert re.fullmatch(
+        r"https://github\.com/PaelenRune/Yomira/releases/(latest|latest/download/yomira-v[0-9.]+\.apk)",
+        primary_href or "",
+    ), primary_href
     for selector in ('meta[property="og:image"]', 'meta[name="twitter:image"]'):
         url = page.locator(selector).get_attribute("content")
         response = page.request.get(BASE_URL + "art/" + url.rsplit("/", 1)[-1])

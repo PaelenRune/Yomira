@@ -1,0 +1,306 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="100%" height="100%" role="img" aria-labelledby="tabletTitle tabletDesc">
+  <title id="tabletTitle">Yomira Android tablet 2-Pane arayüzü</title>
+  <desc id="tabletDesc">Yatay tablette sol Navigation Rail, bölüm listesi ve kapak künyesi içeren iki panelli detay ekranı ile dikişsiz çift sayfa spread önizlemesi.</desc>
+  <defs>
+    <linearGradient id="tCanvas" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050409"/>
+      <stop offset="60%" stop-color="#080611"/>
+      <stop offset="100%" stop-color="#0c0718"/>
+    </linearGradient>
+    <radialGradient id="tAura" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#9D4EDD" stop-opacity="0.34"/>
+      <stop offset="55%" stop-color="#FF007F" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#050409" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tFrame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#17132A"/>
+      <stop offset="50%" stop-color="#0D0A18"/>
+      <stop offset="100%" stop-color="#1B1533"/>
+    </linearGradient>
+    <linearGradient id="tNeon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF007F"/>
+      <stop offset="55%" stop-color="#C13BFF"/>
+      <stop offset="100%" stop-color="#7B2FF7"/>
+    </linearGradient>
+    <linearGradient id="tTextGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF007F"/>
+      <stop offset="100%" stop-color="#B26BFF"/>
+    </linearGradient>
+    <linearGradient id="tCover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#390D3F"/>
+      <stop offset="46%" stop-color="#97175E"/>
+      <stop offset="100%" stop-color="#F4706B"/>
+    </linearGradient>
+    <linearGradient id="tSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1A0A32"/>
+      <stop offset="45%" stop-color="#6B1257"/>
+      <stop offset="100%" stop-color="#FF7A6B"/>
+    </linearGradient>
+    <linearGradient id="tPageShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="tSelected" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9D4EDD" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#9D4EDD" stop-opacity="0.04"/>
+    </linearGradient>
+    <pattern id="tDots" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="1.6" cy="1.6" r="1.1" fill="#9D4EDD" fill-opacity="0.12"/>
+    </pattern>
+    <filter id="tGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <filter id="tSoftGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="tShadow" x="-30%" y="-20%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
+    <clipPath id="tScreenClip"><rect x="76" y="76" width="1248" height="848" rx="30"/></clipPath>
+    <clipPath id="tCoverClip"><rect x="658" y="208" width="200" height="282" rx="14"/></clipPath>
+    <clipPath id="tSpreadClip"><rect x="236" y="692" width="1042" height="182" rx="10"/></clipPath>
+  </defs>
+
+  <!-- Stage -->
+  <rect width="1400" height="1000" fill="url(#tCanvas)"/>
+  <rect width="1400" height="1000" fill="url(#tDots)" opacity="0.5"/>
+  <ellipse cx="700" cy="470" rx="640" ry="470" fill="url(#tAura)"/>
+
+  <!-- Tablet -->
+  <g filter="url(#tShadow)">
+    <rect x="52" y="52" width="1296" height="896" rx="46" fill="url(#tFrame)" stroke="#3B3263" stroke-width="3"/>
+    <rect x="62" y="62" width="1276" height="876" rx="38" fill="#080610" stroke="#1C1733" stroke-width="2"/>
+    <circle cx="700" cy="67" r="2.6" fill="#3E3760"/>
+  </g>
+  <rect x="76" y="76" width="1248" height="848" rx="30" fill="#050409"/>
+
+  <g clip-path="url(#tScreenClip)">
+    <ellipse cx="380" cy="300" rx="300" ry="260" fill="#9D4EDD" opacity="0.13" filter="url(#tSoftGlow)"/>
+    <ellipse cx="1080" cy="760" rx="280" ry="260" fill="#FF007F" opacity="0.09" filter="url(#tSoftGlow)"/>
+
+    <!-- ================= NAVIGATION RAIL ================= -->
+    <rect x="76" y="76" width="112" height="848" fill="#0A0814"/>
+    <line x1="188" y1="76" x2="188" y2="924" stroke="#211B38" stroke-width="1"/>
+
+    <!-- Logo diamond -->
+    <g transform="translate(132,118)">
+      <path d="M0 -17 L15 0 L0 17 L-15 0 Z" fill="url(#tNeon)" filter="url(#tGlow)"/>
+      <path d="M0 -10 L8 0 L0 10 L-8 0 Z" fill="#0A0814"/>
+      <path d="M0 -5 L4 0 L0 5 L-4 0 Z" fill="#FFD7F2"/>
+    </g>
+
+    <!-- Active home pill -->
+    <rect x="94" y="176" width="76" height="52" rx="15" fill="#9D4EDD" fill-opacity="0.17" stroke="#9D4EDD" stroke-opacity="0.45"/>
+    <path d="M122 194 l10 -9 l10 9 v13 a2 2 0 0 1 -2 2 h-16 a2 2 0 0 1 -2 -2 z" fill="none" stroke="#FF5CA8" stroke-width="2" stroke-linejoin="round"/>
+    <text x="132" y="252" fill="#FF8FC4" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Ana Sayfa</text>
+
+    <!-- Explore -->
+    <circle cx="132" cy="302" r="9" fill="none" stroke="#8A83A3" stroke-width="2"/>
+    <path d="M138 308 l5 5" stroke="#8A83A3" stroke-width="2" stroke-linecap="round"/>
+    <text x="132" y="334" fill="#8A83A3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Keşfet</text>
+
+    <!-- Library -->
+    <g fill="#8A83A3">
+      <rect x="119" y="370" width="6" height="22" rx="1.5"/>
+      <rect x="128" y="370" width="6" height="22" rx="1.5"/>
+      <path d="M137 372 l6 20 l-5 2 l-6 -20 z"/>
+    </g>
+    <text x="132" y="414" fill="#8A83A3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Kitaplık</text>
+
+    <!-- Journey -->
+    <path d="M132 452 l4 8 l9 1 l-7 6 l2 9 l-8 -4 l-8 4 l2 -9 l-7 -6 l9 -1 z" fill="none" stroke="#8A83A3" stroke-width="1.8" stroke-linejoin="round"/>
+    <text x="132" y="494" fill="#8A83A3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Yolculuk</text>
+
+    <!-- Settings -->
+    <circle cx="132" cy="862" r="7" fill="none" stroke="#8A83A3" stroke-width="2"/>
+    <path d="M132 848 v4 M132 872 v4 M118 862 h4 M142 862 h4 M122 852 l3 3 M139 869 l3 3 M142 852 l-3 3 M125 869 l-3 3" stroke="#8A83A3" stroke-width="1.7" stroke-linecap="round"/>
+    <text x="132" y="892" fill="#8A83A3" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" text-anchor="middle">Ayarlar</text>
+
+    <!-- ================= TOP BAR ================= -->
+    <line x1="188" y1="160" x2="1324" y2="160" stroke="#1E1934" stroke-width="1"/>
+    <text x="216" y="100" fill="#7C7596" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10" font-weight="600" letter-spacing="0.8">KİTAPLIK / SERİ DETAYI</text>
+    <text x="216" y="134" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="23" font-weight="800" letter-spacing="-0.4">Kızıl Ufuk</text>
+    <rect x="330" y="116" width="72" height="22" rx="11" fill="#9D4EDD" fill-opacity="0.16" stroke="#9D4EDD" stroke-opacity="0.45"/>
+    <text x="366" y="131" fill="#D9C2FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">TAKİPTE</text>
+
+    <rect x="854" y="94" width="300" height="40" rx="12" fill="#100D1D" stroke="#282142" stroke-width="1.2"/>
+    <circle cx="877" cy="114" r="6" fill="none" stroke="#8C86A6" stroke-width="1.8"/>
+    <line x1="881.5" y1="118.5" x2="887" y2="124" stroke="#8C86A6" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="897" y="119" fill="#615B7A" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11.5">Kütüphanede ara…</text>
+    <rect x="1106" y="103" width="38" height="22" rx="6" fill="#1B1630" stroke="#332B55"/>
+    <text x="1125" y="118" fill="#8E86AB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Ctrl+F</text>
+
+    <circle cx="1186" cy="114" r="17" fill="#12101F" stroke="#2A2445"/>
+    <path d="M1179 119 v-6 a7 7 0 0 1 14 0 v6" fill="none" stroke="#B9B3CC" stroke-width="1.6"/>
+    <path d="M1174 119 h24 l-3 6 h-18 z" fill="none" stroke="#B9B3CC" stroke-width="1.4"/>
+    <circle cx="1234" cy="114" r="18" fill="#1B1330" stroke="#9D4EDD" stroke-opacity="0.65"/>
+    <text x="1234" y="120" fill="#E6D6FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="12" font-weight="800" text-anchor="middle">R</text>
+    <circle cx="1248" cy="101" r="4" fill="#FF007F" stroke="#050409" stroke-width="2"/>
+
+    <!-- ================= LEFT PANE : CHAPTERS ================= -->
+    <g>
+      <rect x="216" y="184" width="396" height="440" rx="18" fill="#0E0B1A" stroke="#251F3E" stroke-width="1.2"/>
+      <text x="238" y="218" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="13.5" font-weight="800" letter-spacing="0.4">BÖLÜMLER</text>
+      <rect x="320" y="204" width="52" height="20" rx="10" fill="#1A1530" stroke="#332B55"/>
+      <text x="346" y="218" fill="#A79FC2" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="700" text-anchor="middle">42</text>
+      <text x="590" y="218" fill="#B98CFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="600" text-anchor="end">Sırala ↓</text>
+      <line x1="236" y1="234" x2="592" y2="234" stroke="#211B38"/>
+
+      <!-- Selected chapter -->
+      <rect x="228" y="246" width="372" height="58" rx="12" fill="url(#tSelected)" stroke="#9D4EDD" stroke-opacity="0.45"/>
+      <rect x="228" y="246" width="4" height="58" rx="2" fill="#FF007F"/>
+      <rect x="246" y="260" width="30" height="30" rx="8" fill="#9D4EDD" fill-opacity="0.25"/>
+      <text x="261" y="280" fill="#E9D7FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="800" text-anchor="middle">31</text>
+      <text x="290" y="272" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11.5" font-weight="700">Kızıl Kapı</text>
+      <text x="290" y="290" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9">12 Eki 2026 • 38 sayfa</text>
+      <circle cx="578" cy="275" r="9" fill="#FF007F" fill-opacity="0.16"/>
+      <path d="M575 270 l8 5 l-8 5 z" fill="#FF7AB8"/>
+
+      <!-- Chapter rows -->
+      <g>
+        <text x="261" y="336" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">30</text>
+        <text x="290" y="330" fill="#DDD8EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600">Sislerin Ardında</text>
+        <text x="290" y="347" fill="#6F6889" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">05 Eki 2026 • 36 sayfa</text>
+        <circle cx="582" cy="338" r="4" fill="#4ADE80" opacity="0.8"/>
+        <line x1="246" y1="358" x2="582" y2="358" stroke="#1A1530"/>
+      </g>
+      <g>
+        <text x="261" y="392" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">29</text>
+        <text x="290" y="386" fill="#DDD8EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600">Yanan Ufuk</text>
+        <text x="290" y="403" fill="#6F6889" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">28 Eyl 2026 • 40 sayfa</text>
+        <circle cx="582" cy="394" r="4" fill="#4ADE80" opacity="0.8"/>
+        <line x1="246" y1="414" x2="582" y2="414" stroke="#1A1530"/>
+      </g>
+      <g>
+        <text x="261" y="448" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">28</text>
+        <text x="290" y="442" fill="#DDD8EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600">Kırık Yıldız</text>
+        <text x="290" y="459" fill="#6F6889" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">21 Eyl 2026 • 34 sayfa</text>
+        <circle cx="582" cy="450" r="4" fill="#4ADE80" opacity="0.8"/>
+        <line x1="246" y1="470" x2="582" y2="470" stroke="#1A1530"/>
+      </g>
+      <g>
+        <text x="261" y="504" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">27</text>
+        <text x="290" y="498" fill="#DDD8EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600">Gölgedeki Ses</text>
+        <text x="290" y="515" fill="#6F6889" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">14 Eyl 2026 • 32 sayfa</text>
+        <circle cx="582" cy="506" r="4" fill="#4ADE80" opacity="0.8"/>
+        <line x1="246" y1="526" x2="582" y2="526" stroke="#1A1530"/>
+      </g>
+      <g>
+        <text x="261" y="560" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">26</text>
+        <text x="290" y="554" fill="#DDD8EC" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11" font-weight="600">İlk Kıvılcım</text>
+        <text x="290" y="571" fill="#6F6889" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">07 Eyl 2026 • 30 sayfa</text>
+        <circle cx="582" cy="562" r="4" fill="#4ADE80" opacity="0.8"/>
+      </g>
+
+      <rect x="246" y="588" width="336" height="24" rx="8" fill="#151126" stroke="#2A2344"/>
+      <text x="414" y="604" fill="#B98CFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9.5" font-weight="700" text-anchor="middle">Tüm 42 bölümü görüntüle</text>
+    </g>
+
+    <!-- ================= RIGHT PANE : DETAIL ================= -->
+    <g>
+      <rect x="630" y="184" width="672" height="440" rx="18" fill="#0E0B1A" stroke="#251F3E" stroke-width="1.2"/>
+
+      <!-- Cover -->
+      <rect x="658" y="208" width="200" height="282" rx="14" fill="#151026"/>
+      <g clip-path="url(#tCoverClip)">
+        <rect x="658" y="208" width="200" height="282" fill="url(#tCover)"/>
+        <circle cx="790" cy="288" r="44" fill="#FFC98F" opacity="0.95"/>
+        <circle cx="790" cy="288" r="64" fill="#FFB36B" opacity="0.22" filter="url(#tSoftGlow)"/>
+        <path d="M658 430 L712 352 L748 400 L786 344 L830 414 L858 380 V490 H658 Z" fill="#2B0820"/>
+        <path d="M658 454 L724 400 L764 446 L808 396 L858 450 V490 H658 Z" fill="#160310"/>
+        <g stroke="#FFE2D0" stroke-width="1" opacity="0.4">
+          <line x1="710" y1="228" x2="700" y2="258"/>
+          <line x1="790" y1="220" x2="782" y2="252"/>
+          <line x1="834" y1="236" x2="826" y2="262"/>
+        </g>
+        <rect x="658" y="208" width="200" height="110" fill="url(#tPageShade)"/>
+      </g>
+      <rect x="658" y="208" width="200" height="282" rx="14" fill="none" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <rect x="658" y="208" width="10" height="282" rx="5" fill="#050409" opacity="0.28"/>
+      <text x="678" y="246" fill="#FFE3EF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="15" font-weight="900" letter-spacing="1.6">KIZIL</text>
+      <text x="678" y="264" fill="#FFE3EF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="15" font-weight="900" letter-spacing="1.6">UFUK</text>
+      <rect x="678" y="444" width="64" height="20" rx="10" fill="#050409" fill-opacity="0.62"/>
+      <text x="710" y="458" fill="#FFD6E7" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">CİLT 1</text>
+
+      <!-- Metadata -->
+      <text x="886" y="244" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="26" font-weight="900" letter-spacing="-0.6">Kızıl Ufuk</text>
+      <text x="886" y="268" fill="#9A92B4" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11">Elif Karaca • 2026 • Devam ediyor</text>
+
+      <rect x="886" y="284" width="70" height="24" rx="12" fill="#FFB703" fill-opacity="0.14" stroke="#FFB703" stroke-opacity="0.45"/>
+      <text x="900" y="300" fill="#FFC94A" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="800">★ 9.6</text>
+      <rect x="964" y="284" width="96" height="24" rx="12" fill="#FF007F" fill-opacity="0.14" stroke="#FF007F" stroke-opacity="0.45"/>
+      <text x="1012" y="300" fill="#FF9CC8" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9.5" font-weight="700" text-anchor="middle">ÇOK OKUNAN</text>
+
+      <rect x="886" y="328" width="378" height="7" rx="3.5" fill="#211B36"/>
+      <rect x="886" y="328" width="296" height="7" rx="3.5" fill="#2C223F"/>
+      <rect x="886" y="328" width="264" height="7" rx="3.5" fill="url(#tNeon)"/>
+      <rect x="886" y="348" width="340" height="7" rx="3.5" fill="#211B36"/>
+      <rect x="886" y="348" width="306" height="7" rx="3.5" fill="#2C223F"/>
+      <rect x="886" y="368" width="356" height="7" rx="3.5" fill="#211B36"/>
+      <rect x="886" y="368" width="258" height="7" rx="3.5" fill="#2C223F"/>
+
+      <rect x="886" y="394" width="64" height="22" rx="7" fill="#1A1530" stroke="#332B55"/>
+      <text x="918" y="409" fill="#B5AECB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="600" text-anchor="middle">Fantastik</text>
+      <rect x="958" y="394" width="62" height="22" rx="7" fill="#1A1530" stroke="#332B55"/>
+      <text x="989" y="409" fill="#B5AECB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="600" text-anchor="middle">Aksiyon</text>
+      <rect x="1028" y="394" width="68" height="22" rx="7" fill="#1A1530" stroke="#332B55"/>
+      <text x="1062" y="409" fill="#B5AECB" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9" font-weight="600" text-anchor="middle">Webtoon</text>
+
+      <text x="886" y="442" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9.5">OKUMA İLERLEMESİ</text>
+      <text x="1264" y="442" fill="#D9C2FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="9.5" font-weight="700" text-anchor="end">31 / 48 bölüm</text>
+      <rect x="886" y="450" width="378" height="5" rx="2.5" fill="#211B36"/>
+      <rect x="886" y="450" width="244" height="5" rx="2.5" fill="url(#tNeon)"/>
+
+      <rect x="886" y="474" width="204" height="44" rx="12" fill="url(#tNeon)" filter="url(#tGlow)"/>
+      <path d="M904 489 l11 7 l-11 7 z" fill="#FFFFFF"/>
+      <text x="924" y="500" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="11.5" font-weight="800">Okumaya Devam Et</text>
+
+      <rect x="1104" y="474" width="160" height="44" rx="12" fill="#141026" stroke="#3A2F5C" stroke-width="1.2"/>
+      <path d="M1124 490 v12 M1118 496 h12" stroke="#D9C2FF" stroke-width="2" stroke-linecap="round"/>
+      <text x="1140" y="500" fill="#D9D2E8" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="700">Kitaplığa Ekle</text>
+
+      <rect x="886" y="536" width="378" height="66" rx="12" fill="#12101F" stroke="#2A2344"/>
+      <rect x="900" y="548" width="42" height="42" rx="10" fill="#1D1533" stroke="#3B2A60"/>
+      <text x="921" y="573" fill="#C9A7FF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="15" font-weight="900" text-anchor="middle">AI</text>
+      <text x="956" y="562" fill="#EDE7FA" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="10.5" font-weight="800">Spoiler-free bölüm hatırlatıcı</text>
+      <text x="956" y="580" fill="#8F88A9" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8">Yalnızca okuduğun bölümlere kadarki olayları özetler.</text>
+    </g>
+
+    <!-- ================= SPREAD ================= -->
+    <text x="216" y="662" fill="#FFFFFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="13" font-weight="800" letter-spacing="0.5">ÇİFT SAYFA ÖNİZLEME</text>
+    <rect x="1090" y="646" width="212" height="24" rx="12" fill="#9D4EDD" fill-opacity="0.14" stroke="#9D4EDD" stroke-opacity="0.45"/>
+    <circle cx="1104" cy="658" r="3.2" fill="#4ADE80"/>
+    <text x="1114" y="662" fill="#D2BDFF" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.8" font-weight="700">Dikişsiz birleştirme • 0 px dikiş</text>
+
+    <rect x="216" y="674" width="1086" height="218" rx="16" fill="#0B0814" stroke="#251F3E"/>
+    <g clip-path="url(#tSpreadClip)">
+      <rect x="236" y="692" width="1042" height="182" fill="url(#tSky)"/>
+      <circle cx="618" cy="790" r="58" fill="#FFD39A" opacity="0.95"/>
+      <circle cx="618" cy="790" r="96" fill="#FFB36B" opacity="0.18" filter="url(#tSoftGlow)"/>
+      <path d="M236 874 L320 762 L380 826 L444 742 L512 826 L580 770 L648 842 L720 756 L790 832 L858 774 L930 846 L1002 768 L1074 840 L1140 782 L1210 848 L1278 786 V874 Z" fill="#240822" opacity="0.95"/>
+      <path d="M236 874 L296 816 L356 860 L424 804 L494 866 L560 822 L632 874 Z" fill="#12030F"/>
+      <path d="M880 874 L950 820 L1012 862 L1084 810 L1152 868 L1216 828 L1278 874 Z" fill="#12030F"/>
+      <g fill="#FFE6D2" opacity="0.5">
+        <circle cx="300" cy="726" r="1.4"/><circle cx="360" cy="714" r="1.2"/>
+        <circle cx="480" cy="730" r="1.6"/><circle cx="540" cy="706" r="1.2"/>
+        <circle cx="700" cy="720" r="1.5"/><circle cx="860" cy="710" r="1.2"/>
+        <circle cx="980" cy="728" r="1.6"/><circle cx="1080" cy="712" r="1.2"/>
+        <circle cx="1180" cy="734" r="1.4"/>
+      </g>
+      <rect x="236" y="692" width="1042" height="182" fill="url(#tPageShade)" opacity="0.6"/>
+      <line x1="757" y1="692" x2="757" y2="874" stroke="#050409" stroke-opacity="0.55" stroke-width="6"/>
+      <line x1="757" y1="692" x2="757" y2="874" stroke="#FF9CC8" stroke-opacity="0.55" stroke-width="1" stroke-dasharray="5 5"/>
+    </g>
+    <rect x="236" y="692" width="521" height="182" rx="8" fill="none" stroke="#FFFFFF" stroke-opacity="0.1"/>
+    <rect x="757" y="692" width="521" height="182" rx="8" fill="none" stroke="#FFFFFF" stroke-opacity="0.1"/>
+    <rect x="248" y="700" width="54" height="18" rx="9" fill="#050409" fill-opacity="0.65"/>
+    <text x="275" y="713" fill="#FFD6E7" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="7.5" font-weight="800" text-anchor="middle">SAYFA 62</text>
+    <rect x="1228" y="700" width="54" height="18" rx="9" fill="#050409" fill-opacity="0.65"/>
+    <text x="1255" y="713" fill="#FFD6E7" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="7.5" font-weight="800" text-anchor="middle">SAYFA 63</text>
+    <rect x="700" y="780" width="114" height="26" rx="13" fill="#050409" fill-opacity="0.8" stroke="#FF007F" stroke-opacity="0.5"/>
+    <text x="757" y="797" fill="#FFD0E5" font-family="Segoe UI, Inter, system-ui, sans-serif" font-size="8.5" font-weight="800" text-anchor="middle">SPREAD AKTİF</text>
+
+    <rect x="216" y="906" width="1086" height="1" fill="#1E1934"/>
+  </g>
+</svg>
