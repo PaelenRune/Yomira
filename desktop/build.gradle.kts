@@ -41,6 +41,12 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
 }
 
+tasks.withType<Test>().configureEach {
+    useJUnit()
+    // Shortcut/layout tests load Compose UI value classes; no display is needed.
+    systemProperty("java.awt.headless", "true")
+}
+
 compose.desktop {
     application {
         mainClass = "com.yomira.desktop.MainKt"

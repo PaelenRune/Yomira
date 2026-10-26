@@ -138,17 +138,26 @@ class DefaultCatalogRepository(
      * Collapses the same series returned by several providers. Provider order is
      * the waterfall order, so the first record owns identity and later records
      * only fill holes — exactly like the shared aggregator.
+     *
+     * Matching compares every known title (canonical, English and alt titles)
+     * because the first provider may only know the romaji name while another
+     * knows the English one. The search result is small (six providers × eight
+     * hits), so the pairwise scan is cheaper than maintaining a title index.
      */
     private fun deduplicate(records: List<RemoteMetadata>): List<RemoteMetadata> {
-        val byTitle = LinkedHashMap<String, RemoteMetadata>()
+        val merged = mutableListOf<RemoteMetadata>()
         for (record in records) {
-            val primary = normalizeTitle(record.englishTitle ?: record.title)
-            val alias = record.allTitles().asSequence().map(::normalizeTitle)
-                .firstOrNull { it.isNotEmpty() && it in byTitle.keys }
-            val key = alias ?: primary
-            byTitle[key] = byTitle[key]?.let { merge(it, record) } ?: record
+            val titles = record.allTitles().map(::normalizeTitle).filter { it.isNotEmpty() }.toSet()
+            val index = merged.indexOfFirst { existing ->
+                existing.allTitles().asSequence().map(::normalizeTitle).any { it in titles }
+            }
+            if (index >= 0) {
+                merged[index] = merge(merged[index], record)
+            } else {
+                merged += record
+            }
         }
-        return byTitle.values.toList()
+        return merged
     }
 
     private fun merge(first: RemoteMetadata, second: RemoteMetadata): RemoteMetadata = first.copy(

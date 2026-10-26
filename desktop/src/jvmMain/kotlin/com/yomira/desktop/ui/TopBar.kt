@@ -1,7 +1,6 @@
-package com.yomira.desktop.ui
+﻿package com.yomira.desktop.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,7 +42,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -86,11 +84,7 @@ fun TopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Image(
-                    painter = painterResource("yomira.png"),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp).clip(RoundedCornerShape(9.dp)),
-                )
+                AppLogo(Modifier.size(32.dp))
                 Column {
                     Text(
                         text = DesktopCopy.APP_NAME.uppercase(),
@@ -129,7 +123,7 @@ fun TopBar(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (state.feedSource is FeedSource.Search) {
                     GhostButton(
-                        text = "Keşfet'e dön",
+                        text = "KeÅŸfet'e dÃ¶n",
                         onClick = {
                             focusManager.clearFocus()
                             state.clearSearch()
@@ -217,7 +211,7 @@ private fun SearchField(
                 if (state.query.isNotEmpty()) {
                     Icon(
                         Icons.Outlined.Close,
-                        contentDescription = "Aramayı temizle",
+                        contentDescription = "AramayÄ± temizle",
                         tint = YomiraColors.TextMuted,
                         modifier = Modifier
                             .size(18.dp)
@@ -232,3 +226,4 @@ private fun SearchField(
         },
     )
 }
+

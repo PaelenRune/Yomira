@@ -49,14 +49,11 @@ data class DesktopChapter(
 ) {
     val isReadable: Boolean get() = externalUrl == null
 
-    /** `12.5 — Title` without inventing a chapter number that the source did not publish. */
+    /** `Bölüm 12.5 · Title`, without inventing a number the source did not publish. */
     val displayLabel: String
-        get() {
-            val numberLabel = if (number % 1.0 == 0.0) number.toLong().toString() else number.toString()
-            return buildString {
-                append("Bölüm ").append(numberLabel)
-                title?.takeIf { it.isNotBlank() }?.let { append(" · ").append(it) }
-            }
+        get() = buildString {
+            append("Bölüm ").append(number.toDisplayNumber())
+            title?.takeIf { it.isNotBlank() }?.let { append(" · ").append(it) }
         }
 }
 
@@ -126,6 +123,8 @@ fun Manga.toCatalogItem(): CatalogItem = CatalogItem(
     remoteId = id.substringAfter(':', id),
     contentRating = contentRating,
 )
+
+fun Double.toDisplayNumber(): String = if (this % 1.0 == 0.0) toLong().toString() else toString()
 
 /** Turkish status label used by cards and the detail header. */
 fun MangaStatus.desktopLabel(): String? = when (this) {

@@ -33,7 +33,7 @@ Output: `desktop/build/compose/binaries/main/exe/Yomira-0.4.0.exe` and
 | `PgUp`           | Previous page / scroll back in webtoon                 |
 | `Home` / `End`   | First / last page of the chapter                       |
 | Mouse wheel      | Glides the webtoon strip                               |
-| Poster wall      | 6–8 columns on wide/2K/4K monitors (`DesktopNavigation.gridColumns`) |
+| Poster wall      | 6–8 columns on wide/2K/4K monitors (`PosterGrid.columnsForWidth` in `state/DesktopPaging.kt`) |
 
 Keyboard routing, the responsive column math and the cursor pager are covered by
 `src/jvmTest/kotlin/com/yomira/desktop/DesktopNavigationTest.kt`

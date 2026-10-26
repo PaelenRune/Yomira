@@ -54,4 +54,19 @@ class DesktopReaderNavigationTest {
         assertEquals(ReaderIntent.NONE, readerIntent(Key.A, DesktopReadingLayout.PAGED_RIGHT_TO_LEFT))
         assertEquals(0, stepForArrow(ReaderIntent.NONE, DesktopReadingLayout.PAGED_RIGHT_TO_LEFT))
     }
+
+    @Test
+    fun `page targets are clamped inside the chapter`() {
+        assertEquals(0, clampReaderPage(-4, 10))
+        assertEquals(9, clampReaderPage(14, 10))
+        assertEquals(3, clampReaderPage(3, 10))
+        assertEquals(0, clampReaderPage(2, 0))
+    }
+
+    @Test
+    fun `webtoon maps space and page down to scrolling`() {
+        assertEquals(ReaderIntent.SCROLL_DOWN, readerIntent(Key.Spacebar, DesktopReadingLayout.WEBTOON))
+        assertEquals(ReaderIntent.SCROLL_DOWN, readerIntent(Key.PageDown, DesktopReadingLayout.WEBTOON))
+        assertEquals(ReaderIntent.SCROLL_UP, readerIntent(Key.DirectionUp, DesktopReadingLayout.WEBTOON))
+    }
 }
