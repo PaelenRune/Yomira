@@ -292,5 +292,54 @@ class DesktopAppStateTest {
         state.updateReaderPage(-3)
         assertEquals(0, state.readerPage)
     }
+
+    @Test
+    fun `reader skips to the adjacent readable chapter and stops at the ends`() = runTest {
+        val readable = listOf(chapter(1.0), chapter(2.0), chapter(3.0))
+        val chapters = FakeChapters(
+            chapterList = readable + chapter(4.0).copy(externalUrl = "https://scan.example/4"),
+            pages = pages(),
+        )
+        val state = DesktopAppState(FakeCatalog(), chapters, this)
+        state.openDetail(item("1"))
+        runCurrent()
+        state.openChapter(readable[1])
+        runCurrent()
+
+        // The external chapter is not offered by the capsule.
+        assertEquals(listOf("chapter-1.0", "chapter-2.0", "chapter-3.0"), state.readerChapters.map { it.id })
+        assertNotNull(state.adjacentChapter(1))
+        assertEquals("chapter-3.0", state.adjacentChapter(1)?.id)
+        assertEquals("chapter-1.0", state.adjacentChapter(-1)?.id)
+
+        state.openAdjacentChapter(1)
+        runCurrent()
+        assertEquals("chapter-3.0", state.reader?.chapter?.id)
+        assertNull("the last readable chapter has no next step", state.adjacentChapter(1))
+        assertTrue(chapters.pageRequests.contains("chapter-3.0"))
+    }
+
+    @Test
+    fun `readable filter narrows the visible poster wall`() = runTest {
+        val catalog = FakeCatalog(
+            pages = mapOf(
+                1 to CatalogPage(
+                    listOf(item("1"), item("2", "Berserk", source = "anilist")),
+                    hasNext = false,
+                ),
+            ),
+        )
+        val state = DesktopAppState(catalog, FakeChapters(), this)
+        state.start()
+        runCurrent()
+        assertEquals(2, state.visibleItems.size)
+
+        state.toggleReadableOnly()
+        assertEquals(1, state.visibleItems.size)
+        assertTrue(state.visibleItems.single().isReadableOnDesktop)
+
+        state.toggleReadableOnly()
+        assertEquals(2, state.visibleItems.size)
+    }
 }
 

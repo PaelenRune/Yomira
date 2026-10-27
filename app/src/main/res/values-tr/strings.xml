@@ -32,6 +32,9 @@
     <string name="home_columns_2">2 sütun, büyük ve detaylı</string>
     <string name="home_columns_3">3 sütun, standart</string>
     <string name="home_columns_4">4 sütun, kompakt koleksiyon</string>
+    <string name="home_continue_reading">Okumaya devam et</string>
+    <string name="home_continue_action">Devam et</string>
+    <string name="home_continue_progress">Sayfa %1$d / %2$d</string>
 
     <!-- Etiket filtre matrisi -->
     <string name="home_tags_heading">Etiketlerle daralt</string>
@@ -153,6 +156,8 @@
     <string name="detail_summary_expand">Özetin tamamı</string>
     <string name="detail_summary_collapse">Daha az göster</string>
     <string name="detail_read_now">Hemen oku</string>
+    <string name="detail_read_start">Okumaya başla</string>
+    <string name="detail_read_continue">Kaldığın yerden devam et</string>
     <string name="detail_chapters_heading">Bölümler (%1$d)</string>
     <string name="detail_sort_newest">En yeni</string>
     <string name="detail_sort_oldest">En eski</string>
@@ -201,6 +206,9 @@
     <string name="reader_back_short">Geri</string>
     <string name="reader_save_retry">Kaydetmeyi yeniden dene</string>
     <string name="reader_page_of">Sayfa %1$d / %2$d</string>
+    <string name="reader_page_short">%1$d / %2$d</string>
+    <string name="reader_chapter_picker">Bölüm seç</string>
+    <string name="reader_next_chapter">Sonraki bölüm</string>
     <string name="reader_page_description">Sayfa %1$d</string>
     <string name="reader_page_failed">Sayfa %1$d yüklenemedi.</string>
     <string name="reader_mode_webtoon">Webtoon</string>

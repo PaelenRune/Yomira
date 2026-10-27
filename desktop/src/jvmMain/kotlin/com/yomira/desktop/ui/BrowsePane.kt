@@ -1,5 +1,6 @@
 package com.yomira.desktop.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -85,29 +87,39 @@ fun BrowsePane(
     }
 
     val search = state.feedSource as? FeedSource.Search
+    val items = state.visibleItems
     val hero = (state.feedSource as? FeedSource.Browse)
         ?.takeIf { state.cursor.page == 1 }
-        ?.let { state.items.firstOrNull() }
-    val cards = if (hero != null) state.items.drop(1) else state.items
+        ?.let { items.firstOrNull() }
+    val cards = if (hero != null) items.drop(1) else items
 
     Column(modifier.fillMaxSize()) {
         Row(
-            Modifier.fillMaxWidth().padding(start = ShellPadding, end = ShellPadding, top = 18.dp, bottom = 10.dp),
+            Modifier.fillMaxWidth().padding(start = ShellPadding, end = ShellPadding, top = 20.dp, bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SectionLabel(if (search != null) "ARAMA SONUÇLARI" else "TREND KATALOĞU")
             Box(Modifier.height(1.dp).weight(1f).background(Hairline))
+            if (state.readableOnly) {
+                MetaChip(
+                    text = "OKUNABİLİR · TEMİZLE",
+                    accent = YomiraColors.Lavender,
+                    modifier = Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clickable(onClick = state::toggleReadableOnly),
+                )
+            }
             when {
                 state.feedLoading -> Spinner(size = 15.dp)
-                search != null -> NumericHud("${state.items.size} SONUÇ")
-                else -> NumericHud("${state.items.size} SERİ")
+                search != null -> NumericHud("${items.size} SONUÇ")
+                else -> NumericHud("${items.size} SERİ")
             }
         }
 
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
-                state.feedLoading && state.items.isEmpty() -> SkeletonGrid(columns)
+                state.feedLoading && items.isEmpty() -> SkeletonGrid(columns)
                 state.feedError != null -> EmptyState(
                     icon = Icons.Outlined.CloudOff,
                     title = "Bağlantı kurulamadı",
@@ -115,7 +127,14 @@ fun BrowsePane(
                     actionLabel = DesktopCopy.RETRY,
                     onAction = state::retry,
                 )
-                state.items.isEmpty() -> EmptyState(
+                items.isEmpty() && state.items.isNotEmpty() -> EmptyState(
+                    icon = Icons.Outlined.SearchOff,
+                    title = "Filtreyle eşleşen seri yok",
+                    body = "Bu sayfadaki serilerin hiçbiri uygulama içi okuyucuda açılamıyor.",
+                    actionLabel = "Filtreyi temizle",
+                    onAction = state::toggleReadableOnly,
+                )
+                items.isEmpty() -> EmptyState(
                     icon = if (search != null) Icons.Outlined.SearchOff else Icons.Outlined.Search,
                     title = if (search != null) "Sonuç yok" else "Katalog boş",
                     body = if (search != null) DesktopCopy.SEARCH_EMPTY else DesktopCopy.FEED_EMPTY,
@@ -126,9 +145,14 @@ fun BrowsePane(
                     columns = GridCells.Fixed(columns),
                     state = gridState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = ShellPadding, end = ShellPadding, top = 10.dp, bottom = 28.dp),
-                    horizontalArrangement = Arrangement.spacedBy(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(26.dp),
+                    contentPadding = PaddingValues(
+                        start = ShellPadding,
+                        end = ShellPadding,
+                        top = 10.dp,
+                        bottom = 32.dp,
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(GridGutter),
+                    verticalArrangement = Arrangement.spacedBy(GridRowGap),
                 ) {
                     if (hero != null) {
                         item(key = "hero-${hero.id}", span = { GridItemSpan(maxLineSpan) }) {
@@ -154,8 +178,15 @@ private fun HeroCard(
         Modifier
             .fillMaxWidth()
             .height(392.dp)
-            .clip(RoundedCornerShape(26.dp))
-            .border(1.dp, YomiraColors.Outline.copy(alpha = 0.8f), RoundedCornerShape(26.dp)),
+            .shadow(
+                elevation = 20.dp,
+                shape = YomiraShape.Hero,
+                ambientColor = YomiraColors.Purple.copy(alpha = 0.45f),
+                spotColor = YomiraColors.Purple.copy(alpha = 0.55f),
+            )
+            .clip(YomiraShape.Hero)
+            .background(YomiraColors.Surface)
+            .border(1.dp, YomiraColors.OutlineSoft.copy(alpha = 0.8f), YomiraShape.Hero),
     ) {
         val wide = maxWidth >= 1_000.dp
         RemoteImage(
@@ -246,10 +277,15 @@ private fun PosterCard(
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     val scale by animateFloatAsState(
-        targetValue = if (hovered) 1.028f else 1f,
-        animationSpec = spring(dampingRatio = 0.75f, stiffness = 380f),
+        targetValue = if (hovered) 1.03f else 1f,
+        animationSpec = spring(dampingRatio = 0.72f, stiffness = 340f),
         label = "poster-scale",
     )
+    val elevation by animateDpAsState(
+        targetValue = if (hovered) 22.dp else 0.dp,
+        label = "poster-elevation",
+    )
+    val shape = RoundedCornerShape(CardCorner)
     Column(
         Modifier
             .graphicsLayer {
@@ -258,18 +294,24 @@ private fun PosterCard(
             }
             .pointerHoverIcon(PointerIcon.Hand)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick),
-        verticalArrangement = Arrangement.spacedBy(9.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
-                .clip(RoundedCornerShape(18.dp))
+                .shadow(
+                    elevation = elevation,
+                    shape = shape,
+                    ambientColor = YomiraColors.Purple.copy(alpha = 0.35f),
+                    spotColor = YomiraColors.Purple.copy(alpha = 0.45f),
+                )
+                .clip(shape)
                 .background(YomiraColors.Surface)
                 .border(
-                    width = 1.dp,
-                    color = if (hovered) YomiraColors.Purple.copy(alpha = 0.65f) else YomiraColors.Outline.copy(alpha = 0.55f),
-                    shape = RoundedCornerShape(18.dp),
+                    width = if (hovered) 1.5.dp else 1.dp,
+                    color = if (hovered) YomiraColors.Lavender.copy(alpha = 0.9f) else YomiraColors.Outline.copy(alpha = 0.55f),
+                    shape = shape,
                 ),
         ) {
             RemoteImage(
@@ -282,16 +324,26 @@ private fun PosterCard(
             Box(
                 Modifier.fillMaxSize().background(
                     Brush.verticalGradient(
-                        0.55f to Color.Transparent,
-                        1f to YomiraColors.Oled.copy(alpha = 0.85f),
+                        0.52f to Color.Transparent,
+                        1f to YomiraColors.Oled.copy(alpha = 0.88f),
                     ),
                 ),
             )
+            if (hovered) {
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, YomiraColors.Purple.copy(alpha = 0.18f)),
+                        ),
+                    ),
+                )
+            }
             item.score?.let { score ->
                 Row(
                     Modifier.align(Alignment.TopEnd).padding(9.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(YomiraColors.Oled.copy(alpha = 0.72f))
+                        .background(YomiraColors.Oled.copy(alpha = 0.74f))
+                        .border(1.dp, YomiraColors.OutlineSoft.copy(alpha = 0.7f), RoundedCornerShape(50))
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -307,9 +359,9 @@ private fun PosterCard(
             if (hovered) {
                 Row(
                     Modifier.align(Alignment.BottomStart).padding(10.dp)
-                        .clip(CircleShape)
-                        .background(YomiraColors.Purple.copy(alpha = 0.92f))
-                        .padding(horizontal = 11.dp, vertical = 6.dp),
+                        .clip(RoundedCornerShape(50))
+                        .background(BrandGradient)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
@@ -324,7 +376,7 @@ private fun PosterCard(
         Text(
             text = item.title,
             style = MaterialTheme.typography.titleMedium,
-            color = YomiraColors.TextPrimary,
+            color = if (hovered) YomiraColors.TextPrimary else YomiraColors.TextSecondary,
             fontWeight = FontWeight.Medium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -334,11 +386,11 @@ private fun PosterCard(
                 Text(it.toString(), style = MaterialTheme.typography.labelSmall, color = YomiraColors.TextMuted)
             }
             item.status.desktopLabel()?.let {
-                Box(Modifier.size(3.dp).clip(CircleShape).background(YomiraColors.Outline))
+                Box(Modifier.size(3.dp).clip(CircleShape).background(YomiraColors.OutlineSoft))
                 Text(it, style = MaterialTheme.typography.labelSmall, color = YomiraColors.TextMuted)
             }
             item.author?.let {
-                Box(Modifier.size(3.dp).clip(CircleShape).background(YomiraColors.Outline))
+                Box(Modifier.size(3.dp).clip(CircleShape).background(YomiraColors.OutlineSoft))
                 Text(
                     it,
                     style = MaterialTheme.typography.labelSmall,
@@ -356,15 +408,15 @@ private fun SkeletonGrid(columns: Int) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = ShellPadding, end = ShellPadding, top = 10.dp, bottom = 28.dp),
-        horizontalArrangement = Arrangement.spacedBy(18.dp),
-        verticalArrangement = Arrangement.spacedBy(26.dp),
+        contentPadding = PaddingValues(start = ShellPadding, end = ShellPadding, top = 10.dp, bottom = 32.dp),
+        horizontalArrangement = Arrangement.spacedBy(GridGutter),
+        verticalArrangement = Arrangement.spacedBy(GridRowGap),
         userScrollEnabled = false,
     ) {
         items(count = columns * 2) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(
-                    Modifier.fillMaxWidth().aspectRatio(2f / 3f).clip(RoundedCornerShape(18.dp))
+                    Modifier.fillMaxWidth().aspectRatio(2f / 3f).clip(RoundedCornerShape(CardCorner))
                         .background(
                             Brush.linearGradient(
                                 listOf(YomiraColors.Surface, YomiraColors.SurfaceRaised, YomiraColors.Surface),

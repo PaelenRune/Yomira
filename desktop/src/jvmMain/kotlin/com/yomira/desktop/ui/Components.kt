@@ -1,9 +1,13 @@
 package com.yomira.desktop.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,7 +65,7 @@ fun MetaChip(
         modifier
             .clip(RoundedCornerShape(50))
             .background(YomiraColors.SurfaceRaised.copy(alpha = 0.72f))
-            .border(1.dp, YomiraColors.Outline.copy(alpha = 0.7f), RoundedCornerShape(50))
+            .border(1.dp, YomiraColors.OutlineSoft.copy(alpha = 0.8f), RoundedCornerShape(50))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -84,20 +91,44 @@ fun IconBubble(
     tint: Color = YomiraColors.TextPrimary,
     background: Color = YomiraColors.SurfaceRaised.copy(alpha = 0.6f),
 ) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    val borderColor by animateColorAsState(
+        targetValue = when {
+            !enabled -> YomiraColors.Outline.copy(alpha = 0.3f)
+            hovered -> YomiraColors.Purple.copy(alpha = 0.85f)
+            else -> YomiraColors.OutlineSoft.copy(alpha = 0.8f)
+        },
+        animationSpec = tween(160),
+        label = "bubble-border",
+    )
+    val fillColor by animateColorAsState(
+        targetValue = when {
+            !enabled -> background.copy(alpha = 0.25f)
+            hovered -> YomiraColors.SurfaceRaised
+            else -> background
+        },
+        animationSpec = tween(160),
+        label = "bubble-fill",
+    )
     Box(
         modifier
             .size(size)
             .clip(CircleShape)
-            .background(if (enabled) background else background.copy(alpha = 0.25f))
-            .border(1.dp, YomiraColors.Outline.copy(alpha = if (enabled) 0.8f else 0.3f), CircleShape)
+            .background(fillColor)
+            .border(1.dp, borderColor, CircleShape)
             .pointerHoverIcon(if (enabled) PointerIcon.Hand else PointerIcon.Default)
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (enabled) tint else YomiraColors.TextMuted.copy(alpha = 0.5f),
+            tint = when {
+                !enabled -> YomiraColors.TextMuted.copy(alpha = 0.5f)
+                hovered -> YomiraColors.Lavender
+                else -> tint
+            },
             modifier = Modifier.size(size * 0.46f),
         )
     }
@@ -117,7 +148,7 @@ fun NeonButton(
             .clip(RoundedCornerShape(50))
             .background(
                 if (enabled) {
-                    Brush.horizontalGradient(listOf(YomiraColors.Purple, YomiraColors.Fuchsia))
+                    BrandGradient
                 } else {
                     Brush.horizontalGradient(listOf(YomiraColors.SurfaceRaised, YomiraColors.SurfaceRaised))
                 },
@@ -152,19 +183,54 @@ fun GhostButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
 ) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    val border by animateColorAsState(
+        targetValue = if (hovered) YomiraColors.Purple.copy(alpha = 0.75f) else YomiraColors.OutlineSoft,
+        animationSpec = tween(160),
+        label = "ghost-border",
+    )
+    val fill by animateColorAsState(
+        targetValue = if (hovered) YomiraColors.SurfaceRaised else YomiraColors.Surface.copy(alpha = 0.45f),
+        animationSpec = tween(160),
+        label = "ghost-fill",
+    )
     Row(
         modifier
             .clip(RoundedCornerShape(50))
-            .border(BorderStroke(1.dp, YomiraColors.Outline), RoundedCornerShape(50))
-            .background(YomiraColors.Surface.copy(alpha = 0.45f))
+            .border(BorderStroke(1.dp, border), RoundedCornerShape(50))
+            .background(fill)
             .pointerHoverIcon(PointerIcon.Hand)
-            .clickable(onClick = onClick)
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (icon != null) Icon(icon, null, tint = YomiraColors.TextPrimary, modifier = Modifier.size(15.dp))
         Text(text, style = MaterialTheme.typography.labelLarge, color = YomiraColors.TextPrimary)
+    }
+}
+
+/** Compact keyboard hint, e.g. `Ctrl` + `F` in the search field. */
+@Composable
+fun KeyCap(text: String, modifier: Modifier = Modifier, accent: Boolean = false) {
+    Box(
+        modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (accent) YomiraColors.Purple.copy(alpha = 0.18f) else YomiraColors.SurfaceHighest)
+            .border(
+                1.dp,
+                if (accent) YomiraColors.Purple.copy(alpha = 0.45f) else YomiraColors.OutlineSoft,
+                RoundedCornerShape(6.dp),
+            )
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.5.sp, letterSpacing = 0.6.sp),
+            color = if (accent) YomiraColors.Lavender else YomiraColors.TextMuted,
+        )
     }
 }
 
@@ -203,7 +269,7 @@ fun EmptyState(
             style = MaterialTheme.typography.bodyLarge,
             color = YomiraColors.TextMuted,
             textAlign = TextAlign.Center,
-            modifier = Modifier.width(460.dp),
+            modifier = Modifier.widthIn(max = 460.dp),
         )
         if (actionLabel != null && onAction != null) {
             Spacer(Modifier.height(4.dp))

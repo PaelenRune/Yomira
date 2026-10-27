@@ -27,4 +27,7 @@ keystore.properties
 !.env.example
 node_modules/
 .openchamber/
+.orchestrator/
+__pycache__/
+*.pyc
 !release/*.apk

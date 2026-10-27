@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+
+  <defs>
+    <linearGradient id="gWhite" x1="0" y1="240" x2="0" y2="820" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.55" stop-color="#F4F4FA"/>
+      <stop offset="1" stop-color="#D9D9E8"/>
+    </linearGradient>
+    <linearGradient id="gW1" x1="610" y1="392" x2="870" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7928CA"/>
+      <stop offset="0.5" stop-color="#9D4EDD"/>
+      <stop offset="0.85" stop-color="#C084FC"/>
+      <stop offset="1" stop-color="#E9D5FF"/>
+    </linearGradient>
+    <linearGradient id="gW2" x1="626" y1="386" x2="801" y2="149" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7928CA"/>
+      <stop offset="0.5" stop-color="#9D4EDD"/>
+      <stop offset="0.85" stop-color="#C084FC"/>
+      <stop offset="1" stop-color="#E9D5FF"/>
+    </linearGradient>
+    <linearGradient id="gW3" x1="642" y1="380" x2="717" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7928CA"/>
+      <stop offset="0.45" stop-color="#9D4EDD"/>
+      <stop offset="0.85" stop-color="#C084FC"/>
+      <stop offset="1" stop-color="#F5F3FF"/>
+    </linearGradient>
+    <linearGradient id="gRing" x1="150" y1="880" x2="880" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4C1D95"/>
+      <stop offset="0.3" stop-color="#7928CA"/>
+      <stop offset="0.6" stop-color="#9D4EDD"/>
+      <stop offset="0.85" stop-color="#C084FC"/>
+      <stop offset="1" stop-color="#E9D5FF"/>
+    </linearGradient>
+    <linearGradient id="gLeak" x1="311" y1="0" x2="713" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C084FC" stop-opacity="0.12"/>
+      <stop offset="0.5" stop-color="#E9D5FF" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#C084FC" stop-opacity="0.12"/>
+    </linearGradient>
+    <radialGradient id="gSparkle" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FAF5FF"/>
+      <stop offset="0.35" stop-color="#D8B4FE"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </radialGradient>
+    <radialGradient id="gAmbient" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7928CA" stop-opacity="0.34"/>
+      <stop offset="0.55" stop-color="#4C1D95" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#4C1D95" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gBloom" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E9D5FF" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#C084FC" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="fBig" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <filter id="fMed" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <filter id="fArc" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <rect id="bg" width="1024" height="1024" fill="#0A0A0C"/>
+
+  <circle cx="512" cy="512" r="402" fill="url(#gAmbient)"/>
+  <circle cx="512" cy="512" r="402" fill="none" stroke="url(#gRing)"
+          stroke-width="28" opacity="0.5" filter="url(#fMed)"/>
+  <circle cx="512" cy="512" r="402" fill="none" stroke="url(#gRing)" stroke-width="4.5"/>
+  <circle cx="512" cy="512" r="402" fill="none" stroke="#EDE9FE"
+          stroke-width="1.4" opacity="0.55"/>
+  <path d="M311 861 A402 402 0 0 0 713 861" fill="none" stroke="url(#gLeak)" stroke-width="15"
+        stroke-linecap="round" filter="url(#fArc)"/>
+  <path d="M713 164 A402 402 0 0 0 311 164" fill="none" stroke="url(#gLeak)" stroke-width="12"
+        stroke-linecap="round" opacity="0.8" filter="url(#fArc)"/>
+  <circle cx="512" cy="900" r="140" fill="url(#gBloom)" filter="url(#fMed)" opacity="0.75"/>
+
+  <path d="M237 276 L512 446 L791 276 L770 425 L561 553 L561 684 L463 776 L463 553 L258 425 Z" fill="#E6E6F5" opacity="0.9" filter="url(#fBig)"/>
+  <g filter="url(#fMed)" opacity="0.55" fill="#9D4EDD">
+    <path d="M610 392 Q715 257 870 185 Q756 309 610 392 Z"/><path d="M626 386 Q681 244 801 149 Q734 283 626 386 Z"/><path d="M642 380 Q643 249 717 140 Q702 267 642 380 Z"/>
+  </g>
+  <path d="M610 392 Q715 257 870 185 Q756 309 610 392 Z" fill="url(#gW1)"/>
+  <path d="M626 386 Q681 244 801 149 Q734 283 626 386 Z" fill="url(#gW2)"/>
+  <path d="M642 380 Q643 249 717 140 Q702 267 642 380 Z" fill="url(#gW3)"/>
+  <path d="M610 392 Q715 257 870 185" fill="none" stroke="#F3E8FF" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.9"/>
+  <path d="M626 386 Q681 244 801 149" fill="none" stroke="#F3E8FF" stroke-width="3.5"
+        stroke-linecap="round" opacity="0.9"/>
+  <path d="M642 380 Q643 249 717 140" fill="none" stroke="#F3E8FF" stroke-width="3.2"
+        stroke-linecap="round" opacity="0.85"/>
+  <path d="M237 276 L512 446 L791 276 L770 425 L561 553 L561 684 L463 776 L463 553 L258 425 Z" fill="url(#gWhite)"/>
+  <path d="M258 425 L463 553 L463 508 L258 382 Z" fill="#D6D6E2" opacity="0.38"/>
+  <path d="M561 508 L561 553 L770 425 L770 382 Z" fill="#C4C4D6" opacity="0.42"/>
+  <path d="M505 566 L519 566 L519 724 L505 737 Z" fill="#B7B7CC" opacity="0.30"/>
+  <g fill="#C084FC" opacity="0.65" filter="url(#fMed)">
+    <path d="M512 132 C520 166 534 180 568 188 C534 196 520 210 512 244 C504 210 490 196 456 188 C490 180 504 166 512 132 Z"/><path d="M610 104 C613 118 618 123 632 126 C618 129 613 134 610 148 C607 134 602 129 588 126 C602 123 607 118 610 104 Z"/><path d="M430 234 C432 243 436 247 445 250 C436 253 432 257 430 266 C428 257 424 253 415 250 C424 247 428 243 430 234 Z"/>
+  </g>
+  <path d="M512 132 C520 166 534 180 568 188 C534 196 520 210 512 244 C504 210 490 196 456 188 C490 180 504 166 512 132 Z" fill="url(#gSparkle)"/>
+  <path d="M610 104 C613 118 618 123 632 126 C618 129 613 134 610 148 C607 134 602 129 588 126 C602 123 607 118 610 104 Z" fill="url(#gSparkle)"/>
+  <path d="M430 234 C432 243 436 247 445 250 C436 253 432 257 430 266 C428 257 424 253 415 250 C424 247 428 243 430 234 Z" fill="url(#gSparkle)" opacity="0.9"/>
+
+</svg>

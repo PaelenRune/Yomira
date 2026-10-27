@@ -1,3 +1,70 @@
+# Yomira v5.0.0
+
+**Modern UI & Webtoon Reader — Cstation vitrin dili, fütüristik Y logosu, yüzen kapsül okuma kontrolleri ve tüm eski sürümlerden tek dokunuşla v5'e yükseltme**
+
+---
+
+### 🎨 Dribbble Cstation & Webtoon Reader tasarım dili
+
+- **Tek OLED Plum paleti:** `#090A0E` tuval, `#13141C` kart, `#9D4EDD → #C084FC` vurgu rampası. Hot pink tamamen kaldırıldı; her eski çağrı lavantaya çözülüyor.
+- **Kapsül dili:** arama alanı, alt gezinme, okuma HUD'u ve rozetler aynı `%50` yarıçap ailesini paylaşıyor.
+- **Kart ölçeği:** posterler 16dp, paneller 20dp, hero 24dp; 8–28dp arasında ölçeklenen tek köşe sistemi.
+- **Numerik HUD:** monospace ve tabular; sayfa sayacı kaymıyor.
+- **Cstation vitrin düzeni:** dev poster duvarı (masaüstünde 6–8 sütun), sinematik 16:9 hero, yatay raflar ve devam kartı.
+
+### 🔮 Yeni "Y" master logosu
+
+- Fütüristik **kitap omurgası + sayfa kanatlarını** birleştiren Y monogramı; dört köşeli parıltılar ve neon hale.
+- Tek SVG kaynağından üretim: launcher ikonu, adaptive + monochrome katmanlar, Windows `.ico`, uygulama içi marka ve README banner'ı.
+- Banner artık ortada amblem, sağında `v5.0` sürüm rozeti taşıyor.
+
+### 🫧 Floating Capsule HUD — başparmak dostu okuma kontrolleri
+
+- Okuma arayüzü ekran kenarına yapışmıyor: üstte bölüm kapsülü, altta ilerleme ve kontrol kapsülleri.
+- Telefonda tek elle erişim, masaüstünde fareyle aynı düzen; hiçbir bar sayfanın üzerini kapatmıyor.
+- Webtoon / Manga / Comic / Çift mod çipleri, OLED siyah ve ters renkler tek kapsülde.
+
+### 🔄 Otomatik güncelleme bildirimi
+
+- Uygulama açılışta GitHub Releases'ten en son etiketi okur; **yüklü tüm önceki sürümler** (0.1.0-beta → 0.4.1) v5.0.0'dan eski sayılır ve doğrudan yükseltme uyarısı gösterilir.
+- Diyalog sürüm notlarını taşır ve imzalı `yomira-v5.0.0.apk` dosyasını indirir.
+- Sabit imza keystore'u sayesinde "imzalar uyuşmuyor" hatası yok; üzerine kurulur.
+- Ağ yoksa veya API hata dönerse kontrol sessizce geçer — uygulama bloke olmaz.
+
+### 🖥️ Bağımsız Windows Masaüstü & Android Evrensel APK
+
+- Windows için `Yomira-5.0.0.exe` (taşınabilir) ve `Yomira-5.0.0.msi` (kurulum, başlat menüsü kısayolu, yükseltme UUID'si sabit).
+- Aynı evrensel APK telefon, tablet ve katlanabilirlerde çalışır; 600dp üzerinde Navigation Rail + 2-Pane otomatik devreye girer.
+- Masaüstü seri dosyasına istatistik karoları ve "Benzer seriler" şeridi eklendi.
+
+### 🛠️ Kararlılık ve Kalite
+
+- Gerçek uygulamadan alınan 7 ekran görüntüsü README galerisine eklendi; üretimi `DesktopShowcaseScreensTest` ve debug `ShowcaseActivity` ile tekrarlanabilir.
+- Masaüstü webtoon şeridi artık 1.020dp ile sınırlanıyor ve `widthIn`/`fillMaxWidth` sırası düzeltildi (sayfa artık ekranı taşımıyor).
+- Android hero carousel yüksekliği sabitlendi: kalan boşluk sayfa göstergesini karttan koparmıyor.
+- Detay hero karartması hafifletildi; kapak sanatı telefon ve tablette görünür kalıyor.
+- Modern UI metinleri UTF-8 kaynak kodlamasıyla derlenir; Türkçe karakterler tüm platformlarda doğru görünür.
+
+---
+
+### 📦 Kurulum ve İndirme
+
+- **Android APK:** `yomira-v5.0.0.apk`
+- **Windows Masaüstü:** `Yomira-5.0.0.exe` & `Yomira-5.0.0.msi`
+- **Minimum Sistem:** Android 8.0+ (API 26+) · Windows 10/11
+- **Sürüm:** versionCode `6` / versionName `5.0.0`
+- **SHA-256 Sağlama:** `SHA256SUMS.txt` ile doğrulanabilir.
+
+### 🌐 Canlı Bağlantılar
+
+- **GitHub Repository:** https://github.com/PaelenRune/Yomira
+- **Ürün Tanıtım Sayfası:** https://paelenrune.github.io/Yomira/
+
+#Yomira #v5 #ModernUI #WebtoonReader #Update #Android #Windows
+
+---
+---
+
 # Yomira v0.4.1
 
 **Acil Kararlılık & Gömülü Depo Güncellemesi — Samsung Galaxy Açılış Çökmesi Düzeltmesi, Sabit İmza ve Hazır Depo Ekosistemi**

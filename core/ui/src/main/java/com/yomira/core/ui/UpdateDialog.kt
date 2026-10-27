@@ -1,5 +1,7 @@
 package com.yomira.core.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,10 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.yomira.core.ui.theme.DeepOledBlack
+import com.yomira.core.ui.theme.CardSurface
+import com.yomira.core.ui.theme.HairlineBorder
+import com.yomira.core.ui.theme.NeonLavender
 import com.yomira.core.ui.theme.NeonPurple
 import com.yomira.core.ui.theme.TextMuted
 import com.yomira.core.ui.theme.TextPrimary
+import com.yomira.core.ui.theme.TextSecondary
 
 /**
  * OLED update notice. Purely presentational: the caller owns the download
@@ -33,17 +38,24 @@ fun UpdateDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = modifier,
-        containerColor = DeepOledBlack,
+        modifier = modifier.border(1.dp, HairlineBorder, RoundedCornerShape(24.dp)),
+        containerColor = CardSurface,
         tonalElevation = 0.dp,
         shape = RoundedCornerShape(24.dp),
         icon = {
-            Icon(
-                Icons.Default.SystemUpdate,
-                contentDescription = null,
-                tint = NeonPurple,
-                modifier = Modifier.size(36.dp),
-            )
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = NeonPurple.copy(alpha = .12f),
+                border = BorderStroke(1.dp, NeonPurple.copy(alpha = .25f)),
+                tonalElevation = 0.dp,
+            ) {
+                Icon(
+                    Icons.Default.SystemUpdate,
+                    contentDescription = null,
+                    tint = NeonLavender,
+                    modifier = Modifier.padding(14.dp).size(32.dp),
+                )
+            }
         },
         title = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -72,7 +84,7 @@ fun UpdateDialog(
                     Text(
                         releaseNotes,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextPrimary,
+                        color = TextSecondary,
                     )
                 }
                 Text(
@@ -85,6 +97,7 @@ fun UpdateDialog(
         confirmButton = {
             Button(
                 onClick = onUpdate,
+                shape = RoundedCornerShape(percent = 50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = NeonPurple,
                     contentColor = Color.White,

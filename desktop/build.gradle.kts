@@ -13,6 +13,10 @@ kotlin {
     sourceSets {
         main {
             kotlin.srcDir("src/jvmMain/kotlin")
+            // The resource root must be declared too, otherwise `/yomira.png`
+            // never reaches the runtime classpath and the brand mark falls back
+            // to the plain gradient.
+            resources.srcDir("src/jvmMain/resources")
         }
         test {
             kotlin.srcDir("src/jvmTest/kotlin")
@@ -55,7 +59,7 @@ compose.desktop {
             // Windows-first independent desktop app: an EXE launcher and an MSI installer.
             targetFormats(TargetFormat.Exe, TargetFormat.Msi)
             packageName = "Yomira"
-            packageVersion = "0.4.1"
+            packageVersion = "5.0.0"
             description = "Yomira — OLED manga, manhwa and western comics reader"
             copyright = "© 2026 Yomira"
             vendor = "Yomira"

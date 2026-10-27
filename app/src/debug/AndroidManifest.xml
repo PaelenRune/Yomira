@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Debug-only. ShowcaseActivity is the harness behind the README screenshots:
+    it composes the shipping screens with offline fixture artwork so the
+    repository gallery can be reproduced on any emulator. It is never part of a
+    release APK.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".ShowcaseActivity"
+            android:exported="true"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Yomira" />
+    </application>
+</manifest>

@@ -17,16 +17,17 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import java.io.File
 import java.util.Collections
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.jetbrains.skia.Image as SkiaImage
 
 /**
  * Bounded, process-local bitmap cache for remote artwork.
@@ -35,9 +36,18 @@ import okhttp3.Request
  * with the same OkHttp pool as the catalogue. A byte budget (rather than an
  * entry count) keeps memory predictable when 4K banners and thumbnail covers
  * share the cache. Nothing is written to disk.
+ *
+ * Two internal schemes are also understood, both of which never touch the
+ * network: `asset://` resolves against [assetRoot] (the showcase artwork the
+ * headless render suite composes) and is inert while the root is null. HTTPS
+ * remains the only production source of catalogue artwork.
  */
 object RemoteImages {
     private const val MAX_BYTES = 96L * 1024 * 1024
+
+    /** Root directory that backs `asset://` paths; null outside showcase renders. */
+    @Volatile
+    var assetRoot: File? = null
 
     private data class Entry(val bitmap: ImageBitmap, val bytes: Long)
 
@@ -53,22 +63,27 @@ object RemoteImages {
         url: String,
         headers: Map<String, String> = emptyMap(),
     ): ImageBitmap? {
-        if (!url.startsWith("https://")) return null
+        val supported = url.startsWith("https://") || url.startsWith(ASSET_SCHEME)
+        if (!supported) return null
         cache[url]?.let { return it.bitmap }
         val bitmap = withContext(Dispatchers.IO) {
-            val request = Request.Builder()
-                .url(url)
-                .apply { headers.forEach { (key, value) -> header(key, value) } }
-                .get()
-                .build()
-            try {
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) return@use null
-                    val bytes = response.body?.bytes() ?: return@use null
-                    org.jetbrains.skia.Image.makeFromEncoded(bytes).toComposeImageBitmap()
+            if (url.startsWith(ASSET_SCHEME)) {
+                readAsset(url.removePrefix(ASSET_SCHEME))?.let(::decode)
+            } else {
+                val request = Request.Builder()
+                    .url(url)
+                    .apply { headers.forEach { (key, value) -> header(key, value) } }
+                    .get()
+                    .build()
+                try {
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) return@use null
+                        val bytes = response.body?.bytes() ?: return@use null
+                        decode(bytes)
+                    }
+                } catch (_: Exception) {
+                    null
                 }
-            } catch (_: Exception) {
-                null
             }
         } ?: return null
         val weight = bitmap.width.toLong() * bitmap.height.toLong() * 4L
@@ -84,6 +99,20 @@ object RemoteImages {
         }
         return bitmap
     }
+
+    private fun readAsset(path: String): ByteArray? {
+        val root = assetRoot ?: return null
+        // Reject traversal: only files that really sit inside the asset root are served.
+        val file = File(root, path).canonicalFile
+        if (!file.path.startsWith(root.canonicalFile.path)) return null
+        return runCatching { file.takeIf(File::isFile)?.readBytes() }.getOrNull()
+    }
+
+    private fun decode(bytes: ByteArray): ImageBitmap? =
+        runCatching { SkiaImage.makeFromEncoded(bytes).toComposeImageBitmap() }.getOrNull()
+
+    /** Internal scheme of the bundled showcase artwork. */
+    const val ASSET_SCHEME = "asset://"
 }
 
 private sealed interface ImageState {
@@ -138,7 +167,7 @@ fun RemoteImage(
             else -> Box(
                 Modifier.fillMaxSize().background(
                     Brush.linearGradient(
-                        listOf(YomiraColors.Surface, Color(0xFF191428), YomiraColors.Surface),
+                        listOf(YomiraColors.Surface, YomiraColors.SurfaceRaised, YomiraColors.Surface),
                     ),
                 ),
                 contentAlignment = Alignment.Center,
@@ -147,7 +176,7 @@ fun RemoteImage(
                     Icon(
                         imageVector = Icons.Outlined.ImageNotSupported,
                         contentDescription = null,
-                        tint = YomiraColors.Outline,
+                        tint = YomiraColors.OutlineSoft.copy(alpha = 0.8f),
                         modifier = Modifier.size(22.dp),
                     )
                 }

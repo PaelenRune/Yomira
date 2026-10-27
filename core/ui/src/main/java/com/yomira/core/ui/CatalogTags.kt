@@ -2,15 +2,10 @@ package com.yomira.core.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -146,21 +141,21 @@ fun MultiTagFilterBar(
     ) {
         items(tags, key = { it.id }) { chip ->
             val isSelected = chip.id in selected
-            // FilterChip already publishes the selected state through its switch
-            // semantics; the localized label is the accessible name.
-            FilterChip(
+            // YomiraFilterChip already publishes the selected state through its
+            // switch semantics; the localized label is the accessible name.
+            YomiraFilterChip(
                 selected = isSelected,
                 onClick = { onToggle(chip.id) },
-                label = { Text(chip.label) },
+                label = chip.label,
             )
         }
         if (selected.isNotEmpty()) {
             item(key = "clear-tags") {
-                FilterChip(
+                YomiraFilterChip(
                     selected = true,
                     onClick = onClear,
-                    leadingIcon = { Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp)) },
-                    label = { Text(clearLabel, style = MaterialTheme.typography.labelMedium) },
+                    label = clearLabel,
+                    leadingIcon = Icons.Default.Close,
                 )
             }
         }

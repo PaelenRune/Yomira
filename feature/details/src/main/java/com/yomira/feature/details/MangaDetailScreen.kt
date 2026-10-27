@@ -1,22 +1,31 @@
 package com.yomira.feature.details
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.Chapter
@@ -55,6 +64,8 @@ data class DetailCopy(
     val summaryCollapse: String = "Daha az göster",
     val summaryExpand: String = "Özetin tamamı",
     val readNow: String = "Hemen oku",
+    val readStart: String = "Okumaya başla",
+    val readContinue: String = "Kaldığın yerden devam et",
     val chaptersHeading: String = "Bölümler (%1\$d)",
     val sortNewest: String = "En yeni",
     val sortOldest: String = "En eski",
@@ -186,29 +197,51 @@ private fun SinglePaneDetail(
         if (descending) chapters.sortedByDescending { it.chapter.chapterNumber }
         else chapters.sortedBy { it.chapter.chapterNumber }
     }
-    LazyColumn(contentPadding = PaddingValues(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        item { DetailHero(manga, onBack, onPanic, copy) }
-        item {
-            Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                SaveButton(saved, onSave, copy)
-                MetadataBlock(manga, copy)
-                Text(manga.synopsis ?: copy.synopsisMissing, maxLines = if (expanded) Int.MAX_VALUE else 4, overflow = TextOverflow.Ellipsis)
-                if (!manga.synopsis.isNullOrBlank()) TextButton(onClick = { expanded = !expanded }) {
-                    Text(if (expanded) copy.summaryCollapse else copy.summaryExpand)
+    val nextChapter = chapters.filterNot { it.read }.minByOrNull { it.chapter.chapterNumber }
+        ?: chapters.minByOrNull { it.chapter.chapterNumber }
+    val started = chapters.any { it.read }
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = if (nextChapter != null) 116.dp else 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item { DetailHero(manga, onBack, onPanic, copy) }
+            item {
+                Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        SaveButton(saved, onSave, copy)
+                        onPanic?.let { action ->
+                            FilledTonalButton(onClick = action, shape = RoundedCornerShape(percent = 50)) {
+                                Icon(Icons.Default.Lock, null, Modifier.size(18.dp))
+                                Spacer(Modifier.width(7.dp))
+                                Text(copy.lockFast, style = MaterialTheme.typography.labelLarge)
+                            }
+                        }
+                    }
+                    MetadataBlock(manga, copy)
+                    SynopsisBlock(manga, expanded, onToggle = { expanded = !expanded }, copy)
+                    SmartMatchBanner(match, matching, onMatch, onInstall, copy)
+                    ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
                 }
-                SmartMatchBanner(match, matching, onMatch, onInstall, copy)
-                ReadNowButton(chapters, onContinue, onRead, copy)
-                ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
+            }
+            if (chapters.isEmpty()) item { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
+            items(sorted, key = { it.chapter.id }) { entry ->
+                ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp))
+            }
+            item {
+                FranchiseShowcases(
+                    related = related, recommended = recommended, connectionsLoading = connectionsLoading,
+                    onOpenSeries = onOpenSeries, copy = copy,
+                )
             }
         }
-        if (chapters.isEmpty()) item { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
-        items(sorted, key = { it.chapter.id }) { entry ->
-            ChapterRow(entry, onRead, onToggleRead, onDownload, copy)
-        }
-        item {
-            FranchiseShowcases(
-                related = related, recommended = recommended, connectionsLoading = connectionsLoading,
-                onOpenSeries = onOpenSeries, copy = copy,
+        if (nextChapter != null) {
+            FloatingReadAction(
+                next = nextChapter.chapter,
+                started = started,
+                copy = copy,
+                onClick = { (onContinue ?: onRead)(nextChapter.chapter) },
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
     }
@@ -274,7 +307,7 @@ private fun TwoPaneDetail(
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
                     items(sorted, key = { it.chapter.id }) { entry ->
-                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy)
+                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp))
                     }
                 }
             }
@@ -319,28 +352,120 @@ private fun TwoPaneDetail(
 
 @Composable
 private fun DetailHero(manga: Manga, onBack: () -> Unit, onPanic: (() -> Unit)?, copy: DetailCopy) {
-    Box(Modifier.fillMaxWidth().height(320.dp)) {
-        MangaArtwork(manga.bannerUrl ?: manga.coverUrl, manga.title, Modifier.matchParentSize(), copy.catalog)
-        Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(DeepOledBlack.copy(alpha = .25f), DeepOledBlack))))
-        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.TopStart).padding(12.dp)) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, copy.back)
+    Box(Modifier.fillMaxWidth().height(400.dp).clipToBounds()) {
+        // The cover dissolves into the page: blurred backdrop, a bottom-anchored
+        // portrait cover and a scrim that lands exactly on the app canvas.
+        MangaArtwork(
+            manga.bannerUrl ?: manga.coverUrl,
+            manga.title,
+            Modifier.matchParentSize().blur(22.dp),
+            copy.catalog,
+        )
+        Box(
+            Modifier.matchParentSize().background(
+                Brush.verticalGradient(
+                    // Keep the blurred art visible above the title block: the
+                    // scrim only has to carry the cover and the type.
+                    0f to DeepOledBlack.copy(alpha = .10f),
+                    .34f to DeepOledBlack.copy(alpha = .34f),
+                    .74f to DeepOledBlack.copy(alpha = .86f),
+                    1f to DeepOledBlack,
+                ),
+            ),
+        )
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(8.dp),
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = DeepOledBlack.copy(alpha = .52f),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+                tonalElevation = 0.dp,
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    copy.back,
+                    modifier = Modifier.padding(9.dp).size(20.dp),
+                    tint = TextPrimary,
+                )
+            }
         }
         onPanic?.let { action ->
-            FilledTonalButton(onClick = action, modifier = Modifier.align(Alignment.TopEnd).padding(12.dp)) {
-                Icon(Icons.Default.Lock, null)
-                Text(copy.lockFast)
+            FilledTonalButton(
+                onClick = action,
+                shape = RoundedCornerShape(percent = 50),
+                modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(12.dp),
+            ) {
+                Icon(Icons.Default.Lock, null, Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(copy.lockFast, style = MaterialTheme.typography.labelMedium)
             }
         }
         Row(
-            Modifier.align(Alignment.BottomStart).padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp),
+            Modifier.align(Alignment.BottomStart).padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
-            MangaArtwork(manga.coverUrl, manga.title, Modifier.width(120.dp).aspectRatio(.68f).clip(RoundedCornerShape(16.dp)), copy.catalog)
+            MangaArtwork(
+                manga.coverUrl,
+                manga.title,
+                Modifier
+                    .width(116.dp)
+                    .aspectRatio(.68f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(1.dp, Color.White.copy(alpha = .14f), RoundedCornerShape(16.dp)),
+                copy.catalog,
+            )
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(manga.title, style = MaterialTheme.typography.headlineMedium, maxLines = 4, overflow = TextOverflow.Ellipsis)
-                manga.score?.let { ScoreBadge(it, copy.catalog) }
-                Text(statusLabel(manga, copy), style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                Text(
+                    manga.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                // The author line lives in the metadata block below; repeating it
+                // here only pushed the score/status row down on a phone.
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    manga.score?.let { ScoreBadge(it, copy.catalog) }
+                    YomiraBadge(text = statusLabel(manga, copy))
+                }
+                manga.genres.take(2).takeIf { it.isNotEmpty() }?.let { genres ->
+                    Text(
+                        genres.joinToString("  ·  "),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextMuted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** The synopsis opens in place with a calm gradient fade instead of a hard clamp. */
+@Composable
+private fun SynopsisBlock(manga: Manga, expanded: Boolean, onToggle: () -> Unit, copy: DetailCopy) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            manga.synopsis ?: copy.synopsisMissing,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary,
+            maxLines = if (expanded) Int.MAX_VALUE else 4,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (!manga.synopsis.isNullOrBlank()) {
+            TextButton(
+                onClick = onToggle,
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp),
+            ) {
+                Text(
+                    if (expanded) copy.summaryCollapse else copy.summaryExpand,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = NeonLavender,
+                )
             }
         }
     }
@@ -379,30 +504,74 @@ private fun TwoPaneHero(manga: Manga, copy: DetailCopy) {
 
 @Composable
 private fun SaveButton(saved: Boolean, onSave: () -> Unit, copy: DetailCopy) {
-    FilledTonalButton(onClick = onSave) {
-        Icon(if (saved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder, null)
-        Spacer(Modifier.width(8.dp))
-        Text(if (saved) copy.saveRemove else copy.saveAdd)
+    FilledTonalButton(
+        onClick = onSave,
+        shape = RoundedCornerShape(percent = 50),
+        colors = ButtonDefaults.filledTonalButtonColors(
+            containerColor = NeonPurple.copy(alpha = .16f),
+            contentColor = if (saved) NeonLavender else TextPrimary,
+        ),
+    ) {
+        Icon(
+            if (saved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+            null,
+            Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(7.dp))
+        Text(if (saved) copy.saveRemove else copy.saveAdd, style = MaterialTheme.typography.labelLarge)
     }
 }
 
+/**
+ * Metadata as calm capsule chips: author/artist line first (the only long text),
+ * then score, status, year and the genre matrix. Nothing here uses a boxed card,
+ * so the page keeps one continuous reading rhythm.
+ */
 @Composable
 private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            "${copy.authorLine}: ${manga.author ?: copy.notSpecified}\n${copy.artistLine}: ${manga.artist ?: copy.notSpecified}",
-            color = TextMuted,
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(Icons.Default.Person, null, Modifier.size(15.dp), tint = TextMuted)
+            Text(
+                buildString {
+                    append(copy.authorLine)
+                    append(" · ")
+                    append(manga.author ?: copy.notSpecified)
+                    if (!manga.artist.isNullOrBlank() && manga.artist != manga.author) {
+                        append("   ")
+                        append(copy.artistLine)
+                        append(" · ")
+                        append(manga.artist)
+                    }
+                },
+                style = MaterialTheme.typography.labelMedium,
+                color = TextMuted,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            manga.score?.let { score ->
+                YomiraBadge(
+                    text = "%.1f".format(score),
+                    icon = Icons.Default.Star,
+                    accent = RatingGold,
+                    contentColor = RatingGold,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+            YomiraBadge(text = statusLabel(manga, copy), accent = NeonIndigo)
             manga.genres.forEach { genre ->
-                Surface(color = CardSurface, shape = RoundedCornerShape(10.dp)) {
-                    Text(genre, Modifier.padding(horizontal = 12.dp, vertical = 8.dp), style = MaterialTheme.typography.labelMedium)
-                }
+                YomiraBadge(text = genre)
             }
         }
     }
 }
 
+/** Primary chapter action. Label follows the reader's actual position in the series. */
 @Composable
 private fun ReadNowButton(
     chapters: List<ChapterUiState>,
@@ -412,10 +581,17 @@ private fun ReadNowButton(
 ) {
     val nextChapter = chapters.filterNot { it.read }.minByOrNull { it.chapter.chapterNumber }
         ?: chapters.minByOrNull { it.chapter.chapterNumber }
-    Button(onClick = { nextChapter?.let { (onContinue ?: onRead)(it.chapter) } }, enabled = nextChapter != null, modifier = Modifier.fillMaxWidth()) {
-        Icon(Icons.Default.MenuBook, null)
+    val started = chapters.any { it.read }
+    Button(
+        onClick = { nextChapter?.let { (onContinue ?: onRead)(it.chapter) } },
+        enabled = nextChapter != null,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(percent = 50),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 13.dp),
+    ) {
+        Icon(Icons.AutoMirrored.Filled.MenuBook, null, Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
-        Text(copy.readNow)
+        Text(if (started) copy.readContinue else copy.readStart, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -423,13 +599,35 @@ private fun ReadNowButton(
 private fun ChapterHeading(count: Int, descending: Boolean, onToggle: () -> Unit, copy: DetailCopy) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Text(String.format(copy.chaptersHeading, count), style = MaterialTheme.typography.titleLarge)
-        TextButton(onClick = onToggle) {
-            Icon(Icons.Default.Sort, null)
-            Text(if (descending) copy.sortNewest else copy.sortOldest)
+        Surface(
+            onClick = onToggle,
+            shape = RoundedCornerShape(percent = 50),
+            color = SurfaceRaised.copy(alpha = .7f),
+            border = BorderStroke(1.dp, HairlineBorder),
+            tonalElevation = 0.dp,
+        ) {
+            Row(
+                Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                Icon(Icons.Default.Sort, null, Modifier.size(15.dp), tint = NeonLavender)
+                Text(
+                    if (descending) copy.sortNewest else copy.sortOldest,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TextSecondary,
+                )
+            }
         }
     }
 }
 
+/**
+ * One chapter row: a soft bordered capsule card, a numbered/checked leading tile
+ * that also toggles the read flag, then the download affordance. Read chapters
+ * drop to a muted title and keep a lavender check, so progress is obvious at a
+ * glance without a second accent colour.
+ */
 @Composable
 private fun ChapterRow(
     entry: ChapterUiState,
@@ -437,40 +635,153 @@ private fun ChapterRow(
     onToggleRead: (Chapter) -> Unit,
     onDownload: (Chapter) -> Unit,
     copy: DetailCopy,
+    modifier: Modifier = Modifier,
 ) {
-    ListItem(
-        modifier = Modifier.clickable { onRead(entry.chapter) },
-        headlineContent = { Text(entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber)) },
-        supportingContent = {
-            Text(
-                entry.chapter.releaseDate?.atZone(ZoneId.systemDefault())
-                    ?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: copy.dateMissing,
-            )
-        },
-        leadingContent = {
-            IconButton(onClick = { onToggleRead(entry.chapter) }) {
-                Icon(
-                    if (entry.read) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    if (entry.read) copy.markUnread else copy.markRead,
-                    tint = if (entry.read) NeonPurple else TextMuted,
-                )
-            }
-        },
-        trailingContent = {
-            IconButton(
-                onClick = { onDownload(entry.chapter) },
-                enabled = entry.download !in setOf(DownloadState.QUEUED, DownloadState.DOWNLOADING),
+    YomiraCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        containerColor = if (entry.read) CardSurface.copy(alpha = .55f) else CardSurface,
+        onClick = { onRead(entry.chapter) },
+    ) {
+        Row(
+            Modifier.padding(start = 10.dp, end = 6.dp, top = 9.dp, bottom = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Surface(
+                onClick = { onToggleRead(entry.chapter) },
+                shape = CircleShape,
+                color = if (entry.read) NeonPurple.copy(alpha = .18f) else SurfaceRaised,
+                border = BorderStroke(
+                    1.dp,
+                    if (entry.read) NeonPurple.copy(alpha = .4f) else HairlineBorder,
+                ),
+                tonalElevation = 0.dp,
+                modifier = Modifier.size(36.dp),
             ) {
-                when (entry.download) {
-                    DownloadState.DOWNLOADING, DownloadState.QUEUED -> CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                    DownloadState.DOWNLOADED -> Icon(Icons.Default.DownloadDone, copy.downloaded)
-                    DownloadState.FAILED -> Icon(Icons.Default.Refresh, copy.retryDownload)
-                    DownloadState.NOT_DOWNLOADED -> Icon(Icons.Default.Download, copy.downloadChapter)
+                Box(contentAlignment = Alignment.Center) {
+                    if (entry.read) {
+                        Icon(Icons.Default.Check, copy.markUnread, Modifier.size(17.dp), tint = NeonLavender)
+                    } else {
+                        Text(
+                            chapterNumberLabel(entry.chapter.chapterNumber),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextSecondary,
+                        )
+                    }
                 }
             }
-        },
-        colors = ListItemDefaults.colors(containerColor = DeepOledBlack),
-    )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber),
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = if (entry.read) TextMuted else TextPrimary,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        entry.chapter.releaseDate?.atZone(ZoneId.systemDefault())
+                            ?.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) ?: copy.dateMissing,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextMuted,
+                    )
+                    if (entry.download == DownloadState.DOWNLOADED) {
+                        Icon(Icons.Default.DownloadDone, copy.downloaded, Modifier.size(13.dp), tint = NeonLavender)
+                    }
+                }
+            }
+            when (entry.download) {
+                DownloadState.DOWNLOADING, DownloadState.QUEUED -> {
+                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = NeonLavender)
+                }
+                DownloadState.DOWNLOADED -> Icon(
+                    Icons.Default.DownloadDone,
+                    copy.downloaded,
+                    Modifier.padding(10.dp).size(18.dp),
+                    tint = NeonLavender,
+                )
+                else -> IconButton(
+                    onClick = { onDownload(entry.chapter) },
+                    modifier = Modifier.size(38.dp),
+                ) {
+                    Icon(
+                        if (entry.download == DownloadState.FAILED) Icons.Default.Refresh else Icons.Default.Download,
+                        if (entry.download == DownloadState.FAILED) copy.retryDownload else copy.downloadChapter,
+                        Modifier.size(19.dp),
+                        tint = if (entry.download == DownloadState.FAILED) MaterialTheme.colorScheme.error else TextMuted,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The floating resume capsule pinned above the navigation bar. It reads as the
+ * only primary action on the page: a violet → lavender gradient inside a violet
+ * hairline, with the next chapter's title as supporting text.
+ */
+@Composable
+private fun FloatingReadAction(
+    next: Chapter,
+    started: Boolean,
+    copy: DetailCopy,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        Surface(
+            onClick = onClick,
+            shape = RoundedCornerShape(percent = 50),
+            color = Color.Transparent,
+            border = BorderStroke(1.dp, NeonLavender.copy(alpha = .3f)),
+            shadowElevation = 18.dp,
+            tonalElevation = 0.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                Modifier
+                    .background(Brush.horizontalGradient(listOf(NeonPurple, NeonViolet)))
+                    .padding(horizontal = 20.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.MenuBook,
+                    null,
+                    Modifier.size(21.dp),
+                    tint = TextPrimary,
+                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(
+                        if (started) copy.readContinue else copy.readStart,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = TextPrimary,
+                    )
+                    Text(
+                        next.title ?: String.format(copy.chapterFallback, next.chapterNumber),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextPrimary.copy(alpha = .74f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowForward,
+                    null,
+                    Modifier.size(18.dp),
+                    tint = TextPrimary.copy(alpha = .85f),
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -530,6 +841,10 @@ private fun statusLabel(manga: Manga, copy: DetailCopy): String = when (manga.st
     MangaStatus.UNKNOWN -> copy.statusUnknown
 }
 
+/** "12" for whole chapters, "12.5" for half chapters. */
+private fun chapterNumberLabel(number: Double): String =
+    if (number % 1.0 == 0.0) number.toInt().toString() else number.toString()
+
 /** One card of the connected-series showcases; [badge] carries the franchise role. */
 private data class SeriesShowcaseEntry(
     val id: String,
@@ -577,21 +892,43 @@ private fun SeriesShowcaseRail(
 
 @Composable
 fun SmartMatchBanner(result: SmartMatchResult?, loading: Boolean, onMatch: () -> Unit, onInstall: (String) -> Unit, copy: DetailCopy = DetailCopy()) {
-    Surface(shape = RoundedCornerShape(20.dp), color = NeonPurple.copy(alpha = .12f)) {
+    YomiraCard(
+        shape = RoundedCornerShape(20.dp),
+        containerColor = NeonPurple.copy(alpha = .10f),
+        glow = result != null,
+    ) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(copy.matchTitle, style = MaterialTheme.typography.titleMedium)
-            when {
-                loading -> { LinearProgressIndicator(Modifier.fillMaxWidth()); Text(copy.matchComparing) }
-                result is SmartMatchResult.MissingExtension -> {
-                    Text(String.format(copy.matchMissingExtension, result.suggestedSource.source.name, result.chapterCount))
-                    Button(onClick = { onInstall(result.installUrl) }) { Text(copy.matchInstall) }
-                }
-                result is SmartMatchResult.Ready -> Text(String.format(copy.matchReady, result.selected.source.name, result.chapters.size))
-                result is SmartMatchResult.NoMatch -> Text(copy.matchNone)
-                result is SmartMatchResult.Unavailable -> Text("${copy.matchUnavailable} ${result.failures.joinToString { it.reason }}")
-                else -> Text(copy.matchIdle)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.Translate, null, Modifier.size(16.dp), tint = NeonLavender)
+                Text(copy.matchTitle, style = MaterialTheme.typography.titleMedium)
             }
-            if (!loading) TextButton(onClick = onMatch) { Text(if (result == null) copy.matchFindBest else copy.matchRematch) }
+            when {
+                loading -> { LinearProgressIndicator(Modifier.fillMaxWidth().height(3.dp), color = NeonLavender); Text(copy.matchComparing, style = MaterialTheme.typography.bodyMedium, color = TextSecondary) }
+                result is SmartMatchResult.MissingExtension -> {
+                    Text(String.format(copy.matchMissingExtension, result.suggestedSource.source.name, result.chapterCount), style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                    Button(onClick = { onInstall(result.installUrl) }, shape = RoundedCornerShape(percent = 50)) { Text(copy.matchInstall) }
+                }
+                result is SmartMatchResult.Ready -> Text(String.format(copy.matchReady, result.selected.source.name, result.chapters.size), style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                result is SmartMatchResult.NoMatch -> Text(copy.matchNone, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                result is SmartMatchResult.Unavailable -> Text("${copy.matchUnavailable} ${result.failures.joinToString { it.reason }}", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                else -> Text(copy.matchIdle, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
+            }
+            if (!loading) {
+                Surface(
+                    onClick = onMatch,
+                    shape = RoundedCornerShape(percent = 50),
+                    color = NeonPurple.copy(alpha = .16f),
+                    border = BorderStroke(1.dp, NeonPurple.copy(alpha = .28f)),
+                    tonalElevation = 0.dp,
+                ) {
+                    Text(
+                        if (result == null) copy.matchFindBest else copy.matchRematch,
+                        Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = NeonLavender,
+                    )
+                }
+            }
         }
     }
 }

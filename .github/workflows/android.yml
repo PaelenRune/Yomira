@@ -37,11 +37,15 @@ jobs:
     - name: Assemble Debug APK
       run: ./gradlew assembleDebug --no-daemon
 
+    - name: Assemble Release APK
+      run: ./gradlew assembleRelease --no-daemon
+
     - name: Prepare Release Artifacts
       run: |
-        VERSION="${GITHUB_REF_NAME:-v0.4.0}"
+        VERSION="${GITHUB_REF_NAME:-v5.0.0}"
         mkdir -p release
-        cp app/build/outputs/apk/debug/app-debug.apk release/yomira-${VERSION}.apk
+        # Ship the signed, minified release build; the debug APK stays a CI artifact.
+        cp app/build/outputs/apk/release/app-release.apk release/yomira-${VERSION}.apk
         cd release && sha256sum yomira-${VERSION}.apk > SHA256SUMS.txt && cd ..
 
     - name: Upload Debug APK Artifact
@@ -58,6 +62,7 @@ jobs:
           release/yomira-*.apk
           release/SHA256SUMS.txt
           release/RELEASE_NOTES.md
+        body_path: release/RELEASE_NOTES.md
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

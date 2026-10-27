@@ -65,7 +65,9 @@ data class DesktopPage(
 ) {
     init {
         require(index >= 0) { "Page index must not be negative" }
-        require(url.startsWith("https://")) { "Reader pages must be HTTPS" }
+        require(url.startsWith("https://") || url.startsWith("asset://")) {
+            "Reader pages must be HTTPS (or an app-internal showcase asset)"
+        }
     }
 }
 
@@ -138,10 +140,19 @@ fun MangaStatus.desktopLabel(): String? = when (this) {
 /** Human labels for the desktop shell (single locale, same copy as the Android UI). */
 object DesktopCopy {
     const val APP_NAME = "Yomira"
+    const val VERSION = "v5.0.0"
     const val TAGLINE = "Sınırsız katalog. Tek bir OLED tuval."
     const val BROWSE = "Keşfet"
     const val SEARCH = "Ara"
     const val SEARCH_HINT = "Seri, yazar veya tür ara…"
+    const val SEARCH_SHORT_HINT = "Seri ara…"
+    const val SETTINGS = "Ayarlar"
+    const val CHANNEL = "COMIC READER"
+    const val NAV_BROWSE = "Katalog"
+    const val NAV_SEARCH = "Arama"
+    const val NAV_READABLE = "Okunabilir"
+    const val CHAPTER_PREVIOUS = "Önceki bölüm"
+    const val CHAPTER_NEXT = "Sonraki bölüm"
     const val SEARCH_EMPTY = "Aramanla eşleşen seri bulunamadı."
     const val SEARCH_PROMPT = "Ctrl+F ile aramaya başla; şelale altı kaynağı birlikte tarar."
     const val SEARCH_FAILED = "Arama tamamlanamadı. Bağlantını kontrol edip yeniden dene."

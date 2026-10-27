@@ -22,9 +22,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
+data class ReaderChapter(val id: String, val title: String, val number: Double)
+
 data class ReaderUiState(
     val mangaId: String = "", val chapterId: String = "",
     val title: String = "", val chapterTitle: String = "", val chapterIndex: Int = 0,
+    /** Every chapter of the series, ordered oldest → newest, for the in-reader picker. */
+    val chapters: List<ReaderChapter> = emptyList(),
     val pages: List<SourcePage> = emptyList(), val pageIndex: Int = 0,
     val isLastChapter: Boolean = false,
     val mode: ReadingMode = ReadingMode.MANGA_RTL,
@@ -157,6 +161,9 @@ class ReaderViewModel @Inject constructor(
                 val pages = repository.pages(manga.sourceId, chapter)
                 val isLastChapter = chapters.lastOrNull()?.id == chapterId
                 mutableState.update { it.copy(title = manga.title, chapterTitle = chapter.title ?: "Bölüm ${chapter.chapterNumber}",
+                    chapters = chapters.map { item ->
+                        ReaderChapter(item.id, item.title ?: "Bölüm ${item.chapterNumber}", item.chapterNumber)
+                    },
                     chapterIndex = chapters.indexOfFirst { item -> item.id == chapterId }.coerceAtLeast(0),
                     pages = pages, pageIndex = boundedPage(saved?.pageIndex ?: 0, pages.size), mode = manga.readingMode,
                     isLastChapter = isLastChapter, loading = false,

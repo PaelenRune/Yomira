@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.4.1"
+        versionCode = 6
+        versionName = "5.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -52,6 +52,14 @@ android {
         compose = true
         // BuildConfig.VERSION_NAME feeds the in-app update checker.
         buildConfig = true
+    }
+
+    sourceSets {
+        // The debug screenshot harness composes its screens with the artwork
+        // that ships in art/showcase, mounted as assets instead of being copied
+        // into the module. Only that folder is bundled, and release builds never
+        // see it.
+        getByName("debug").assets.srcDir("../art/showcase")
     }
 }
 
@@ -100,4 +108,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    // Debug-only screenshot harness composes WebtoonReader with its own loader.
+    debugImplementation(libs.coil.compose)
 }

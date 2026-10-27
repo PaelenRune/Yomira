@@ -2,6 +2,7 @@ package com.yomira.desktop.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -18,52 +19,84 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Desktop palette. It mirrors the Android OLED brand tokens (`core:ui`) but is
- * declared locally because that module is an Android library and must not be
- * pulled into the desktop classpath.
+ * Desktop palette, aligned with the Android OLED brand tokens (`core:ui`) and
+ * the v5 "Cstation" web language: one near-black canvas, one plum card tone and
+ * a single violet → lavender accent ramp. Hot pink is gone; every legacy call
+ * site that used it resolves to [YomiraColors.Lavender] instead.
  */
 object YomiraColors {
-    val Oled = Color(0xFF050409)
-    val OledRaised = Color(0xFF0B0913)
-    val Surface = Color(0xFF12101F)
-    val SurfaceRaised = Color(0xFF1B182B)
-    val Outline = Color(0xFF2B263D)
+    /** OLED canvas. Never true black: hairlines and card edges must stay visible. */
+    val Oled = Color(0xFF090A0E)
+
+    /** Chrome above the canvas: masthead, rail and the reader HUD base. */
+    val OledRaised = Color(0xFF0E0F15)
+
+    /** Cards, posters and floating panels. */
+    val Surface = Color(0xFF13141C)
+
+    /** Raised chips, menus and pressed rows. */
+    val SurfaceRaised = Color(0xFF1B1C26)
+
+    /** Menus and badge fills one step above raised. */
+    val SurfaceHighest = Color(0xFF23242F)
+
+    /** 1dp card border on the plum surface stack. */
+    val Outline = Color(0xFF262738)
+
+    /** Soft border for controls that need a quieter edge. */
+    val OutlineSoft = Color(0xFF323446)
+
+    /** Brand anchor: primary action, selected state, focus ring. */
     val Purple = Color(0xFF9D4EDD)
-    val Fuchsia = Color(0xFFFF007F)
-    val Magenta = Color(0xFFE04BFF)
-    val TextPrimary = Color(0xFFF7F5FF)
-    val TextMuted = Color(0xFF8E8D9A)
+
+    /** Soft lavender: hover glow, highlights, gradient tail. */
+    val Lavender = Color(0xFFC084FC)
+
+    /** Deep violet used at the start of long gradients. */
+    val Violet = Color(0xFF7928CA)
+
+    /** Cool counterpoint for charts and tertiary accents. */
+    val Indigo = Color(0xFF6366F1)
+
+    val TextPrimary = Color(0xFFFFFFFF)
+    val TextSecondary = Color(0xFFE2E8F0)
+    val TextMuted = Color(0xFF94A3B8)
+
     val Gold = Color(0xFFFFB703)
     val Success = Color(0xFF57E3A1)
-    val Canvas get() = Oled
-    val Panel get() = Surface
-    val Hairline get() = Outline
-    val Ink get() = TextPrimary
-    val InkMuted get() = TextMuted
-    val Violet get() = Purple
-    val Cyan = Color(0xFF00E5FF)
-    val Amber get() = Gold
+    val Danger = Color(0xFFFF8A93)
+
+    /** Pure-ish reader canvas so artwork is the only bright thing on screen. */
+    val ReaderCanvas = Color(0xFF07080C)
+
+    /** 10% violet halo used for selected and hovered surfaces. */
+    val Glow = Color(0x1A9D4EDD)
 }
 
+// Short aliases kept for the desktop call sites that predate the token object.
 val Canvas get() = YomiraColors.Oled
 val Panel get() = YomiraColors.Surface
 val Hairline get() = YomiraColors.Outline
 val Ink get() = YomiraColors.TextPrimary
 val InkMuted get() = YomiraColors.TextMuted
 val Violet get() = YomiraColors.Purple
-val Cyan = Color(0xFF00E5FF)
+val Lavender get() = YomiraColors.Lavender
 val Amber get() = YomiraColors.Gold
+
+/** The single accent ramp: violet into lavender, never into hot pink. */
+val BrandGradient: Brush
+    get() = Brush.horizontalGradient(listOf(YomiraColors.Purple, YomiraColors.Lavender))
 
 private val DesktopColorScheme = darkColorScheme(
     primary = YomiraColors.Purple,
-    onPrimary = YomiraColors.Oled,
-    primaryContainer = Color(0xFF321448),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF2B1745),
     onPrimaryContainer = YomiraColors.TextPrimary,
-    secondary = YomiraColors.Fuchsia,
+    secondary = YomiraColors.Lavender,
     onSecondary = YomiraColors.Oled,
-    secondaryContainer = Color(0xFF4D0027),
+    secondaryContainer = Color(0xFF3B2452),
     onSecondaryContainer = YomiraColors.TextPrimary,
-    tertiary = YomiraColors.Gold,
+    tertiary = YomiraColors.Indigo,
     background = YomiraColors.Oled,
     onBackground = YomiraColors.TextPrimary,
     surface = YomiraColors.Surface,
@@ -71,11 +104,11 @@ private val DesktopColorScheme = darkColorScheme(
     surfaceVariant = YomiraColors.SurfaceRaised,
     onSurfaceVariant = YomiraColors.TextMuted,
     outline = YomiraColors.Outline,
-    error = Color(0xFFFF8A93),
+    error = YomiraColors.Danger,
     onError = Color(0xFF3A0006),
 )
 
-private val Display = FontFamily.Serif
+private val Display = FontFamily.SansSerif
 private val Body = FontFamily.SansSerif
 private val Numerals = FontFamily.Monospace
 
@@ -83,22 +116,23 @@ private val DesktopTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = Display,
         fontWeight = FontWeight.Black,
-        fontSize = 56.sp,
-        lineHeight = 58.sp,
-        letterSpacing = (-1.2).sp,
+        fontSize = 54.sp,
+        lineHeight = 56.sp,
+        letterSpacing = (-1.6).sp,
     ),
     displayMedium = TextStyle(
         fontFamily = Display,
-        fontWeight = FontWeight.Bold,
-        fontSize = 40.sp,
-        lineHeight = 44.sp,
-        letterSpacing = (-0.8).sp,
+        fontWeight = FontWeight.Black,
+        fontSize = 38.sp,
+        lineHeight = 42.sp,
+        letterSpacing = (-1.0).sp,
     ),
     headlineLarge = TextStyle(
         fontFamily = Display,
         fontWeight = FontWeight.Bold,
         fontSize = 30.sp,
         lineHeight = 34.sp,
+        letterSpacing = (-0.5).sp,
     ),
     headlineMedium = TextStyle(
         fontFamily = Body,
@@ -134,7 +168,7 @@ private val DesktopTypography = Typography(
         fontFamily = Body,
         fontWeight = FontWeight.SemiBold,
         fontSize = 12.sp,
-        letterSpacing = 0.4.sp,
+        letterSpacing = 0.3.sp,
     ),
     labelSmall = TextStyle(
         fontFamily = Body,
@@ -161,6 +195,15 @@ fun YomiraDesktopTheme(content: @Composable () -> Unit) {
     )
 }
 
+/** Shared geometry so every surface uses the same 16dp card language. */
+object YomiraShape {
+    val Poster = RoundedCornerShape(16.dp)
+    val Panel = RoundedCornerShape(20.dp)
+    val Hero = RoundedCornerShape(24.dp)
+    val Control = RoundedCornerShape(14.dp)
+    val Capsule = RoundedCornerShape(50)
+}
+
 /**
  * Near-black OLED canvas with two restrained brand glows. One draw pass: the
  * desktop grid is already expensive at 4K, so no blur shaders.
@@ -172,8 +215,8 @@ fun OledBackdrop(modifier: Modifier = Modifier, content: @Composable () -> Unit)
             .background(
                 Brush.verticalGradient(
                     0f to YomiraColors.Oled,
-                    0.45f to Color(0xFF08060F),
-                    1f to Color(0xFF040309),
+                    0.5f to Color(0xFF08090D),
+                    1f to Color(0xFF06070A),
                 ),
             )
             .drawBehind {
@@ -181,16 +224,16 @@ fun OledBackdrop(modifier: Modifier = Modifier, content: @Composable () -> Unit)
                 // the same composition instead of pinning them to 1080p pixels.
                 drawRect(
                     Brush.radialGradient(
-                        colors = listOf(YomiraColors.Purple.copy(alpha = 0.16f), Color.Transparent),
-                        center = Offset(size.width * 0.86f, -size.height * 0.08f),
-                        radius = size.width * 0.52f,
+                        colors = listOf(YomiraColors.Purple.copy(alpha = 0.15f), Color.Transparent),
+                        center = Offset(size.width * 0.88f, -size.height * 0.10f),
+                        radius = size.width * 0.54f,
                     ),
                 )
                 drawRect(
                     Brush.radialGradient(
-                        colors = listOf(YomiraColors.Fuchsia.copy(alpha = 0.10f), Color.Transparent),
-                        center = Offset(size.width * 0.04f, size.height * 1.02f),
-                        radius = size.width * 0.42f,
+                        colors = listOf(YomiraColors.Lavender.copy(alpha = 0.07f), Color.Transparent),
+                        center = Offset(size.width * 0.03f, size.height * 1.04f),
+                        radius = size.width * 0.44f,
                     ),
                 )
             },
@@ -200,4 +243,13 @@ fun OledBackdrop(modifier: Modifier = Modifier, content: @Composable () -> Unit)
 }
 
 /** Standard gutter of the desktop shell; scales with the window, not the display DPI. */
-val ShellPadding = 36.dp
+val ShellPadding = 32.dp
+
+/** Horizontal gap between poster columns. */
+val GridGutter = 20.dp
+
+/** Vertical gap between poster rows: larger so the caption block breathes. */
+val GridRowGap = 30.dp
+
+/** Corner radius shared by poster cards, covers and chapter rows. */
+val CardCorner = 16.dp

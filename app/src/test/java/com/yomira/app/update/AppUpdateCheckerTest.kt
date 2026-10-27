@@ -100,6 +100,50 @@ class AppUpdateCheckerTest {
         }
     }
 
+    @Test fun v5ReleaseIsOfferedToThePreviousInstalledVersion() = runTest {
+        val apkV5 = "https://github.com/PaelenRune/Yomira/releases/download/v5.0.0/yomira-v5.0.0.apk"
+        val pageV5 = "https://github.com/PaelenRune/Yomira/releases/tag/v5.0.0"
+        MockWebServer().use { server ->
+            server.enqueue(
+                MockResponse().setBody(
+                    release(
+                        tag = "v5.0.0",
+                        body = "Modern UI ve Webtoon Reader güncellemesi",
+                        htmlUrl = pageV5,
+                        assets = """[{"name":"yomira-v5.0.0.apk","browser_download_url":"$apkV5"}]""",
+                    ),
+                ),
+            )
+
+            val info = checker(server, current = "0.4.1").check()
+
+            assertEquals("v5.0.0", info?.version)
+            assertEquals("Modern UI ve Webtoon Reader güncellemesi", info?.releaseNotes)
+            assertEquals(apkV5, info?.apkDownloadUrl)
+            assertEquals(pageV5, info?.releasePageUrl)
+        }
+    }
+
+    @Test fun v5OutranksEveryLegacyVersion() {
+        val legacyVersions = listOf(
+            "0.1.0-beta",
+            "0.2.0-beta",
+            "0.3.0-beta",
+            "0.4.0",
+            "0.4.1",
+            "5.0.0-beta",
+            "5.0.0-rc.1",
+        )
+        legacyVersions.forEach { installed ->
+            assertTrue(
+                "v5.0.0 must be offered to an install on $installed",
+                AppVersion.isNewer("v5.0.0", installed),
+            )
+        }
+        assertTrue(AppVersion.isNewer("5.0.0", "0.4.1"))
+        assertFalse(AppVersion.isNewer("v5.0.0", "5.0.0"))
+    }
+
     @Test fun semanticComparisonHandlesTagsPrereleasesAndSegments() {
         assertTrue(AppVersion.isNewer("v0.2.0", "0.1.0-beta"))
         assertFalse(AppVersion.isNewer("0.1.0-beta", "0.1.0-beta"))

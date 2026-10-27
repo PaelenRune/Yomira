@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import androidx.room.Transaction
+import com.yomira.core.database.entity.ReaderProgressEntity
 import com.yomira.core.database.entity.SyncStateEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface SyncDao {
     @Query("SELECT * FROM reader_progress WHERE mangaId = :mangaId ORDER BY updatedAt DESC LIMIT 1")
     suspend fun latestReaderProgress(mangaId: String): com.yomira.core.database.entity.ReaderProgressEntity?
+
+    /** Newest open page across the whole library; drives the Home resume capsule. */
+    @Query("SELECT * FROM reader_progress ORDER BY updatedAt DESC LIMIT 1")
+    fun observeLatestReaderProgress(): Flow<ReaderProgressEntity?>
 
     /** Local dirty revision, separate from the server's lastSyncedAt watermark. */
     @Transaction

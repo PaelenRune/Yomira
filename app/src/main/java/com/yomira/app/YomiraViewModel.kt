@@ -23,6 +23,7 @@ import com.yomira.data.metadata.SeriesConnectionRepository
 import com.yomira.data.metadata.WaterfallMetadataAggregator
 import com.yomira.domain.extension.*
 import com.yomira.feature.details.ChapterUiState
+import com.yomira.feature.home.ContinueReadingUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -104,6 +105,29 @@ class YomiraViewModel @Inject constructor(
 
     /** Pages appended to Home / Discover. */
     val discovery = MutableStateFlow(DiscoveryState())
+
+    /**
+     * Newest reader position across the library, resolved into a presentation
+     * model for the Home resume capsule. Room emits on every saved page, so the
+     * card tracks reading without a manual refresh.
+     */
+    val continueReading: StateFlow<ContinueReadingUi?> = syncDao.observeLatestReaderProgress()
+        .mapLatest { progress ->
+            if (progress == null) return@mapLatest null
+            val manga = mangaDao.getById(progress.mangaId) ?: return@mapLatest null
+            val chapter = chapterDao.getById(progress.chapterId)
+            ContinueReadingUi(
+                mangaId = manga.id,
+                chapterId = progress.chapterId,
+                title = manga.title,
+                coverUrl = manga.coverUrl,
+                chapterTitle = chapter?.title
+                    ?: "Bölüm ${chapter?.chapterNumber ?: progress.chapterIndex + 1}",
+                pageIndex = progress.pageIndex,
+                pageCount = progress.pageCount,
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Independent cursor for the +18 Vault; never mixed with the public feed. */
     val vaultDiscovery = MutableStateFlow(DiscoveryState())

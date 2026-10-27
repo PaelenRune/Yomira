@@ -288,6 +288,10 @@ private fun YomiraNavigation(
                     var query by rememberSaveable { mutableStateOf("") }
                     val paging = if (route == "library") DiscoveryState(hasMore = false) else discovery
                     val items = publicCatalog(catalog.manga).filter { route != "library" || it.id in saved }
+                    val resume by model.continueReading.collectAsStateWithLifecycle()
+                    val resumeItem = resume?.takeIf { entry ->
+                        unlocked || catalog.manga.firstOrNull { it.id == entry.mangaId }?.contentRating != ContentRating.EXPLICIT
+                    }
                     HomeScreen(
                         HomeUiState(
                             manga = items,
@@ -314,6 +318,10 @@ private fun YomiraNavigation(
                         copy = homeCopy(catalogCopy),
                         onLoadMore = { if (route != "library") model.loadNextPage() },
                         sizeClass = windowSizeClass,
+                        continueReading = if (route == "home") resumeItem else null,
+                        onContinueReading = { entry ->
+                            nav.navigate("reader/${Uri.encode(entry.mangaId)}/${Uri.encode(entry.chapterId)}")
+                        },
                     )
                 }
             }
@@ -416,7 +424,14 @@ private fun YomiraNavigation(
                 val manga = catalog.manga.firstOrNull { it.id == mangaId }
                 if (manga != null && (manga.contentRating != ContentRating.EXPLICIT || unlocked)) {
                     ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode,
-                        defaultGuidedView = settings.guidedView, copy = readerCopy())
+                        defaultGuidedView = settings.guidedView, copy = readerCopy(),
+                        onChapter = { target ->
+                            nav.navigate("reader/${Uri.encode(mangaId)}/${Uri.encode(target)}") {
+                                popUpTo("reader/{mangaId}/{chapterId}") { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        },
+                    )
                 } else if (!catalog.loading && manga == null) {
                     Column { Text(stringResource(R.string.detail_not_found_title)); TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) } }
                 }
@@ -544,6 +559,7 @@ private fun catalogCopy() = CatalogCopy(
 @Composable
 private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
     searchPlaceholder = stringResource(R.string.home_search_placeholder),
+    subtitle = stringResource(R.string.home_subtitle),
     yourShelf = stringResource(R.string.home_your_shelf),
     retry = stringResource(R.string.home_retry),
     railTrending = stringResource(R.string.home_rail_trending),
@@ -556,6 +572,9 @@ private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
     clearTags = stringResource(R.string.home_tags_clear),
     pagingLoading = stringResource(R.string.home_paging_loading),
     pagingEnd = stringResource(R.string.home_paging_end),
+    continueReading = stringResource(R.string.home_continue_reading),
+    continueAction = stringResource(R.string.home_continue_action),
+    continueProgress = stringResource(R.string.home_continue_progress),
     catalog = catalog,
 )
 
@@ -596,6 +615,8 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     summaryCollapse = stringResource(R.string.detail_summary_collapse),
     summaryExpand = stringResource(R.string.detail_summary_expand),
     readNow = stringResource(R.string.detail_read_now),
+    readStart = stringResource(R.string.detail_read_start),
+    readContinue = stringResource(R.string.detail_read_continue),
     chaptersHeading = stringResource(R.string.detail_chapters_heading),
     sortNewest = stringResource(R.string.detail_sort_newest),
     sortOldest = stringResource(R.string.detail_sort_oldest),
@@ -642,6 +663,7 @@ private fun readerCopy() = ReaderCopy(
     backShort = stringResource(R.string.reader_back_short),
     saveRetry = stringResource(R.string.reader_save_retry),
     pageOf = stringResource(R.string.reader_page_of),
+    pageShort = stringResource(R.string.reader_page_short),
     pageDescription = stringResource(R.string.reader_page_description),
     pageLoadFailed = stringResource(R.string.reader_page_failed),
     modeWebtoon = stringResource(R.string.reader_mode_webtoon),
@@ -650,6 +672,8 @@ private fun readerCopy() = ReaderCopy(
     oledBlack = stringResource(R.string.reader_oled_black),
     invertedColors = stringResource(R.string.reader_inverted_colors),
     guidedView = stringResource(R.string.reader_guided_view),
+    chapterPicker = stringResource(R.string.reader_chapter_picker),
+    nextChapter = stringResource(R.string.reader_next_chapter),
     recapOpen = stringResource(R.string.reader_recap_open),
     recapTitle = stringResource(R.string.reader_recap_title),
     recapCharacters = stringResource(R.string.reader_recap_characters),

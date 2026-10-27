@@ -26,6 +26,7 @@ data class ReaderCopy(
     val backShort: String = "Geri",
     val saveRetry: String = "Kaydetmeyi yeniden dene",
     val pageOf: String = "Sayfa %1\$d / %2\$d",
+    val pageShort: String = "%1\$d / %2\$d",
     val pageDescription: String = "Sayfa %1\$d",
     val pageLoadFailed: String = "Sayfa %1\$d yüklenemedi.",
     val modeWebtoon: String = "Webtoon",
@@ -34,6 +35,8 @@ data class ReaderCopy(
     val oledBlack: String = "OLED siyah",
     val invertedColors: String = "Ters renkler",
     val guidedView: String = "Panel takibi",
+    val chapterPicker: String = "Bölüm seç",
+    val nextChapter: String = "Sonraki bölüm",
     val recapOpen: String = "Geçmiş olayları hatırla",
     val recapTitle: String = "Şimdiye kadar",
     val recapCharacters: String = "Karakterler",
@@ -51,7 +54,7 @@ fun ReadingMode.label(copy: ReaderCopy = ReaderCopy()): String = when (this) {
 
 @Composable
 fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onBack: () -> Unit, defaultMode: ReadingMode = ReadingMode.MANGA_RTL,
-    defaultGuidedView: Boolean = false, copy: ReaderCopy = ReaderCopy()) {
+    defaultGuidedView: Boolean = false, copy: ReaderCopy = ReaderCopy(), onChapter: ((String) -> Unit)? = null) {
     val observed by model.state.collectAsStateWithLifecycle()
     val state = if (observed.mangaId == mangaId && observed.chapterId == chapterId) observed
         else ReaderUiState(mangaId = mangaId, chapterId = chapterId, mode = defaultMode, guidedView = defaultGuidedView)
@@ -82,7 +85,7 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
     }
     val slotKey = slots.joinToString(separator = ",") { it.firstPage.toString() }
 
-    Box(Modifier.fillMaxSize().background(if (state.oled) Color.Black else Color(0xFF24232A))) {
+    Box(Modifier.fillMaxSize().background(if (state.oled) Color.Black else Color(0xFF1B1A21))) {
         when {
             state.loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             state.error != null -> Column(Modifier.align(Alignment.Center).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -99,7 +102,7 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
         }
         key(mangaId, chapterId) {
             if (state.hudVisible) ReaderOverlay(state, onBack, { jump = null; model.setMode(it) }, { jump = it },
-                model::toggleOled, model::toggleInvert, model::toggleGuidedView, model::showRecap, copy)
+                model::toggleOled, model::toggleInvert, model::toggleGuidedView, model::showRecap, copy, onChapter)
         }
         state.progressError?.let { message ->
             Surface(Modifier.align(Alignment.Center).padding(24.dp), color = MaterialTheme.colorScheme.errorContainer) {

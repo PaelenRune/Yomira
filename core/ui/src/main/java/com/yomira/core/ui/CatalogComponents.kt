@@ -5,7 +5,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -31,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.yomira.core.model.ContentRating
@@ -45,10 +48,10 @@ fun MangaArtwork(url: String?, title: String, modifier: Modifier = Modifier, cop
     SubcomposeAsyncImage(
         model = url, contentDescription = title, modifier = modifier,
         contentScale = ContentScale.Crop,
-        loading = { Box(Modifier.fillMaxSize().background(CardSurface), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+        loading = { Box(Modifier.fillMaxSize().background(SurfaceRaised), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = NeonLavender)
         } },
-        error = { Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(CardSurface, NeonPurple.copy(alpha = .25f)))), contentAlignment = Alignment.Center) {
+        error = { Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(CardSurface, NeonPurple.copy(alpha = .22f)))), contentAlignment = Alignment.Center) {
             Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = copy.noCoverArtwork, modifier = Modifier.size(40.dp), tint = TextMuted)
         } },
     )
@@ -80,14 +83,29 @@ fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier
     if (manga.isEmpty()) return
     val lineup = remember(manga, weeklyTrend) { if (weeklyTrend) weeklyTrendOrder(manga) else manga }
     val pager = rememberPagerState(pageCount = { lineup.size })
-    val accent = if (vault) NeonFuchsia else NeonPurple
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        HorizontalPager(state = pager, contentPadding = PaddingValues(horizontal = 20.dp), pageSpacing = 12.dp, key = { lineup[it].id }) { index ->
-            HeroBanner(lineup[index], accent, onRead, copy)
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)) {
-            repeat(lineup.size) { page ->
-                Box(Modifier.size(if (pager.currentPage == page) 18.dp else 6.dp, 6.dp).clip(RoundedCornerShape(8.dp)).background(if (pager.currentPage == page) accent else TextMuted.copy(alpha = .3f)))
+    val accent = if (vault) NeonLavender else NeonPurple
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        // Every page shares one stage height. A pager is a fill-height scroller, so
+        // leaving it unbounded inside a lazy list swallowed the leftover space and
+        // pushed the dots away from the card; pinning the height makes the carousel
+        // a single tidy block on phones and tablets alike.
+        val anyBanner = lineup.any { !it.bannerUrl.isNullOrBlank() }
+        val contentWidth = (maxWidth - 40.dp).coerceAtLeast(1.dp)
+        val stageHeight = if (anyBanner) (contentWidth * 9f / 16f).coerceIn(210.dp, 420.dp) else 340.dp
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            HorizontalPager(
+                state = pager,
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                pageSpacing = 12.dp,
+                modifier = Modifier.height(stageHeight),
+                key = { lineup[it].id },
+            ) { index ->
+                HeroBanner(lineup[index], accent, stageHeight, onRead, copy)
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)) {
+                repeat(lineup.size) { page ->
+                    Box(Modifier.size(if (pager.currentPage == page) 18.dp else 6.dp, 6.dp).clip(RoundedCornerShape(8.dp)).background(if (pager.currentPage == page) accent else TextMuted.copy(alpha = .3f)))
+                }
             }
         }
     }
@@ -95,15 +113,13 @@ fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier
 
 /** One hero stage: 16:9 landscape banner when available, blurred cover fallback otherwise. */
 @Composable
-private fun HeroBanner(item: Manga, accent: Color, onRead: (Manga) -> Unit, copy: CatalogCopy) {
-    BoxWithConstraints(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp))) {
+private fun HeroBanner(item: Manga, accent: Color, stageHeight: Dp, onRead: (Manga) -> Unit, copy: CatalogCopy) {
+    val heroShape = RoundedCornerShape(24.dp)
+    BoxWithConstraints(Modifier.fillMaxWidth().height(stageHeight).clip(heroShape).border(1.dp, HairlineBorder, heroShape)) {
         val banner = item.bannerUrl?.trim()?.takeIf { it.isNotEmpty() }
-        // The landscape banner keeps its native 16:9 cinematic ratio; the portrait
-        // fallback needs the taller stage so the text block fits beside the cover.
-        val stageHeight = if (banner != null) (maxWidth * 9f / 16f).coerceIn(220.dp, 420.dp) else 340.dp
         val coverWidth = (maxWidth * .3f).coerceIn(64.dp, 112.dp)
         val roomy = stageHeight >= 260.dp
-        Box(Modifier.fillMaxWidth().height(stageHeight)) {
+        Box(Modifier.fillMaxWidth().fillMaxHeight()) {
             if (banner != null) {
                 MangaArtwork(banner, item.title, Modifier.matchParentSize(), copy)
                 // Cinematic scrim: the banner stays sharp, only the lower third darkens
@@ -117,21 +133,26 @@ private fun HeroBanner(item: Manga, accent: Color, onRead: (Manga) -> Unit, copy
                 ))
             } else {
                 MangaArtwork(item.coverUrl, item.title, Modifier.matchParentSize().blur(24.dp), copy)
-                Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(accent.copy(alpha = .12f), DeepOledBlack.copy(alpha = .96f)))))
+                Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(accent.copy(alpha = .14f), DeepOledBlack.copy(alpha = .96f)))))
             }
             Row(
                 Modifier.align(if (banner != null) Alignment.BottomCenter else Alignment.Center).padding(20.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 verticalAlignment = if (banner != null) Alignment.Bottom else Alignment.CenterVertically,
             ) {
-                MangaArtwork(item.coverUrl, item.title, Modifier.width(coverWidth).aspectRatio(.66f).clip(RoundedCornerShape(16.dp)), copy)
+                MangaArtwork(item.coverUrl, item.title, Modifier.width(coverWidth).aspectRatio(.66f).clip(RoundedCornerShape(16.dp)).border(1.dp, Color.White.copy(alpha = .12f), RoundedCornerShape(16.dp)), copy)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     item.score?.let { ScoreBadge(it, copy) }
                     Text(item.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = if (roomy) 3 else 2, overflow = TextOverflow.Ellipsis)
                     if (roomy) Text(item.genres.take(3).joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = TextMuted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     if (roomy && item.contentRating == ContentRating.MATURE) Text(copy.matureBadgeLong, color = TextMuted, style = MaterialTheme.typography.labelSmall)
-                    Button(onClick = { onRead(item) }, colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = Color.White)) {
-                        Text(copy.readNow)
+                    Button(
+                        onClick = { onRead(item) },
+                        shape = RoundedCornerShape(percent = 50),
+                        colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = Color.White),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+                    ) {
+                        Text(copy.readNow, style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
@@ -141,12 +162,14 @@ private fun HeroBanner(item: Manga, accent: Color, onRead: (Manga) -> Unit, copy
 
 @Composable
 fun ScoreBadge(score: Double, copy: CatalogCopy = CatalogCopy()) {
-    Surface(color = CardSurface.copy(alpha = .6f), shape = RoundedCornerShape(12.dp)) {
-        Row(Modifier.padding(horizontal = 8.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(Icons.Default.Star, contentDescription = copy.scoreDescription, tint = RatingGold, modifier = Modifier.size(14.dp))
-            Text(String.format(Locale.getDefault(), "%.1f", score), style = MaterialTheme.typography.labelMedium, color = RatingGold)
-        }
-    }
+    YomiraBadge(
+        text = String.format(Locale.getDefault(), "%.1f", score),
+        icon = Icons.Default.Star,
+        accent = RatingGold,
+        containerColor = DeepOledBlack.copy(alpha = .58f),
+        contentColor = RatingGold,
+        style = MaterialTheme.typography.labelMedium,
+    )
 }
 
 @Composable
@@ -155,27 +178,56 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
     // desktop wall owns its own 6–8 column poster grid.
     require(columns in 1..8) { "Poster grid supports 1–8 columns, got $columns" }
     val roomy = columns <= 2
-    Column(modifier.clip(RoundedCornerShape(14.dp)).clickable(onClick = onClick).semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    val cardShape = RoundedCornerShape(18.dp)
+    Column(
+        modifier.clip(cardShape).clickable(onClick = onClick).semantics(mergeDescendants = true) {},
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         Box {
-            MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f).clip(RoundedCornerShape(14.dp)), copy)
+            MangaArtwork(
+                manga.coverUrl,
+                manga.title,
+                Modifier.fillMaxWidth().aspectRatio(.68f).clip(cardShape).border(1.dp, HairlineBorder, cardShape),
+                copy,
+            )
+            // A restrained bottom scrim keeps badges legible over bright covers
+            // while leaving the upper artwork untouched.
+            Box(
+                Modifier.matchParentSize().clip(cardShape).background(
+                    Brush.verticalGradient(
+                        0.6f to Color.Transparent,
+                        1f to DeepOledBlack.copy(alpha = .5f),
+                    ),
+                ),
+            )
             if (manga.contentRating == ContentRating.MATURE) {
-                Surface(Modifier.align(Alignment.TopStart).padding(6.dp), color = CardSurface.copy(alpha = .9f), shape = RoundedCornerShape(6.dp)) {
-                    Text(if (roomy) copy.matureBadgeLong else copy.matureBadgeShort, Modifier.padding(5.dp), style = MaterialTheme.typography.labelSmall)
-                }
+                YomiraBadge(
+                    text = if (roomy) copy.matureBadgeLong else copy.matureBadgeShort,
+                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
+                    accent = NeonLavender,
+                    containerColor = DeepOledBlack.copy(alpha = .64f),
+                    contentColor = TextPrimary,
+                )
             }
-            if (columns <= 4) manga.score?.let { Box(Modifier.align(Alignment.BottomEnd).padding(6.dp)) { ScoreBadge(it, copy) } }
+            if (columns <= 4) manga.score?.let { score ->
+                Box(Modifier.align(Alignment.BottomEnd).padding(8.dp)) { ScoreBadge(score, copy) }
+            }
         }
-        Text(
-            manga.title,
-            style = when {
-                columns == 1 -> MaterialTheme.typography.titleMedium
-                columns == 2 -> MaterialTheme.typography.titleSmall
-                else -> MaterialTheme.typography.labelMedium
-            },
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        if (roomy && manga.genres.isNotEmpty()) Text(manga.genres.take(2).joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                manga.title,
+                style = when {
+                    columns == 1 -> MaterialTheme.typography.titleMedium
+                    columns == 2 -> MaterialTheme.typography.titleSmall
+                    else -> MaterialTheme.typography.labelMedium
+                },
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (roomy && manga.genres.isNotEmpty()) {
+                Text(manga.genres.take(2).joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
     }
 }
 
@@ -184,8 +236,20 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
 fun GridColumnSelector(columns: Int, onColumnsChange: (Int) -> Unit, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy()) {
     SingleChoiceSegmentedButtonRow(modifier) {
         (2..4).forEachIndexed { index, count ->
-            SegmentedButton(selected = columns == count, onClick = { onColumnsChange(count) }, shape = SegmentedButtonDefaults.itemShape(index, 3),
-                modifier = Modifier.semantics { contentDescription = copy.columnDescriptions.getOrElse(index) { "$count" } }) { Text("$count") }
+            SegmentedButton(
+                selected = columns == count,
+                onClick = { onColumnsChange(count) },
+                shape = SegmentedButtonDefaults.itemShape(index, 3),
+                modifier = Modifier.semantics { contentDescription = copy.columnDescriptions.getOrElse(index) { "$count" } },
+                colors = SegmentedButtonDefaults.colors(
+                    activeContainerColor = NeonPurple,
+                    activeContentColor = Color.White,
+                    activeBorderColor = NeonPurple,
+                    inactiveContainerColor = CardSurface,
+                    inactiveContentColor = TextMuted,
+                    inactiveBorderColor = HairlineBorder,
+                ),
+            ) { Text("$count", style = MaterialTheme.typography.labelMedium) }
         }
     }
 }
@@ -212,18 +276,61 @@ internal fun navigationLabels(copy: CatalogCopy): Map<MainDestination, String> =
 )
 
 /**
- * Bottom navigation. [copy] carries the localized destination labels; when omitted the
- * enum defaults are used (module previews and tests). [vaultVisible] mirrors the settings
- * switch: a hidden vault is removed from the bar entirely, not merely locked.
+ * Floating capsule bottom navigation.
+ *
+ * The bar is inset from the screen edge, clipped to a 32dp capsule and drawn as
+ * a translucent raised-surface gradient inside a violet hairline — the Cstation /
+ * Webtoon Reader "floating pill" treatment. [copy] carries the localized
+ * destination labels; [vaultVisible] mirrors the settings switch: a hidden vault
+ * is removed from the bar entirely, not merely locked.
  */
 @Composable
 fun YomiraBottomNavBar(selected: String?, onSelect: (MainDestination) -> Unit, copy: CatalogCopy = CatalogCopy(), vaultVisible: Boolean = true) {
     val labels = navigationLabels(copy)
-    NavigationBar(Modifier.padding(horizontal = 12.dp, vertical = 8.dp).clip(RoundedCornerShape(28.dp)), containerColor = CardSurface.copy(alpha = .9f), tonalElevation = 0.dp) {
-        MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
-            val label = labels.getValue(destination)
-            NavigationBarItem(selected = selected == destination.route, onClick = { onSelect(destination) }, icon = { Icon(destination.icon, contentDescription = label) }, label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                colors = NavigationBarItemDefaults.colors(selectedIconColor = NeonPurple, indicatorColor = NeonPurple.copy(alpha = .16f)))
+    val capsule = RoundedCornerShape(32.dp)
+    Box(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 18.dp, vertical = 10.dp)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = capsule,
+            color = Color.Transparent,
+            border = BorderStroke(1.dp, NeonPurple.copy(alpha = .2f)),
+            shadowElevation = 16.dp,
+            tonalElevation = 0.dp,
+        ) {
+            Box(
+                Modifier.background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            SurfaceRaised.copy(alpha = .93f),
+                            CardSurface.copy(alpha = .96f),
+                        ),
+                    ),
+                ),
+            ) {
+                NavigationBar(
+                    modifier = Modifier.fillMaxWidth().height(70.dp),
+                    containerColor = Color.Transparent,
+                    tonalElevation = 0.dp,
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                ) {
+                    MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
+                        val label = labels.getValue(destination)
+                        NavigationBarItem(
+                            selected = selected == destination.route,
+                            onClick = { onSelect(destination) },
+                            icon = { Icon(destination.icon, contentDescription = label, modifier = Modifier.size(22.dp)) },
+                            label = { Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = NeonLavender,
+                                selectedTextColor = NeonLavender,
+                                unselectedIconColor = TextMuted,
+                                unselectedTextColor = TextMuted,
+                                indicatorColor = NeonPurple.copy(alpha = .2f),
+                            ),
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -231,7 +338,9 @@ fun YomiraBottomNavBar(selected: String?, onSelect: (MainDestination) -> Unit, c
 /**
  * Tablet / foldable navigation rail. Replaces the bottom bar from 600dp upwards,
  * so the wide layout spends its height on content instead of a stretched phone bar.
- * [vaultVisible] mirrors the settings switch exactly like the bottom bar.
+ * Like the phone capsule it floats: a soft 28dp card with a hairline border and a
+ * gradient brand tile instead of Material's flat rail. [vaultVisible] mirrors the
+ * settings switch exactly like the bottom bar.
  */
 @Composable
 fun YomiraNavigationRail(
@@ -250,35 +359,53 @@ fun YomiraNavigationRail(
             MainDestination.VAULT -> copy.navVault
         }
     }
-    NavigationRail(
-        modifier = modifier.width(96.dp),
-        containerColor = CardSurface.copy(alpha = .92f),
-        header = {
-            Surface(color = NeonPurple.copy(alpha = .16f), shape = RoundedCornerShape(14.dp)) {
-                Text(
-                    "Y",
-                    Modifier.padding(horizontal = 13.dp, vertical = 9.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = NeonPurple,
-                )
+    Box(modifier.fillMaxHeight().padding(horizontal = 4.dp, vertical = 10.dp)) {
+        Surface(
+            modifier = Modifier.width(88.dp).fillMaxHeight(),
+            shape = RoundedCornerShape(28.dp),
+            color = CardSurface,
+            border = BorderStroke(1.dp, HairlineBorder),
+            tonalElevation = 0.dp,
+        ) {
+            NavigationRail(
+                modifier = Modifier.fillMaxHeight(),
+                containerColor = Color.Transparent,
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                header = {
+                    Box(
+                        Modifier
+                            .size(42.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Brush.linearGradient(listOf(NeonPurple, NeonLavender))),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "Y",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                        )
+                    }
+                },
+            ) {
+                Spacer(Modifier.height(18.dp))
+                MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
+                    val label = labelFor(destination)
+                    NavigationRailItem(
+                        selected = selected == destination.route,
+                        onClick = { onSelect(destination) },
+                        icon = { Icon(destination.icon, contentDescription = label, modifier = Modifier.size(22.dp)) },
+                        label = { Text(label, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        alwaysShowLabel = true,
+                        colors = NavigationRailItemDefaults.colors(
+                            selectedIconColor = NeonLavender,
+                            selectedTextColor = NeonLavender,
+                            unselectedIconColor = TextMuted,
+                            unselectedTextColor = TextMuted,
+                            indicatorColor = NeonPurple.copy(alpha = .2f),
+                        ),
+                    )
+                }
             }
-        },
-    ) {
-        Spacer(Modifier.height(18.dp))
-        MainDestination.entries.filter { vaultVisible || it != MainDestination.VAULT }.forEach { destination ->
-            val label = labelFor(destination)
-            NavigationRailItem(
-                selected = selected == destination.route,
-                onClick = { onSelect(destination) },
-                icon = { Icon(destination.icon, contentDescription = label) },
-                label = { Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                alwaysShowLabel = true,
-                colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = NeonPurple,
-                    selectedTextColor = NeonPurple,
-                    indicatorColor = NeonPurple.copy(alpha = .16f),
-                ),
-            )
         }
     }
 }
@@ -324,7 +451,19 @@ fun NeonPagingIndicator(
 @Composable
 fun CatalogEmptyState(title: String, message: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(40.dp))
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = NeonPurple.copy(alpha = .12f),
+            border = BorderStroke(1.dp, NeonPurple.copy(alpha = .25f)),
+            tonalElevation = 0.dp,
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.MenuBook,
+                contentDescription = null,
+                tint = NeonLavender,
+                modifier = Modifier.padding(14.dp).size(32.dp),
+            )
+        }
         Text(title, style = MaterialTheme.typography.titleMedium)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
     }

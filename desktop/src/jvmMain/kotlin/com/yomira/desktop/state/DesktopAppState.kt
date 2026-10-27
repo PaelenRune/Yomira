@@ -301,6 +301,30 @@ class DesktopAppState(
         openChapter(chapter)
     }
 
+    /** Readable chapters of the series currently open in the reader, in source order. */
+    val readerChapters: List<DesktopChapter>
+        get() = chapterList.filter(DesktopChapter::isReadable)
+
+    /**
+     * The previous/next readable chapter relative to the open one, or `null` at
+     * the ends. Used by the floating reader capsule so chapter skipping never
+     * fires a request that cannot resolve.
+     */
+    fun adjacentChapter(offset: Int): DesktopChapter? {
+        val current = reader?.chapter ?: return null
+        val list = readerChapters
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index < 0) return null
+        return list.getOrNull(index + offset)
+    }
+
+    fun openAdjacentChapter(offset: Int) {
+        val current = reader?.chapter ?: return
+        val target = adjacentChapter(offset) ?: return
+        if (target.id == current.id) return
+        openChapter(target)
+    }
+
     fun closeReader() {
         pageJob?.cancel()
         if (screen == DesktopScreen.READER) screen = DesktopScreen.DETAIL
