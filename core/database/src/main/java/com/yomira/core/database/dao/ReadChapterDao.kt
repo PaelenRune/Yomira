@@ -14,6 +14,9 @@ import com.yomira.core.database.entity.ReadChapterEntity
  */
 @Dao
 interface ReadChapterDao {
+    @androidx.room.Upsert
+    suspend fun upsert(entry: ReadChapterEntity)
+
     @Query("SELECT * FROM read_chapters WHERE mangaId = :mangaId AND chapterId = :chapterId")
     suspend fun get(mangaId: String, chapterId: String): ReadChapterEntity?
 

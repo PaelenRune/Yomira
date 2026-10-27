@@ -7,15 +7,35 @@
 * `:data:extension`: `KeiyoushiRepoParser`, `ExtensionManager`, bounded/cancellable
   `OkHttpRepositoryClient`, atomic private-file persistence, and `SandboxSourceBridge`.
 
-The core contains no chapter content, source implementations, APK bundles, or server. Repository
-metadata is fetched only after explicit onboarding opt-in. Completing onboarding prepares a list of
-suggested packages, **not silent APK installation or automatic certificate trust**.
+The core contains no chapter content, source implementations, APK bundles, or server. Curated repository
+indexes are packaged as JVM resources (also included in the Android APK) under `yomira/repositories/`.
+`repositories/catalog.json` lists their canonical HTTPS identities and resource paths. Every index in
+that catalog is immediately available through `ExtensionManager`, even with an empty URL store and
+without calling `refresh`. Bundled snapshots require no network; explicit additional URLs are fetched
+on refresh. Completing onboarding does **not silently install or automatically trust APK code**.
+
+## APK-to-JSON conversion
+
+`RuntimeApkToJsonConverter` is used directly by `SandboxExtensionInstaller`. It reads APK ZIP entries
+in-process, parses text or Android binary XML manifests, checks package/version against the advertised
+descriptor, discovers declared `tachiyomi.extension.class` entry points and DEX class descriptors,
+and fingerprints assets. An optional `assets/yomira/extension.json` asset can supply `packageName`
+and `entryClasses`. ZIP paths, duplicate entries, entry counts and decompressed byte sizes are bounded.
+Invalid metadata is rejected before replacing an existing DEX cache.
+
+The installed definition is a schema-v2 `JsonSourceManifest`, including APK inspection provenance;
+schema-v1 records remain readable. Assets are inspected/fingerprinted, not executed or installed.
+Only root `classes*.dex` files are extracted. No Android PackageInstaller or unknown-app permission
+is involved. Arbitrary compiled scraping logic cannot be losslessly translated into declarative JSON:
+JSON records source routing, entry points and hashes, while executable behavior remains pinned DEX
+and must run behind the existing `IsolatedExtensionRuntime` boundary. Manifest inspection is **not**
+APK publisher-signature verification and does not grant execution trust.
 
 ## Application wiring
 
 1. Create singleton `FileRepositoryStore` and `FileOnboardingStore` using separate paths inside the
    private application directory. Construct `ExtensionManager` with an HTTP client, parser, and an
-   `InstalledExtensionProvider` backed by Android's package manager and persisted certificate consent.
+    `InstalledExtensionProvider` backed by the JSON manifest store and persisted certificate consent.
 2. Present TR/EN and +18 controls and invoke `OnboardingWizardManager.complete`. Handle exceptions
    as retryable errors; completion is persisted only when setup succeeds. On a cold start, invoke
    `ExtensionManager.refresh()` before matching (the repository snapshot is intentionally in memory).
@@ -29,12 +49,12 @@ suggested packages, **not silent APK installation or automatic certificate trust
    It ranks by chapter count, then latest upload timestamp, then installed status for ties.
 6. `MissingExtension` supplies the suggested source, factual chapter count, install URL, and alternatives
    for a confirmation modal. The host handles user-approved APK download, package/certificate checks,
-   Android PackageInstaller consent, and refresh after installation. `Ready` supplies chapters and
+    sandbox conversion through `SandboxExtensionInstaller`, and refresh after installation. `Ready` supplies chapters and
    alternatives; `canRead` is true only for non-empty lists. `NoMatch` and `Unavailable` are distinct.
 
 ## Honest integration limits
 
-This change does **not** implement an APK interpreter, the Android IPC service, package installer,
+This module does **not** implement an APK interpreter, the Android IPC service, package installer,
 package/certificate inventory, Compose wizard/modal, or an external discovery catalog. These are host
 integration requirements, not working capabilities of these JVM modules. A timeout wrapper is not an
 OS security sandbox. In particular Android `isolatedProcess` services have no ordinary network or
@@ -47,6 +67,8 @@ The Keiyoushi index contains `apk`, `pkgName`, `lang`, `nsfw`, `version`, numeri
 filenames resolve under the index's `apk/` directory. Numeric source IDs are preserved as strings to
 avoid precision loss. New repository snapshots replace the old only after every index validates;
 duplicate package ownership across repositories is rejected instead of silently selecting a publisher.
+Adding a full upstream repository that overlaps a curated snapshot therefore still requires an
+explicit ownership policy; the manager deliberately does not silently replace a curated publisher.
 
 ## Verification
 
@@ -58,5 +80,5 @@ gradlew.bat :domain:extension:test :data:extension:test
 
 Tests cover repo parsing/validation, missing/installed/multiple-source matching, language/NSFW policy,
 cancellation, onboarding persistence decisions, version updates, refresh rollback, trust checks,
-bridge timeouts, and private-file persistence. On this Windows machine, Gradle test workers cannot
-load test classes under the non-ASCII checkout path; verification uses an ASCII temporary copy.
+bridge timeouts, private-file persistence, offline packaged catalogs, binary/text manifest inspection,
+APK JSON metadata, DEX descriptor discovery, conversion round trips, and package mismatch rollback.

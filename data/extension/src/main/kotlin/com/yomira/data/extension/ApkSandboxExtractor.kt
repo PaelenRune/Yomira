@@ -6,7 +6,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
-import java.util.zip.ZipFile
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * App-private on-disk layout for JSON-first extensions. Everything lives under one directory
@@ -26,6 +27,11 @@ import java.util.zip.ZipFile
  * ```
  */
 class SandboxLayout(val root: Path) {
+    private val extractionMutex = Mutex()
+
+    /** Coordinates staging with cache inspection/cleanup without touching installed dex. */
+    suspend fun <T> withExtractionLock(block: suspend () -> T): T = extractionMutex.withLock { block() }
+
     val dexRoot: Path = root.resolve("dex")
     val manifestDirectory: Path = root.resolve("manifests")
     val indexFile: Path = root.resolve("sandbox_index.json")
@@ -70,10 +76,9 @@ class SandboxLayout(val root: Path) {
  * remaining metadata (scraping rules are compiled dex code plus source ids) is captured by
  * [JsonSourceManifest.of].
  *
- * The extractor deliberately ignores `AndroidManifest.xml`, signatures and resources: Yomira
- * never launches these APKs as apps, so the binary manifest carries no value and parsing it
- * would only add attack surface. A [DexClassLoader] — hosted by the isolated runtime, never
- * the UI process — loads the extracted files later.
+ * Text/binary Android manifests supply package identity and declared entry classes. Assets are
+ * fingerprinted, and an optional assets/yomira/extension.json supplies native entry metadata.
+ * This is not APK signature verification or a translation of arbitrary bytecode into scraping rules.
  */
 class ApkSandboxExtractor(
     private val layout: SandboxLayout,
@@ -84,16 +89,16 @@ class ApkSandboxExtractor(
         require(maxDexBytesPerFile > 0 && maxTotalDexBytes >= maxDexBytesPerFile) { "Invalid dex size limits" }
     }
 
-    suspend fun extract(apkBytes: ByteArray, packageName: String, installedAt: Long): SandboxExtraction {
+    suspend fun extract(apkBytes: ByteArray, packageName: String, installedAt: Long, expectedVersionCode: Long? = null): SandboxExtraction = layout.withExtractionLock {
         require(apkBytes.isNotEmpty()) { "Empty APK payload" }
         val target = layout.dexDirectory(packageName)
-        Files.createDirectories(target)
-        // A re-install must not keep dex files the new version no longer ships.
-        layout.deleteDex(packageName)
-        Files.createDirectories(target)
+        Files.createDirectories(layout.dexRoot)
 
         val extracted = mutableListOf<SandboxedDexFile>()
         val candidateClasses = sortedSetOf<String>()
+        var metadata = ApkMetadata()
+        val assets = mutableListOf<ApkAsset>()
+        val seenNames = mutableSetOf<String>()
         val temporary = Files.createTempDirectory(layout.dexRoot, ".extracting-")
         try {
             java.util.zip.ZipInputStream(java.io.ByteArrayInputStream(apkBytes)).use { archive ->
@@ -102,7 +107,35 @@ class ApkSandboxExtractor(
                 while (true) {
                     val entry = archive.nextEntry ?: break
                     seenAny = true
-                    if (!entry.isDexEntry()) continue
+                    require(seenNames.add(entry.name) && seenNames.size <= 4096) { "Duplicate or excessive APK entries" }
+                    val isDex = entry.isDexEntry() // Validates paths for every entry, not only DEX.
+                    if (entry.name == "AndroidManifest.xml" || entry.name.startsWith("assets/") && !entry.isDirectory) {
+                        val bytes = readCapped(archive, 4L * 1024 * 1024)
+                        total += bytes.size
+                        require(total <= maxTotalDexBytes) { "APK payload exceeds sandbox quota" }
+                        if (entry.name == "AndroidManifest.xml") {
+                            metadata = ApkMetadataInspector.manifest(bytes)
+                            require(metadata.packageName == packageName) { "APK manifest package mismatch" }
+                            require(expectedVersionCode == null || metadata.versionCode == null || metadata.versionCode == expectedVersionCode) {
+                                "APK manifest version mismatch"
+                            }
+                            candidateClasses += metadata.entryClasses
+                        } else {
+                            assets += ApkAsset(entry.name, bytes.size.toLong(), sha256Hex(bytes))
+                            if (entry.name == "assets/yomira/extension.json") {
+                                candidateClasses += ApkMetadataInspector.assetClasses(bytes, packageName)
+                            }
+                        }
+                        continue
+                    }
+                    if (!isDex) {
+                        // Even skipped ZIP entries must be bounded: nextEntry otherwise inflates them implicitly.
+                        if (!entry.isDirectory) {
+                            total += readCapped(archive, maxDexBytesPerFile).size
+                            require(total <= maxTotalDexBytes) { "APK payload exceeds sandbox quota" }
+                        }
+                        continue
+                    }
                     val name = entry.name.substringAfterLast('/').lowercase()
                     require(name == DEX_NAME || Regex("""classes\d+\.dex""").matches(name)) { "Unsafe dex name ${entry.name}" }
                     val bytes = readCapped(archive, maxDexBytesPerFile)
@@ -112,17 +145,21 @@ class ApkSandboxExtractor(
                     candidateClasses += inspected.entryClassCandidates
                     val staged = temporary.resolve(name)
                     Files.write(staged, bytes)
-                    Files.move(staged, target.resolve(name), StandardCopyOption.REPLACE_EXISTING)
                     extracted += SandboxedDexFile(name, bytes.size.toLong(), sha256Hex(bytes))
                 }
                 require(seenAny) { "Archive is not a valid zip payload" }
             }
             require(extracted.isNotEmpty()) { "Archive contains no classes*.dex" }
-            return SandboxExtraction(
+            // Validate the entire archive before replacing an existing working payload.
+            layout.deleteDex(packageName)
+            Files.createDirectories(target)
+            extracted.forEach { Files.move(temporary.resolve(it.name), target.resolve(it.name), StandardCopyOption.REPLACE_EXISTING) }
+            return@withExtractionLock SandboxExtraction(
                 dexFiles = extracted.sortedBy { it.name },
                 entryClassCandidates = candidateClasses.toList(),
                 installedAt = installedAt,
                 sandboxDirectory = target,
+                apkMetadata = metadata.copy(assets = assets.sortedBy { it.name }),
             )
         } finally {
             deleteTree(temporary)
@@ -130,12 +167,11 @@ class ApkSandboxExtractor(
     }
 
     private fun java.util.zip.ZipEntry.isDexEntry(): Boolean {
-        if (isDirectory) return false
         val name = this.name
         if (name.contains("..") || name.startsWith("/") || name.contains("\\")) {
             throw IOException("Unsafe archive entry: $name")
         }
-        return name.substringAfterLast('/').matches(Regex("""classes\d*\.dex"""))
+        return !isDirectory && name.matches(Regex("""classes\d*\.dex"""))
     }
 
     private fun readCapped(stream: java.io.InputStream, cap: Long): ByteArray {
@@ -178,6 +214,7 @@ data class SandboxExtraction(
     val entryClassCandidates: List<String>,
     val installedAt: Long,
     val sandboxDirectory: Path,
+    val apkMetadata: ApkMetadata = ApkMetadata(),
 )
 
 /**
@@ -224,8 +261,9 @@ data class DexHeader(
             for (index in 0 until stringIdsSize) {
                 val offset = readIntLE(bytes, stringIdsOffset + index * 4).toLong()
                 val descriptor = readStringTableEntry(bytes, offset) ?: continue
-                if (descriptor.endsWith(CLASS_SUFFIX) && isClassDescriptor(descriptor) && descriptor.length <= 256) {
-                    candidates += descriptor
+                val className = if (descriptor.startsWith('L') && descriptor.endsWith(';')) descriptor.substring(1, descriptor.length - 1) else descriptor
+                if (className.endsWith(CLASS_SUFFIX) && isClassDescriptor(className) && className.length <= 256) {
+                    candidates += className
                     if (candidates.size > MAX_CLASS_CANDIDATES) candidates.remove(candidates.last())
                 }
             }

@@ -41,6 +41,7 @@ class DataStoreSettingsStoreTest {
                 requireDeviceLock = false,
                 lockOnBackground = false,
                 readingMode = ReadingMode.WEBTOON,
+                automaticSync = true,
             )
             val firstStore = DataStoreSettingsStore(raw)
             firstStore.update { hidden }

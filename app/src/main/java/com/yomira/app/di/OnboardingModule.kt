@@ -29,13 +29,12 @@ object OnboardingModule {
         DataStoreOnboardingStore(context.onboardingDataStore)
 
     @Provides @Singleton
-    fun extensions(@ApplicationContext context: Context, client: OkHttpClient): ExtensionRepository =
+    fun extensions(@ApplicationContext context: Context, client: OkHttpClient, installed: InstalledExtensionProvider): ExtensionRepository =
         ExtensionManager(
             FileRepositoryStore(context.filesDir.toPath().resolve("extensions/repositories.json")),
             OkHttpRepositoryClient(client),
             KeiyoushiRepoParser(),
-            // Onboarding downloads metadata only. Runtime installation/trust is a separate action.
-            InstalledExtensionProvider { emptyList() },
+            installed,
         )
 
     @Provides @Singleton

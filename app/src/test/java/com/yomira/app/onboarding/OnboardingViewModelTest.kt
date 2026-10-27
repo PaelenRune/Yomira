@@ -37,7 +37,7 @@ class OnboardingViewModelTest {
         model.complete("tr", false)
         model.await { it.completed }
         assertEquals(ReaderPreferences(ReadingLanguage.TURKISH), store.saved?.preferences)
-        assertEquals(OnboardingWizardManager.KEIYOUSHI_INDEX, store.saved?.repositoryUrl)
+        assertEquals(OnboardingWizardManager.TURKISH_INDEX, store.saved?.repositoryUrl)
         assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, added)
     }
 
@@ -47,6 +47,16 @@ class OnboardingViewModelTest {
         val loaded = model.await { !it.loading }
         assertTrue(loaded.completed)
         assertEquals("en", loaded.languageCode)
+    }
+
+    @Test fun bothReadingLanguagesAreSavedAndRestored() = runBlocking {
+        val store = MemoryStore()
+        val first = model(store)
+        first.await { !it.loading }
+        first.complete("both", true)
+        assertEquals("both", first.await { it.completed }.languageCode)
+        assertEquals(ReaderPreferences(ReadingLanguage.BOTH), store.saved?.preferences)
+        assertEquals("both", model(store).await { !it.loading }.languageCode)
     }
 
     @Test fun failedRefreshStillCompletesWithBundledRepositoriesRegistered() = runBlocking {

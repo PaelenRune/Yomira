@@ -47,6 +47,8 @@ data class JsonSourceManifest(
     val entryClasses: List<String> = emptyList(),
     /** Sources this package provides; the ids are the routing keys the dex code expects. */
     val sources: List<ManifestSourceEntry> = emptyList(),
+    /** Optional APK inspection provenance; absent on legacy manifests. */
+    val apkMetadata: ApkMetadata? = null,
 ) {
     init {
         require(packageName.isNotBlank() && name.isNotBlank() && language.isNotBlank()) {
@@ -73,6 +75,10 @@ data class JsonSourceManifest(
         require(schemaVersion in 1..CURRENT_SCHEMA_VERSION) { "Unsupported manifest schema $schemaVersion" }
         requireHttps(apkUrl)
         requireHttps(repositoryUrl)
+        apkMetadata?.let {
+            require(it.packageName == null || it.packageName == packageName) { "APK package mismatch" }
+            require(it.versionCode == null || it.versionCode == versionCode) { "APK version mismatch" }
+        }
         sources.forEach { source ->
             require(source.id.isNotBlank() && source.name.isNotBlank() && source.language.isNotBlank()) {
                 "Manifest source entries need id, name and language"
@@ -99,7 +105,7 @@ data class JsonSourceManifest(
     )
 
     companion object {
-        const val CURRENT_SCHEMA_VERSION: Int = 1
+        const val CURRENT_SCHEMA_VERSION: Int = 2
         const val DEX_CLASSLOADER_RUNTIME: String = "dex-classloader"
         private val SHA256_HEX = Regex("^[0-9a-f]{64}$")
 

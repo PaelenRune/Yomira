@@ -21,8 +21,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
-import com.yomira.core.model.WesternComics
+import com.yomira.core.model.HomeRail
+import com.yomira.core.model.HomeShelf
 import com.yomira.core.ui.*
+import java.util.Locale
 import com.yomira.core.ui.theme.CardSurface
 import com.yomira.core.ui.theme.HairlineBorder
 import com.yomira.core.ui.theme.NeonLavender
@@ -40,6 +42,7 @@ fun publicCatalog(items: List<Manga>): List<Manga> = items.filter { it.contentRa
  * UI model: the app maps the newest reader-progress row plus its series/chapter
  * into it, so the card never holds database types and previews stay trivial.
  */
+@Immutable
 data class ContinueReadingUi(
     val mangaId: String,
     val chapterId: String,
@@ -54,6 +57,8 @@ data class ContinueReadingUi(
         get() = if (pageCount <= 0) 0f else ((pageIndex + 1).toFloat() / pageCount).coerceIn(0f, 1f)
 }
 
+/** Collection properties are immutable snapshots; publish a new state on changes. */
+@Immutable
 data class HomeUiState(
     val manga: List<Manga> = emptyList(),
     val trending: List<Manga> = emptyList(),
@@ -71,6 +76,11 @@ data class HomeUiState(
     val loadingMore: Boolean = false,
     val hasMore: Boolean = true,
     val pagingError: String? = null,
+    /** Ids already opened in the reader; drives the personalized rail. */
+    val readIds: Set<String> = emptySet(),
+    /** Ids the user keeps in the library; a second, stronger taste signal. */
+    val savedIds: Set<String> = emptySet(),
+    val rails: List<HomeRail> = emptyList(),
 )
 
 /**
@@ -78,6 +88,7 @@ data class HomeUiState(
  * resources (English default, Turkish in `values-tr`), so an in-app locale switch
  * re-renders this screen instantly. Defaults keep previews and tests stable.
  */
+@Immutable
 data class HomeCopy(
     val searchPlaceholder: String = "Seri veya tür ara",
     val subtitle: String = "Metadata kütüphanen. Okuma deneyimin.",
@@ -85,6 +96,10 @@ data class HomeCopy(
     val retry: String = "Yeniden dene",
     val railTrending: String = "Trendler",
     val railUpdated: String = "Son güncellenenler",
+    val railPopular: String = "Popüler Seriler",
+    val railPersonal: String = "Size Özel",
+    val railIsekai: String = "🌀 Popüler Isekai & Fantezi",
+    val railEditors: String = "🏆 Editörün Seçtikleri",
     val emptyShelfTitle: String = "Vitrinin henüz boş",
     val emptyShelfMessage: String = "Bir kaynak ekleyip seri meta verilerini eşitlediğinde serilerin burada görünür.",
     val emptySearchTitle: String = "Sonuç bulunamadı",
@@ -97,6 +112,8 @@ data class HomeCopy(
     val continueAction: String = "Devam et",
     val continueProgress: String = "Sayfa %1\$d / %2\$d",
     val catalog: CatalogCopy = CatalogCopy(),
+    val shelfTitles: Map<HomeShelf, String> = emptyMap(),
+    val emptyRail: String = "Bu rafta henüz seri yok.",
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -124,13 +141,16 @@ fun HomeScreen(
     // Room re-emits every discovered row. Appending the page list after the
     // Room snapshot keeps newly fetched cards at the end without duplicating
     // a series that is already on screen.
-    val all = publicCatalog(state.manga + state.discovery).distinctBy { it.id }
-    val visible = all.filter {
-        it.title.contains(state.query, ignoreCase = true) ||
-            it.altTitles.any { alt -> alt.contains(state.query, ignoreCase = true) } ||
-            it.genres.any { genre -> genre.contains(state.query, true) }
-    }.let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
-    val westernSpotlight = remember(all) { WesternComics.spotlight(all, limit = 14) }
+    val all = remember(state.manga, state.discovery) {
+        publicCatalog(state.manga + state.discovery).distinctBy { it.id }
+    }
+    val visible = remember(all, state.query, state.selectedTags) {
+        all.filter {
+            it.title.contains(state.query, ignoreCase = true) ||
+                it.altTitles.any { alt -> alt.contains(state.query, ignoreCase = true) } ||
+                it.genres.any { genre -> genre.contains(state.query, true) }
+        }.let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
+    }
     val gridState = rememberLazyGridState()
     val nearBottom by remember(gridState) {
         derivedStateOf {
@@ -150,7 +170,7 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(18.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
+        item(key = "home-header", contentType = "header", span = { GridItemSpan(maxLineSpan) }) {
             HomeHeader(
                 title = title,
                 query = state.query,
@@ -165,7 +185,7 @@ fun HomeScreen(
             )
         }
         if (showHero && quietShelf && continueReading != null) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(key = "continue-reading", contentType = "resume", span = { GridItemSpan(maxLineSpan) }) {
                 ContinueReadingCard(
                     item = continueReading,
                     copy = copy,
@@ -175,7 +195,7 @@ fun HomeScreen(
             }
         }
         if (tagOptions.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(key = "tag-filter", contentType = "filters", span = { GridItemSpan(maxLineSpan) }) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (state.query.isBlank()) {
                         Text(
@@ -195,36 +215,43 @@ fun HomeScreen(
                 }
             }
         }
-        if (state.loading) item(span = { GridItemSpan(maxLineSpan) }) { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-        state.error?.let { message -> item(span = { GridItemSpan(maxLineSpan) }) {
+        if (state.loading) item(key = "loading", contentType = "loading", span = { GridItemSpan(maxLineSpan) }) { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        state.error?.let { message -> item(key = "error", contentType = "error", span = { GridItemSpan(maxLineSpan) }) {
             Column(Modifier.padding(20.dp)) { Text(message); TextButton(onClick = onRetry) { Text(copy.retry) } }
         } }
         if (showHero && quietShelf) {
-            item(span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending).take(6), onManga, copy = copy.catalog) }
-            item(span = { GridItemSpan(maxLineSpan) }) { WesternSpotlightRail(westernSpotlight, onManga, copy.catalog) }
-            item(span = { GridItemSpan(maxLineSpan) }) { MangaRail(copy.railTrending, publicCatalog(state.trending), onManga, copy.catalog) }
-            item(span = { GridItemSpan(maxLineSpan) }) { MangaRail(copy.railUpdated, publicCatalog(state.updated), onManga, copy.catalog) }
+            item(key = "hero", contentType = "hero", span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending).take(6), onManga, copy = copy.catalog) }
+            state.rails.forEach { rail ->
+                item(key = "shelf-${rail.shelf.name}", contentType = "shelf", span = { GridItemSpan(maxLineSpan) }) {
+                    val railTitle = copy.shelfTitles[rail.shelf] ?: when (rail.shelf) {
+                        HomeShelf.POPULAR -> copy.railPopular
+                        HomeShelf.PERSONAL -> copy.railPersonal
+                        else -> rail.shelf.title
+                    }
+                    MangaRail(railTitle, rail.items, onManga, copy.catalog, copy.emptyRail)
+                }
+            }
         }
-        if (visible.isEmpty() && !state.loading && state.error == null) item(span = { GridItemSpan(maxLineSpan) }) {
+        if (visible.isEmpty() && !state.loading && state.error == null) item(key = "empty", contentType = "empty", span = { GridItemSpan(maxLineSpan) }) {
             CatalogEmptyState(
                 if (state.query.isBlank()) copy.emptyShelfTitle else copy.emptySearchTitle,
                 if (state.query.isBlank()) copy.emptyShelfMessage else copy.emptySearchMessage,
             )
         }
-        items(visible, key = { it.id }) { manga ->
+        items(visible, key = { it.id }, contentType = { "manga" }) { manga ->
             MangaCard(manga, columns, { onManga(manga) }, Modifier.padding(horizontal = 4.dp), copy.catalog)
         }
         if (state.loadingMore) {
-            item(span = { GridItemSpan(maxLineSpan) }) { NeonPagingIndicator(message = copy.pagingLoading) }
+            item(key = "paging-loading", contentType = "loading", span = { GridItemSpan(maxLineSpan) }) { NeonPagingIndicator(message = copy.pagingLoading) }
         } else if (state.pagingError != null) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(key = "paging-error", contentType = "error", span = { GridItemSpan(maxLineSpan) }) {
                 Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(state.pagingError, style = MaterialTheme.typography.labelMedium, color = TextMuted)
                     TextButton(onClick = onLoadMore) { Text(copy.retry) }
                 }
             }
         } else if (!state.hasMore && state.discovery.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
+            item(key = "paging-end", contentType = "paging-end", span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     String.format(copy.pagingEnd, visible.size),
                     Modifier.fillMaxWidth().padding(20.dp),
@@ -459,34 +486,157 @@ private fun GradientProgress(fraction: Float, modifier: Modifier = Modifier) {
     }
 }
 
+/** Score used when a provider has not published one, so ranking never drops a series. */
+private const val FALLBACK_SCORE = 6.8
+
 /**
- * Editorial western-comics strip. It is drawn from persisted seed rows first,
- * then from ComicVine / OpenLibrary / MangaDex(en) records discovered by later
- * pages, so the rail stays useful offline and grows online.
+ * Deterministic 0..1 noise. The same series id and rotation seed always produce
+ * the same value, so a recomposition never reorders a shelf mid-scroll; only the
+ * next explicit refresh does.
  */
-@Composable
-private fun WesternSpotlightRail(manga: List<Manga>, onManga: (Manga) -> Unit, copy: CatalogCopy) {
-    if (manga.isEmpty()) return
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(WesternComics.SPOTLIGHT_TITLE, style = MaterialTheme.typography.titleLarge)
-            Text(WesternComics.SPOTLIGHT_SUBTITLE, style = MaterialTheme.typography.labelMedium, color = TextMuted)
-        }
-        LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(manga, key = { it.id }) { item -> MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy) }
-        }
-    }
+internal fun rotationNoise(key: String, seed: Int): Double {
+    var hash = 7
+    key.forEach { char -> hash = hash * 31 + char.code }
+    hash = hash * 31 + seed
+    return ((hash.toLong() and 0x7FFF_FFFFL) % 1000L) / 1000.0
 }
 
+/**
+ * "🔥 Popülerler & Trendler": score and freshness driven, with a small rotating
+ * tie-break so the order feels alive rather than frozen. Recently updated rows
+ * get a bonus, which lets new releases climb next to the established hits.
+ */
+internal fun popularTrendingShelf(
+    all: List<Manga>,
+    updated: List<Manga>,
+    seed: Int,
+    limit: Int = 14,
+): List<Manga> {
+    if (all.isEmpty()) return emptyList()
+    val denominator = updated.size.coerceAtLeast(1)
+    val freshness = updated.mapIndexed { index, item ->
+        item.id to (1.0 - index.toDouble() / denominator)
+    }.toMap()
+    return all.distinctBy { it.id }
+        .sortedWith(
+            compareByDescending<Manga> { item ->
+                val score = (item.score ?: FALLBACK_SCORE) / 10.0
+                val fresh = freshness[item.id] ?: 0.0
+                score * .58 + fresh * .27 + rotationNoise(item.id, seed) * .15
+            }.thenBy { it.id },
+        )
+        .take(limit)
+}
+
+/**
+ * "✨ Sana Özel Öneriler": builds a genre taste profile from the series the user
+ * has opened or saved, then recommends unread series weighted by that affinity.
+ * On a cold start (no history) it falls back to a high-score discovery mix, so
+ * the rail is never empty.
+ */
+internal fun personalizedShelf(
+    all: List<Manga>,
+    readIds: Set<String>,
+    savedIds: Set<String>,
+    seed: Int,
+    limit: Int = 14,
+): List<Manga> {
+    if (all.isEmpty()) return emptyList()
+    val tasteIds = readIds + savedIds
+    val favoriteGenres = all.asSequence()
+        .filter { it.id in tasteIds }
+        .flatMap { it.genres.asSequence() }
+        .map { it.trim().lowercase(Locale.ROOT) }
+        .filter { it.isNotEmpty() }
+        .groupingBy { it }
+        .eachCount()
+    val strongest = favoriteGenres.values.maxOrNull() ?: 0
+    val hasTaste = strongest > 0
+    return all.distinctBy { it.id }
+        .filter { it.id !in readIds }
+        .sortedWith(
+            compareByDescending<Manga> { item ->
+                val score = (item.score ?: FALLBACK_SCORE) / 10.0
+                val affinity = if (!hasTaste) {
+                    0.0
+                } else {
+                    (item.genres.sumOf { genre ->
+                        (favoriteGenres[genre.trim().lowercase(Locale.ROOT)] ?: 0).toDouble() / strongest
+                    }.coerceAtMost(2.0)) / 2.0
+                }
+                val noise = rotationNoise(item.id, seed + 41)
+                // Without history the rail must still look curated, so score
+                // dominates; with history, genre affinity takes the lead.
+                if (hasTaste) affinity * .55 + score * .32 + noise * .13
+                else score * .78 + noise * .22
+            }.thenBy { it.id },
+        )
+        .take(limit)
+}
+
+/** "🌀 Popüler Isekai & Fantezi": isekai/reincarnation first, then the fantasy shelf. */
+internal fun isekaiFantasyShelf(all: List<Manga>, seed: Int, limit: Int = 14): List<Manga> {
+    return all.distinctBy { it.id }
+        .map { item ->
+            val tags = item.genres.map { it.trim().lowercase(Locale.ROOT) }
+            val isekai = tags.any { tag -> ISEKAI_GENRES.any { tag.contains(it) } }
+            val fantasy = tags.any { tag -> FANTASY_GENRES.any { tag.contains(it) } }
+            Triple(item, isekai, fantasy)
+        }
+        .filter { (_, isekai, fantasy) -> isekai || fantasy }
+        .sortedWith(
+            compareByDescending<Triple<Manga, Boolean, Boolean>> { (item, isekai, _) ->
+                val isekaiBonus = if (isekai) .26 else 0.0
+                val score = (item.score ?: FALLBACK_SCORE) / 10.0
+                isekaiBonus + score * .57 + rotationNoise(item.id, seed + 97) * .17
+            }.thenBy { it.first.id },
+        )
+        .take(limit)
+        .map { it.first }
+}
+
+/**
+ * Genre needles of the isekai shelf. They are plain `contains` checks on already
+ * lowercased genre strings: the shelf is built for every item of the catalogue on
+ * the composition thread, and `CatalogTags.tagIdsFor` compiles a regex per call,
+ * which previously froze the UI for seconds on a large catalogue.
+ */
+private val ISEKAI_GENRES = listOf(
+    "isekai", "reincarnation", "another world", "parallel world", "game world", "time travel",
+)
+private val FANTASY_GENRES = listOf("fantasy", "fantastik")
+
+/**
+ * "🏆 Editörün Seçtikleri": the highest-rated shelf. Only elite records compete
+ * when there are enough of them; the rotation picks which slice of that elite
+ * pool leads the rail each cycle.
+ */
+internal fun editorsChoiceShelf(all: List<Manga>, seed: Int, limit: Int = 14): List<Manga> {
+    val ranked = all.distinctBy { it.id }
+        .filter { it.score != null }
+        .sortedWith(compareByDescending<Manga> { it.score ?: 0.0 }.thenBy { it.id })
+    val elite = ranked.filter { (it.score ?: 0.0) >= 8.0 }
+    val pool = when {
+        elite.size >= limit.coerceAtMost(MIN_EDITORS_POOL) -> elite
+        ranked.isNotEmpty() -> ranked
+        else -> return popularTrendingShelf(all, emptyList(), seed, limit)
+    }
+    val offset = if (pool.size > 1) Math.floorMod(seed, pool.size) else 0
+    return (pool.drop(offset) + pool.take(offset)).take(limit)
+}
+
+private const val MIN_EDITORS_POOL = 6
 private const val LOAD_MORE_THRESHOLD = 6
 
 @Composable
-private fun MangaRail(title: String, manga: List<Manga>, onManga: (Manga) -> Unit, copy: CatalogCopy = CatalogCopy()) {
-    if (manga.isEmpty()) return
+private fun MangaRail(title: String, manga: List<Manga>, onManga: (Manga) -> Unit, copy: CatalogCopy, emptyMessage: String) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionTitle(title, Modifier.padding(horizontal = 20.dp))
+        if (manga.isEmpty()) {
+            Text(emptyMessage, Modifier.padding(horizontal = 20.dp), color = TextMuted, style = MaterialTheme.typography.bodySmall)
+        }
         LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(manga, key = { it.id }) { item -> MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy) }
+            items(manga, key = { it.id }, contentType = { "manga" }) { item -> MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy) }
         }
     }
 }

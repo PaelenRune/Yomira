@@ -93,7 +93,7 @@ class WaterfallMetadataAggregator(
         return Manga(
             id = "${first.sourceId}:${first.remoteId}", title = displayTitle,
             altTitles = titles.filterNot { normalize(it) == normalize(displayTitle) },
-            coverUrl = text { it.coverUrl }, bannerUrl = text { it.bannerUrl },
+            coverUrl = ArtworkResolver.cover(records), bannerUrl = ArtworkResolver.backdrop(records),
             author = text { it.author }, artist = text { it.artist }, synopsis = text { it.description },
             score = records.firstNotNullOfOrNull { it.score },
             status = records.firstOrNull { it.status != MangaStatus.UNKNOWN }?.status ?: MangaStatus.UNKNOWN,

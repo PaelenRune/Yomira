@@ -1,5 +1,6 @@
 ﻿package com.yomira.feature.reader
 
+import androidx.compose.runtime.Immutable
 import com.yomira.core.model.ReadingMode
 import com.yomira.core.ui.guided.ReadingOrder
 
@@ -248,6 +249,7 @@ object SpreadStitcher {
 }
 
 /** Decoded page size captured from the image loader, keyed by page index. */
+@Immutable
 data class PageGeometry(val index: Int, val width: Int, val height: Int) {
     init {
         require(index >= 0) { "Page index must not be negative" }
@@ -258,6 +260,7 @@ data class PageGeometry(val index: Int, val width: Int, val height: Int) {
 }
 
 /** One pager slot: a single page or two pages stitched into one scene. */
+@Immutable
 sealed interface SpreadSlot {
     val firstPage: Int
     val lastPage: Int

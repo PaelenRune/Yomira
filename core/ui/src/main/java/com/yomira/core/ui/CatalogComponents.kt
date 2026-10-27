@@ -7,7 +7,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -23,9 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,18 +42,92 @@ import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
 
+/**
+ * Poster artwork with a designed fallback instead of an empty box.
+ *
+ * Missing artwork keeps a readable title and a quiet OLED gradient, without
+ * introducing publication-format labels onto the poster.
+ */
 @Composable
-fun MangaArtwork(url: String?, title: String, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy()) {
+fun MangaArtwork(
+    url: String?,
+    title: String,
+    modifier: Modifier = Modifier,
+    copy: CatalogCopy = CatalogCopy(),
+) {
     SubcomposeAsyncImage(
         model = url, contentDescription = title, modifier = modifier,
         contentScale = ContentScale.Crop,
-        loading = { Box(Modifier.fillMaxSize().background(SurfaceRaised), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = NeonLavender)
-        } },
-        error = { Box(Modifier.fillMaxSize().background(Brush.linearGradient(listOf(CardSurface, NeonPurple.copy(alpha = .22f)))), contentAlignment = Alignment.Center) {
-            Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = copy.noCoverArtwork, modifier = Modifier.size(40.dp), tint = TextMuted)
-        } },
+        loading = { ArtworkPlaceholder(title, copy, loading = true) },
+        error = { ArtworkPlaceholder(title, copy, loading = false) },
     )
+}
+
+/** Shared loading/error face of [MangaArtwork]: gradient and title. */
+@Composable
+private fun ArtworkPlaceholder(
+    title: String,
+    copy: CatalogCopy,
+    loading: Boolean,
+) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val compact = maxHeight < 120.dp
+        val accent = NeonLavender
+        Box(
+            Modifier.matchParentSize().background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        DeepOledBlack,
+                        CardSurface,
+                        NeonViolet.copy(alpha = .38f),
+                        NeonPurple.copy(alpha = .22f),
+                    ),
+                ),
+            ),
+        )
+        // Soft plum halo: gives the flat fallback the depth of a real poster.
+        Box(
+            Modifier.matchParentSize().background(
+                Brush.radialGradient(
+                    colors = listOf(accent.copy(alpha = .26f), Color.Transparent),
+                ),
+            ),
+        )
+        Column(
+            Modifier.fillMaxSize().padding(if (compact) 7.dp else 12.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Spacer(Modifier)
+                if (loading) {
+                    CircularProgressIndicator(
+                        Modifier.size(if (compact) 13.dp else 18.dp),
+                        strokeWidth = 1.5.dp,
+                        color = accent.copy(alpha = .8f),
+                        trackColor = Color.Transparent,
+                    )
+                } else {
+                    Icon(
+                        Icons.AutoMirrored.Filled.MenuBook,
+                        contentDescription = copy.noCoverArtwork,
+                        modifier = Modifier.size(if (compact) 13.dp else 18.dp),
+                        tint = TextMuted.copy(alpha = .7f),
+                    )
+                }
+            }
+            Text(
+                title,
+                style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleSmall,
+                color = TextSecondary,
+                maxLines = if (compact) 3 else 4,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
 }
 
 /**
@@ -76,7 +149,7 @@ fun weeklyTrendOrder(items: List<Manga>, today: LocalDate = LocalDate.now()): Li
  * Cinematic hero carousel. When a series carries a real 16:9 landscape banner
  * (`bannerUrl` from AniList / Kitsu) the banner is shown sharp at its native
  * cinematic ratio under an elegant bottom gradient scrim; a portrait cover is only
- * blurred into the backdrop as a fallback when no banner exists.
+ * reflected sharply into the OLED canvas as a fallback when no banner exists.
  */
 @Composable
 fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier = Modifier, vault: Boolean = false, weeklyTrend: Boolean = true, copy: CatalogCopy = CatalogCopy()) {
@@ -111,17 +184,17 @@ fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier
     }
 }
 
-/** One hero stage: 16:9 landscape banner when available, blurred cover fallback otherwise. */
+/** One hero stage: landscape artwork or a sharp, vertically mirrored poster. */
 @Composable
 private fun HeroBanner(item: Manga, accent: Color, stageHeight: Dp, onRead: (Manga) -> Unit, copy: CatalogCopy) {
-    val heroShape = RoundedCornerShape(24.dp)
-    BoxWithConstraints(Modifier.fillMaxWidth().height(stageHeight).clip(heroShape).border(1.dp, HairlineBorder, heroShape)) {
+    val heroShape = MaterialTheme.shapes.medium
+    BoxWithConstraints(Modifier.fillMaxWidth().height(stageHeight).shadow(4.dp, heroShape).clip(heroShape)) {
         val banner = item.bannerUrl?.trim()?.takeIf { it.isNotEmpty() }
         val coverWidth = (maxWidth * .3f).coerceIn(64.dp, 112.dp)
         val roomy = stageHeight >= 260.dp
         Box(Modifier.fillMaxWidth().fillMaxHeight()) {
             if (banner != null) {
-                MangaArtwork(banner, item.title, Modifier.matchParentSize(), copy)
+                MangaBackdrop(banner, item.coverUrl, Modifier.matchParentSize())
                 // Cinematic scrim: the banner stays sharp, only the lower third darkens
                 // so the title block reads over any artwork.
                 Box(Modifier.matchParentSize().background(
@@ -132,17 +205,21 @@ private fun HeroBanner(item: Manga, accent: Color, stageHeight: Dp, onRead: (Man
                     ),
                 ))
             } else {
-                MangaArtwork(item.coverUrl, item.title, Modifier.matchParentSize().blur(24.dp), copy)
-                Box(Modifier.matchParentSize().background(Brush.verticalGradient(listOf(accent.copy(alpha = .14f), DeepOledBlack.copy(alpha = .96f)))))
+                MangaBackdrop(null, item.coverUrl, Modifier.matchParentSize())
             }
             Row(
                 Modifier.align(if (banner != null) Alignment.BottomCenter else Alignment.Center).padding(20.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 verticalAlignment = if (banner != null) Alignment.Bottom else Alignment.CenterVertically,
             ) {
-                MangaArtwork(item.coverUrl, item.title, Modifier.width(coverWidth).aspectRatio(.66f).clip(RoundedCornerShape(16.dp)).border(1.dp, Color.White.copy(alpha = .12f), RoundedCornerShape(16.dp)), copy)
+                Box(Modifier.width(coverWidth).aspectRatio(.66f).clip(MaterialTheme.shapes.medium)) {
+                    MangaArtwork(item.coverUrl, item.title, Modifier.matchParentSize(), copy)
+                    AgeRatingBadge(item.contentRating, Modifier.align(Alignment.TopStart).padding(6.dp))
+                }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    item.score?.let { ScoreBadge(it, copy) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        item.score?.let { ScoreBadge(it, copy) }
+                    }
                     Text(item.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, maxLines = if (roomy) 3 else 2, overflow = TextOverflow.Ellipsis)
                     if (roomy) Text(item.genres.take(3).joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = TextMuted, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     if (roomy && item.contentRating == ContentRating.MATURE) Text(copy.matureBadgeLong, color = TextMuted, style = MaterialTheme.typography.labelSmall)
@@ -177,57 +254,33 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
     // Phones render a single hero-sized column, tablets up to six, the Windows
     // desktop wall owns its own 6–8 column poster grid.
     require(columns in 1..8) { "Poster grid supports 1–8 columns, got $columns" }
-    val roomy = columns <= 2
-    val cardShape = RoundedCornerShape(18.dp)
-    Column(
-        modifier.clip(cardShape).clickable(onClick = onClick).semantics(mergeDescendants = true) {},
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    val cardShape = MaterialTheme.shapes.medium
+    Box(
+        modifier.shadow(4.dp, cardShape).clip(cardShape).clickable(onClick = onClick).semantics(mergeDescendants = true) {},
     ) {
-        Box {
-            MangaArtwork(
-                manga.coverUrl,
-                manga.title,
-                Modifier.fillMaxWidth().aspectRatio(.68f).clip(cardShape).border(1.dp, HairlineBorder, cardShape),
-                copy,
-            )
-            // A restrained bottom scrim keeps badges legible over bright covers
-            // while leaving the upper artwork untouched.
-            Box(
-                Modifier.matchParentSize().clip(cardShape).background(
-                    Brush.verticalGradient(
-                        0.6f to Color.Transparent,
-                        1f to DeepOledBlack.copy(alpha = .5f),
-                    ),
-                ),
-            )
-            if (manga.contentRating == ContentRating.MATURE) {
-                YomiraBadge(
-                    text = if (roomy) copy.matureBadgeLong else copy.matureBadgeShort,
-                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
-                    accent = NeonLavender,
-                    containerColor = DeepOledBlack.copy(alpha = .64f),
-                    contentColor = TextPrimary,
-                )
-            }
-            if (columns <= 4) manga.score?.let { score ->
-                Box(Modifier.align(Alignment.BottomEnd).padding(8.dp)) { ScoreBadge(score, copy) }
-            }
-        }
-        Column(Modifier.padding(horizontal = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                manga.title,
-                style = when {
-                    columns == 1 -> MaterialTheme.typography.titleMedium
-                    columns == 2 -> MaterialTheme.typography.titleSmall
-                    else -> MaterialTheme.typography.labelMedium
-                },
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (roomy && manga.genres.isNotEmpty()) {
-                Text(manga.genres.take(2).joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
+        MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f), copy)
+        AgeRatingBadge(manga.contentRating, Modifier.align(Alignment.TopStart).padding(8.dp))
+    }
+}
+
+/** The current model distinguishes adult content, but does not provide a 16+ tier. */
+internal fun posterAgeLabel(rating: ContentRating): String? = when (rating) {
+    ContentRating.SAFE -> null
+    ContentRating.MATURE, ContentRating.EXPLICIT -> "+18"
+}
+
+/** The only overlay allowed on a series poster: a small translucent age label. */
+@Composable
+private fun AgeRatingBadge(rating: ContentRating, modifier: Modifier = Modifier) {
+    val label = posterAgeLabel(rating) ?: return
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(6.dp),
+        color = Color.Black.copy(alpha = .58f),
+        contentColor = TextPrimary,
+        tonalElevation = 0.dp,
+    ) {
+        Text(label, Modifier.padding(horizontal = 6.dp, vertical = 3.dp), style = MaterialTheme.typography.labelSmall)
     }
 }
 

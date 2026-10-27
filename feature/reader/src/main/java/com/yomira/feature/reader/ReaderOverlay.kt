@@ -224,7 +224,7 @@ fun ReaderOverlay(
                                 modifier = Modifier.heightIn(max = 380.dp),
                             ) {
                                 LazyColumn(Modifier.widthIn(min = 220.dp, max = 300.dp)) {
-                                    item {
+                                    item(key = "chapter-picker-heading", contentType = "heading") {
                                         Text(
                                             copy.chapterPicker,
                                             Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
@@ -232,7 +232,7 @@ fun ReaderOverlay(
                                             color = TextMuted,
                                         )
                                     }
-                                    items(state.chapters, key = { it.id }) { chapter ->
+                                    items(state.chapters, key = { it.id }, contentType = { "chapter" }) { chapter ->
                                         val selected = chapter.id == state.chapterId
                                         DropdownMenuItem(
                                             text = {

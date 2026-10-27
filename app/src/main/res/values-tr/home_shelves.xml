@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="home_shelf_titles">
+        <item>Popüler Seriler</item>
+        <item>Size Özel</item>
+        <item>Çizgi Roman &amp; Western</item>
+        <item>Aksiyon &amp; Shonen Zirvesi</item>
+        <item>Romantizm &amp; Yaşamdan Kesitler</item>
+        <item>Gizem, Gerilim &amp; Psikolojik</item>
+        <item>Isekai &amp; Reenkarnasyon</item>
+        <item>Korku &amp; Karanlık Fantezi</item>
+        <item>Bilim Kurgu &amp; Cyberpunk</item>
+        <item>Dövüş Sanatları &amp; Murim</item>
+        <item>Webtoon Hitleri (Dikey Okuma)</item>
+        <item>Seinen Başyapıtları</item>
+        <item>Komedi &amp; Günlük Yaşam</item>
+        <item>Ödüllü &amp; Tamamlanmış Seriler</item>
+        <item>Yeni Eklenenler &amp; Keşif</item>
+    </string-array>
+    <string name="home_shelf_empty">Bu rafta henüz seri yok.</string>
+</resources>

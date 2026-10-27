@@ -22,7 +22,7 @@ class ApkSandboxExtractorTest {
         )
         val apk = BackupTestFixtures.apk(
             dexEntries = mapOf("classes.dex" to firstDex, "classes2.dex" to secondDex),
-            extras = mapOf("AndroidManifest.xml" to byteArrayOf(1, 2, 3), "resources.arsc" to byteArrayOf(4, 5, 6)),
+            extras = mapOf("AndroidManifest.xml" to """<manifest package="$packageOne"/>""".toByteArray(), "resources.arsc" to byteArrayOf(4, 5, 6)),
         )
 
         val extraction = ApkSandboxExtractor(layout).extract(apk, packageOne, installedAt = 55L)

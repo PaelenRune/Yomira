@@ -49,6 +49,14 @@ class SyncScheduler @Inject constructor(
         )
     }
 
+    fun cancelPeriodic() {
+        workManager.cancelUniqueWork(SyncWorker.UNIQUE_PERIODIC_WORK_NAME)
+    }
+
+    fun cancelImmediate() {
+        workManager.cancelUniqueWork(SyncWorker.UNIQUE_IMMEDIATE_WORK_NAME)
+    }
+
     private fun constraints(): Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .setRequiresBatteryNotLow(true)

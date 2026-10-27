@@ -73,7 +73,7 @@ object BackupTestFixtures {
     fun apkWithSingleDex(packageName: String): ByteArray = apk(
         dexEntries = mapOf("classes.dex" to dexWithEntryClass(packageName)),
         extras = mapOf(
-            "AndroidManifest.xml" to byteArrayOf(0x03, 0x00, 0x08, 0x00), // binary AXML is ignored
+            "AndroidManifest.xml" to """<manifest package="$packageName"/>""".toByteArray(),
             "META-INF/CERT.SF" to "signed-by-someone-else".toByteArray(),
         ),
     )

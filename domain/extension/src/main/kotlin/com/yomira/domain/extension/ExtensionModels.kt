@@ -2,7 +2,16 @@ package com.yomira.domain.extension
 
 import java.net.URI
 
-enum class ReadingLanguage(val code: String) { TURKISH("tr"), ENGLISH("en") }
+enum class ReadingLanguage(val code: String) {
+    TURKISH("tr"), ENGLISH("en"), BOTH("both");
+
+    /** Both means Turkish and English, not every language in the upstream catalogs. */
+    fun accepts(sourceLanguage: String): Boolean {
+        val base = sourceLanguage.trim().lowercase(java.util.Locale.ROOT).substringBefore('-').substringBefore('_')
+        return base in setOf("all", "multi", "mul") ||
+            if (this == BOTH) base == "tr" || base == "en" else base == code
+    }
+}
 
 data class ReaderPreferences(
     val language: ReadingLanguage,

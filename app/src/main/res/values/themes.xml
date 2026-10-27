@@ -1,8 +1,21 @@
 <resources>
-    <style name="Theme.Yomira" parent="android:style/Theme.Material.NoActionBar">
+    <!--
+        MainActivity extends AppCompatActivity (for AppCompatDelegate.setApplicationLocales,
+        the in-app EN/TR switcher below API 33). AppCompatActivity throws
+        "IllegalStateException: You need to use a Theme.AppCompat theme (or descendant) with
+        this activity" and the process dies before the first Compose frame when the activity
+        theme is a plain platform theme. The parent must therefore be an AppCompat theme.
+        Compose paints every pixel; this theme only supplies the window, the dark launch
+        background and the accent, so NoActionBar keeps the platform window behaviour.
+    -->
+    <style name="Theme.Yomira" parent="Theme.AppCompat.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowBackground">#06050C</item>
+        <!-- AppCompat resolves colorAccent on every API level; the android: alias keeps
+             platform widgets (e.g. the credential prompt) tinted as well. -->
+        <item name="colorAccent">#9D4EDD</item>
         <item name="android:colorAccent">#9D4EDD</item>
     </style>
 </resources>

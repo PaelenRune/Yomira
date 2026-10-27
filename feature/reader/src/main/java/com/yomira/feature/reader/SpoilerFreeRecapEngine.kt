@@ -1,5 +1,7 @@
 package com.yomira.feature.reader
 
+import androidx.compose.runtime.Immutable
+
 /**
  * One chapter's recap contribution, already read by the user.
  * [index] is the zero-based position in the series' chapter list.
@@ -18,6 +20,7 @@ data class RecapChapter(
 }
 
 /** A recap line attributed to the chapter it happened in. */
+@Immutable
 data class RecapBeat(val chapterIndex: Int, val text: String) {
     init {
         require(chapterIndex >= 0) { "Beat must belong to a real chapter" }
@@ -25,6 +28,7 @@ data class RecapBeat(val chapterIndex: Int, val text: String) {
     }
 }
 
+@Immutable
 data class StoryRecap(
     val beats: List<RecapBeat>,
     val characters: List<String>,

@@ -11,6 +11,33 @@ class SyncPayloadSerializationTest {
     private val codec = SyncPayloadCodec()
 
     @Test
+    fun `version two includes favorites history and portable extension configurations`() {
+        val payload = SyncPayload(deviceId = "phone",
+            library = listOf(LibrarySyncEntry("m", favorite = true,
+                categories = listOf("Reading", "Favorites"), customTags = listOf("weekend"))),
+            readingProgress = listOf(ReadingProgressSyncEntry("m", 2.0, 9, 123,
+                chapterId = "chapter-2", completed = true)),
+            readingHistory = listOf(ReadingHistorySyncEntry("m", "chapter-2", 2, 9, 10, 123, true)),
+            extensions = listOf(InstalledExtensionSyncEntry("example.extension", 12,
+                listOf("https://example.org/index.json"), mapOf("language" to "tr"), 124)))
+        assertEquals(payload, codec.decode(codec.encode(payload)))
+    }
+
+    @Test
+    fun `legacy schema migrates without losing progress`() {
+        val legacy = codec.decode("""{"schemaVersion":1,"deviceId":"old","readingProgress":[{"mangaId":"m","chapterNumber":3,"pageIndex":2,"lastReadAt":100}]}""")
+        assertEquals(100L, legacy.readingProgress.single().lastReadAt)
+        assertTrue(legacy.readingHistory.isEmpty())
+        assertTrue(legacy.extensions.isEmpty())
+    }
+
+    @Test
+    fun `duplicate chapter identities and insecure extension repositories are rejected`() {
+        assertInvalid("""{"deviceId":"d","readingHistory":[{"mangaId":"m","chapterId":"c"},{"mangaId":"m","chapterId":"c"}]}""")
+        assertInvalid("""{"deviceId":"d","extensions":[{"packageId":"p","versionCode":1,"repositorySources":["http://example.org"]}]}""")
+    }
+
+    @Test
     fun `full payload round trips without losing data`() {
         val payload = SyncPayload(
             deviceId = "device-ä-1",

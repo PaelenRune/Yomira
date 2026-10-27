@@ -25,6 +25,10 @@
     <string name="home_retry">Yeniden dene</string>
     <string name="home_rail_trending">Trendler</string>
     <string name="home_rail_updated">Son güncellenenler</string>
+    <string name="home_rail_popular">🔥 Popülerler &amp; Trendler</string>
+    <string name="home_rail_personal">✨ Sana Özel Öneriler</string>
+    <string name="home_rail_isekai">🌀 Popüler Isekai &amp; Fantezi</string>
+    <string name="home_rail_editors">🏆 Editörün Seçtikleri</string>
     <string name="home_empty_title">Vitrinin henüz boş</string>
     <string name="home_empty_message">Bir kaynak ekleyip seri meta verilerini eşitlediğinde serilerin burada görünür.</string>
     <string name="search_empty_title">Sonuç bulunamadı</string>
@@ -88,6 +92,10 @@
     <string name="catalog_mature_short">16+</string>
     <string name="catalog_no_cover">Kapak görseli yok</string>
     <string name="catalog_score">Puan</string>
+    <string name="catalog_format_manga">Manga</string>
+    <string name="catalog_format_webtoon">Webtoon</string>
+    <string name="catalog_format_manhua">Manhua</string>
+    <string name="catalog_format_western">Çizgi Roman</string>
 
     <!-- Güncelleme diyaloğu -->
     <string name="update_title">Yeni Sürüm Mevcut!</string>
@@ -102,11 +110,12 @@
     <!-- Kurulum -->
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
     <string name="onboarding_step_description">Kurulum adımı %1$d / %2$d</string>
-    <string name="onboarding_language_title">Hikâyeni hangi dilde okuyalım?</string>
-    <string name="onboarding_language_description">Kaynak önerilerini okuma diline göre hazırlayalım.</string>
+    <string name="onboarding_language_title">Hangi dillerdeki serileri okumak istersiniz?</string>
+    <string name="onboarding_language_description">Kaynakları ve önerileri okuma diline göre hazırlayalım.</string>
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
-    <string name="onboarding_language_note">Arayüz ve kaynak önerileri anında seçtiğin dile geçer.</string>
+    <string name="onboarding_language_both">Her İkisi (Both)</string>
+    <string name="onboarding_language_note">Kaynakların hazır. Dil tercihini daha sonra değiştirebilirsin.</string>
     <string name="onboarding_source_title">Kaynaklarına bir kapı aç</string>
     <string name="onboarding_source_description">Keiyoushi, Türkçe ve Batı depoları hazır olarak bağlanır.</string>
     <string name="onboarding_source_body">Okuma diline uygun eklenti önerileri hazırlanır. Depoları daha sonra Ayarlar’dan yönetebilirsin.</string>
@@ -267,14 +276,14 @@
     <string name="settings_invalid_repository_url">Geçersiz adres: depo adresi mutlaka https ile başlayan tam bir JSON indeksi olmalı.</string>
     <string name="settings_repository_error">Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
     <string name="settings_custom_repositories">Özel depoların</string>
-    <string name="settings_reading_section">Okuma ve Dil</string>
+    <string name="settings_reading_section">Dil &amp; İçerik Tercihleri</string>
     <string name="settings_language_title">Arayüz Dili</string>
     <string name="settings_language_turkish">Türkçe</string>
     <string name="settings_language_english">English</string>
     <string name="settings_reading_mode_title">Varsayılan Okuma Modu</string>
     <string name="settings_guided_view_title">Guided View (Panel Takibi)</string>
     <string name="settings_guided_view_body">Sayfalar panel panel, sinematik yakınlaşmayla okunur; okuyucuda tek dokunuşla açılıp kapatılır.</string>
-    <string name="settings_app_section">Uygulama ve Önbellek</string>
+    <string name="settings_app_section">Uygulama Bilgisi</string>
     <string name="settings_clear_cache">Önbelleği Temizle</string>
     <string name="settings_clear_cache_body">Kapak görselleri ve geçici dosyalar silinir; kütüphanen ve ilerlemen etkilenmez.</string>
     <string name="settings_cache_cleared">%1$s önbellek boşaltıldı.</string>

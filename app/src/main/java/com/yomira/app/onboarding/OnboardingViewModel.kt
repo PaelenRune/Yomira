@@ -19,9 +19,8 @@ data class OnboardingUiState(
     val completed: Boolean = false,
     val saving: Boolean = false,
     /**
-     * Reading language code ("tr"/"en") of the saved or just-completed setup. The host
-     * mirrors it into the UI locale via `LocaleManagerCompat`, so choosing English here
-     * switches every app string instantly.
+     * Saved reading language ("tr", "en", or "both"). The host can mirror a single
+     * language into the UI locale; "both" preserves the existing interface language.
      */
     val languageCode: String? = null,
     val error: String? = null,

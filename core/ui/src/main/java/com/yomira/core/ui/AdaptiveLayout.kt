@@ -1,6 +1,7 @@
 package com.yomira.core.ui
 
 import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.Immutable
 import kotlin.math.roundToInt
 
 /** Compact = phone, Medium = tablet/foldable, Expanded = large tablet/desktop. */
@@ -35,6 +36,7 @@ enum class AdaptiveNavigation {
  * Pure layout decision for one window width. No Compose types are involved, so
  * the phone/tablet contract can be unit tested on the JVM.
  */
+@Immutable
 data class AdaptiveLayoutInfo(
     val widthDp: Float,
     val widthClass: WindowWidthClass,

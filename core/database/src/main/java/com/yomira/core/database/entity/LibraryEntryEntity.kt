@@ -17,4 +17,7 @@ data class LibraryEntryEntity(
     val category: String? = null,
     /** UTC epoch milliseconds of the last local change. */
     val updatedAt: Long = 0L,
+    @androidx.room.ColumnInfo(defaultValue = "0") val favorite: Boolean = false,
+    @androidx.room.ColumnInfo(defaultValue = "'[]'") val categories: List<String> = emptyList(),
+    @androidx.room.ColumnInfo(defaultValue = "'[]'") val customTags: List<String> = emptyList(),
 )

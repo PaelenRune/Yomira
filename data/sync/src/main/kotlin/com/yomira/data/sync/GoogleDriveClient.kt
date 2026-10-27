@@ -46,10 +46,10 @@ class GoogleDriveClient(
 
     override suspend fun fetch(): RemoteSyncSnapshot? {
         val token = requireToken()
-        val file = findSyncFile(token) ?: return null
-        val raw = download(token, file.id)
-        val payload = codec.decode(raw)
-        return RemoteSyncSnapshot(payload, RemoteSyncRevision(file.id, file.etag))
+        val files = findSyncFiles(token)
+        if (files.isEmpty()) return null
+        val snapshots = files.map { download(token, it.id) }
+        return snapshots.first().copy(additionalPayloads = snapshots.drop(1).map { it.payload })
     }
 
     override suspend fun push(
@@ -63,9 +63,9 @@ class GoogleDriveClient(
             return try {
                 update(token, expected, body, payload)
             } catch (error: SyncApiException) {
-                // The file was deleted on another device; recreating is the safe recovery.
+                // Re-fetch before recreating: another device may already have replaced the file.
                 if (error.statusCode == HTTP_NOT_FOUND) {
-                    create(token, body, payload)
+                    throw SyncWriteConflictException()
                 } else {
                     throw error
                 }
@@ -73,21 +73,22 @@ class GoogleDriveClient(
         }
 
         // fetch() returned null, but another device may have created the file since.
-        val existing = findSyncFile(token)
+        val existing = findSyncFiles(token).firstOrNull()
         return if (existing == null) {
             create(token, body, payload)
         } else {
-            update(token, RemoteSyncRevision(existing.id, existing.etag), body, payload)
+            // Never overwrite a document we haven't downloaded and merged.
+            throw SyncWriteConflictException()
         }
     }
 
-    private suspend fun findSyncFile(token: String): DriveFile? {
+    private suspend fun findSyncFiles(token: String): List<DriveFile> {
         val url = "$DRIVE_API_BASE/files".toHttpUrl().newBuilder()
             .addQueryParameter("spaces", APPDATA_SPACE)
             .addQueryParameter("q", "name = '$FILE_NAME' and trashed = false")
-            .addQueryParameter("fields", "files(id,name,modifiedTime,etag)")
+            .addQueryParameter("fields", "nextPageToken,files(id,name,modifiedTime)")
             .addQueryParameter("orderBy", "modifiedTime desc")
-            .addQueryParameter("pageSize", "1")
+            .addQueryParameter("pageSize", "100")
             .build()
         val request = authorized(token).url(url).get().build()
         return execute(request).use { response ->
@@ -98,11 +99,12 @@ class GoogleDriveClient(
             } catch (error: IllegalArgumentException) {
                 throw SyncTransportException("Drive returned an invalid file list", error)
             }
-            list.files.firstOrNull()
+            if (list.nextPageToken != null) throw SyncTransportException("Too many duplicate sync documents to merge safely")
+            list.files
         }
     }
 
-    private suspend fun download(token: String, fileId: String): String {
+    private suspend fun download(token: String, fileId: String): RemoteSyncSnapshot {
         val url = "$DRIVE_API_BASE/files".toHttpUrl().newBuilder()
             .addPathSegment(fileId)
             .addQueryParameter("alt", "media")
@@ -110,7 +112,9 @@ class GoogleDriveClient(
         val request = authorized(token).url(url).get().build()
         return execute(request).use { response ->
             ensureSuccess(response, "download sync file")
-            readBody(response)
+            val etag = response.header("ETag")
+                ?: throw SyncTransportException("Drive did not return a revision ETag")
+            RemoteSyncSnapshot(codec.decode(readBody(response)), RemoteSyncRevision(fileId, etag))
         }
     }
 
@@ -132,7 +136,7 @@ class GoogleDriveClient(
         return execute(request).use { response ->
             ensureSuccess(response, "create sync file")
             val file = decodeFile(response)
-            RemoteSyncSnapshot(payload, RemoteSyncRevision(file.id, file.etag))
+            RemoteSyncSnapshot(payload, RemoteSyncRevision(file.id, response.header("ETag")))
         }
     }
 
@@ -142,6 +146,7 @@ class GoogleDriveClient(
         content: String,
         payload: SyncPayload,
     ): RemoteSyncSnapshot {
+        val etag = expected.etag ?: throw SyncWriteConflictException()
         val metadata = """{"name":"$FILE_NAME"}"""
         val body = multipart(metadata, content)
         val url = "$DRIVE_UPLOAD_BASE/files".toHttpUrl().newBuilder()
@@ -152,7 +157,7 @@ class GoogleDriveClient(
         val request = authorized(token)
             .url(url)
             .patch(body)
-            .apply { expected.etag?.let { header("If-Match", it) } }
+            .header("If-Match", etag)
             .build()
         return execute(request).use { response ->
             when (response.code) {
@@ -164,7 +169,7 @@ class GoogleDriveClient(
             }
             ensureSuccess(response, "update sync file")
             val file = decodeFile(response)
-            RemoteSyncSnapshot(payload, RemoteSyncRevision(file.id, file.etag))
+            RemoteSyncSnapshot(payload, RemoteSyncRevision(file.id, response.header("ETag")))
         }
     }
 
@@ -240,7 +245,7 @@ class GoogleDriveClient(
         const val DRIVE_API_BASE = "https://www.googleapis.com/drive/v3"
         const val DRIVE_UPLOAD_BASE = "https://www.googleapis.com/upload/drive/v3"
         const val APPDATA_SPACE = "appDataFolder"
-        const val RESPONSE_FIELDS = "id,name,modifiedTime,etag"
+        const val RESPONSE_FIELDS = "id,name,modifiedTime"
 
         const val HTTP_UNAUTHORIZED = 401
         const val HTTP_NOT_FOUND = 404
@@ -259,10 +264,10 @@ private data class DriveFile(
     val id: String,
     val name: String? = null,
     val modifiedTime: String? = null,
-    val etag: String? = null,
 )
 
 @Serializable
 private data class DriveFileList(
     val files: List<DriveFile> = emptyList(),
+    val nextPageToken: String? = null,
 )

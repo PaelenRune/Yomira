@@ -20,7 +20,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
@@ -41,12 +40,14 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 enum class DownloadState { NOT_DOWNLOADED, QUEUED, DOWNLOADING, DOWNLOADED, FAILED }
+@Immutable
 data class ChapterUiState(val chapter: Chapter, val read: Boolean = false, val download: DownloadState = DownloadState.NOT_DOWNLOADED)
 
 /**
  * Localized texts of the detail sheet and the smart source-match banner. The app module
  * builds it from string resources; the `%1$s`/`%1$d` placeholders stay in the resources.
  */
+@Immutable
 data class DetailCopy(
     val back: String = "Geri",
     val lockFast: String = "Hızlı kilitle",
@@ -205,8 +206,8 @@ private fun SinglePaneDetail(
             contentPadding = PaddingValues(bottom = if (nextChapter != null) 116.dp else 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item { DetailHero(manga, onBack, onPanic, copy) }
-            item {
+            item(key = "hero", contentType = "hero") { DetailHero(manga, onBack, onPanic, copy) }
+            item(key = "metadata", contentType = "metadata") {
                 Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         SaveButton(saved, onSave, copy)
@@ -224,11 +225,11 @@ private fun SinglePaneDetail(
                     ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
                 }
             }
-            if (chapters.isEmpty()) item { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
-            items(sorted, key = { it.chapter.id }) { entry ->
+            if (chapters.isEmpty()) item(key = "empty", contentType = "empty") { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
+            items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
                 ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp))
             }
-            item {
+            item(key = "connections", contentType = "connections") {
                 FranchiseShowcases(
                     related = related, recommended = recommended, connectionsLoading = connectionsLoading,
                     onOpenSeries = onOpenSeries, copy = copy,
@@ -306,7 +307,7 @@ private fun TwoPaneDetail(
                 CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
-                    items(sorted, key = { it.chapter.id }) { entry ->
+                    items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
                         ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp))
                     }
                 }
@@ -318,8 +319,8 @@ private fun TwoPaneDetail(
             contentPadding = PaddingValues(28.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            item { TwoPaneHero(manga, copy) }
-            item {
+            item(key = "hero", contentType = "hero") { TwoPaneHero(manga, copy) }
+            item(key = "actions", contentType = "actions") {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     SaveButton(saved, onSave, copy)
                     onPanic?.let { action ->
@@ -331,16 +332,16 @@ private fun TwoPaneDetail(
                     }
                 }
             }
-            item { MetadataBlock(manga, copy) }
-            item {
+            item(key = "metadata", contentType = "metadata") { MetadataBlock(manga, copy) }
+            item(key = "synopsis", contentType = "synopsis") {
                 Text(
                     manga.synopsis ?: copy.synopsisMissing,
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
-            item { SmartMatchBanner(match, matching, onMatch, onInstall, copy) }
-            item { ReadNowButton(chapters, onContinue, onRead, copy) }
-            item {
+            item(key = "source-match", contentType = "source-match") { SmartMatchBanner(match, matching, onMatch, onInstall, copy) }
+            item(key = "read", contentType = "read") { ReadNowButton(chapters, onContinue, onRead, copy) }
+            item(key = "connections", contentType = "connections") {
                 FranchiseShowcases(
                     related = related, recommended = recommended, connectionsLoading = connectionsLoading,
                     onOpenSeries = onOpenSeries, copy = copy,
@@ -353,18 +354,12 @@ private fun TwoPaneDetail(
 @Composable
 private fun DetailHero(manga: Manga, onBack: () -> Unit, onPanic: (() -> Unit)?, copy: DetailCopy) {
     Box(Modifier.fillMaxWidth().height(400.dp).clipToBounds()) {
-        // The cover dissolves into the page: blurred backdrop, a bottom-anchored
-        // portrait cover and a scrim that lands exactly on the app canvas.
-        MangaArtwork(
-            manga.bannerUrl ?: manga.coverUrl,
-            manga.title,
-            Modifier.matchParentSize().blur(22.dp),
-            copy.catalog,
-        )
+        // Landscape artwork stays crisp; absent or failed artwork uses a clean mirror.
+        MangaBackdrop(manga.bannerUrl, manga.coverUrl, Modifier.matchParentSize())
         Box(
             Modifier.matchParentSize().background(
                 Brush.verticalGradient(
-                    // Keep the blurred art visible above the title block: the
+                    // Keep the sharp art visible above the title block: the
                     // scrim only has to carry the cover and the type.
                     0f to DeepOledBlack.copy(alpha = .10f),
                     .34f to DeepOledBlack.copy(alpha = .34f),
@@ -478,7 +473,7 @@ private fun TwoPaneHero(manga: Manga, copy: DetailCopy) {
     Box(
         Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(24.dp)),
     ) {
-        MangaArtwork(banner ?: manga.coverUrl, manga.title, Modifier.matchParentSize(), copy.catalog)
+        MangaBackdrop(banner, manga.coverUrl, Modifier.matchParentSize())
         Box(
             Modifier.matchParentSize().background(
                 Brush.verticalGradient(
@@ -846,6 +841,7 @@ private fun chapterNumberLabel(number: Double): String =
     if (number % 1.0 == 0.0) number.toInt().toString() else number.toString()
 
 /** One card of the connected-series showcases; [badge] carries the franchise role. */
+@Immutable
 private data class SeriesShowcaseEntry(
     val id: String,
     val title: String,
@@ -872,7 +868,7 @@ private fun SeriesShowcaseRail(
             Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
         }
         LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(entries, key = { it.id }) { entry ->
+            items(entries, key = { it.id }, contentType = { "series" }) { entry ->
                 Column(Modifier.width(132.dp).clip(RoundedCornerShape(14.dp)).clickable { onOpenSeries(entry.id, entry.title) }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box {
                         MangaArtwork(entry.coverUrl, entry.title, Modifier.fillMaxWidth().aspectRatio(.68f).clip(RoundedCornerShape(14.dp)), copy.catalog)

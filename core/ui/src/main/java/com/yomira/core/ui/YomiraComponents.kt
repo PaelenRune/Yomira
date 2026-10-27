@@ -36,30 +36,25 @@ import com.yomira.core.ui.theme.TextPrimary
 import com.yomira.core.ui.theme.TextSecondary
 
 /**
- * The shared Yomira card: layered plum fill, 16–20dp soft corners and a single
- * elegant hairline. [glow] swaps the neutral line for a 10%-ish violet halo,
- * which marks featured shelves and hero cards without adding a second shadow.
+ * Borderless surface with 16dp corners and soft elevation. [glow] gives
+ * featured content a slightly stronger shadow without framing the artwork.
  */
 @Composable
 fun YomiraCard(
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = MaterialTheme.shapes.medium,
     containerColor: Color = CardSurface,
     glow: Boolean = false,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val border = BorderStroke(
-        width = 1.dp,
-        color = if (glow) NeonPurple.copy(alpha = .32f) else HairlineBorder,
-    )
     if (onClick != null) {
         Surface(
             onClick = onClick,
             modifier = modifier,
             shape = shape,
             color = containerColor,
-            border = border,
+            shadowElevation = if (glow) 6.dp else 4.dp,
             tonalElevation = 0.dp,
         ) {
             Column(content = content)
@@ -69,7 +64,7 @@ fun YomiraCard(
             modifier = modifier,
             shape = shape,
             color = containerColor,
-            border = border,
+            shadowElevation = if (glow) 6.dp else 4.dp,
             tonalElevation = 0.dp,
         ) {
             Column(content = content)

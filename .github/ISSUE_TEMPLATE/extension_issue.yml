@@ -1,0 +1,107 @@
+name: Kaynak / Eklenti Hatası — Source / Extension Issue
+description: Kaynak, eklenti veya depo sorunlarını bildirin. / Report source, extension, or repository problems.
+title: "[Extension]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Türkçe veya İngilizce yazabilirsiniz. / You may write in Turkish or English.
+        Önce kaynak sitesinin tarayıcıda çalıştığını ve eklentinin güncel olduğunu kontrol edin.
+        First check whether the source website works in a browser and the extension is up to date.
+        Üçüncü taraf eklentiler için ilgili bakımcıya bildirim gerekebilir. / Third-party extensions may require reporting to their own maintainers.
+
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Ön kontroller / Before submitting
+      options:
+        - label: Mevcut bildirimleri aradım; aynı sorunu bulamadım. / I searched existing issues and found no duplicate.
+          required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Hata türü / Error type
+      options:
+        - Arama veya gezinme / Search or browsing
+        - Başlık bilgileri veya bölüm listesi / Title details or chapter list
+        - Sayfa yükleme veya indirme / Page loading or downloads
+        - Eklenti kurulumu veya güncellemesi / Extension installation or update
+        - Depo ekleme veya yenileme / Adding or refreshing a repository
+        - Erişim engeli veya oturum açma / Access restriction or sign-in
+        - Diğer / Other
+    validations:
+      required: true
+
+  - type: input
+    id: source_name
+    attributes:
+      label: Kaynak veya eklenti adı / Source or extension name
+      description: Yomira'da görünen adı; depo sorunuysa depo adını yazın. / Use the name shown in Yomira, or the repository name for repository issues.
+      placeholder: "Örnek Çizgi Roman / Example Comics"
+    validations:
+      required: true
+
+  - type: input
+    id: source_url
+    attributes:
+      label: Kaynak veya depo adresi / Source or repository URL
+      description: Kaynak sitesinin ya da eklenti deposunun herkese açık adresi. Özel bağlantı veya belirteç paylaşmayın. / Public URL of the source website or extension repository. Do not share private links or tokens.
+      placeholder: https://example.com
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: Kaynak dili / Source language
+      description: İçeriğin dili; depo sorunları için uygulanamaz yazabilirsiniz. / Content language; enter not applicable for repository-only issues.
+      placeholder: "Türkçe / English / Çok dilli / Multilingual"
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Yomira ve eklenti sürümü / Yomira and extension version
+      description: Tam sürümleri yazın; eklenti sürümü görünmüyorsa belirtin. / Include exact versions; note if the extension version is unavailable.
+      placeholder: "Yomira vX.Y.Z; eklenti / extension X.Y"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Cihaz ve işletim sistemi / Device and operating system
+      placeholder: "Samsung Galaxy S24, Android 14 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Tekrarlama adımları / Steps to reproduce
+      description: Adımları ve gerekirse etkilenen başlık veya bölümün herkese açık bağlantısını ekleyin. / List the steps and, if relevant, a public link to an affected title or chapter.
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Beklenen ve gerçekleşen davranış / Expected and actual behavior
+      description: Beklediğiniz sonucu, gerçekleşen durumu ve varsa hata mesajını yazın. / Describe the expected result, what actually happened, and any exact error message.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Hata günlükleri / Error logs
+      description: İsteğe bağlı logcat veya hata çıktısı. Çerezleri, belirteçleri ve kişisel bilgileri silin. / Optional logcat or error output. Remove cookies, tokens, and personal information.
+      render: text
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Ekran görüntüleri ve ek bilgiler / Screenshots and additional context
+      description: Görselleri buraya sürükleyin; kaynağın tarayıcıda çalışıp çalışmadığını belirtin. Kişisel bilgileri gizleyin. / Drag images here; note whether the source works in a browser. Hide personal information.

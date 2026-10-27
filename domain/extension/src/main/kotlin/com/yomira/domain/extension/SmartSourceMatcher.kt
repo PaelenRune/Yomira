@@ -49,7 +49,8 @@ class SmartSourceMatcher(
             }
         }
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
-            .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount }
+            .sortedWith(compareByDescending<SourceCandidate> { languageRank(it.source, preferences) }
+                .thenByDescending { it.chapterCount }
                 .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE }
                 .thenByDescending { it.extension.packageName in installed }
                 .thenBy { it.extension.packageName }.thenBy { it.source.id })
@@ -62,8 +63,27 @@ class SmartSourceMatcher(
         }
     }
 
+    /**
+     * Language gate for source matching. The language picked during onboarding is
+     * authoritative: sources in that language are eligible, multilingual ("all")
+     * sources are eligible as a fallback, and single-language sources in any other
+     * language are dropped. Region variants ("tr-TR") count as the base language.
+     */
     private fun accepts(source: ExtensionSource, preferences: ReaderPreferences): Boolean =
-        source.language == preferences.language.code || source.language == "all"
+        languageRank(source, preferences) > 0
+
+    /**
+     * Sort weight: 2 = exact match with the user's chosen language, 1 = multilingual
+     * source, 0 = unrelated language (already filtered by [accepts]).
+     */
+    private fun languageRank(source: ExtensionSource, preferences: ReaderPreferences): Int {
+        val sourceLanguage = source.language.trim().lowercase(java.util.Locale.ROOT).substringBefore('-').substringBefore('_')
+        return when {
+            sourceLanguage == "all" || sourceLanguage == "multi" || sourceLanguage == "mul" -> 1
+            preferences.language.accepts(sourceLanguage) -> 2
+            else -> 0
+        }
+    }
 
     private fun normalize(title: String): String = title.trim().lowercase(java.util.Locale.ROOT)
         .replace(Regex("\\s+"), " ")

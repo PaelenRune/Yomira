@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ordered by the stable HomeShelf enum. -->
+    <string-array name="home_shelf_titles">
+        <item>Popular Series</item>
+        <item>For You</item>
+        <item>Comics &amp; Western</item>
+        <item>Action &amp; Shonen Highlights</item>
+        <item>Romance &amp; Slice of Life</item>
+        <item>Mystery, Thriller &amp; Psychological</item>
+        <item>Isekai &amp; Reincarnation</item>
+        <item>Horror &amp; Dark Fantasy</item>
+        <item>Sci-Fi &amp; Cyberpunk</item>
+        <item>Martial Arts &amp; Murim</item>
+        <item>Webtoon Hits (Vertical Reading)</item>
+        <item>Seinen Masterpieces</item>
+        <item>Comedy &amp; Everyday Life</item>
+        <item>Award-Winning &amp; Completed Series</item>
+        <item>New Arrivals &amp; Discovery</item>
+    </string-array>
+    <string name="home_shelf_empty">No series in this shelf yet.</string>
+</resources>

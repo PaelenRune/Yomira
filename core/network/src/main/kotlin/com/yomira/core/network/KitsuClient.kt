@@ -97,6 +97,8 @@ class KitsuClient(
             description = cleanText(attributes.synopsis),
             coverUrl = attributes.posterImage?.original?.ifBlank { null }
                 ?: attributes.posterImage?.large?.ifBlank { null },
+            bannerUrl = attributes.coverImage?.original?.ifBlank { null }
+                ?: attributes.coverImage?.large?.ifBlank { null },
             score = attributes.averageRating?.toDoubleOrNull()?.let { (it / 10.0).coerceIn(0.0, 10.0) },
             popularity = attributes.userCount?.takeIf { it >= 0 }?.toLong(),
             status = parseStatus(attributes.status),
@@ -172,6 +174,7 @@ class KitsuClient(
         @SerialName("averageRating") val averageRating: String? = null,
         @SerialName("userCount") val userCount: Int? = null,
         @SerialName("posterImage") val posterImage: KitsuImage? = null,
+        @SerialName("coverImage") val coverImage: KitsuImage? = null,
     )
 
     @Serializable

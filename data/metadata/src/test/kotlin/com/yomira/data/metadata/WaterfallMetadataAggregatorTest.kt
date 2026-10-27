@@ -98,6 +98,29 @@ class WaterfallMetadataAggregatorTest {
         assertNull(WaterfallMetadataAggregator(listOf(provider(MetadataSources.KITSU) { emptyList() }), Cache()).aggregate("Unknown"))
     }
 
+    @Test fun artworkQualityPreferenceAlsoAppliesToCachedMetadataWithoutChangingIdentity() = runTest {
+        val cache = Cache()
+        val providers = listOf(
+            provider(MetadataSources.BAKA_UPDATES) { listOf(record(MetadataSources.BAKA_UPDATES).copy(coverUrl = "https://img.test/thumb.jpg")) },
+            provider(MetadataSources.ANILIST) { listOf(record(MetadataSources.ANILIST).copy(coverUrl = "https://img.test/original.jpg")) },
+            provider(MetadataSources.KITSU) { listOf(record(MetadataSources.KITSU).copy(bannerUrl = "https://img.test/landscape.jpg")) },
+        )
+        val aggregator = WaterfallMetadataAggregator(providers, cache, clock = clock)
+        val result = aggregator.aggregate("One Piece")!!
+        assertEquals("${MetadataSources.BAKA_UPDATES}:1", result.id)
+        assertEquals("https://img.test/original.jpg", result.coverUrl)
+        assertEquals("https://img.test/landscape.jpg", result.bannerUrl)
+        assertEquals(result, WaterfallMetadataAggregator(emptyList(), cache, clock = clock).aggregate("One Piece"))
+    }
+
+    @Test fun unrelatedProviderBannerNeverLeaksIntoMatchedSeries() = runTest {
+        val providers = listOf(
+            provider(MetadataSources.ANILIST) { listOf(record(MetadataSources.ANILIST)) },
+            provider(MetadataSources.KITSU) { listOf(record(MetadataSources.KITSU, "Unrelated").copy(bannerUrl = "https://img.test/wrong.jpg")) },
+        )
+        assertNull(WaterfallMetadataAggregator(providers, Cache()).aggregate("One Piece")!!.bannerUrl)
+    }
+
     @Test fun englishTitleBecomesDisplayTitleAndRomajiSurvivesAsAlias() = runTest {
         val providers = listOf(provider(MetadataSources.ANILIST) {
             listOf(RemoteMetadata(

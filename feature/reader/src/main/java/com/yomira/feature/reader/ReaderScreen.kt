@@ -15,11 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.Lifecycle
+import android.graphics.Bitmap
 import coil.ImageLoader
 import coil.memory.MemoryCache
 import com.yomira.core.model.ReadingMode
+import com.yomira.core.ui.ImageMemoryPolicy
 
 /** Localized texts of the reader chrome (HUD, errors, mode menu). */
+@Immutable
 data class ReaderCopy(
     val retry: String = "Yeniden dene",
     val back: String = "Geri dön",
@@ -62,7 +65,13 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
     // Coil owns bitmap lifetimes. Disposed lazy items release their painters; a bounded LRU
     // reuses decoded pages. Never recycle a bitmap still referenced by Compose's renderer.
     val loader = remember(context) {
-        ImageLoader.Builder(context).memoryCache { MemoryCache.Builder(context).maxSizePercent(.20).build() }
+        ImageLoader.Builder(context)
+            .allowHardware(true)
+            .bitmapConfig(Bitmap.Config.HARDWARE)
+            .memoryCache {
+                MemoryCache.Builder(context)
+                    .maxSizeBytes(ImageMemoryPolicy.readerBytes(Runtime.getRuntime().maxMemory())).build()
+            }
             .diskCache(null).crossfade(false).build()
     }
     DisposableEffect(loader) { onDispose { loader.shutdown() } }
@@ -78,12 +87,16 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
     val configuration = LocalConfiguration.current
     val wideStage = configuration.screenWidthDp > configuration.screenHeightDp || configuration.screenWidthDp >= 600
     val geometry = remember(mangaId, chapterId) { mutableStateMapOf<Int, PageGeometry>() }
-    val slots = if (!wideStage || state.mode == ReadingMode.WEBTOON) {
-        state.pages.indices.map { SpreadSlot.Single(it) }
-    } else {
-        SpreadStitcher.plan(state.pages.map { page -> geometry[page.index] }, state.mode)
+    val slots by remember(wideStage, state.pages, state.mode, geometry) {
+        derivedStateOf {
+            if (!wideStage || state.mode == ReadingMode.WEBTOON) {
+                state.pages.indices.map { SpreadSlot.Single(it) }
+            } else {
+                SpreadStitcher.plan(state.pages.map { page -> geometry[page.index] }, state.mode)
+            }
+        }
     }
-    val slotKey = slots.joinToString(separator = ",") { it.firstPage.toString() }
+    val slotKey = remember(slots) { slots.joinToString(separator = ",") { it.firstPage.toString() } }
 
     Box(Modifier.fillMaxSize().background(if (state.oled) Color.Black else Color(0xFF1B1A21))) {
         when {

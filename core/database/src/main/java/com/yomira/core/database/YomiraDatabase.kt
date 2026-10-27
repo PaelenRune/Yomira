@@ -41,7 +41,7 @@ import com.yomira.core.database.entity.UnlockedBadgeEntity
         JourneyProfileEntity::class,
         UnlockedBadgeEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(DatabaseConverters::class)

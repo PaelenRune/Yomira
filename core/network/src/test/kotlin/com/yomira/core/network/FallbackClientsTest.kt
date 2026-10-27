@@ -79,6 +79,35 @@ class FallbackClientsTest {
         assertTrue(client.search("Spider-Man", 5).isEmpty())
     }
 
+    @Test fun kitsuUsesOriginalLandscapeAndPosterIncludingAdultRecords() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""
+                {"data":[{"id":"18","attributes":{
+                  "canonicalTitle":"Adult Series","ageRating":"R18",
+                  "posterImage":{"original":"https://img.test/poster-original.jpg","large":"https://img.test/poster-large.jpg"},
+                  "coverImage":{"original":"https://img.test/banner-original.jpg","large":"https://img.test/banner-large.jpg"}
+                }}]}
+            """.trimIndent()))
+            val client = KitsuClient(OkHttpClient(), config = NetworkConfiguration(kitsuBaseUrl = server.url("/").toString().trimEnd('/')))
+            val record = client.search("Adult Series", 5).single()
+            assertEquals("https://img.test/poster-original.jpg", record.coverUrl)
+            assertEquals("https://img.test/banner-original.jpg", record.bannerUrl)
+            assertEquals(ExternalRating.PORNOGRAPHIC, record.contentRating)
+        }
+    }
+
+    @Test fun kitsuUsesLargeLandscapeWhenOriginalIsBlank() = runTest {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""
+                {"data":{"id":"1","attributes":{"canonicalTitle":"Webtoon",
+                  "coverImage":{"original":"","large":"https://img.test/banner-large.jpg"}
+                }}}
+            """.trimIndent()))
+            val client = KitsuClient(OkHttpClient(), config = NetworkConfiguration(kitsuBaseUrl = server.url("/").toString().trimEnd('/')))
+            assertEquals("https://img.test/banner-large.jpg", client.findById("1")!!.bannerUrl)
+        }
+    }
+
     @Test fun comicVineMapsVolumeAndEncodesSearch() = runTest {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("""

@@ -39,9 +39,45 @@ class SmartSourceMatcherTest {
         assertEquals(SmartMatchResult.NoMatch, matcher(listOf(english, adult)).match(series, preferences))
     }
 
+    @Test fun `chosen language outranks a multilingual source with more chapters`() = runTest {
+        val multilingual = candidate("multi", 500, language = "all")
+        val turkish = candidate("turkish", 2, language = "tr")
+        val result = matcher(listOf(multilingual, turkish), setOf("multi", "turkish"))
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("turkish", result.selected.extension.packageName)
+        assertEquals(listOf("multi"), result.alternatives.map { it.extension.packageName })
+    }
+
+    @Test fun `region variants of the chosen language are accepted`() = runTest {
+        val regional = candidate("regional", 5, language = "tr-TR")
+        val result = matcher(listOf(regional), setOf("regional")).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("regional", result.selected.extension.packageName)
+    }
+
+    @Test fun `english preference drops turkish only sources`() = runTest {
+        val turkish = candidate("turkish", 200, language = "tr")
+        val english = candidate("english", 1, language = "en")
+        val result = matcher(listOf(turkish, english), setOf("turkish", "english"))
+            .match(series, preferences.copy(language = ReadingLanguage.ENGLISH)) as SmartMatchResult.Ready
+        assertEquals("english", result.selected.extension.packageName)
+        assertTrue(result.alternatives.isEmpty())
+    }
+
     @Test fun `adult preference explicitly allows adult sources`() = runTest {
         assertTrue(matcher(listOf(candidate("adult", 200, nsfw = true)))
             .match(series, preferences.copy(allowAdultContent = true)) is SmartMatchResult.MissingExtension)
+    }
+
+    @Test fun `both languages ranks Turkish and English equally and excludes other languages`() = runTest {
+        val turkish = candidate("turkish", 20, language = "tr")
+        val english = candidate("english", 30, language = "en-US")
+        val japanese = candidate("japanese", 500, language = "ja")
+        val multilingual = candidate("multilingual", 600, language = "all")
+        val result = matcher(listOf(turkish, english, japanese, multilingual),
+            setOf("turkish", "english", "japanese", "multilingual"))
+            .match(series, preferences.copy(language = ReadingLanguage.BOTH)) as SmartMatchResult.Ready
+        assertEquals("english", result.selected.extension.packageName)
+        assertEquals(listOf("turkish", "multilingual"), result.alternatives.map { it.extension.packageName })
     }
 
     @Test fun `better missing source wins over installed source`() = runTest {

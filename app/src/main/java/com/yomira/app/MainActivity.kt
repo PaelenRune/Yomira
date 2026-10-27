@@ -30,6 +30,7 @@ import com.yomira.app.catalog.catalogTagChips
 import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.onboarding.OnboardingViewModel
 import com.yomira.app.settings.SettingsViewModel
+import com.yomira.app.settings.SettingsMaintenanceViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
     private val settingsModel: SettingsViewModel by viewModels()
+    private val maintenanceModel: SettingsMaintenanceViewModel by viewModels()
     private val journeyModel: JourneyViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
     private var confirmingCredential = false
@@ -110,7 +112,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Also hides all app previews in Recents; no sensitive frame can leak during navigation.
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // Debug builds stay capturable: FLAG_SECURE makes `adb exec-out screencap` return an
+        // empty PNG, which would hide real crashes from the QA screenshot harness.
+        if (!BuildConfig.DEBUG) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent { YomiraTheme {
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
@@ -120,10 +124,11 @@ class MainActivity : AppCompatActivity() {
             // guard applies it at most once per process, because Samsung One UI 6 can keep
             // reporting the old locale while recreating, which would otherwise loop forever.
             LaunchedEffect(onboarding.completed, onboarding.languageCode) {
-                if (onboarding.completed) onboarding.languageCode?.let(LocaleManagerCompat::syncApplicationLocalesOnStartup)
+                if (onboarding.completed) onboarding.languageCode?.takeIf { it == "tr" || it == "en" }
+                    ?.let(LocaleManagerCompat::syncApplicationLocalesOnStartup)
             }
             when {
-                onboarding.loading -> Surface(color = Color(0xFF06050C), modifier = Modifier.fillMaxSize()) {
+                onboarding.loading -> Surface(color = Color(0xFF0D0D12), modifier = Modifier.fillMaxSize()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         if (onboarding.error == null) CircularProgressIndicator()
                         else Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -139,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
                     YomiraNavigation(
-                        model, readerModel, settingsModel, journeyModel, settings, authError,
+                        model, readerModel, settingsModel, maintenanceModel, journeyModel, settings, authError,
                         onUnlockVault = {
                             if (settings.vaultVisible) {
                                 // "Protect with device lock" is the user's call; default is on.
@@ -179,6 +184,7 @@ private fun YomiraNavigation(
     model: YomiraViewModel,
     readerModel: ReaderViewModel,
     settingsModel: SettingsViewModel,
+    maintenanceModel: SettingsMaintenanceViewModel,
     journeyModel: JourneyViewModel,
     settings: AppSettings,
     authError: String?,
@@ -189,10 +195,12 @@ private fun YomiraNavigation(
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val catalog by model.catalog.collectAsStateWithLifecycle()
+    val homeRails by model.homeRails.collectAsStateWithLifecycle()
     val columns by model.columns.collectAsStateWithLifecycle()
     val vaultColumns by model.vaultColumns.collectAsStateWithLifecycle()
     val unlocked by model.unlocked.collectAsStateWithLifecycle()
     val saved by model.saved.collectAsStateWithLifecycle()
+    val read by model.read.collectAsStateWithLifecycle()
     val match by model.match.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
@@ -260,8 +268,10 @@ private fun YomiraNavigation(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     LanguageSwitchButton { LocaleManagerCompat.toggleApplicationLocale() }
-                    IconButton(onClick = { nav.navigate("settings") }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                    FilledTonalButton(onClick = { nav.navigate("settings") { launchSingleTop = true } }) {
+                        Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.settings_title))
                     }
                 }
             }
@@ -308,6 +318,9 @@ private fun YomiraNavigation(
                             loadingMore = paging.loading,
                             hasMore = paging.hasMore,
                             pagingError = paging.error,
+                            readIds = read,
+                            savedIds = saved,
+                            rails = homeRails,
                         ),
                         onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
                         title = when (route) { "discover" -> stringResource(R.string.title_discover); "library" -> stringResource(R.string.title_library); else -> stringResource(R.string.app_name) },
@@ -437,6 +450,8 @@ private fun YomiraNavigation(
                 }
             }
             composable("settings") {
+                val maintenance by maintenanceModel.state.collectAsStateWithLifecycle()
+                LaunchedEffect(Unit) { maintenanceModel.refresh() }
                 SettingsScreen(
                     state = settingsState,
                     currentLanguage = AppLanguage.fromTag(LocaleManagerCompat.currentApplicationTag()),
@@ -452,10 +467,16 @@ private fun YomiraNavigation(
                     onRepositoryToggle = settingsModel::setRepositoryEnabled,
                     onAddCustomRepository = settingsModel::addCustomRepository,
                     onRemoveRepository = settingsModel::removeRepository,
-                    onClearCache = settingsModel::clearCache,
+                    onClearCache = maintenanceModel::clearCache,
                     onCheckUpdates = settingsModel::checkUpdates,
                     onOpenLink = { openReference(it) },
                     copy = settingsCopy(),
+                    maintenance = maintenance,
+                    onAutomaticSyncChange = maintenanceModel::setAutomaticSync,
+                    onSyncNow = maintenanceModel::syncNow,
+                    onContentLanguageChange = maintenanceModel::setContentLanguage,
+                    onConsumeMessage = maintenanceModel::consumeMessage,
+                    buildInfo = "${BuildConfig.BUILD_TYPE} (${BuildConfig.VERSION_CODE})",
                 )
             }
             }
@@ -469,13 +490,9 @@ private fun YomiraNavigation(
 private fun LanguageSwitchButton(onToggle: () -> Unit) {
     val target = if (LocaleManagerCompat.isTurkish()) LocaleManagerCompat.ENGLISH else LocaleManagerCompat.TURKISH
     val description = stringResource(R.string.language_toggle_description)
-    Surface(color = Color.Transparent) {
-        Row(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 12.dp, vertical = 2.dp), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onToggle, modifier = Modifier.semantics {
-                contentDescription = "$description → $target"
-            }) { Text(target.uppercase()) }
-        }
-    }
+    TextButton(onClick = onToggle, modifier = Modifier.semantics {
+        contentDescription = "$description → $target"
+    }) { Text(target.uppercase()) }
 }
 
 @Composable
@@ -483,6 +500,27 @@ private fun settingsCopy() = SettingsCopy(
     title = stringResource(R.string.settings_title),
     subtitle = stringResource(R.string.settings_subtitle),
     back = stringResource(R.string.action_back),
+    storageSection = stringResource(R.string.settings_storage_section),
+    cacheSize = stringResource(R.string.settings_cache_size),
+    loading = stringResource(R.string.settings_cache_loading),
+    confirmClearCache = stringResource(R.string.settings_confirm_cache),
+    syncSection = stringResource(R.string.settings_sync_section),
+    automaticSync = stringResource(R.string.settings_automatic_sync),
+    automaticSyncBody = stringResource(R.string.settings_automatic_sync_body),
+    syncSuggestion = stringResource(R.string.settings_sync_suggestion),
+    syncNow = stringResource(R.string.settings_sync_now),
+    syncing = stringResource(R.string.settings_syncing),
+    lastSynced = stringResource(R.string.settings_last_synced),
+    neverSynced = stringResource(R.string.settings_never_synced),
+    syncSuccess = stringResource(R.string.settings_sync_success),
+    signInRequired = stringResource(R.string.settings_sign_in_required),
+    syncFailed = stringResource(R.string.settings_sync_failed),
+    cacheSizeFailed = stringResource(R.string.settings_cache_size_failed),
+    preferenceFailed = stringResource(R.string.settings_preference_failed),
+    contentLanguage = stringResource(R.string.settings_content_language),
+    languageAll = stringResource(R.string.settings_language_all),
+    contentLanguageBody = stringResource(R.string.settings_content_language_body),
+    cacheClearSuccess = stringResource(R.string.settings_cache_clear_success),
     privacySection = stringResource(R.string.settings_privacy_section),
     vaultTitle = stringResource(R.string.settings_vault_title),
     vaultBody = stringResource(R.string.settings_vault_body),
@@ -544,6 +582,10 @@ private fun catalogCopy() = CatalogCopy(
     matureBadgeShort = stringResource(R.string.catalog_mature_short),
     noCoverArtwork = stringResource(R.string.catalog_no_cover),
     scoreDescription = stringResource(R.string.catalog_score),
+    formatManga = stringResource(R.string.catalog_format_manga),
+    formatWebtoon = stringResource(R.string.catalog_format_webtoon),
+    formatManhua = stringResource(R.string.catalog_format_manhua),
+    formatWestern = stringResource(R.string.catalog_format_western),
     columnDescriptions = listOf(
         stringResource(R.string.home_columns_2),
         stringResource(R.string.home_columns_3),
@@ -564,6 +606,10 @@ private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
     retry = stringResource(R.string.home_retry),
     railTrending = stringResource(R.string.home_rail_trending),
     railUpdated = stringResource(R.string.home_rail_updated),
+    railPopular = stringResource(R.string.home_rail_popular),
+    railPersonal = stringResource(R.string.home_rail_personal),
+    railIsekai = stringResource(R.string.home_rail_isekai),
+    railEditors = stringResource(R.string.home_rail_editors),
     emptyShelfTitle = stringResource(R.string.home_empty_title),
     emptyShelfMessage = stringResource(R.string.home_empty_message),
     emptySearchTitle = stringResource(R.string.search_empty_title),
@@ -576,6 +622,10 @@ private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
     continueAction = stringResource(R.string.home_continue_action),
     continueProgress = stringResource(R.string.home_continue_progress),
     catalog = catalog,
+    shelfTitles = com.yomira.core.model.HomeShelf.entries.zip(
+        androidx.compose.ui.res.stringArrayResource(R.array.home_shelf_titles).toList(),
+    ).toMap(),
+    emptyRail = stringResource(R.string.home_shelf_empty),
 )
 
 @Composable
@@ -694,20 +744,12 @@ private fun updateDialogCopy() = UpdateDialogCopy(
 
 @Composable
 private fun onboardingCopy() = OnboardingCopy(
-    stepIndicator = stringResource(R.string.onboarding_step_indicator),
-    stepDescription = stringResource(R.string.onboarding_step_description),
     languageTitle = stringResource(R.string.onboarding_language_title),
     languageDescription = stringResource(R.string.onboarding_language_description),
     languageTurkish = stringResource(R.string.onboarding_language_turkish),
     languageEnglish = stringResource(R.string.onboarding_language_english),
+    languageBoth = stringResource(R.string.onboarding_language_both),
     languageNote = stringResource(R.string.onboarding_language_note),
-    sourceTitle = stringResource(R.string.onboarding_source_title),
-    sourceDescription = stringResource(R.string.onboarding_source_description),
-    sourceBody = stringResource(R.string.onboarding_source_body),
-    sourcePrivacy = stringResource(R.string.onboarding_source_privacy),
-    sourceSkippable = stringResource(R.string.onboarding_source_skippable),
     saving = stringResource(R.string.onboarding_saving),
     connectAndStart = stringResource(R.string.onboarding_connect_start),
-    continueLabel = stringResource(R.string.onboarding_continue),
-    back = stringResource(R.string.onboarding_back),
 )

@@ -1,5 +1,6 @@
 package com.yomira.core.ui.guided
 
+import androidx.compose.runtime.Immutable
 import com.yomira.core.model.ReadingMode
 
 /**
@@ -25,6 +26,7 @@ enum class ReadingOrder {
  * fraction of the page (0..1) so the same box drives zooming at any resolution.
  * [order] is the zero-based reading sequence assigned by [orderPanels].
  */
+@Immutable
 data class PanelBoundingBox(
     val left: Float,
     val top: Float,

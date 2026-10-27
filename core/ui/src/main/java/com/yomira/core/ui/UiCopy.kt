@@ -1,5 +1,7 @@
 package com.yomira.core.ui
 
+import androidx.compose.runtime.Immutable
+
 /**
  * All human-readable text rendered by the shared catalog components.
  *
@@ -9,12 +11,17 @@ package com.yomira.core.ui
  * the new language. The defaults keep previews and existing instrumentation tests
  * source-compatible.
  */
+@Immutable
 data class CatalogCopy(
     val readNow: String = "Hemen oku",
     val matureBadgeLong: String = "16+ / Mature",
     val matureBadgeShort: String = "16+",
     val noCoverArtwork: String = "Kapak görseli yok",
     val scoreDescription: String = "Puan",
+    val formatManga: String = "Manga",
+    val formatWebtoon: String = "Webtoon",
+    val formatManhua: String = "Manhua",
+    val formatWestern: String = "Çizgi Roman",
     val columnDescriptions: List<String> = listOf(
         "2 sütun, büyük ve detaylı",
         "3 sütun, standart",
@@ -28,6 +35,7 @@ data class CatalogCopy(
 )
 
 /** Texts of the in-app update dialog. */
+@Immutable
 data class UpdateDialogCopy(
     val title: String = "Yeni Sürüm Mevcut!",
     val changesLabel: String = "Değişiklikler",

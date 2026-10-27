@@ -14,7 +14,7 @@ class OnboardingWizardManager(
 
     /**
      * Completes onboarding and always registers the bundled catalogs. Only repository
-     * metadata is downloaded; no APK is silently installed or trusted. A refresh
+     * metadata is loaded; no APK is silently installed or trusted. A refresh
      * failure is not fatal: registration is local, so the catalogs stay active and
      * suggestions are simply left empty until the next refresh.
      */
@@ -26,20 +26,22 @@ class OnboardingWizardManager(
         val suggestions = try {
             extensions.refresh().filter { extension ->
                 (preferences.allowAdultContent || !extension.nsfw) &&
-                    extension.sources.any { it.language == preferences.language.code || it.language == "all" }
+                    extension.sources.any { preferences.language.accepts(it.language) }
             }.sortedBy { it.packageName }.map { it.packageName }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             emptyList()
         }
-        OnboardingState(preferences, KEIYOUSHI_INDEX, suggestions, completed = true).also { store.write(it) }
+        val primaryRepository = if (preferences.language == ReadingLanguage.TURKISH) TURKISH_INDEX else WESTERN_INDEX
+        OnboardingState(preferences, primaryRepository, suggestions, completed = true).also { store.write(it) }
     }
 
     companion object {
         const val KEIYOUSHI_INDEX = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
         const val TURKISH_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json"
         const val WESTERN_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json"
-        val ONBOARDING_INDEXES = listOf(KEIYOUSHI_INDEX, TURKISH_INDEX, WESTERN_INDEX)
+        // Full upstream remains available as an explicit custom repository, not a network bootstrap.
+        val ONBOARDING_INDEXES = listOf(TURKISH_INDEX, WESTERN_INDEX)
     }
 }

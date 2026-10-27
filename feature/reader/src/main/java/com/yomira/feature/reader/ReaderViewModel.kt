@@ -1,6 +1,7 @@
 package com.yomira.feature.reader
 
 import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.yomira.core.database.dao.ChapterDao
 import com.yomira.core.database.dao.MangaDao
@@ -22,8 +23,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
+@Immutable
 data class ReaderChapter(val id: String, val title: String, val number: Double)
 
+/** Lists are published as snapshots and never mutated after emission. */
+@Immutable
 data class ReaderUiState(
     val mangaId: String = "", val chapterId: String = "",
     val title: String = "", val chapterTitle: String = "", val chapterIndex: Int = 0,

@@ -14,6 +14,8 @@ import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 sealed interface SyncResult {
     data class Success(
@@ -40,7 +42,7 @@ sealed interface SyncResult {
  *
  * 1. Read the local Room projection.
  * 2. Download `yomira_sync.json` from `drive.appdata` (if present).
- * 3. Merge with [ConflictResolutionEngine] using Max Progress Wins.
+ * 3. Merge with [ConflictResolutionEngine] using timestamp-based LWW.
  * 4. Upload the merged document with optimistic concurrency (ETag).
  * 5. Persist the merged state to Room and advance the local sync version.
  *
@@ -56,16 +58,23 @@ class SyncManager @Inject constructor(
     private val syncDao: SyncDao,
     private val identity: SyncIdentityStore,
 ) {
-    suspend fun sync(): SyncResult = withContext(Dispatchers.IO) {
+    private val mutex = Mutex()
+
+    suspend fun sync(): SyncResult = mutex.withLock { performSync() }
+
+    private suspend fun performSync(): SyncResult = withContext(Dispatchers.IO) {
         var lastConflict: SyncWriteConflictException? = null
 
         repeat(MAX_WRITE_ATTEMPTS) {
             try {
                 val local = localStore.read()
                 val remote = remoteStore.fetch()
+                val remotePayload = remote?.additionalPayloads?.fold(remote.payload) { accumulated, duplicate ->
+                    merger.merge(accumulated, duplicate)
+                }
                 val merged = merger.merge(
                     local = local,
-                    remote = remote?.payload,
+                    remote = remotePayload,
                     mergedAt = System.currentTimeMillis(),
                 )
 

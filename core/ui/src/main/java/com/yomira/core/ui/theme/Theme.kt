@@ -14,10 +14,10 @@ private val YomiraColorScheme = darkColorScheme(
     primaryContainer = PurpleContainer,
     onPrimaryContainer = Color(0xFFF3E8FF),
     inversePrimary = NeonLavender,
-    secondary = NeonLavender,
-    onSecondary = Color(0xFF1A0B2E),
-    secondaryContainer = LavenderContainer,
-    onSecondaryContainer = Color(0xFFF3E8FF),
+    secondary = NeonFuchsia,
+    onSecondary = Color(0xFF210009),
+    secondaryContainer = PinkContainer,
+    onSecondaryContainer = Color(0xFFFFD9E2),
     tertiary = NeonIndigo,
     onTertiary = TextPrimary,
     tertiaryContainer = IndigoContainer,
@@ -49,7 +49,7 @@ private val YomiraColorScheme = darkColorScheme(
 
 /**
  * Modern soft-corner scale shared by every card, sheet, chip and dialog.
- * Cards land on 16–20dp, capsules use `RoundedCornerShape(percent = 50)`.
+ * Cards use the 16dp medium shape; capsules use `RoundedCornerShape(percent = 50)`.
  */
 val YomiraShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),

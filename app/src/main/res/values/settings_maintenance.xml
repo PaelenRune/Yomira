@@ -1,0 +1,23 @@
+<resources>
+    <string name="settings_storage_section">Storage &amp; cache</string>
+    <string name="settings_cache_size">Cache used: %1$s</string>
+    <string name="settings_cache_loading">Calculating…</string>
+    <string name="settings_confirm_cache">Clear the cache?</string>
+    <string name="settings_sync_section">Google Drive synchronization</string>
+    <string name="settings_automatic_sync">Automatic cross-device sync</string>
+    <string name="settings_automatic_sync_body">Your reading history, series and extensions are automatically synchronized through Google Drive.</string>
+    <string name="settings_sync_suggestion">Enable automatic sync to continue where you left off on another device.</string>
+    <string name="settings_sync_now">Sync now</string>
+    <string name="settings_syncing">Syncing…</string>
+    <string name="settings_last_synced">Last synced: %1$s</string>
+    <string name="settings_never_synced">Not synced yet</string>
+    <string name="settings_sync_success">Synchronized with Google Drive.</string>
+    <string name="settings_sign_in_required">Google Drive is not connected yet. Google account sign-in must be configured before synchronization can work.</string>
+    <string name="settings_sync_failed">Sync could not finish. Check your connection and try again.</string>
+    <string name="settings_cache_size_failed">Cache size could not be read. Reopen Settings to retry.</string>
+    <string name="settings_preference_failed">The preference could not be saved. Please try again.</string>
+    <string name="settings_content_language">Content language</string>
+    <string name="settings_language_all">All</string>
+    <string name="settings_content_language_body">All includes Turkish and English sources.</string>
+    <string name="settings_cache_clear_success">Cache cleared.</string>
+</resources>

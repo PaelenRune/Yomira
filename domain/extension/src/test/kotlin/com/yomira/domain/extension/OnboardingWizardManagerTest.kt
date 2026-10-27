@@ -12,7 +12,7 @@ class OnboardingWizardManagerTest {
         val result = OnboardingWizardManager(repository, store).complete(preferences, false)
         assertEquals(preferences, result.preferences)
         assertTrue(result.completed)
-        assertEquals(OnboardingWizardManager.KEIYOUSHI_INDEX, result.repositoryUrl)
+        assertEquals(OnboardingWizardManager.WESTERN_INDEX, result.repositoryUrl)
         assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, repository.urls)
         assertEquals(result, store.state)
     }
@@ -38,6 +38,11 @@ class OnboardingWizardManagerTest {
         assertEquals(result, store.state)
     }
 
+    @Test fun `both languages suggests Turkish and English but no unrelated or adult sources`() = runTest {
+        val result = OnboardingWizardManager(Repository(), Store()).complete(ReaderPreferences(ReadingLanguage.BOTH), true)
+        assertEquals(listOf("en", "tr"), result.suggestedPackages)
+    }
+
     private class Store : OnboardingStore {
         var state: OnboardingState? = null
         override suspend fun read() = state
@@ -51,7 +56,7 @@ class OnboardingWizardManagerTest {
         override suspend fun repositories() = urls.toList()
         override suspend fun refresh(): List<ExtensionDescriptor> {
             check(!failRefresh)
-            return listOf(extension("tr"), extension("en"), extension("tr-adult", "tr", true))
+            return listOf(extension("tr"), extension("en"), extension("ja"), extension("tr-adult", "tr", true))
         }
         override suspend fun available() = emptyList<ExtensionDescriptor>()
         override suspend fun installed() = emptyList<InstalledExtension>()

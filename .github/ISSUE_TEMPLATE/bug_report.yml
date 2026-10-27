@@ -1,131 +1,94 @@
-name: Bug Report
-description: Report a crash, broken behavior, or visual glitch in Yomira.
+name: Hata Bildirimi / Bug Report
+description: Yomira'daki çökmeleri ve hataları bildirin. / Report crashes and unexpected behavior in Yomira.
 title: "[Bug]: "
-labels: ["bug"]
-assignees: []
+labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a problem. The details below help us reproduce it quickly.
-
-        > **Security issues:** please do not report vulnerabilities here. Contact the maintainers privately instead.
+        Türkçe veya İngilizce yazabilirsiniz. / You may write in Turkish or English.
+        Kaynak veya eklenti sorunları için **Kaynak / Eklenti Hatası** formunu kullanın.
+        For source or extension problems, use the **Source / Extension Issue** form.
+        Güvenlik açıklarını herkese açık olarak paylaşmayın; bakımcılara özel olarak bildirin.
+        Do not disclose security vulnerabilities publicly; contact the maintainers privately.
 
   - type: checkboxes
     id: prechecks
     attributes:
-      label: Pre-checks
-      description: Please confirm the following before submitting.
+      label: Ön kontroller / Before submitting
       options:
-        - label: I searched the existing issues and this bug has not been reported yet.
+        - label: Mevcut bildirimleri aradım; aynı sorunu bulamadım. / I searched existing issues and found no duplicate.
           required: true
-        - label: I am running the latest Yomira release.
-          required: true
-        - label: I read the documentation and troubleshooting notes.
+        - label: Sorunu en güncel sürümde denedim veya neden deneyemediğimi aşağıda açıkladım. / I tested the latest release or explained below why I could not.
           required: true
 
-  - type: dropdown
-    id: platform
+  - type: input
+    id: version
     attributes:
-      label: Platform
-      description: Where does the problem occur?
-      options:
-        - Android Phone
-        - Android Tablet / Foldable
-        - Windows Portable (.exe)
-        - Windows Installer (.msi)
-        - Other
+      label: Yomira sürümü / Yomira version
+      description: Tam sürümü veya kaynak derlemesi için commit kimliğini yazın. / Include the exact version or commit for source builds.
+      placeholder: "vX.Y.Z / commit abc1234"
     validations:
       required: true
 
   - type: input
     id: device
     attributes:
-      label: Device model & OS version
-      description: Include the device, OS version, and manufacturer skin if applicable.
-      placeholder: e.g. Samsung Galaxy A37 / Android 14 One UI 6, or Windows 11 23H2 (desktop PC)
+      label: Cihaz modeli / Device model
+      description: Üretici ve model; masaüstünde bilgisayar modeli. / Manufacturer and model; computer model for desktop.
+      placeholder: "Samsung Galaxy S24 / Lenovo ThinkPad T14"
     validations:
       required: true
 
-  - type: dropdown
-    id: version
+  - type: input
+    id: os_version
     attributes:
-      label: Yomira version
-      description: Which version are you running? You can find it in Settings → About.
-      options:
-        - v0.4.1
-        - v0.4.0
-        - v0.3.x or older
-        - Built from source (main branch)
-        - Other (mention it in the description)
-    validations:
-      required: true
-
-  - type: dropdown
-    id: module
-    attributes:
-      label: Affected module
-      description: Which part of Yomira is affected?
-      options:
-        - Reader
-        - Library
-        - Extensions / Repositories
-        - Sync
-        - Guided View
-        - UI / Theme
-        - Other
+      label: Android sürümü veya işletim sistemi / Android version or operating system
+      description: Android sürümü ve varsa üretici arayüzü; diğer platformlarda işletim sistemi sürümü. / Android version and vendor skin, or OS version on other platforms.
+      placeholder: "Android 14, One UI 6.1 / Windows 11 23H2"
     validations:
       required: true
 
   - type: textarea
     id: reproduction
     attributes:
-      label: Steps to reproduce
-      description: List the exact steps so we can trigger the bug.
+      label: Tekrarlama adımları / Steps to reproduce
+      description: Sorunu tekrar oluşturmak için gereken adımları sırayla yazın. / List the exact steps needed to reproduce the problem.
       placeholder: |
-        1. Open the Library
-        2. Tap the three-dot menu on a title
-        3. Choose "Download"
-        4. The app closes
+        1. Kütüphaneyi açın. / Open the library.
+        2. Bir başlık seçin. / Select a title.
+        3. …
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
-      description: What did you expect to happen?
+      label: Beklenen davranış / Expected behavior
+      description: Ne olmasını bekliyordunuz? / What did you expect to happen?
     validations:
       required: true
 
   - type: textarea
     id: actual
     attributes:
-      label: Actual behavior
-      description: What actually happened? Include the exact error message if there is one.
+      label: Gerçekleşen davranış / Actual behavior
+      description: Ne oldu? Varsa hata mesajını aynen ekleyin. / What happened? Include the exact error message, if any.
     validations:
       required: true
 
   - type: textarea
-    id: logs
+    id: logcat
     attributes:
-      label: Crash logs & screenshots
+      label: Logcat veya hata günlükleri / Logcat or error logs
       description: |
-        Paste stack traces or logs below. Drag and drop screenshots or a screen recording into this field.
-        Android logs can be captured with `adb logcat`; Windows logs are shown in the console.
-      render: shell
-      placeholder: Paste logs here, then drag screenshots into this area.
+        İsteğe bağlı. Android'de adb logcat ile sorun anındaki ilgili satırları alın.
+        Optional. On Android, use adb logcat and include relevant lines captured when the issue occurs.
+        Paylaşmadan önce erişim belirteçlerini, çerezleri ve kişisel bilgileri silin. / Remove tokens, cookies, and personal information before sharing.
+      render: text
 
   - type: textarea
     id: additional
     attributes:
-      label: Additional context
-      description: Anything else that might help, such as network conditions, enabled extensions, or recent changes.
-
-  - type: checkboxes
-    id: acknowledgements
-    attributes:
-      label: Acknowledgements
-      options:
-        - label: I have removed any personal or sensitive information from the logs and screenshots.
-          required: true
+      label: Ekran görüntüleri ve ek bilgiler / Screenshots and additional context
+      description: Görselleri buraya sürükleyin; ağ koşullarını veya ilgili ayarları belirtin. / Drag images here; mention network conditions or relevant settings. Kişisel bilgileri gizleyin. / Hide personal information.

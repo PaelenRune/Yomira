@@ -3,38 +3,32 @@ package com.yomira.core.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Yomira v5 palette: OLED-first near-black, layered plum surfaces and a
- * neon violet → lavender accent ramp. The neutrals are deliberately cool
- * (blue-leaning) so artwork keeps the contrast it was drawn with instead of
- * picking up a warm cast from the chrome.
+ * OLED manga-gallery palette: quiet near-black surfaces, electric purple
+ * actions and pink highlights. Artwork, not chrome, owns the shelf.
  */
 
 // --- Backgrounds & surfaces -------------------------------------------------
-/** OLED-friendly app canvas. True black is avoided so hairline borders still read. */
-val DeepOledBlack = Color(0xFF090A0E)
+/** True OLED black: unlike near-black, unlit background pixels draw no emission power. */
+val DeepOledBlack = Color(0xFF000000)
 
 /** Cards, sheets and the floating navigation chrome. */
-val CardSurface = Color(0xFF13141C)
+val CardSurface = Color(0xFF16161E)
 
 /** Raised controls, chips and nested card tone. */
-val SurfaceRaised = Color(0xFF1B1C26)
+val SurfaceRaised = Color(0xFF1E1E29)
 
 /** One step above variant: menus, pressed cards, badge fills. */
-val SurfaceHighest = Color(0xFF23242F)
+val SurfaceHighest = Color(0xFF282834)
 
 // --- Accent ramp ------------------------------------------------------------
 /** Canlı mor — primary action, selected state, brand anchor. */
-val NeonPurple = Color(0xFF9D4EDD)
+val NeonPurple = Color(0xFF7B61FF)
 
 /** Yumuşak lavanta — secondary accent, highlights and soft emphasis. */
 val NeonLavender = Color(0xFFC084FC)
 
-/**
- * Legacy accent name imported by the feature modules. It now resolves to the
- * palette's soft lavender so secondary surfaces (vault, streaks, badges) stay
- * inside the violet ramp instead of reintroducing hot pink.
- */
-val NeonFuchsia = NeonLavender
+/** Electric pink counterpoint for highlights and secondary actions. */
+val NeonFuchsia = Color(0xFFFF3366)
 
 /** Indigo — cool counterpoint for charts, vault and tertiary actions. */
 val NeonIndigo = Color(0xFF6366F1)
@@ -54,14 +48,15 @@ val TextMuted = Color(0xFF94A3B8)
 val RatingGold = Color(0xFFFFB703)
 
 // --- Lines ------------------------------------------------------------------
-/** 1dp elegant card border on the dark plum surface stack. */
+/** Dividers and outlined controls; poster cards remain borderless. */
 val HairlineBorder = Color(0xFF262738)
 
 /** 10% violet halo used for selected/featured borders. */
-val PurpleGlow = Color(0x1A9D4EDD)
+val PurpleGlow = Color(0x1A7B61FF)
 
 // --- Supporting scheme slots ------------------------------------------------
-internal val PurpleContainer = Color(0xFF2B1745)
+internal val PurpleContainer = Color(0xFF292044)
+internal val PinkContainer = Color(0xFF451525)
 internal val LavenderContainer = Color(0xFF3B2452)
 internal val IndigoContainer = Color(0xFF1E1B4B)
 internal val Outline = Color(0xFF3A3B4C)

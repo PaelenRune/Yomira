@@ -29,6 +29,7 @@ class SettingsModelsTest {
     @Test fun `fresh settings hide private features and require device credentials`() {
         val defaults = AppSettings()
         assertFalse(defaults.vaultVisible)
+        assertFalse(defaults.automaticSync)
         assertTrue(defaults.requireDeviceLock)
         assertTrue(defaults.lockOnBackground)
         assertEquals(ReadingMode.MANGA_RTL, defaults.readingMode)

@@ -17,25 +17,23 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted params: WorkerParameters,
     private val syncManager: SyncManager,
+    private val preference: AutomaticSyncPreference,
 ) : CoroutineWorker(appContext, params) {
 
-    override suspend fun doWork(): Result = when (val result = syncManager.sync()) {
-        is SyncResult.Success -> Result.success(
-            workDataOf(KEY_SYNCED_AT to result.syncedAt),
-        )
+    override suspend fun doWork(): Result {
+        if (!preference.enabled()) return Result.success(workDataOf(KEY_SKIPPED to true))
+        return when (val result = syncManager.sync()) {
+            is SyncResult.Success -> Result.success(workDataOf(KEY_SYNCED_AT to result.syncedAt))
 
         // Not being signed in is a stable user state, not a transient failure.
-        SyncResult.NotSignedIn -> Result.success(
-            workDataOf(KEY_SKIPPED to true),
-        )
+            SyncResult.NotSignedIn -> Result.success(workDataOf(KEY_SKIPPED to true))
 
-        is SyncResult.Failure -> {
-            if (result.retryable && runAttemptCount < MAX_RETRY_ATTEMPTS) {
-                Result.retry()
-            } else {
-                Result.failure(
-                    workDataOf(KEY_ERROR to result.message.take(MAX_ERROR_LENGTH)),
-                )
+            is SyncResult.Failure -> {
+                if (result.retryable && runAttemptCount < MAX_RETRY_ATTEMPTS) {
+                    Result.retry()
+                } else {
+                    Result.failure(workDataOf(KEY_ERROR to result.message.take(MAX_ERROR_LENGTH)))
+                }
             }
         }
     }

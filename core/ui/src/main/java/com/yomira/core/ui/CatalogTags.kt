@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.Manga
@@ -22,6 +23,7 @@ import java.util.Locale
  * "Adult Webtoons"), and Turkish sources may already carry translated names ("Aksiyon").
  * A tag matches when the series carries **any** of its aliases.
  */
+@Immutable
 data class CatalogTag(val id: String, val aliases: Set<String>) {
     /** True when [genre] (a persisted provider genre) represents this tag. */
     fun matchesGenre(genre: String): Boolean {
@@ -118,6 +120,7 @@ fun filterByTags(manga: List<Manga>, selectedTagIds: List<String>, matchAll: Boo
 }
 
 /** One selectable chip in the tag bar: stable [id] plus the localized [label]. */
+@Immutable
 data class TagChip(val id: String, val label: String)
 
 /**
@@ -139,7 +142,7 @@ fun MultiTagFilterBar(
         contentPadding = PaddingValues(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(tags, key = { it.id }) { chip ->
+        items(tags, key = { it.id }, contentType = { "tag" }) { chip ->
             val isSelected = chip.id in selected
             // YomiraFilterChip already publishes the selected state through its
             // switch semantics; the localized label is the accessible name.
@@ -150,7 +153,7 @@ fun MultiTagFilterBar(
             )
         }
         if (selected.isNotEmpty()) {
-            item(key = "clear-tags") {
+            item(key = "clear-tags", contentType = "tag") {
                 YomiraFilterChip(
                     selected = true,
                     onClick = onClear,

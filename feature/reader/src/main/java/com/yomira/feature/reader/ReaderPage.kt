@@ -67,8 +67,11 @@ internal fun ReaderPage(
 
     BoxWithConstraints(Modifier.fillMaxWidth().then(if (webtoon) Modifier else Modifier.fillMaxHeight()), contentAlignment = Alignment.Center) {
         val width = constraints.maxWidth.coerceAtLeast(1)
-        val request = remember(page, width, retry, decodeMaxHeight, seamTrim) {
+        val request = remember(page, width, retry, decodeMaxHeight, seamTrim, guided) {
             ImageRequest.Builder(context).data(page.imageUrl)
+                // Pixel analysis/transforms need software; ordinary pages stay hardware-backed.
+                .allowHardware(!guided && seamTrim == null)
+                .bitmapConfig(if (guided || seamTrim != null) android.graphics.Bitmap.Config.ARGB_8888 else android.graphics.Bitmap.Config.HARDWARE)
                 .setParameter("reader-retry", retry)
                 .size(width, decodeMaxHeight).precision(Precision.INEXACT)
                 .apply {

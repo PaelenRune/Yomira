@@ -9,6 +9,7 @@ import com.yomira.app.catalog.CatalogMerger
 import com.yomira.app.catalog.CatalogSeeder
 import com.yomira.app.catalog.PagedCatalogLoader
 import com.yomira.app.catalog.TrendingCatalogLoader
+import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.update.AppUpdateChecker
 import com.yomira.app.update.UpdateInfo
 import com.yomira.core.database.dao.ChapterDao
@@ -17,6 +18,8 @@ import com.yomira.core.database.dao.SyncDao
 import com.yomira.core.database.mapper.toModel
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
+import com.yomira.core.model.HomeRail
+import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.RecommendedSeries
 import com.yomira.core.model.RelatedSeries
 import com.yomira.data.metadata.SeriesConnectionRepository
@@ -24,10 +27,12 @@ import com.yomira.data.metadata.WaterfallMetadataAggregator
 import com.yomira.domain.extension.*
 import com.yomira.feature.details.ChapterUiState
 import com.yomira.feature.home.ContinueReadingUi
+import com.yomira.feature.home.buildHomeRails
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import java.util.Optional
+import kotlin.random.Random
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -91,7 +96,7 @@ class YomiraViewModel @Inject constructor(
     val columns = MutableStateFlow(preferences.getInt("columns", 3).coerceIn(2, 4))
     val vaultColumns = MutableStateFlow(preferences.getInt("vault_columns", 3).coerceIn(2, 4))
     val saved = MutableStateFlow(preferences.getStringSet("saved", emptySet())!!.toSet())
-    private val read = MutableStateFlow(preferences.getStringSet("read", emptySet())!!.toSet())
+    val read = MutableStateFlow(preferences.getStringSet("read", emptySet())!!.toSet())
     val unlocked = MutableStateFlow(false)
     val match = MutableStateFlow<SmartMatchResult?>(null)
     val matching = MutableStateFlow(false)
@@ -105,6 +110,24 @@ class YomiraViewModel @Inject constructor(
 
     /** Pages appended to Home / Discover. */
     val discovery = MutableStateFlow(DiscoveryState())
+
+    private val shelfSession = MutableStateFlow(Random.nextInt() to HomeShelf.select())
+
+    /** Seven stable rail identities; Room/paging updates content, never the selection. */
+    val homeRails: StateFlow<List<HomeRail>> = combine(catalog, discovery, read, saved, shelfSession) {
+        catalogState, discoveryState, readIds, savedIds, session ->
+        buildHomeRails(
+            catalog = catalogState.manga,
+            updated = catalogState.updated,
+            discovered = discoveryState.items,
+            selection = session.second,
+            readIds = readIds,
+            savedIds = savedIds,
+            seed = session.first,
+        )
+    }.distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, shelfSession.value.second.map { HomeRail(it, emptyList()) })
 
     /**
      * Newest reader position across the library, resolved into a presentation
@@ -127,6 +150,7 @@ class YomiraViewModel @Inject constructor(
                 pageCount = progress.pageCount,
             )
         }
+        .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Independent cursor for the +18 Vault; never mixed with the public feed. */
@@ -140,7 +164,7 @@ class YomiraViewModel @Inject constructor(
     private var vaultPagingJob: Job? = null
 
     init {
-        refresh()
+        observeCatalog()
         bootstrapCatalog()
         checkForUpdates()
     }
@@ -154,14 +178,19 @@ class YomiraViewModel @Inject constructor(
     fun clearTags() { selectedTags.value = emptyList() }
 
     fun refresh() {
+        shelfSession.value = Random.nextInt() to HomeShelf.select()
+        observeCatalog()
+    }
+
+    private fun observeCatalog() {
         catalogJob?.cancel()
         catalogJob = viewModelScope.launch {
             catalog.value = catalog.value.copy(loading = true, error = null)
             combine(mangaDao.observeAll(), mangaDao.observeRecentlyUpdated()) { all, updated ->
                 CatalogState(all.map { it.toModel() }, updated.map { it.toModel() }, loading = false)
             }.catch { error ->
-                emit(CatalogState(loading = false, error = error.message ?: context.getString(R.string.catalog_load_failed)))
-            }.collect { catalog.value = it }
+                emit(catalog.value.copy(loading = false, error = error.message ?: context.getString(R.string.catalog_load_failed)))
+            }.flowOn(Dispatchers.IO).collect { catalog.value = it }
         }
     }
 
@@ -172,11 +201,15 @@ class YomiraViewModel @Inject constructor(
      */
     private fun bootstrapCatalog() {
         viewModelScope.launch {
-            val seeded = catalogSeeder.seedIfEmpty()
-            if (seeded.inserted > 0) refresh()
+            // Seeding parses the bundled JSON and writes Room rows; trending parses the
+            // AniList/MangaDex payloads. Both block for seconds on a cold start, so they
+            // run on IO and only the resulting state publication stays on Main.
+            withContext(Dispatchers.IO) { catalogSeeder.seedIfEmpty() }
+            // The existing Room observer sees seeded rows; do not reroll shelves
+            // during bootstrap after the first frame has already been shown.
             if (!hasInternet()) return@launch
             try {
-                trendingCatalogLoader.refresh()
+                withContext(Dispatchers.IO) { trendingCatalogLoader.refresh() }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -266,7 +299,7 @@ class YomiraViewModel @Inject constructor(
                 }
                 // Merge-before-insert: a series stored under its Japanese/romaji name is
                 // updated in place, so the home grid never shows the same story twice.
-                CatalogMerger.upsertMerged(mangaDao, found)
+                withContext(Dispatchers.IO) { CatalogMerger.upsertMerged(mangaDao, found) }
                 liveSearch.value = LiveSearchState(trimmed)
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -285,7 +318,8 @@ class YomiraViewModel @Inject constructor(
     fun checkForUpdates() {
         viewModelScope.launch {
             val info = try {
-                updateChecker.check()
+                // Network I/O: keep the GitHub call off the UI thread.
+                withContext(Dispatchers.IO) { updateChecker.check() }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -338,8 +372,12 @@ class YomiraViewModel @Inject constructor(
     fun resumeChapter(mangaId: String, fallbackId: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
             val chapterId = try {
-                val previous = syncDao.latestReaderProgress(mangaId)
-                previous?.chapterId?.takeIf { chapterDao.getById(it)?.mangaId == mangaId } ?: fallbackId
+                // Room suspend queries must never resolve on the Main dispatcher when
+                // they gate navigation: the resume tap has to stay responsive.
+                withContext(Dispatchers.IO) {
+                    val previous = syncDao.latestReaderProgress(mangaId)
+                    previous?.chapterId?.takeIf { chapterDao.getById(it)?.mangaId == mangaId } ?: fallbackId
+                }
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) { fallbackId }
             onReady(chapterId)
@@ -357,7 +395,13 @@ class YomiraViewModel @Inject constructor(
             matching.value = true
             try {
                 match.value = if (matcher.isPresent) withContext(Dispatchers.IO) {
-                    val settings = onboardingStore.read()?.preferences ?: ReaderPreferences(ReadingLanguage.TURKISH)
+                    // Source matching follows the language the reader picked when setting
+                    // up the app. Only when no onboarding state exists yet (corrupted or
+                    // pre-onboarding install) do we derive it from the active app locale,
+                    // instead of hardcoding Turkish and silently dropping English sources.
+                    val stored = onboardingStore.read()?.preferences
+                    val language = stored?.language ?: activeReadingLanguage()
+                    val settings = stored?.copy(language = language) ?: ReaderPreferences(language)
                     matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
                         settings.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
                 } else SmartMatchResult.Unavailable(listOf(SourceFailure("runtime", context.getString(R.string.match_engine_missing))))
@@ -366,6 +410,17 @@ class YomiraViewModel @Inject constructor(
                 match.value = SmartMatchResult.Unavailable(listOf(SourceFailure("runtime", error.message ?: context.getString(R.string.match_unreachable))))
             } finally { matching.value = false }
         }
+    }
+
+    /**
+     * Reading language used when the onboarding state is unavailable. Mirrors the
+     * active app locale (explicit in-app choice first, then device language) so a
+     * fresh/legacy install never falls back to a hardcoded language.
+     */
+    private fun activeReadingLanguage(): ReadingLanguage {
+        val tag = LocaleManagerCompat.currentApplicationTag()
+        return ReadingLanguage.entries.firstOrNull { it.code.equals(tag, ignoreCase = true) }
+            ?: ReadingLanguage.ENGLISH
     }
 
     /**
@@ -417,7 +472,9 @@ class YomiraViewModel @Inject constructor(
                 onReady(null)
                 return@launch
             }
-            val stored = CatalogMerger.upsertMergedAndReturn(mangaDao, imported).entity
+            val stored = withContext(Dispatchers.IO) {
+                CatalogMerger.upsertMergedAndReturn(mangaDao, imported).entity
+            }
             // The detail route renders from the Room-backed catalog, so navigation
             // waits for the freshly imported card to reach the shelf.
             withTimeoutOrNull(CATALOG_EMISSION_TIMEOUT_MS) {

@@ -15,6 +15,8 @@ data class RemoteSyncRevision(
 data class RemoteSyncSnapshot(
     val payload: SyncPayload,
     val revision: RemoteSyncRevision,
+    /** Drive permits duplicate names during concurrent first creation; never ignore their state. */
+    val additionalPayloads: List<SyncPayload> = emptyList(),
 )
 
 /**

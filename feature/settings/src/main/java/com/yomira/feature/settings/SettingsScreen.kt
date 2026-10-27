@@ -1,7 +1,9 @@
 package com.yomira.feature.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +29,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.unit.dp
+import com.yomira.domain.extension.ReadingLanguage
+import java.text.DateFormat
+import java.util.Date
 import com.yomira.core.model.ReadingMode
 import com.yomira.core.ui.theme.CardSurface
 import com.yomira.core.ui.theme.DeepOledBlack
@@ -63,15 +73,70 @@ fun SettingsScreen(
     onCheckUpdates: () -> Unit,
     onOpenLink: (String) -> Unit,
     copy: SettingsCopy = SettingsCopy(),
+    maintenance: SettingsMaintenanceState = SettingsMaintenanceState(),
+    onAutomaticSyncChange: (Boolean) -> Unit = {},
+    onSyncNow: () -> Unit = {},
+    onContentLanguageChange: (ReadingLanguage) -> Unit = {},
+    onConsumeMessage: () -> Unit = {},
+    buildInfo: String = "",
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
-    Box(Modifier.fillMaxSize().background(DeepOledBlack)) {
+    var showCacheDialog by rememberSaveable { mutableStateOf(false) }
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(maintenance.message) {
+        val message = maintenance.message ?: return@LaunchedEffect
+        val text = when (message) {
+            MaintenanceMessage.CACHE_CLEARED -> copy.cacheClearSuccess
+            MaintenanceMessage.CACHE_FAILED -> copy.cacheFailed
+            MaintenanceMessage.CACHE_SIZE_FAILED -> copy.cacheSizeFailed
+            MaintenanceMessage.SYNC_SUCCESS -> copy.syncSuccess
+            MaintenanceMessage.SIGN_IN_REQUIRED -> copy.signInRequired
+            MaintenanceMessage.SYNC_FAILED -> copy.syncFailed
+            MaintenanceMessage.PREFERENCE_FAILED -> copy.preferenceFailed
+        }
+        snackbar.showSnackbar(text)
+        onConsumeMessage()
+    }
+    Box(Modifier.fillMaxSize().background(Color(0xFF0D0D12))) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             item { SettingsHeader(copy, onBack) }
+            item {
+                SettingsSection(Icons.Default.Storage, copy.storageSection, NeonPurple) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(if (maintenance.cacheSizeFailed) copy.cacheSizeFailed else
+                            copy.cacheSize.format(maintenance.cacheBytes?.let(::formatCacheSize) ?: copy.loading),
+                            style = MaterialTheme.typography.titleMedium)
+                        Text(copy.clearCacheBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Button(onClick = { showCacheDialog = true }, enabled = !maintenance.cacheBusy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            if (maintenance.cacheBusy) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                            else Text(copy.clearCache)
+                        }
+                    }
+                }
+            }
+            item {
+                SettingsSection(Icons.Default.CloudSync, copy.syncSection, NeonPurple) {
+                    SettingsSwitchRow(copy.automaticSync, copy.automaticSyncBody, state.settings.automaticSync,
+                        onAutomaticSyncChange, NeonPurple)
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (!state.settings.automaticSync) Text(copy.syncSuggestion, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        if (maintenance.driveSignInRequired) Text(copy.signInRequired,
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                        Text(copy.lastSynced.format(maintenance.lastSyncedAt?.let {
+                            DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(it))
+                        } ?: copy.neverSynced), style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedButton(onClick = onSyncNow, enabled = !maintenance.syncBusy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text(if (maintenance.syncBusy) copy.syncing else copy.syncNow)
+                        }
+                    }
+                }
+            }
             item {
                 SettingsSection(icon = Icons.Default.Security, title = copy.privacySection, accent = NeonFuchsia) {
                     SettingsSwitchRow(
@@ -132,6 +197,25 @@ fun SettingsScreen(
             }
             item {
                 SettingsSection(icon = Icons.Default.Language, title = copy.readingSection, accent = NeonPurple) {
+                    ChoiceRow(copy.contentLanguage) {
+                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                            ReadingLanguage.entries.forEachIndexed { index, language ->
+                                SegmentedButton(
+                                    selected = maintenance.contentLanguage == language,
+                                    onClick = { onContentLanguageChange(language) },
+                                    enabled = !maintenance.preferenceBusy,
+                                    icon = {},
+                                    shape = SegmentedButtonDefaults.itemShape(index, 3),
+                                ) { Text(when (language) {
+                                    ReadingLanguage.TURKISH -> copy.languageTurkish
+                                    ReadingLanguage.ENGLISH -> copy.languageEnglish
+                                    ReadingLanguage.BOTH -> copy.languageAll
+                                }) }
+                            }
+                        }
+                        Text(copy.contentLanguageBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                    }
+                    RowDivider()
                     ChoiceRow(copy.languageTitle) {
                         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                             SegmentedButton(
@@ -172,8 +256,6 @@ fun SettingsScreen(
             }
             item {
                 SettingsSection(icon = Icons.Default.Info, title = copy.appSection, accent = NeonPurple) {
-                    CacheRow(copy, state, onClearCache)
-                    RowDivider()
                     UpdateRow(copy, state, versionName, onCheckUpdates, onOpenLink)
                     RowDivider()
                     Row(
@@ -183,7 +265,10 @@ fun SettingsScreen(
                         Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(12.dp))
                         Text(copy.versionTitle, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                        Text("v$versionName", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text("Yomira v$versionName Beta", style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                            if (buildInfo.isNotBlank()) Text(buildInfo, style = MaterialTheme.typography.labelSmall, color = TextMuted)
+                        }
                     }
                     RowDivider()
                     Row(
@@ -200,7 +285,15 @@ fun SettingsScreen(
                 }
             }
         }
+        SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
+    if (showCacheDialog) AlertDialog(
+        onDismissRequest = { showCacheDialog = false },
+        title = { Text(copy.confirmClearCache) },
+        text = { Text(copy.clearCacheBody) },
+        confirmButton = { TextButton(onClick = { showCacheDialog = false; onClearCache() }) { Text(copy.clearCache) } },
+        dismissButton = { TextButton(onClick = { showCacheDialog = false }) { Text(copy.cancel) } },
+    )
     if (showAddDialog) {
         AddRepositoryDialog(
             copy,
@@ -240,9 +333,9 @@ private fun SettingsSection(icon: ImageVector, title: String, accent: Color, con
             ) {
                 Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
             }
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(title, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         }
-        Surface(color = CardSurface, shape = RoundedCornerShape(22.dp), tonalElevation = 0.dp) {
+        Surface(color = CardSurface, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, TextMuted.copy(alpha = .14f)), tonalElevation = 0.dp) {
             Column(Modifier.fillMaxWidth().padding(6.dp)) { content() }
         }
     }
@@ -258,7 +351,8 @@ private fun SettingsSwitchRow(
     badge: String? = null,
     error: String? = null,
 ) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+        .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -273,7 +367,7 @@ private fun SettingsSwitchRow(
                 body?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = TextMuted) }
             }
             Spacer(Modifier.width(12.dp))
-            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = neonSwitchColors(accent))
+            Switch(checked = checked, onCheckedChange = null, colors = neonSwitchColors(accent))
         }
         error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     }
@@ -308,26 +402,6 @@ private fun ChoiceRow(title: String, content: @Composable () -> Unit) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
         content()
-    }
-}
-
-@Composable
-private fun CacheRow(copy: SettingsCopy, state: SettingsUiState, onClearCache: () -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClearCache).padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Icon(Icons.Default.CleaningServices, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(20.dp))
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(copy.clearCache, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            Text(copy.clearCacheBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
-            when {
-                state.cacheClearedBytes != null -> Text(copy.cacheCleared.format(formatCacheSize(state.cacheClearedBytes)),
-                    style = MaterialTheme.typography.bodySmall, color = NeonPurple)
-                state.cacheFailed -> Text(copy.cacheFailed, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-            }
-        }
     }
 }
 

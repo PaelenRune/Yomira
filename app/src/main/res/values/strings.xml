@@ -28,6 +28,10 @@
     <string name="home_retry">Try again</string>
     <string name="home_rail_trending">Trending</string>
     <string name="home_rail_updated">Recently updated</string>
+    <string name="home_rail_popular">🔥 Popular &amp; Trending</string>
+    <string name="home_rail_personal">✨ Picked for you</string>
+    <string name="home_rail_isekai">🌀 Popular Isekai &amp; Fantasy</string>
+    <string name="home_rail_editors">🏆 Editor\'s Choice</string>
     <string name="home_empty_title">Your shelf is empty</string>
     <string name="home_empty_message">Add a source and sync series metadata, then your series will show up here.</string>
     <string name="search_empty_title">No results</string>
@@ -91,6 +95,10 @@
     <string name="catalog_mature_short">16+</string>
     <string name="catalog_no_cover">No cover artwork</string>
     <string name="catalog_score">Score</string>
+    <string name="catalog_format_manga">Manga</string>
+    <string name="catalog_format_webtoon">Webtoon</string>
+    <string name="catalog_format_manhua">Manhua</string>
+    <string name="catalog_format_western">Comic</string>
 
     <!-- Update dialog -->
     <string name="update_title">New version available!</string>
@@ -105,11 +113,12 @@
     <!-- Onboarding -->
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
     <string name="onboarding_step_description">Setup step %1$d of %2$d</string>
-    <string name="onboarding_language_title">Which language should we read your stories in?</string>
-    <string name="onboarding_language_description">We’ll tailor source suggestions to your reading language.</string>
+    <string name="onboarding_language_title">Select your reading language</string>
+    <string name="onboarding_language_description">We’ll tailor sources and suggestions to the languages you read.</string>
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
-    <string name="onboarding_language_note">The interface and source suggestions switch to your chosen language instantly.</string>
+    <string name="onboarding_language_both">Both (Türkçe + English)</string>
+    <string name="onboarding_language_note">Your sources are ready. You can change your language preference later.</string>
     <string name="onboarding_source_title">Open a door to your sources</string>
     <string name="onboarding_source_description">Keiyoushi, Turkish and Western repositories come connected out of the box.</string>
     <string name="onboarding_source_body">Extension suggestions match your reading language. Manage repositories later in Settings.</string>
@@ -270,14 +279,14 @@
     <string name="settings_invalid_repository_url">Invalid address: a repository must be a full https JSON index URL.</string>
     <string name="settings_repository_error">Repository operation failed. Check your connection and try again.</string>
     <string name="settings_custom_repositories">Your custom repositories</string>
-    <string name="settings_reading_section">Reading &amp; Language</string>
+    <string name="settings_reading_section">Language &amp; content preferences</string>
     <string name="settings_language_title">Interface Language</string>
     <string name="settings_language_turkish">Türkçe</string>
     <string name="settings_language_english">English</string>
     <string name="settings_reading_mode_title">Default Reading Mode</string>
     <string name="settings_guided_view_title">Guided View</string>
     <string name="settings_guided_view_body">Pages read panel by panel with a cinematic zoom; one tap turns it on or off in the reader.</string>
-    <string name="settings_app_section">App &amp; Cache</string>
+    <string name="settings_app_section">App information</string>
     <string name="settings_clear_cache">Clear Cache</string>
     <string name="settings_clear_cache_body">Deletes cover art and temporary files; your library and progress stay intact.</string>
     <string name="settings_cache_cleared">%1$s of cache cleared.</string>

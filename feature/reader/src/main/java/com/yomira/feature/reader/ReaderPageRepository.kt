@@ -39,12 +39,12 @@ class ReaderPageRepository @Inject constructor(
             }
         }
         requireHttps(chapter.url)
-        client.newCall(Request.Builder().url(chapter.url).build()).execute().use { response ->
+        client.newCall(Request.Builder().url(chapter.url).build()).readCancellable { response ->
             check(response.isSuccessful) { "Bölüm yüklenemedi (HTTP ${response.code})." }
             val body = checkNotNull(response.body) { "Kaynak boş yanıt döndürdü." }
             val finalUrl = response.request.url.toString()
             requireHttps(finalUrl)
-            if (body.contentType()?.type == "image") return@withContext listOf(SourcePage(0, finalUrl))
+            if (body.contentType()?.type == "image") return@readCancellable listOf(SourcePage(0, finalUrl))
             val document = Jsoup.parse(body.string(), finalUrl)
             // Restrict extraction to actual reading containers; never treat cover/ad images as pages.
             val images = document.select(".reading-content img, #readerarea img, .reader-area img, .chapter-content img, .page-break img, #comic img, img.manga-page, img.chapter-img")

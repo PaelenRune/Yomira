@@ -28,9 +28,10 @@ class ExtensionManager(
     private val client: RepositoryClient,
     private val parser: KeiyoushiRepoParser,
     private val installedProvider: InstalledExtensionProvider,
+    private val embedded: List<EmbeddedRepository> = EmbeddedRepositories.load(),
 ) : ExtensionRepository {
     private val mutex = Mutex()
-    private var snapshot: List<ExtensionDescriptor> = emptyList()
+    private var snapshot: List<ExtensionDescriptor> = embedded.flatMap { parser.parse(it.payload, it.indexUrl) }
 
     override suspend fun addRepository(indexUrl: String) = mutex.withLock {
         requireHttps(indexUrl)
@@ -39,16 +40,22 @@ class ExtensionManager(
     }
 
     override suspend fun removeRepository(indexUrl: String) = mutex.withLock {
+        require(embedded.none { it.indexUrl == indexUrl }) { "Bundled repositories cannot be removed" }
         store.write(store.read().filterNot { it == indexUrl })
         // Do not retain entries from a repository whose consent has been revoked.
-        snapshot = emptyList()
+        snapshot = embedded.flatMap { parser.parse(it.payload, it.indexUrl) }
     }
 
-    override suspend fun repositories(): List<String> = mutex.withLock { store.read().toList() }
+    override suspend fun repositories(): List<String> = mutex.withLock {
+        (embedded.map { it.indexUrl } + store.read()).distinct()
+    }
 
     /** All-or-nothing refresh preserves the previous snapshot on network or parsing failure. */
     override suspend fun refresh(): List<ExtensionDescriptor> = mutex.withLock {
-        val entries = store.read().flatMap { url -> parser.parse(client.fetch(url), url) }
+        // Embedded indexes are authoritative offline snapshots. Custom URLs remain explicit network inputs.
+        val entries = (embedded.flatMap { parser.parse(it.payload, it.indexUrl) } +
+            store.read().filterNot { url -> embedded.any { it.indexUrl == url } }
+                .flatMap { url -> parser.parse(client.fetch(url), url) })
         // Ambiguous package ownership is not resolved by silently trusting the highest version.
         require(entries.map { it.packageName }.distinct().size == entries.size) {
             "Conflicting package names across repositories"

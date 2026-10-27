@@ -38,7 +38,23 @@ data class AppSettings(
      * Kept so a repo the user deliberately disables is never resurrected on relaunch.
      */
     val bundledRepositoriesSeeded: Boolean = false,
+    /** Local opt-in; never overwritten by a restored cloud document. */
+    val automaticSync: Boolean = false,
 )
+
+data class SettingsMaintenanceState(
+    val cacheBytes: Long? = null,
+    val cacheSizeFailed: Boolean = false,
+    val cacheBusy: Boolean = false,
+    val syncBusy: Boolean = false,
+    val driveSignInRequired: Boolean = false,
+    val lastSyncedAt: Long? = null,
+    val contentLanguage: com.yomira.domain.extension.ReadingLanguage? = null,
+    val preferenceBusy: Boolean = false,
+    val message: MaintenanceMessage? = null,
+)
+
+enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, SYNC_FAILED, PREFERENCE_FAILED }
 
 /** Reactive, atomically updated settings persistence. Implementations must be safe to call from any thread. */
 interface SettingsStore {

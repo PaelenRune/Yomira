@@ -1,81 +1,61 @@
-name: Feature Request
-description: Suggest a new feature or an improvement for Yomira.
+name: Özellik Talebi / Feature Request
+description: Yomira için yeni bir özellik veya iyileştirme önerin. / Suggest a feature or improvement for Yomira.
 title: "[Feature]: "
-labels: ["enhancement"]
-assignees: []
+labels: [enhancement]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping shape Yomira. Please describe the problem first, then your idea.
+        Türkçe veya İngilizce yazabilirsiniz. Önce ihtiyacınızı, sonra önerinizi anlatın.
+        You may write in Turkish or English. Describe your need first, then your proposal.
 
   - type: checkboxes
     id: prechecks
     attributes:
-      label: Pre-checks
-      description: Please confirm the following before submitting.
+      label: Ön kontroller / Before submitting
       options:
-        - label: I searched the existing issues and this request has not been submitted yet.
+        - label: Mevcut talepleri aradım; aynı öneriyi bulamadım. / I searched existing requests and found no duplicate.
           required: true
-        - label: This request is about Yomira itself, not about content available through a third-party source.
+        - label: Bu öneri Yomira uygulamasıyla ilgilidir. / This proposal concerns the Yomira application itself.
           required: true
 
   - type: dropdown
     id: platform
     attributes:
-      label: Platform target
-      description: Which platform should this feature apply to?
+      label: Hedef platform / Target platform
       options:
-        - Android Phone
-        - Android Tablet / Foldable
+        - Android telefon / Android phone
+        - Android tablet veya katlanabilir / Android tablet or foldable
         - Windows
-        - All platforms
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
-    id: module
-    attributes:
-      label: Module area
-      description: Which part of Yomira does this feature belong to?
-      options:
-        - Reader
-        - Library
-        - Extensions / Repositories
-        - Sync
-        - Guided View
-        - UI / Theme
-        - Settings
-        - Other
+        - Tüm platformlar / All platforms
+        - Diğer / Other
     validations:
       required: true
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem statement
-      description: What problem are you trying to solve? Describe the frustration or limitation.
-      placeholder: I'm always frustrated when...
+      label: İhtiyaç veya sorun / Need or problem
+      description: Hangi işi yapmaya çalışıyorsunuz ve mevcut davranış neden yetersiz? / What are you trying to accomplish, and why is the current behavior insufficient?
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: Proposed solution
-      description: Describe the behavior you would like to see. Mockups or references are welcome.
+      label: Önerilen çözüm / Proposed solution
+      description: Özellik nasıl çalışmalı? Somut bir kullanım örneği ekleyin. / How should the feature work? Include a concrete usage example.
     validations:
       required: true
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives considered
-      description: What workarounds or alternative designs have you tried or considered?
+      label: Değerlendirilen alternatifler / Alternatives considered
+      description: Denediğiniz geçici çözümler veya diğer tasarım fikirleri nelerdir? / What workarounds or other designs have you considered?
 
   - type: textarea
     id: additional
     attributes:
-      label: Additional context
-      description: Add screenshots, links, or anything else that helps explain the request.
+      label: Taslaklar ve ek bilgiler / Mockups and additional context
+      description: Görselleri sürükleyin veya ilgili bağlantıları ekleyin. Kişisel bilgileri gizleyin. / Drag images here or add relevant links. Hide personal information.

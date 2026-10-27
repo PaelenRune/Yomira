@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 /**
  * The complete, media-free state that Yomira synchronises through Google Drive.
  *
- * Only metadata is transferred: library membership, reading position and user
- * preferences. Covers, chapter payloads, downloaded files and source responses are
+ * Only metadata is transferred: library membership, reading history, extension manifests and
+ * user preferences. Covers, chapter payloads, downloaded files and source responses are
  * intentionally absent, so a sync never consumes Google Drive media quota.
  *
  * All timestamps are UTC epoch milliseconds. Keep the field names stable: they are
@@ -25,6 +25,8 @@ data class SyncPayload(
     val library: List<LibrarySyncEntry> = emptyList(),
     val readingProgress: List<ReadingProgressSyncEntry> = emptyList(),
     val settings: UserSettingsSync? = null,
+    val readingHistory: List<ReadingHistorySyncEntry> = emptyList(),
+    val extensions: List<InstalledExtensionSyncEntry> = emptyList(),
 ) {
     init {
         require(deviceId.isNotBlank()) { "deviceId must not be blank" }
@@ -45,6 +47,10 @@ data class SyncPayload(
         require(generatedAt >= 0L) { "generatedAt must not be negative" }
         requireUniqueIds(library.map(LibrarySyncEntry::mangaId), "library")
         requireUniqueIds(readingProgress.map(ReadingProgressSyncEntry::mangaId), "readingProgress")
+        require(readingHistory.map { it.mangaId to it.chapterId }.distinct().size == readingHistory.size) {
+            "readingHistory contains duplicate chapters"
+        }
+        requireUniqueIds(extensions.map { it.packageId }, "extensions")
         settings?.validate()
     }
 
@@ -52,6 +58,8 @@ data class SyncPayload(
     fun normalized(): SyncPayload = copy(
         library = library.sortedBy(LibrarySyncEntry::mangaId),
         readingProgress = readingProgress.sortedBy(ReadingProgressSyncEntry::mangaId),
+        readingHistory = readingHistory.sortedWith(compareBy({ it.mangaId }, { it.chapterId })),
+        extensions = extensions.sortedBy { it.packageId },
     )
 
     private fun requireUniqueIds(ids: List<String>, section: String) {
@@ -59,7 +67,7 @@ data class SyncPayload(
     }
 
     companion object {
-        const val CURRENT_SCHEMA_VERSION: Int = 1
+        const val CURRENT_SCHEMA_VERSION: Int = 2
     }
 }
 
@@ -67,12 +75,15 @@ data class SyncPayload(
 @Serializable
 data class LibrarySyncEntry(
     val mangaId: String,
-    /** Union-merged: if any device has the title in its library, it stays in the library. */
+    /** Timestamp-merged; false is an explicit library-removal tombstone. */
     val inLibrary: Boolean = true,
     /** User category/tag, for example "Reading" or "Favourites". */
     val category: String? = null,
-    /** Last time this entry changed locally, used to pick the winning category. */
+    /** Last time any library preference changed locally. */
     val updatedAt: Long = 0L,
+    val favorite: Boolean = false,
+    val categories: List<String> = emptyList(),
+    val customTags: List<String> = emptyList(),
 ) {
     init {
         require(mangaId.isNotBlank()) { "mangaId must not be blank" }
@@ -82,16 +93,17 @@ data class LibrarySyncEntry(
 }
 
 /**
- * Reading position. The merger keeps the furthest chapter, then the furthest page
- * ("Max Progress Wins"), so a device with an older clock cannot roll progress back.
+ * Series resume position. The most recent lastReadAt wins, including intentional rereads.
  */
 @Serializable
 data class ReadingProgressSyncEntry(
     val mangaId: String,
     val chapterNumber: Double,
     val pageIndex: Int,
-    /** Last opened time, UTC epoch milliseconds. Only breaks exact progress ties. */
+    /** Last opened time, UTC epoch milliseconds; the newest reading observation wins. */
     val lastReadAt: Long = 0L,
+    val chapterId: String? = null,
+    val completed: Boolean = false,
 ) {
     init {
         require(mangaId.isNotBlank()) { "mangaId must not be blank" }
@@ -100,6 +112,44 @@ data class ReadingProgressSyncEntry(
         }
         require(pageIndex >= 0) { "pageIndex must not be negative" }
         require(lastReadAt >= 0L) { "lastReadAt must not be negative" }
+    }
+}
+
+/** Per-chapter state, independent of the series' current resume position. */
+@Serializable
+data class ReadingHistorySyncEntry(
+    val mangaId: String,
+    val chapterId: String,
+    val chapterIndex: Int = 0,
+    val pageIndex: Int = 0,
+    val pageCount: Int = 0,
+    val lastReadAt: Long = 0L,
+    val completed: Boolean = false,
+) {
+    init {
+        require(mangaId.isNotBlank() && chapterId.isNotBlank())
+        require(chapterIndex >= 0 && pageIndex >= 0 && pageCount >= 0 && lastReadAt >= 0)
+        require(pageCount == 0 || pageIndex < pageCount)
+    }
+}
+
+/** Metadata only: binaries are fetched and hash-verified locally, never sent to Drive. */
+@Serializable
+data class InstalledExtensionSyncEntry(
+    val packageId: String,
+    val versionCode: Long,
+    val repositorySources: List<String> = emptyList(),
+    val customConfigs: Map<String, String> = emptyMap(),
+    val updatedAt: Long = 0L,
+    val installed: Boolean = true,
+    val manifestJson: String? = null,
+) {
+    init {
+        require(packageId.isNotBlank() && versionCode > 0 && updatedAt >= 0)
+        repositorySources.forEach {
+            val uri = java.net.URI(it)
+            require(uri.scheme == "https" && !uri.host.isNullOrBlank() && uri.userInfo == null)
+        }
     }
 }
 

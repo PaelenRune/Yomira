@@ -66,6 +66,19 @@ object WesternComics {
      */
     private val EXACT_ONLY = setOf("saga", "the boys", "the sandman", "watchmen")
 
+    /**
+     * Compiled once for the lifetime of the process. `Regex` construction goes
+     * through ICU `Pattern.compile`, which is expensive; the classifier is called
+     * for every row of the catalogue on the composition thread, so compiling per
+     * call used to stall the UI for seconds.
+     */
+    private val NON_ALNUM = Regex("[^\\p{L}\\p{N}]+")
+
+    /** [MARQUEE] in normalized form, preserving the curated order for [rank]. */
+    private val MARQUEE_ALIASES: List<Alias> = MARQUEE.map { Alias(normalize(it), it in EXACT_ONLY) }
+
+    private data class Alias(val text: String, val exactOnly: Boolean)
+
     /** True when a persisted catalogue row belongs to the western shelf. */
     fun matches(manga: Manga): Boolean = matches(
         genres = manga.genres,
@@ -89,34 +102,43 @@ object WesternComics {
         if (genres.any { normalize(it) in GENRE_MARKERS }) return true
         if (publisher != null && normalize(publisher) in PUBLISHERS) return true
         if (publicationType != null && normalize(publicationType) in COMIC_TYPES) return true
-        return titles.any { title -> MARQUEE.any { alias -> titleMatches(title, alias) } }
+        return titles.any { title ->
+            val normalizedTitle = normalize(title)
+            MARQUEE_ALIASES.any { alias -> aliasMatches(normalizedTitle, alias) }
+        }
     }
 
     /** Position in the marquee list, or [Int.MAX_VALUE] for the wider shelf. */
     fun rank(manga: Manga): Int {
-        val titles = listOf(manga.title) + manga.altTitles
-        val match = MARQUEE.firstOrNull { alias -> titles.any { title -> titleMatches(title, alias) } }
-        return match?.let(MARQUEE::indexOf) ?: Int.MAX_VALUE
+        val titles = (listOf(manga.title) + manga.altTitles).map(::normalize)
+        val match = MARQUEE_ALIASES.indexOfFirst { alias -> titles.any { aliasMatches(it, alias) } }
+        return if (match < 0) Int.MAX_VALUE else match
     }
 
     /**
      * The editorial rail: marquee names in product order, then remaining
      * western records by score. Explicit records never reach this public method
      * because callers pass the already-filtered public catalogue.
+     *
+     * The rank is computed once per record before sorting: the previous
+     * implementation re-ran the whole alias scan inside the comparator, which
+     * cost O(n log n) classifications per composition.
      */
     fun spotlight(manga: List<Manga>, limit: Int = 14): List<Manga> {
         require(limit > 0) { "Spotlight limit must be positive" }
         return manga.asSequence()
             .filter(::matches)
             .distinctBy { it.id }
+            .map { record -> record to rank(record) }
             .sortedWith(
-                compareBy<Manga>(
-                    { rank(it) },
-                    { -(it.score ?: 0.0) },
-                    { it.title.lowercase(Locale.ROOT) },
+                compareBy<Pair<Manga, Int>>(
+                    { it.second },
+                    { -(it.first.score ?: 0.0) },
+                    { it.first.title.lowercase(Locale.ROOT) },
                 ),
             )
             .take(limit)
+            .map { it.first }
             .toList()
     }
 
@@ -126,17 +148,19 @@ object WesternComics {
         return if (cleaned.any { normalize(it) == normalize(MARKER) }) cleaned else cleaned + MARKER
     }
 
-    private fun titleMatches(title: String, alias: String): Boolean {
-        val normalizedTitle = normalize(title)
-        val normalizedAlias = normalize(alias)
-        if (normalizedAlias.isEmpty()) return false
-        if (normalizedAlias in EXACT_ONLY) return normalizedTitle == normalizedAlias
-        val pattern = Regex("(^| )${Regex.escape(normalizedAlias)}( |$)")
-        return pattern.containsMatchIn(normalizedTitle)
+    /**
+     * Word-boundary alias match without regex construction: [normalize] already
+     * collapses every non-alphanumeric run to a single space and trims the ends,
+     * so padding both sides with a space is equivalent to `(^| )alias( |$)`.
+     */
+    private fun aliasMatches(normalizedTitle: String, alias: Alias): Boolean {
+        if (alias.text.isEmpty()) return false
+        if (alias.exactOnly) return normalizedTitle == alias.text
+        return " $normalizedTitle ".contains(" ${alias.text} ")
     }
 
     private fun normalize(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFKC)
         .lowercase(Locale.ROOT)
-        .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
+        .replace(NON_ALNUM, " ")
         .trim()
 }

@@ -32,7 +32,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest :desktop:test --no-daemon
+      run: ./gradlew testDebugUnitTest --no-daemon
 
     - name: Assemble Debug APK
       run: ./gradlew assembleDebug --no-daemon
@@ -68,6 +68,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-desktop:
+    # Windows/Desktop is postponed alongside its exclusion in settings.gradle.kts.
+    if: ${{ false }}
     name: Build & Package Windows Desktop (.EXE / .MSI)
     runs-on: windows-latest
 

@@ -41,14 +41,7 @@ class SandboxExtensionInstaller(
                 "Package ${descriptor.packageName} is already installed at version ${manifest?.versionCode}"
             }
             val apkBytes = download.download(descriptor.apkUrl)
-            val extraction = extractor.extract(apkBytes, descriptor.packageName, clock())
-            val candidate = JsonSourceManifest.of(
-                descriptor = descriptor,
-                repositoryUrl = repositoryUrl,
-                installedAt = extraction.installedAt,
-                dexFiles = extraction.dexFiles,
-                entryClasses = extraction.entryClassCandidates,
-            )
+            val candidate = RuntimeApkToJsonConverter(extractor).convert(apkBytes, descriptor, repositoryUrl, clock())
             candidate.validate()
             try {
                 store.save(candidate)
@@ -72,7 +65,12 @@ class SandboxExtensionInstaller(
     suspend fun rehydrate(manifest: JsonSourceManifest): SandboxIntegrityGuard.LoadableSandbox? = mutex.withLock {
         require(manifest.dexFiles.isNotEmpty()) { "Manifest carries no dex fingerprints" }
         val apkBytes = download.download(manifest.apkUrl)
-        val extraction = extractor.extract(apkBytes, manifest.packageName, clock())
+        val extraction = try {
+            extractor.extract(apkBytes, manifest.packageName, clock(), manifest.versionCode)
+        } catch (_: IllegalArgumentException) {
+            store.delete(manifest.packageName)
+            return@withLock null
+        }
         val expected = manifest.dexFiles.sortedBy { it.name }
         val actual = extraction.dexFiles.sortedBy { it.name }
         if (expected != actual) {

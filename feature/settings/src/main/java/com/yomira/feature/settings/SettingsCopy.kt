@@ -9,6 +9,27 @@ data class SettingsCopy(
     val title: String = "Ayarlar",
     val subtitle: String = "Gizlilik, depolar ve okuma deneyimi",
     val back: String = "Geri",
+    val storageSection: String = "Depolama & Önbellek",
+    val cacheSize: String = "Kullanılan önbellek: %1\$s",
+    val loading: String = "Hesaplanıyor…",
+    val confirmClearCache: String = "Önbelleği temizlemek istiyor musunuz?",
+    val syncSection: String = "Google Drive Senkronizasyonu",
+    val automaticSync: String = "Cihazlar Arası Otomatik Senkronizasyon",
+    val automaticSyncBody: String = "Okuma geçmişiniz, serileriniz ve eklentileriniz Google Drive ile otomatik eşitlenir.",
+    val syncSuggestion: String = "Başka cihazda kaldığınız yerden devam etmek için otomatik eşitlemeyi açın.",
+    val syncNow: String = "Şimdi Eşitle",
+    val syncing: String = "Eşitleniyor…",
+    val lastSynced: String = "Son eşitleme: %1\$s",
+    val neverSynced: String = "Henüz eşitlenmedi",
+    val syncSuccess: String = "Google Drive ile eşitlendi.",
+    val signInRequired: String = "Google Drive bağlantısı henüz yapılandırılmadı. Eşitlemek için Google hesabı bağlantısı gerekli.",
+    val syncFailed: String = "Eşitleme tamamlanamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+    val cacheSizeFailed: String = "Önbellek boyutu okunamadı. Ayarları yeniden açıp deneyin.",
+    val preferenceFailed: String = "Tercih kaydedilemedi. Lütfen yeniden deneyin.",
+    val contentLanguage: String = "İçerik dili",
+    val languageAll: String = "Tümü",
+    val contentLanguageBody: String = "Tümü, Türkçe ve İngilizce kaynakları kapsar.",
+    val cacheClearSuccess: String = "Önbellek temizlendi.",
 
     // Section 1 — privacy and the +18 Vault.
     val privacySection: String = "Gizlilik ve +18 Vault",
@@ -36,7 +57,7 @@ data class SettingsCopy(
     val customRepositories: String = "Özel depoların",
 
     // Section 3 — reading and language.
-    val readingSection: String = "Okuma ve Dil",
+    val readingSection: String = "Dil & İçerik Tercihleri",
     val languageTitle: String = "Arayüz Dili",
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
@@ -48,7 +69,7 @@ data class SettingsCopy(
     val guidedViewBody: String = "Sayfalar panel panel, sinematik yakınlaşmayla okunur; tek dokunuşla açılıp kapatılır.",
 
     // Section 4 — application and cache.
-    val appSection: String = "Uygulama ve Önbellek",
+    val appSection: String = "Uygulama Bilgisi",
     val clearCache: String = "Önbelleği Temizle",
     val clearCacheBody: String = "Kapak görselleri ve geçici dosyalar silinir; kütüphanen ve ilerlemen etkilenmez.",
     val cacheCleared: String = "%1\$s önbellek boşaltıldı.",

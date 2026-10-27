@@ -1,8 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Questions & Community Discussions
-    url: https://github.com/PaelenRune/Yomira/discussions
-    about: Ask questions, share reading setups, and discuss ideas with the community.
-  - name: Documentation & Guides
-    url: https://paelenrune.github.io/Yomira/
-    about: Read the download guide, feature overview, and platform documentation.
+  - name: Belgeler ve rehberler / Documentation and guides
+    url: https://github.com/PaelenRune/Yomira#readme
+    about: Kurulum ve kullanım bilgilerini okuyun. / Read installation and usage information.
+  - name: Mevcut bildirimler / Existing issues
+    url: https://github.com/PaelenRune/Yomira/issues
+    about: Yeni bildirim açmadan önce benzer sorunları ve talepleri arayın. / Search for similar problems and requests before opening an issue.
+  - name: Güncel sürümler / Latest releases
+    url: https://github.com/PaelenRune/Yomira/releases
+    about: Hata bildirmeden önce en güncel sürümü kontrol edin. / Check the latest release before reporting a bug.
