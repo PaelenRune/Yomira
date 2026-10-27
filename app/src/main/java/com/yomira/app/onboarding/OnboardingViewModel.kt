@@ -19,8 +19,8 @@ data class OnboardingUiState(
     val completed: Boolean = false,
     val saving: Boolean = false,
     /**
-     * Saved reading language ("tr", "en", or "both"). The host can mirror a single
-     * language into the UI locale; "both" preserves the existing interface language.
+     * Saved reading language ("tr", "en", or "both"). The host mirrors Turkish into
+     * the Turkish UI locale; English and "both" use the English UI locale.
      */
     val languageCode: String? = null,
     val error: String? = null,

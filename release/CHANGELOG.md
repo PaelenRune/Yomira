@@ -4,6 +4,17 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v8.0.5-Beta
+
+Android versionCode `19`.
+
+- İlk kurulumda cihaz dilinden bağımsız İngilizce uygulama dili.
+- Kurulum seçimiyle anında tüm uygulama dilini değiştirme: TR → Türkçe, EN/Both → İngilizce.
+- Dört kurulum adımı ve Ayarlar anketinde yerelleştirilmiş TR/EN metinleri.
+- [Sürüm notları](RELEASE_NOTES_v8.0.5-Beta.md) ve [doğrulama raporu](VALIDATION_v8.0.5-Beta.md).
+
+---
+
 # Yomira v8.0.4-Beta
 
 Android versionCode `18`.

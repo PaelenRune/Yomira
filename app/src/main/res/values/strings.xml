@@ -136,6 +136,16 @@
     <string name="onboarding_saving">Saving setup…</string>
     <string name="onboarding_connect_start">Start Exploring</string>
     <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_age_title">An age-appropriate start</string>
+    <string name="onboarding_age_description">Safe mode hides adult content. You can change your preference in Settings.</string>
+    <string name="onboarding_exclusions_title">What would you rather not see?</string>
+    <string name="onboarding_exclusions_description">Series with these tags are hidden everywhere, including search, shelves and the Vault.</string>
+    <string name="onboarding_genres_title">Which worlds shall we explore?</string>
+    <string name="onboarding_genres_description">You can select multiple genres. These preferences do not change your blacklist.</string>
+    <string name="onboarding_adult">🔞 I am 18 or older</string>
+    <string name="onboarding_minor">🛡️ I am under 18</string>
+    <string name="onboarding_safe_mode">Safe Mode</string>
+    <string name="onboarding_gore">Gore / Extreme Violence</string>
     <string name="onboarding_back">Back</string>
     <string name="onboarding_failed_load">Couldn’t read the setup information. Try again.</string>
     <string name="onboarding_failed_save">Setup couldn’t be completed. Check your connection and retry.</string>

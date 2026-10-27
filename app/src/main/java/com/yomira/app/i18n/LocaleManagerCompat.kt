@@ -27,7 +27,10 @@ object LocaleManagerCompat {
     /** True when the switch was applied; false means the locale was already active. */
     fun setApplicationLocales(languageTag: String): Boolean {
         val tag = supportedTag(languageTag)
-        if (currentApplicationTag() == tag) return false
+        // An empty request still follows the device, even though our UI default is English.
+        // Persist an explicit English locale on first launch, including on Turkish devices.
+        val requested = AppCompatDelegate.getApplicationLocales()
+        if (!requested.isEmpty && currentApplicationTag() == tag) return false
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
         return true
     }
@@ -48,9 +51,8 @@ object LocaleManagerCompat {
     }
 
     /**
-     * Active UI language: the explicit in-app choice when present, otherwise the device
-     * language restricted to the two supported tags — mirroring how resource resolution
-     * picked `values-tr` for Turkish devices on first launch.
+     * Active UI language: the explicit in-app choice when present, otherwise English,
+     * independently of the device language. Startup sync makes that default explicit.
      */
     fun currentApplicationTag(): String {
         val requested = AppCompatDelegate.getApplicationLocales()
@@ -59,7 +61,7 @@ object LocaleManagerCompat {
                 return supportedTag(locale.substringBefore(','))
             }
         }
-        return supportedTag(androidx.core.os.LocaleListCompat.getAdjustedDefault().firstTag())
+        return ENGLISH
     }
 
     fun isTurkish(): Boolean = currentApplicationTag() == TURKISH
@@ -72,8 +74,6 @@ object LocaleManagerCompat {
             setApplicationLocales(TURKISH); TURKISH
         }
 
-    private fun androidx.core.os.LocaleListCompat.firstTag(): String? =
-        if (isEmpty) null else toLanguageTags().substringBefore(',').takeIf { it.isNotBlank() }
 }
 
 /**

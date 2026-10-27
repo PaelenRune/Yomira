@@ -27,17 +27,29 @@ private val OnboardingPurple = Color(0xFF7B61FF)
 private val OnboardingText = Color(0xFFF5F5FA)
 private val OnboardingMuted = Color(0xFFB5B5C5)
 
-/** The host supplies localized resources independently of the reading language. */
+/** The host supplies localized resources for the active application language. */
 @Immutable
 data class OnboardingCopy(
-    val languageTitle: String = "Hangi dillerdeki serileri okumak istersiniz?",
-    val languageDescription: String = "Kaynakları ve önerileri okuma diline göre hazırlayalım.",
+    val languageTitle: String = "Select your reading language",
+    val languageDescription: String = "We’ll tailor sources and suggestions to the languages you read.",
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
-    val languageBoth: String = "Her İkisi (Both)",
-    val languageNote: String = "Kaynakların hazır. Dil tercihini daha sonra değiştirebilirsin.",
-    val saving: String = "Kurulum kaydediliyor…",
-    val connectAndStart: String = "Başla ve Keşfet",
+    val languageBoth: String = "Both (Türkçe + English)",
+    val languageNote: String = "Your sources are ready. You can change your language preference later.",
+    val saving: String = "Saving setup…",
+    val connectAndStart: String = "Start Exploring",
+    val ageTitle: String = "An age-appropriate start",
+    val ageDescription: String = "Safe mode hides adult content. You can change your preference in Settings.",
+    val exclusionsTitle: String = "What would you rather not see?",
+    val exclusionsDescription: String = "Series with these tags are hidden everywhere, including search, shelves and the Vault.",
+    val genresTitle: String = "Which worlds shall we explore?",
+    val genresDescription: String = "You can select multiple genres. These preferences do not change your blacklist.",
+    val adult: String = "🔞 I am 18 or older",
+    val minor: String = "🛡️ I am under 18",
+    val safeMode: String = "Safe Mode",
+    val gore: String = "Gore / Extreme Violence",
+    val back: String = "Back",
+    val continueAction: String = "Continue",
 )
 
 /** Four explicit steps; no age or content consent is preselected. */
@@ -49,17 +61,18 @@ fun OnboardingScreen(
     onComplete: (languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) -> Unit,
     modifier: Modifier = Modifier,
     copy: OnboardingCopy = OnboardingCopy(),
-    initialLanguage: String = "tr",
+    initialLanguage: String = "en",
     initialIsAdult: Boolean? = null,
     initialExcludedTags: Set<String> = emptySet(),
     initialFavoriteGenres: Set<String> = emptySet(),
+    onLanguageSelected: (String) -> Unit = {},
 ) {
     var step by rememberSaveable { mutableStateOf(0) }
     var isAdult by rememberSaveable { mutableStateOf(initialIsAdult) }
     var excluded by rememberSaveable { mutableStateOf(ArrayList(initialExcludedTags)) }
     var favorites by rememberSaveable { mutableStateOf(ArrayList(initialFavoriteGenres)) }
     var language by rememberSaveable {
-        mutableStateOf(initialLanguage.takeIf { it in setOf("tr", "en", "both") } ?: "tr")
+        mutableStateOf(initialLanguage.takeIf { it in setOf("tr", "en", "both") } ?: "en")
     }
     BackHandler(enabled = saving) { }
     BackHandler(enabled = !saving && step > 0) { step-- }
@@ -76,27 +89,27 @@ fun OnboardingScreen(
                     Spacer(Modifier.height(32.dp))
                     Text(when (step) {
                         0 -> copy.languageTitle
-                        1 -> "Yaşına uygun bir başlangıç"
-                        2 -> "Neleri görmek istemezsin?"
-                        else -> "Hangi dünyalara dalalım?"
+                        1 -> copy.ageTitle
+                        2 -> copy.exclusionsTitle
+                        else -> copy.genresTitle
                     }, style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
                     Text(when (step) {
                         0 -> copy.languageDescription
-                        1 -> "Güvenli mod yetişkin içeriklerini gizler. Tercihini ayarlardan değiştirebilirsin."
-                        2 -> "Seçtiğin etiketlerdeki seriler arama, raflar ve Vault dahil hiçbir yerde gösterilmez."
-                        else -> "Birden fazla tür seçebilirsin. Bu tercihler kara listeni değiştirmez."
+                        1 -> copy.ageDescription
+                        2 -> copy.exclusionsDescription
+                        else -> copy.genresDescription
                     }, style = MaterialTheme.typography.bodyLarge, color = OnboardingMuted)
                     Spacer(Modifier.height(32.dp))
                     if (step == 0) Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        LanguageOption(copy.languageTurkish, "TR", language == "tr", !saving) { language = "tr" }
-                        LanguageOption(copy.languageEnglish, "EN", language == "en", !saving) { language = "en" }
-                        LanguageOption(copy.languageBoth, "TR + EN", language == "both", !saving) { language = "both" }
+                        LanguageOption(copy.languageTurkish, "TR", language == "tr", !saving) { language = "tr"; onLanguageSelected(language) }
+                        LanguageOption(copy.languageEnglish, "EN", language == "en", !saving) { language = "en"; onLanguageSelected(language) }
+                        LanguageOption(copy.languageBoth, "TR + EN", language == "both", !saving) { language = "both"; onLanguageSelected(language) }
                     }
                     if (step == 1) Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        LanguageOption("🔞 18 Yaşından Büyüğüm", "18+", isAdult == true, !saving) { isAdult = true }
-                        LanguageOption("🛡️ 18 Yaşından Küçüğüm", "Güvenli Mod", isAdult == false, !saving) { isAdult = false }
+                        LanguageOption(copy.adult, "18+", isAdult == true, !saving) { isAdult = true }
+                        LanguageOption(copy.minor, copy.safeMode, isAdult == false, !saving) { isAdult = false }
                     }
                     if (step >= 2) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         val options = if (step == 2) blacklistTags else linkedMapOf(
@@ -109,7 +122,7 @@ fun OnboardingScreen(
                                 onClick = {
                                     val next = ArrayList(selection).apply { if (!remove(key)) add(key) }
                                     if (step == 2) excluded = next else favorites = next
-                                }, label = { Text(if (step == 2) "🚫 $label" else label) })
+                                }, label = { Text(if (step == 2) "🚫 ${if (key == "gore") copy.gore else label}" else label) })
                         }
                     }
                     Spacer(Modifier.height(20.dp))
@@ -120,7 +133,7 @@ fun OnboardingScreen(
                     Text(error, color = Color(0xFFFFB4AB), modifier = Modifier.padding(vertical = 12.dp)
                         .semantics { liveRegion = LiveRegionMode.Polite })
                 }
-                if (step > 0) TextButton(onClick = { step-- }, enabled = !saving) { Text("Geri") }
+                if (step > 0) TextButton(onClick = { step-- }, enabled = !saving) { Text(copy.back) }
                 Button(onClick = {
                     if (step < 3) step++ else onComplete(language, isAdult == true, excluded.toSet(), favorites.toSet())
                 }, enabled = !saving && (step != 1 || isAdult != null),
@@ -131,7 +144,7 @@ fun OnboardingScreen(
                         CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         Spacer(Modifier.width(12.dp))
                         Text(copy.saving)
-                    } else Text(if (step == 3) copy.connectAndStart else "Devam et")
+                    } else Text(if (step == 3) copy.connectAndStart else copy.continueAction)
                 }
             }
         }

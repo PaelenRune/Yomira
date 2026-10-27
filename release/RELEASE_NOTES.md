@@ -1,4 +1,17 @@
-# Yomira v8.0.4-Beta
+# Yomira v8.0.5-Beta
+
+Android 8.0+ (API 26) · versionCode `19`
+
+**Varsayılan İngilizce ve anlık dil değişimi:** İlk kurulum cihaz dilinden bağımsız
+İngilizce başlar. Kurulumda Türkçe seçildiğinde tüm uygulama Türkçeye; English veya
+Both seçildiğinde İngilizceye geçer. Dört kurulum adımı da TR/EN metinleri kullanır.
+
+[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.5-Beta.md) ·
+[Doğrulama raporu](VALIDATION_v8.0.5-Beta.md)
+
+---
+
+# Yomira v8.0.4-Beta (arşiv)
 
 Android 8.0+ (API 26) · versionCode `18`
 

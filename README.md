@@ -9,11 +9,11 @@
 Manga · Manhwa · Webtoon · Batı çizgi romanları<br />
 **Android için özgür ve açık kaynak okuma deneyimi — OLED Plum tasarımıyla.**
 
-[![Release v8.0.4-Beta](https://img.shields.io/badge/Release-v8.0.4--Beta-9D4EDD?style=for-the-badge&labelColor=13141C)](release/RELEASE_NOTES_v8.0.4-Beta.md)
+[![Release v8.0.5-Beta](https://img.shields.io/badge/Release-v8.0.5--Beta-9D4EDD?style=for-the-badge&labelColor=13141C)](release/RELEASE_NOTES_v8.0.5-Beta.md)
 [![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=for-the-badge&labelColor=13141C&logo=android&logoColor=white)](https://developer.android.com/about/versions/oreo)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-6366F1?style=for-the-badge&labelColor=13141C)](LICENSE)
 
-[İndir](#indir) · [Gerçek Cihaz Görselleri](#ekran-goruntuleri) · [Özellik Matrisi](#ozellikler) · [Derle](#derleme) · [Sürüm Notları](release/RELEASE_NOTES_v8.0.4-Beta.md)
+[İndir](#indir) · [Gerçek Cihaz Görselleri](#ekran-goruntuleri) · [Özellik Matrisi](#ozellikler) · [Derle](#derleme) · [Sürüm Notları](release/RELEASE_NOTES_v8.0.5-Beta.md)
 
 </div>
 
@@ -21,22 +21,22 @@ Manga · Manhwa · Webtoon · Batı çizgi romanları<br />
 
 **v8 ailesi, tek bakışta:** bağımsız eklentiler, çoklu kaynak yedeği, Stealth Shield,
 kişiselleşen keşif, yeni bölüm takibi ve bulut yedekleri.
-**v8.0.4-Beta'nın odağı:** Google hesabıyla Drive bağlantısı, hesap durumunu görme ve güvenli hesap ayırma.
+**v8.0.5-Beta'nın odağı:** İlk kurulumda varsayılan İngilizce; kurulumda seçilen dile göre tüm uygulamanın anında Türkçe/İngilizce değişmesi.
 
 <a id="indir"></a>
 ## 📥 İndir ve okumaya başla
 
 | Platform | Doğrudan APK | Paket | Boyut |
 | :--- | :--- | :--- | ---: |
-| **Android 8.0+ · API 26+** | [`yomira-v8.0.4-beta.apk`](https://github.com/PaelenRune/Yomira/releases/download/v8.0.4-Beta/yomira-v8.0.4-Beta.apk) | İmzalı, R8 ile küçültülmüş release | ~18,6 MiB |
+| **Android 8.0+ · API 26+** | [`yomira-v8.0.5-Beta.apk`](https://github.com/PaelenRune/Yomira/releases/download/v8.0.5-Beta/yomira-v8.0.5-Beta.apk) | İmzalı, R8 ile küçültülmüş release | ~18,6 MiB |
 
-> **Yayın durumu:** v8.0.4-Beta APK'sı yerel olarak derlenip doğrulandı; GitHub sürüm
+> **Yayın durumu:** v8.0.5-Beta için yerel derleme/doğrulama raporuna bakın; GitHub sürüm
 > varlığı henüz yayımlanmadı. Yukarıdaki bağlantı yayın tamamlanınca kullanılabilir.
-> Dosya adı yayın iş akışında `yomira-v8.0.4-Beta.apk` olarak üretilir.
+> Dosya adı yayın iş akışında `yomira-v8.0.5-Beta.apk` olarak üretilir.
 > Şu an indirilebilir sürüm için [en son yayımlanan sürüme](https://github.com/PaelenRune/Yomira/releases/latest) bak.
 
 - **Bütün sürüm varlıkları:** [GitHub Releases](https://github.com/PaelenRune/Yomira/releases) — APK, sürüm notları ve SHA-256 sağlama toplamları.
-- **Doğrulanmış boyut:** 19.481.781 bayt (~19,5 MB / 18,6 MiB). [Derleme, test ve imza raporu](release/VALIDATION_v8.0.4-Beta.md).
+- **Boyut, test ve imza bilgileri:** [v8.0.5-Beta doğrulama raporu](release/VALIDATION_v8.0.5-Beta.md).
 - **Güncelleme:** Aynı imzalı sürümü mevcut kurulumun üzerine yükleyerek kitaplığını ve ilerlemeni koru. Önce yedek almak her zaman iyi fikirdir.
 - **Kurulum:** Android isterse APK'yı açtığın tarayıcı veya dosya yöneticisine “Bilinmeyen uygulamaları yükle” izni ver.
 
@@ -44,7 +44,7 @@ kişiselleşen keşif, yeni bölüm takibi ve bulut yedekleri.
 ## 📸 Gerçek cihaz, gerçek arayüz
 
 **Xiaomi Mi 10T** üzerinde alınmış ekran görüntüleri; cihaz maketi değildir.
-Görseller önceki cihaz testlerinden arşivdir, v8.0.4-Beta'nın tüm ekranlarını veya özelliklerini doğrulamaz.
+Görseller önceki cihaz testlerinden arşivdir, v8.0.5-Beta'nın tüm ekranlarını veya özelliklerini doğrulamaz.
 
 <div align="center">
 
@@ -133,8 +133,8 @@ Release yapılandırması APK'yı imzalar; R8 kod küçültme ve kaynak küçül
 ./gradlew :feature:settings:testDebugUnitTest :app:testDebugUnitTest
 ```
 
-- [v8.0.4-Beta sürüm notları](release/RELEASE_NOTES_v8.0.4-Beta.md)
-- [v8.0.4-Beta test, derleme ve imza doğrulaması](release/VALIDATION_v8.0.4-Beta.md)
+- [v8.0.5-Beta sürüm notları](release/RELEASE_NOTES_v8.0.5-Beta.md)
+- [v8.0.5-Beta test, derleme ve imza doğrulaması](release/VALIDATION_v8.0.5-Beta.md)
 - [v8.0.3-Beta — İngilizce kapak önceliği](release/RELEASE_NOTES_v8.0.3-Beta.md)
 - [v8.0.2-Beta — Eklenti yönetimi](release/RELEASE_NOTES_v8.0.2-Beta.md)
 - [v8.0.1-Beta — Tam sıfırlama](release/RELEASE_NOTES_v8.0.1-Beta.md)

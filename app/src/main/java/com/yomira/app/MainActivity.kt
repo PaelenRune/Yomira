@@ -135,9 +135,12 @@ class MainActivity : AppCompatActivity() {
             // locale, so every string switches to English/Turkish instantly. The startup
             // guard applies it at most once per process, because Samsung One UI 6 can keep
             // reporting the old locale while recreating, which would otherwise loop forever.
-            LaunchedEffect(onboarding.completed, onboarding.languageCode) {
-                if (onboarding.completed) onboarding.languageCode?.takeIf { it == "tr" || it == "en" }
-                    ?.let(LocaleManagerCompat::syncApplicationLocalesOnStartup)
+            LaunchedEffect(onboarding.loading, onboarding.completed, onboarding.languageCode) {
+                if (!onboarding.loading) {
+                    val language = if (onboarding.completed) onboarding.languageCode
+                        else LocaleManagerCompat.currentApplicationTag()
+                    LocaleManagerCompat.syncApplicationLocalesOnStartup(LocaleManagerCompat.supportedTag(language))
+                }
             }
             Box(Modifier.fillMaxSize()) {
             when {
@@ -151,8 +154,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 !onboarding.completed -> OnboardingScreen(
-                    onboarding.saving, localizedOnboardingError(onboarding.error), onboardingModel::complete,
+                    onboarding.saving, localizedOnboardingError(onboarding.error),
+                    onComplete = { language, adult, excluded, favorites ->
+                        onboardingModel.complete(language, adult, excluded, favorites)
+                        LocaleManagerCompat.setApplicationLocales(language)
+                    },
                     copy = onboardingCopy(), initialLanguage = LocaleManagerCompat.currentApplicationTag(),
+                    onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
                 )
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
@@ -591,16 +599,19 @@ private fun YomiraNavigation(
                 var submitted by rememberSaveable { mutableStateOf(false) }
                 OnboardingScreen(
                     saving = maintenanceState.preferenceBusy,
-                    error = if (maintenanceState.message == MaintenanceMessage.PREFERENCE_FAILED) "Tercihler kaydedilemedi. Yeniden dene." else null,
+                    error = if (maintenanceState.message == MaintenanceMessage.PREFERENCE_FAILED) stringResource(R.string.onboarding_failed_save) else null,
+                    copy = onboardingCopy(),
                     initialLanguage = preferences.language.code,
                     initialIsAdult = preferences.isAdult,
                     initialExcludedTags = preferences.excludedTags,
                     initialFavoriteGenres = preferences.favoriteGenres,
+                    onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
                     onComplete = { language, adult, excluded, favorites ->
                         submitted = true
                         maintenanceModel.setReaderPreferences(ReaderPreferences(
                             ReadingLanguage.entries.first { it.code == language }, adult, adult, excluded, favorites,
                         ))
+                        LocaleManagerCompat.setApplicationLocales(language)
                     },
                 )
                 LaunchedEffect(maintenanceState.readerPreferences, maintenanceState.preferenceBusy) {
@@ -908,4 +919,16 @@ private fun onboardingCopy() = OnboardingCopy(
     languageNote = stringResource(R.string.onboarding_language_note),
     saving = stringResource(R.string.onboarding_saving),
     connectAndStart = stringResource(R.string.onboarding_connect_start),
+    ageTitle = stringResource(R.string.onboarding_age_title),
+    ageDescription = stringResource(R.string.onboarding_age_description),
+    exclusionsTitle = stringResource(R.string.onboarding_exclusions_title),
+    exclusionsDescription = stringResource(R.string.onboarding_exclusions_description),
+    genresTitle = stringResource(R.string.onboarding_genres_title),
+    genresDescription = stringResource(R.string.onboarding_genres_description),
+    adult = stringResource(R.string.onboarding_adult),
+    minor = stringResource(R.string.onboarding_minor),
+    safeMode = stringResource(R.string.onboarding_safe_mode),
+    gore = stringResource(R.string.onboarding_gore),
+    back = stringResource(R.string.onboarding_back),
+    continueAction = stringResource(R.string.onboarding_continue),
 )

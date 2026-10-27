@@ -321,4 +321,14 @@
     <string name="settings_github_body">Kaynak kod, sürüm notları ve destek.</string>
     <string name="settings_stealth_shield_title">Gizlilik &amp; Sansür Kalkanı</string>
     <string name="settings_stealth_shield_body">Harici VPN gerekmeden İSS engellerini ve DNS takibini aşar. Her ağda çalışmayabilir; anonimlik sağlamaz.</string>
+    <string name="onboarding_age_title">Yaşına uygun bir başlangıç</string>
+    <string name="onboarding_age_description">Güvenli mod yetişkin içeriklerini gizler. Tercihini ayarlardan değiştirebilirsin.</string>
+    <string name="onboarding_exclusions_title">Neleri görmek istemezsin?</string>
+    <string name="onboarding_exclusions_description">Seçtiğin etiketlerdeki seriler arama, raflar ve Vault dahil hiçbir yerde gösterilmez.</string>
+    <string name="onboarding_genres_title">Hangi dünyalara dalalım?</string>
+    <string name="onboarding_genres_description">Birden fazla tür seçebilirsin. Bu tercihler kara listeni değiştirmez.</string>
+    <string name="onboarding_adult">🔞 18 Yaşından Büyüğüm</string>
+    <string name="onboarding_minor">🛡️ 18 Yaşından Küçüğüm</string>
+    <string name="onboarding_safe_mode">Güvenli Mod</string>
+    <string name="onboarding_gore">Gore / Aşırı Şiddet</string>
 </resources>
