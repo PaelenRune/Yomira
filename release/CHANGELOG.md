@@ -4,6 +4,18 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v8.0.2-Beta
+
+Android versionCode `16`.
+
+- Mihon tarzı eklenti ekranı; ana ekran ve Ayarlar üzerinden erişim.
+- Depo ekleme/kaldırma, ad/kaynak arama, kurulum/güncelleme ve dil filtreleri.
+- Sandbox yükleme, güncelleme ve kaldırma; çevrimdışı kurulum yönetimi.
+- APK indirme boyut kontrolü düzeltmesi ve regresyon testleri.
+- [Sürüm notları](RELEASE_NOTES_v8.0.2-Beta.md).
+
+---
+
 # Yomira v8.0.1-Beta
 
 Android versionCode `15`.

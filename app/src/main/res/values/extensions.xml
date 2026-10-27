@@ -1,0 +1,23 @@
+<resources>
+    <string name="extensions_title">Extensions</string>
+    <string name="extensions_refresh">Refresh</string>
+    <string name="extensions_repositories">Repositories (%1$d)</string>
+    <string name="extensions_trust">Only add repositories you trust. Extensions download code into app-private storage.</string>
+    <string name="extensions_add_repo">+ Add repository</string>
+    <string name="extensions_manage_repos">Manage repositories</string>
+    <string name="extensions_remove_repo">Remove repository</string>
+    <string name="extensions_no_repos">Add a repository to browse and install extensions.</string>
+    <string name="extensions_search">Search extensions or sources</string>
+    <string name="extensions_all">All</string>
+    <string name="extensions_installed">Installed</string>
+    <string name="extensions_updates">Updates</string>
+    <string name="extensions_all_languages">All languages</string>
+    <string name="extensions_error">Could not complete the operation. Check your connection and repository URL, then retry. Existing installations are still listed.</string>
+    <string name="extensions_empty">No extensions match these filters.</string>
+    <string name="extensions_install">Install</string>
+    <string name="extensions_uninstall">Uninstall</string>
+    <string name="extensions_update">Update</string>
+    <string name="extensions_builtin">Built-in</string>
+    <string name="extensions_repo_hint">Paste an HTTPS repository index URL, such as https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json</string>
+    <string name="extensions_cancel">Cancel</string>
+</resources>

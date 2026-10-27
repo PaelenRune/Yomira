@@ -195,8 +195,8 @@ class OkHttpExtensionDownloadClient(
                             val body = it.body ?: throw IOException("Empty APK response")
                             if (body.contentLength() > maxApkBytes) throw IOException("APK too large")
                             val source = body.source()
-                            if (!source.request(maxApkBytes + 1)) throw IOException("APK too large")
-                            source.readByteArray(minOf(body.contentLength().coerceAtLeast(0), maxApkBytes))
+                            if (source.request(maxApkBytes + 1)) throw IOException("APK too large")
+                            source.readByteArray()
                         }
                     }
                     if (continuation.isActive) result.fold(continuation::resume, continuation::resumeWithException)

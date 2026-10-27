@@ -8,6 +8,8 @@ interface ExtensionRepository {
     suspend fun refresh(): List<ExtensionDescriptor>
     suspend fun available(): List<ExtensionDescriptor>
     suspend fun installed(): List<InstalledExtension>
+    /** Index that supplied the current package; never infer ownership from its APK URL. */
+    suspend fun repositoryUrl(packageName: String): String? = null
 }
 
 interface SourceBridge {

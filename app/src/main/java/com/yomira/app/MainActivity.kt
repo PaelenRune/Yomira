@@ -28,6 +28,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.yomira.app.catalog.catalogTagChips
+import com.yomira.app.extensions.ExtensionsScreen
+import com.yomira.app.extensions.ExtensionsViewModel
 import com.yomira.app.achievement.AchievementBannerHost
 import com.yomira.domain.journey.JourneyRepository
 import javax.inject.Inject
@@ -73,6 +75,7 @@ class MainActivity : AppCompatActivity() {
     private val settingsModel: SettingsViewModel by viewModels()
     private val maintenanceModel: SettingsMaintenanceViewModel by viewModels()
     private val journeyModel: JourneyViewModel by viewModels()
+    private val extensionsModel: ExtensionsViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
     private var confirmingCredential = false
     /** Set while a settings action (e.g. revealing the Vault) awaits the credential verdict. */
@@ -154,7 +157,7 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
                     YomiraNavigation(
-                        model, readerModel, settingsModel, maintenanceModel, journeyModel, settings, authError,
+                        model, readerModel, settingsModel, maintenanceModel, journeyModel, extensionsModel, settings, authError,
                         onUnlockVault = {
                             if (settings.vaultVisible && maintenanceModel.state.value.readerPreferences?.let { it.isAdult && it.allowAdultContent } == true) {
                                 // "Protect with device lock" is the user's call; default is on.
@@ -198,6 +201,7 @@ private fun YomiraNavigation(
     settingsModel: SettingsViewModel,
     maintenanceModel: SettingsMaintenanceViewModel,
     journeyModel: JourneyViewModel,
+    extensionsModel: ExtensionsViewModel,
     settings: AppSettings,
     authError: String?,
     onUnlockVault: () -> Unit,
@@ -287,7 +291,7 @@ private fun YomiraNavigation(
         if (item != null && !allowed(item)) panic()
     }
     val showChrome = current == "home" || current == "discover" || current == "library" || current == "profile" || current == "vault"
-    val showNavigation = current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings" && current != "wrapped"
+    val showNavigation = current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings" && current != "extensions" && current != "wrapped"
     // Tablet shell: at >=600dp the bottom bar becomes a left rail and the detail
     // screen switches to its 2-pane master-detail geometry (AdaptiveLayout).
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -304,6 +308,9 @@ private fun YomiraNavigation(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     LanguageSwitchButton { LocaleManagerCompat.toggleApplicationLocale() }
+                    TextButton(onClick = { nav.navigate("extensions") { launchSingleTop = true } }) {
+                        Text(stringResource(R.string.extensions_title))
+                    }
                     FilledTonalButton(onClick = { nav.navigate("settings") { launchSingleTop = true } }) {
                         Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
@@ -523,7 +530,7 @@ private fun YomiraNavigation(
             }
             composable("settings") {
                 val maintenance by maintenanceModel.state.collectAsStateWithLifecycle()
-                LaunchedEffect(Unit) { maintenanceModel.refresh() }
+                LaunchedEffect(Unit) { maintenanceModel.refresh(); settingsModel.refreshRepositories() }
                 SettingsScreen(
                     state = settingsState,
                     currentLanguage = AppLanguage.fromTag(LocaleManagerCompat.currentApplicationTag()),
@@ -553,6 +560,18 @@ private fun YomiraNavigation(
                     buildInfo = "${BuildConfig.BUILD_TYPE} (${BuildConfig.VERSION_CODE})",
                     onReaderPreferencesChange = maintenanceModel::setReaderPreferences,
                     onRerunSurvey = { nav.navigate("survey") { launchSingleTop = true } },
+                    onOpenExtensions = { nav.navigate("extensions") { launchSingleTop = true } },
+                    extensionsLabel = stringResource(R.string.extensions_title),
+                )
+            }
+            composable("extensions") {
+                val extensionState by extensionsModel.state.collectAsStateWithLifecycle()
+                LaunchedEffect(Unit) { extensionsModel.refresh() }
+                ExtensionsScreen(
+                    state = extensionState, onBack = { nav.popBackStack() }, onRefresh = extensionsModel::refresh,
+                    onQuery = extensionsModel::setQuery, onFilter = extensionsModel::setFilter,
+                    onLanguage = extensionsModel::setLanguage, onAddRepository = extensionsModel::addRepository,
+                    onRemoveRepository = extensionsModel::removeRepository, onAction = extensionsModel::act,
                 )
             }
             composable("survey") {

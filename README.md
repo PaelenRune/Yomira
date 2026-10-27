@@ -46,6 +46,9 @@ Android görselleri **Xiaomi Mi 10T** gerçek cihazından alınmıştır — moc
 
 ## ✨ Özellikler
 
+- 🧩 **Eklentiler (v8.0.2-Beta)** — Ana ekran veya Ayarlar → Eklentiler: depo ekle,
+  eklenti/kaynak ara, TR/EN ve yüklü/güncelleme filtrelerini kullan; eklentileri yükle,
+  güncelle veya kaldır. [Sürüm notları](release/RELEASE_NOTES_v8.0.2-Beta.md).
 - 🗑️ **Fabrika Ayarlarına Dön (v8.0.1-Beta)** — Ayarlar → Depolama bölümündeki
   “Tüm Verileri Sıfırla” onayından sonra tüm yerel uygulama verileri silinir ve uygulama kapanır.
   Yeniden açıldığında ilk kurulum başlar. Drive yedekleri ve dışa aktarılan dosyalar korunur.

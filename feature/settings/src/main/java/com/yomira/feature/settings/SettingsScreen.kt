@@ -86,6 +86,8 @@ fun SettingsScreen(
     onReaderPreferencesChange: (ReaderPreferences) -> Unit = {},
     onRerunSurvey: () -> Unit = {},
     onFactoryReset: () -> Unit = {},
+    onOpenExtensions: () -> Unit = {},
+    extensionsLabel: String = "Eklentiler / Extensions",
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
@@ -113,6 +115,13 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             item { SettingsHeader(copy, onBack) }
+            item {
+                FilledTonalButton(onClick = onOpenExtensions, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    Icon(Icons.Default.Extension, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(extensionsLabel)
+                }
+            }
             item {
                 SettingsSection(Icons.Default.FilterAlt, "İçerik Filtreleri & Kara Liste", NeonPurple) {
                     val preferences = maintenance.readerPreferences

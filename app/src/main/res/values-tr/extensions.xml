@@ -1,0 +1,23 @@
+<resources>
+    <string name="extensions_title">Eklentiler</string>
+    <string name="extensions_refresh">Yenile</string>
+    <string name="extensions_repositories">Depolar (%1$d)</string>
+    <string name="extensions_trust">Yalnızca güvendiğin depoları ekle. Eklentiler uygulamaya özel alana kod indirir.</string>
+    <string name="extensions_add_repo">+ Depo Ekle</string>
+    <string name="extensions_manage_repos">Depoları yönet</string>
+    <string name="extensions_remove_repo">Depoyu kaldır</string>
+    <string name="extensions_no_repos">Eklentileri görmek ve yüklemek için bir depo ekle.</string>
+    <string name="extensions_search">Eklenti veya kaynak ara</string>
+    <string name="extensions_all">Tümü</string>
+    <string name="extensions_installed">Yüklü</string>
+    <string name="extensions_updates">Güncelleme</string>
+    <string name="extensions_all_languages">Tüm diller</string>
+    <string name="extensions_error">İşlem tamamlanamadı. Bağlantını ve depo adresini kontrol edip yeniden dene. Mevcut kurulumlar listelenmeye devam eder.</string>
+    <string name="extensions_empty">Bu filtrelere uygun eklenti bulunamadı.</string>
+    <string name="extensions_install">Yükle</string>
+    <string name="extensions_uninstall">Kaldır</string>
+    <string name="extensions_update">Güncelle</string>
+    <string name="extensions_builtin">Yerleşik</string>
+    <string name="extensions_repo_hint">HTTPS depo dizini adresini yapıştır. Örnek: https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json</string>
+    <string name="extensions_cancel">İptal</string>
+</resources>

@@ -1,4 +1,17 @@
-# Yomira v8.0.1-Beta
+# Yomira v8.0.2-Beta
+
+Android 8.0+ (API 26) · versionCode `16`
+
+**Mihon tarzı eklenti yönetimi:** Ana ekran üst çubuğu veya Ayarlar → Eklentiler.
+Depo ekle, eklenti/kaynak ara, dil ve kurulum filtrelerini kullan; eklentileri yükle,
+güncelle veya kaldır. Kurulumlar mevcut uygulama içi sandbox sistemini kullanır.
+Yüklü eklentiler, depoları kaldırıldığında veya çevrimdışı olduğunda da yönetilebilir.
+
+[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.2-Beta.md)
+
+---
+
+# Yomira v8.0.1-Beta (arşiv)
 
 Android 8.0+ (API 26) · versionCode `15`
 

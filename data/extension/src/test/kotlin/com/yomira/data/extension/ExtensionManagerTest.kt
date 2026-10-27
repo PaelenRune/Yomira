@@ -14,6 +14,7 @@ class ExtensionManagerTest {
         manager.addRepository("https://example.org/index.json")
         assertEquals(1, manager.repositories().size)
         manager.refresh()
+        assertEquals("https://example.org/index.json", manager.repositoryUrl("example"))
         assertEquals(2L, manager.updates().single().available.versionCode)
     }
 
@@ -28,6 +29,7 @@ class ExtensionManagerTest {
             fail("Expected invalid index")
         } catch (_: IllegalArgumentException) { }
         assertEquals(previous, manager.available())
+        assertEquals("https://example.org/index.json", manager.repositoryUrl("example"))
     }
 
     @Test fun `removing repository clears revoked cached entries`() = runTest {
@@ -38,6 +40,7 @@ class ExtensionManagerTest {
         manager.removeRepository(url)
         assertTrue(manager.available().isEmpty())
         assertTrue(manager.repositories().isEmpty())
+        assertNull(manager.repositoryUrl("example"))
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -2,6 +2,8 @@ package com.yomira.app.di
 
 import android.content.Context
 import com.yomira.app.backup.RoomBackupImportTarget
+import com.yomira.app.extensions.ExtensionOperations
+import com.yomira.app.extensions.SandboxExtensionOperations
 import com.yomira.data.extension.FileJsonSourceManifestStore
 import com.yomira.data.extension.InstalledExtensionProvider
 import com.yomira.data.extension.ManifestInstalledExtensionProvider
@@ -31,6 +33,9 @@ import okhttp3.OkHttpClient
 @Module
 @InstallIn(SingletonComponent::class)
 object ExtensionSandboxModule {
+    @Provides
+    fun provideExtensionOperations(operations: SandboxExtensionOperations): ExtensionOperations = operations
+
     @Provides
     @Singleton
     fun provideSandboxLayout(@ApplicationContext context: Context): SandboxLayout =

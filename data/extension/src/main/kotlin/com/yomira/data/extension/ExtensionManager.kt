@@ -31,6 +31,7 @@ class ExtensionManager(
 ) : ExtensionRepository {
     private val mutex = Mutex()
     private var snapshot: List<ExtensionDescriptor> = emptyList()
+    private var origins: Map<String, String> = emptyMap()
 
     override suspend fun addRepository(indexUrl: String) = mutex.withLock {
         requireHttps(indexUrl)
@@ -42,6 +43,7 @@ class ExtensionManager(
         store.write(store.read().filterNot { it == indexUrl })
         // Do not retain entries from a repository whose consent has been revoked.
         snapshot = emptyList()
+        origins = emptyMap()
     }
 
     override suspend fun repositories(): List<String> = mutex.withLock {
@@ -50,11 +52,13 @@ class ExtensionManager(
 
     /** All-or-nothing refresh preserves the previous snapshot on network or parsing failure. */
     override suspend fun refresh(): List<ExtensionDescriptor> = mutex.withLock {
-        val entries = store.read().distinct().flatMap { url -> parser.parse(client.fetch(url), url) }
+        val indexed = store.read().distinct().map { url -> url to parser.parse(client.fetch(url), url) }
+        val entries = indexed.flatMap { it.second }
         // Ambiguous package ownership is not resolved by silently trusting the highest version.
         require(entries.map { it.packageName }.distinct().size == entries.size) {
             "Conflicting package names across repositories"
         }
+        origins = indexed.flatMap { (url, descriptors) -> descriptors.map { it.packageName to url } }.toMap()
         entries.toList().also { snapshot = it }
     }
 
@@ -63,6 +67,8 @@ class ExtensionManager(
     }
 
     override suspend fun installed(): List<InstalledExtension> = installedProvider.installed()
+
+    override suspend fun repositoryUrl(packageName: String): String? = mutex.withLock { origins[packageName] }
 
     suspend fun updates(): List<ExtensionUpdate> {
         val available = available().associateBy { it.packageName }
