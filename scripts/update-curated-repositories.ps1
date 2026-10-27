@@ -1,55 +1,33 @@
-# Regenerates the curated Yomira extension repository indexes under repositories/.
-#
-# Source of truth is the public Keiyoushi v2 index (index.json). The generated
-# files use the v1 schema Yomira's KeiyoushiRepoParser understands:
-#   { name, pkgName, apkUrl, lang, nsfw (0|1), version, code, sources[{id,name,lang}] }
-#
-# Run from any directory:  powershell -File scripts\update-curated-repositories.ps1
-# Commit the two generated index.min.json files afterwards.
-
+# Run with PowerShell 7 on any platform: pwsh -File scripts/update-curated-repositories.ps1
+# Suitable for cron / Task Scheduler / CI; exports are deliberately excluded from APK resources.
 param(
     [string]$SourceIndexUrl = 'https://raw.githubusercontent.com/keiyoushi/extensions/main/index.json',
-    [string]$OutputRoot = (Join-Path $PSScriptRoot '..\repositories')
+    [string]$OutputRoot = (Join-Path $PSScriptRoot '../repositories')
 )
 
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-$temp = Join-Path ([IO.Path]::GetTempPath()) 'yomira-keiyoushi-index.json'
-Invoke-WebRequest -Uri $SourceIndexUrl -OutFile $temp -UseBasicParsing
-# Read explicitly as UTF-8; Windows PowerShell would otherwise guess ANSI and
-# corrupt source names like "Golge Bahcesi" / "Turkce Manga Oku".
-$document = ([IO.File]::ReadAllText($temp, [Text.Encoding]::UTF8)) | ConvertFrom-Json
+$response = Invoke-WebRequest -Uri $SourceIndexUrl -UseBasicParsing
+$document = $response.Content | ConvertFrom-Json
 $extensions = @($document.extensionList.extensions)
 if ($extensions.Count -lt 100) { throw "Upstream index looks truncated ($($extensions.Count) entries)" }
 
-# Converts one Keiyoushi v2 entry into the v1 schema Yomira parses.
 function Convert-ToV1Entry($extension) {
-    $nsfw = if ($extension.contentWarning -eq 'CONTENT_WARNING_NSFW') { 1 } else { 0 }
     $language = if (@($extension.sources).Count -gt 0) { @($extension.sources)[0].language } else { 'all' }
     [ordered]@{
-        name    = $extension.name
+        name = $extension.name
         pkgName = $extension.packageName
-        apkUrl  = $extension.resources.apkUrl
-        lang    = $language
-        nsfw    = $nsfw
+        apkUrl = $extension.resources.apkUrl
+        lang = $language
+        nsfw = $(if ($extension.contentWarning -eq 'CONTENT_WARNING_NSFW') { 1 } else { 0 })
         version = $extension.versionName
-        code    = [long]$extension.versionCode
+        code = [long]$extension.versionCode
         sources = @($extension.sources | ForEach-Object {
-            [ordered]@{ id = $_.id; name = $_.name; lang = $_.language }
+            [ordered]@{ id = [string]$_.id; name = $_.name; lang = $_.language }
         })
     }
 }
 
-# Turkish local sources (fansub/scanlation extensions maintained upstream).
-$turkish = @($extensions |
-    Where-Object { $_.packageName -like 'eu.kanade.tachiyomi.extension.tr.*' } |
-    ForEach-Object { Convert-ToV1Entry $_ } |
-    Sort-Object pkgName)
-
-# Western comic libraries: Marvel/DC style aggregators plus legitimate
-# webcomic and comic-strip publishers. Adult-only sites are intentionally
-# excluded from this curated list.
 $westernPackageIds = @(
     'readcomicsonline', 'xoxocomics', 'comicland', 'nexcomic', 'cocomic',
     'comichubfree', 'digitalcomicmuseum', 'comicskingdom', 'comicfury',
@@ -57,23 +35,44 @@ $westernPackageIds = @(
     'existentialcomics', 'darklegacycomics', 'snafucomic',
     'saturdaymorningbreakfastcomics', 'grrlpower', 'manta', 'webcomics'
 )
-$western = @($extensions |
-    Where-Object { $westernPackageIds -contains $_.packageName.Split('.')[-1] } |
-    ForEach-Object { Convert-ToV1Entry $_ } |
-    Sort-Object pkgName)
-if ($western.Count -ne $westernPackageIds.Count) {
-    $found = @($western | ForEach-Object { $_.pkgName.Split('.')[-1] })
-    $missing = @($westernPackageIds | Where-Object { $found -notcontains $_ })
-    Write-Warning "Upstream no longer ships: $($missing -join ', ')"
+$groups = @{ turkish = @(); western = @(); global = @() }
+foreach ($extension in $extensions) {
+    $group = if ($extension.packageName -like 'eu.kanade.tachiyomi.extension.tr.*') { 'turkish' }
+        elseif ($westernPackageIds -contains $extension.packageName.Split('.')[-1]) { 'western' }
+        else { 'global' }
+    $groups[$group] += Convert-ToV1Entry $extension
 }
 
-function Write-CuratedIndex($items, $path) {
-    $directory = Split-Path -Parent $path
-    New-Item -ItemType Directory -Force -Path $directory | Out-Null
-    # UTF-8 without BOM: kotlinx.serialization rejects a leading BOM.
-    [IO.File]::WriteAllText($path, (ConvertTo-Json $items -Depth 6 -Compress), [Text.UTF8Encoding]::new($false))
-    Write-Output "Wrote $($items.Count) entries to $path"
+function Write-Utf8($path, $text) {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $path) | Out-Null
+    [IO.File]::WriteAllText($path, $text, [Text.UTF8Encoding]::new($false))
 }
 
-Write-CuratedIndex $turkish (Join-Path $OutputRoot 'turkish\index.min.json')
-Write-CuratedIndex $western (Join-Path $OutputRoot 'western\index.min.json')
+# Fixed-key XOR is obfuscation for casual APK inspection, NOT secret-key encryption.
+# Encoding every index also conceals adult entries in otherwise general-purpose groups.
+function Protect-Index($text) {
+    $bytes = [Text.Encoding]::UTF8.GetBytes($text)
+    $key = [Text.Encoding]::UTF8.GetBytes('yomira-repository-v1')
+    for ($i = 0; $i -lt $bytes.Length; $i++) { $bytes[$i] = $bytes[$i] -bxor $key[$i % $key.Length] }
+    'YOMIRA-XOR-1:' + [Convert]::ToBase64String($bytes)
+}
+
+$catalog = @()
+foreach ($group in @('turkish', 'western', 'global')) {
+    $items = @($groups[$group] | Sort-Object pkgName)
+    $json = ConvertTo-Json -InputObject $items -Depth 8 -Compress
+    Write-Utf8 (Join-Path $OutputRoot "export/$group/index.min.json") $json
+    Write-Utf8 (Join-Path $OutputRoot "$group/index.enc") (Protect-Index $json)
+    # Remove only the superseded generated plaintext index, never arbitrary user files.
+    $legacy = Join-Path $OutputRoot "$group/index.min.json"
+    if (Test-Path $legacy) { Remove-Item -LiteralPath $legacy }
+    $catalog += [ordered]@{
+        resource = "$group/index.enc"
+        indexUrl = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/$group/index.min.json"
+        upstreamUrl = $SourceIndexUrl
+        group = $group
+        westernPackages = $westernPackageIds
+    }
+    Write-Output "Wrote $($items.Count) entries: $group (bundled + clean export)"
+}
+Write-Utf8 (Join-Path $OutputRoot 'catalog.json') (ConvertTo-Json -InputObject $catalog -Depth 6 -Compress)

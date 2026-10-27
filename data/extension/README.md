@@ -11,8 +11,43 @@ The core contains no chapter content, source implementations, APK bundles, or se
 indexes are packaged as JVM resources (also included in the Android APK) under `yomira/repositories/`.
 `repositories/catalog.json` lists their canonical HTTPS identities and resource paths. Every index in
 that catalog is immediately available through `ExtensionManager`, even with an empty URL store and
-without calling `refresh`. Bundled snapshots require no network; explicit additional URLs are fetched
-on refresh. Completing onboarding does **not silently install or automatically trust APK code**.
+without calling `refresh`. Bundled snapshots require no network to load. `available()` automatically
+attempts an upstream metadata sync on first use and then at most once per six hours while in use;
+`refresh()` forces a check. Offline/invalid upstream responses retain the last valid in-memory snapshot.
+No background service runs while the app is closed, and refreshed indexes are not persisted across
+process restarts. Explicit additional URLs are fetched on refresh. Completing onboarding does
+**not silently install or automatically trust APK code**.
+
+## Bundled catalog generation and exports
+
+Run `powershell -ExecutionPolicy Bypass -File scripts/update-curated-repositories.ps1` on Windows,
+or `pwsh -File scripts/update-curated-repositories.ps1` using PowerShell 7 on Linux/macOS.
+The generator fetches Keiyoushi's v2 metadata and produces non-overlapping Turkish, Western, and
+remaining-global catalogs, including all upstream entries. This is repository metadata conversion,
+not conversion of executable APK scraping code into JSON.
+
+* `repositories/{turkish,western,global}/index.enc`: bundled UTF-8 JSON encoded with the versioned
+  `YOMIRA-XOR-1:` wrapper. The loader and parser accept ordinary JSON and wrapped payloads.
+* `repositories/export/{turkish,western,global}/index.min.json`: clean, publishable JSON copies.
+  **Never package this folder**: `processResources` explicitly excludes `export/**`.
+* `repositories/catalog.json`: resource paths, canonical HTTPS identities, upstream URL and grouping.
+  The application checks upstream directly; publishing the export URLs is not needed for auto-sync.
+
+All groups are encoded, including any adult metadata in otherwise general-purpose groups. Fixed-key
+XOR only hides readable strings from casual APK inspection. It is **not cryptographic secrecy**:
+the app carries the key, a determined analyst can decode the files, and users can see source metadata
+in memory. Repository exports and this source checkout intentionally contain plaintext metadata.
+No APK execution trust or automatic source installation is implied by a metadata update.
+
+For daily export regeneration, schedule the same command using Task Scheduler, or use cron:
+
+```cron
+0 4 * * * cd /path/to/Yomira && pwsh -NoProfile -File scripts/update-curated-repositories.ps1
+```
+
+Commit/publish the generated outputs as needed. Generation requires network access and PowerShell;
+normal builds use committed snapshots and do not fetch upstream. Existing auto-seeded legacy URLs
+are mapped to the bundled catalogs to avoid overlapping package ownership after upgrade.
 
 ## APK-to-JSON conversion
 
@@ -38,7 +73,8 @@ APK publisher-signature verification and does not grant execution trust.
     `InstalledExtensionProvider` backed by the JSON manifest store and persisted certificate consent.
 2. Present TR/EN and +18 controls and invoke `OnboardingWizardManager.complete`. Handle exceptions
    as retryable errors; completion is persisted only when setup succeeds. On a cold start, invoke
-   `ExtensionManager.refresh()` before matching (the repository snapshot is intentionally in memory).
+    `ExtensionManager.refresh()` to force a sync, or use `available()` for throttled automatic sync
+    before matching (the repository snapshot is intentionally in memory).
 3. Implement `IsolatedExtensionRuntime` in the Android host using authenticated IPC, Mihon-compatible
    source APIs, cancellable calls, source ownership checks, and package certificate trust. Inject it
    into `SandboxSourceBridge`; never replace this boundary with an in-process class loader.

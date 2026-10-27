@@ -186,6 +186,11 @@ class CatalogSeederTest {
     private class FakeMangaDao(
         val rows: MutableList<MangaEntity> = mutableListOf(),
     ) : MangaDao {
+        override suspend fun updateContentRating(mangaId: String, rating: ContentRating) {
+            val index = rows.indexOfFirst { it.id == mangaId }
+            if (index >= 0) rows[index] = rows[index].copy(contentRating = rating)
+        }
+
         override suspend fun updateReadingMode(mangaId: String, mode: ReadingMode) {
             val index = rows.indexOfFirst { it.id == mangaId }
             if (index >= 0) rows[index] = rows[index].copy(readingMode = mode)

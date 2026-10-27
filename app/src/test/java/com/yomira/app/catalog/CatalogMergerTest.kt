@@ -74,6 +74,21 @@ class CatalogMergerTest {
         assertEquals(ContentRating.MATURE, CatalogMerger.mergedEntity(seeded(), matureRemote).contentRating)
     }
 
+    @Test fun classifierCorrectionReplacesStaleExplicitRating() {
+        val title = "I Formed a MILF Party with the Heroes' Mothers"
+        val existing = seeded().copy(title = title, contentRating = ContentRating.EXPLICIT)
+        val incoming = remote().copy(title = title, contentRating = ContentRating.MATURE)
+        assertEquals(ContentRating.MATURE, CatalogMerger.mergedEntity(existing, incoming).contentRating)
+        assertEquals(ContentRating.MATURE, CatalogMerger.reclassifiedRating(existing))
+    }
+
+    @Test fun cachedEroticaCanBeReevaluatedWithoutTreatingOldRatingAsProviderEvidence() {
+        val existing = seeded().copy(contentRating = ContentRating.EXPLICIT, genres = listOf("Erotica"))
+        assertEquals(ContentRating.MATURE, CatalogMerger.reclassifiedRating(existing))
+        assertEquals(ContentRating.MATURE, CatalogMerger.mergedEntity(existing, remote().copy(contentRating = ContentRating.MATURE)).contentRating)
+        assertEquals(ContentRating.EXPLICIT, CatalogMerger.reclassifiedRating(existing.copy(genres = listOf("Hentai"))))
+    }
+
     @Test fun unknownRemoteStatusKeepsTheStoredOne() {
         val merged = CatalogMerger.mergedEntity(seeded(), remote().copy(status = MangaStatus.UNKNOWN))
         assertEquals(MangaStatus.COMPLETED, merged.status)

@@ -4,6 +4,19 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v5.4.0-beta
+
+27 Ekim 2026 · Android 8.0+ (API 26) · versionCode `9`
+
+- Uygulama içi APK indirme, güncelleme ilerlemesi ve Android paket yükleyicisine geçiş akışı.
+- Kaynak eşleştirme ve bölüm adresi çözümleme üzerinden okuyucu entegrasyonu.
+- Gömülü depo yükleri, depo senkronizasyonu ve katalog tekilleştirme iyileştirmeleri.
+- Ana sayfa, detay, kapak ve Kasa arayüzü ile içerik sınıflandırma güncellemeleri.
+- Kalıcı Yomira Release anahtarıyla imzalanmış `yomira-v5.4.0-beta.apk`.
+- Fiziksel cihazda üzerine kurulum ve soğuk açılış doğrulandı; ayrıntılar: [VALIDATION_5.4.0-beta.md](VALIDATION_5.4.0-beta.md).
+
+---
+
 # Yomira v5.2.0-beta
 
 **Saf Mobil Odak, Poster Altı Başlıklar, Hızlı Kapak Önbelleği & İngilizce Kapak Önceliği**

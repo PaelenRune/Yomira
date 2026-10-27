@@ -17,7 +17,7 @@ class KeiyoushiRepoParser {
 
     fun parse(payload: String, indexUrl: String): List<ExtensionDescriptor> {
         requireHttps(indexUrl)
-        val entries = json.parseToJsonElement(payload) as? JsonArray
+        val entries = json.parseToJsonElement(RepositoryPayload.decode(payload)) as? JsonArray
             ?: throw IllegalArgumentException("Repository index must be a JSON array")
         val extensions = entries.mapIndexed { index, element ->
             try {

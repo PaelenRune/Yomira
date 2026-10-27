@@ -6,6 +6,10 @@ import com.yomira.core.database.entity.MangaEntity
 import com.yomira.core.database.mapper.toEntity
 import com.yomira.core.model.Manga
 import com.yomira.core.model.MangaStatus
+import com.yomira.core.model.ContentRating
+import com.yomira.core.model.ExternalRating
+import com.yomira.domain.classifier.ClassificationInput
+import com.yomira.domain.classifier.ContentRatingClassifier
 import java.util.Locale
 
 /**
@@ -25,10 +29,29 @@ import java.util.Locale
  *    previous title demotes to an alt title, keeping every alias searchable;
  *  - volatile facts (artwork, score, status, genres) refresh from the incoming record,
  *    missing text fields fall back to the stored value;
- *  - `contentRating` only ever ratchets upwards — a merge must never demote an adult
- *    title into the public catalog.
+ *  - stored ratings remain evidence, but current classifier corrections take precedence.
  */
 object CatalogMerger {
+    private val classifier = ContentRatingClassifier()
+
+    /** Derived historical ratings are not provider evidence; re-run the actual metadata. */
+    fun reclassifiedRating(entity: MangaEntity): ContentRating = classifyRating(
+        entity.title, entity.altTitles, entity.genres, emptyList(),
+    ).takeUnless { it == ContentRating.SAFE } ?: entity.contentRating
+
+    private fun classifyRating(title: String, aliases: List<String>, genres: List<String>, ratings: List<ContentRating>): ContentRating =
+        classifier.classify(ClassificationInput(
+            title = title,
+            altTitles = aliases,
+            genres = genres,
+            externalRatings = ratings.map {
+                when (it) {
+                    ContentRating.EXPLICIT -> ExternalRating.PORNOGRAPHIC
+                    ContentRating.MATURE -> ExternalRating.SUGGESTIVE
+                    ContentRating.SAFE -> ExternalRating.SAFE
+                }
+            },
+        ))
     /** Outcome of [upsertMerged]; useful for telemetry and tests. */
     enum class Outcome { Inserted, Merged }
 
@@ -81,11 +104,8 @@ object CatalogMerger {
             score = incoming.score ?: existing.score,
             status = if (incoming.status != MangaStatus.UNKNOWN) incoming.status else existing.status,
             genres = genres,
-            contentRating = if (incoming.contentRating.level > existing.contentRating.level) {
-                incoming.contentRating
-            } else {
-                existing.contentRating
-            },
+            contentRating = classifyRating(displayTitle, aliases, genres, listOf(incoming.contentRating))
+                .takeUnless { it == ContentRating.SAFE } ?: existing.contentRating,
             // Identity columns never move: ids are referenced by chapters and by the
             // user's library, and the reading mode is a stored personal preference.
             sourceId = existing.sourceId,

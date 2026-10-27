@@ -19,18 +19,34 @@ import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
 import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.NeonFuchsia
+import java.text.Normalizer
+import java.util.Locale
 
 fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): List<Manga> {
     if (!unlocked) return emptyList()
-    val aliases = when (genre) {
-        "Adult Webtoons" -> setOf("adult webtoons", "webtoon", "webtoons", "manhwa")
-        "Hentai Manga" -> setOf("hentai manga", "hentai")
-        "Smut" -> setOf("smut")
-        "Doujinshi" -> setOf("doujinshi", "doujin")
+    val selectedGenre = genre?.let(::normalizeGenre)
+    val aliases = when (selectedGenre) {
+        "adult webtoons" -> setOf("adult webtoon", "adult webtoons", "webtoon", "webtoons", "manhwa", "pornhwa")
+        "hentai manga" -> setOf("hentai manga", "hentai")
+        "smut" -> setOf("smut", "erotica", "erotic")
+        "doujinshi" -> setOf("doujinshi", "doujin", "doujinshis", "doujins", "dōjinshi", "dōjin")
         else -> emptySet()
     }
-    return manga.filter { item -> item.contentRating == ContentRating.EXPLICIT && (genre == null || item.genres.any { it.lowercase(java.util.Locale.ROOT) in aliases }) }
+    return manga.filter { item ->
+        item.contentRating == ContentRating.EXPLICIT && (genre == null || item.genres.any { label ->
+            // Providers flatten tags into genres, sometimes as a single delimited string.
+            // Word boundaries allow "Hentai Doujinshi" but never "Nonhentai".
+            val normalized = " ${normalizeGenre(label)} "
+            aliases.any { alias -> " $alias " in normalized }
+        })
+    }
 }
+
+private fun normalizeGenre(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFKC)
+    .lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
+
+internal fun toggleVaultGenre(selected: String?, clicked: String): String? =
+    if (selected == clicked) null else clicked
 
 /** Localized texts of the +18 Vault shelf. */
 data class VaultCopy(
@@ -101,7 +117,7 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
             LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 item { FilterChip(selected == null, { selected = null }, label = { Text(copy.filterAll) }) }
                 items(listOf("Adult Webtoons", "Hentai Manga", "Smut", "Doujinshi")) { genre ->
-                    FilterChip(selected == genre, { selected = if (selected == genre) null else genre }, label = { Text(genre) })
+                    FilterChip(selected == genre, { selected = toggleVaultGenre(selected, genre) }, label = { Text(genre) })
                 }
             }
         }

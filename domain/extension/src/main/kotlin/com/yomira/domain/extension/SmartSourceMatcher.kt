@@ -13,7 +13,9 @@ class SmartSourceMatcher(
     suspend fun match(series: SeriesIdentity, preferences: ReaderPreferences): SmartMatchResult {
         val failures = mutableListOf<SourceFailure>()
         val installed = extensions.installed().filter { it.trusted }.associateBy { it.packageName }
-        val eligible = extensions.available().filter { preferences.allowAdultContent || !it.nsfw }
+        val eligible = extensions.available().filter {
+            (preferences.allowAdultContent || !it.nsfw) && it.sources.any { source -> accepts(source, preferences) }
+        }
         val candidates = mutableListOf<SourceCandidate>()
         val chaptersBySource = mutableMapOf<Pair<String, String>, List<SourceChapter>>()
         for (extension in eligible.filter { it.packageName in installed }) {
@@ -49,7 +51,8 @@ class SmartSourceMatcher(
             }
         }
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
-            .sortedWith(compareByDescending<SourceCandidate> { languageRank(it.source, preferences) }
+            .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount > 0 }
+                .thenByDescending { languageRank(it.source, preferences) }
                 .thenByDescending { it.chapterCount }
                 .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE }
                 .thenByDescending { it.extension.packageName in installed }

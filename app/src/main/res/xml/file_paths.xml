@@ -2,4 +2,5 @@
 <paths>
     <!-- Wrapped share cards are written here and exposed read-only through FileProvider. -->
     <cache-path name="wrapped" path="wrapped/" />
+    <cache-path name="updates" path="updates/" />
 </paths>

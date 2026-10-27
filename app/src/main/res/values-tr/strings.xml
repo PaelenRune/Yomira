@@ -100,7 +100,10 @@
     <!-- Güncelleme diyaloğu -->
     <string name="update_title">Yeni Sürüm Mevcut!</string>
     <string name="update_changes">Değişiklikler</string>
-    <string name="update_apk_note">APK, GitHub Releases sayfası üzerinden tarayıcıda indirilir.</string>
+    <string name="update_apk_note">Güncelleme Yomira içinde indirilir, ardından Android kurulum ekranı açılır. Bu uygulamadan yüklemeye izin vermeniz gerekebilir.</string>
+    <string name="update_downloading">İndiriliyor…</string>
+    <string name="update_install">Kur</string>
+    <string name="update_download_failed">Güncelleme tamamlanamadı. Bağlantıyı ve bilinmeyen uygulama yükleme iznini kontrol edip tekrar deneyin.</string>
     <string name="update_now">Şimdi Güncelle</string>
     <string name="update_later">Daha sonra</string>
     <string name="update_link_failed">Güncelleme bağlantısı açılamadı.</string>

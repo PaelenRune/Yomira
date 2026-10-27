@@ -27,21 +27,30 @@ import kotlinx.serialization.json.put
 /** Use one store instance per private application file. No APKs or copyrighted content are stored. */
 class FileRepositoryStore(
     path: Path,
-    private val defaultRepositories: List<String> = listOf(
-        "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
-        "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
-        "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
-    ),
+    private val defaultRepositories: List<String> = EmbeddedRepositories.load().map { it.indexUrl },
 ) : RepositoryStore {
     private val file = AtomicJsonFile(path)
 
     override suspend fun read(): List<String> = file.read()?.let { text ->
-        Json.parseToJsonElement(text).jsonArray.map { it.jsonPrimitive.content.also(::requireHttps) }
+        Json.parseToJsonElement(text).jsonArray.flatMap {
+            val url = it.jsonPrimitive.content.also(::requireHttps)
+            // Migrate the old auto-seeded overlapping indexes to the non-overlapping bundled catalog.
+            if (url in LEGACY_BUNDLED_URLS) EmbeddedRepositories.load().map { entry -> entry.indexUrl }
+            else listOf(url)
+        }.distinct()
     } ?: defaultRepositories
 
     override suspend fun write(urls: List<String>) {
         urls.forEach(::requireHttps)
         file.write(JsonArray(urls.distinct().map(::JsonPrimitive)).toString())
+    }
+
+    private companion object {
+        val LEGACY_BUNDLED_URLS = setOf(
+            "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
+        )
     }
 }
 

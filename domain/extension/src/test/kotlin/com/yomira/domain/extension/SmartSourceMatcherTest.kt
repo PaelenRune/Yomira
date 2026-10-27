@@ -68,6 +68,20 @@ class SmartSourceMatcherTest {
             .match(series, preferences.copy(allowAdultContent = true)) is SmartMatchResult.MissingExtension)
     }
 
+    @Test fun `english discovery does not query unrelated language extensions`() = runTest {
+        val english = candidate("english", 3, language = "en-US")
+        val multilingual = candidate("multi", 400, language = "mul")
+        val turkish = candidate("turkish", 900, language = "tr")
+        val repository = FakeRepository(listOf(english, multilingual, turkish).map { it.extension })
+        val matcher = SmartSourceMatcher(repository, FakeBridge(emptyList()), SourceDiscovery { _, extensions ->
+            assertFalse(extensions.any { it.packageName == "turkish" })
+            listOf(turkish, multilingual, english) // Defensive filtering of discovery output too.
+        })
+        val result = matcher.match(series, ReaderPreferences(ReadingLanguage.ENGLISH)) as SmartMatchResult.MissingExtension
+        assertEquals("english", result.suggestedSource.extension.packageName)
+        assertEquals(listOf("multi"), result.alternatives.map { it.extension.packageName })
+    }
+
     @Test fun `both languages ranks Turkish and English equally and excludes other languages`() = runTest {
         val turkish = candidate("turkish", 20, language = "tr")
         val english = candidate("english", 30, language = "en-US")
@@ -90,6 +104,15 @@ class SmartSourceMatcherTest {
     @Test fun `empty chapters never enable reading`() = runTest {
         val result = matcher(listOf(candidate("one", 0)), setOf("one")).match(series, preferences) as SmartMatchResult.Ready
         assertFalse(result.canRead)
+    }
+
+    @Test fun `readable multilingual fallback wins when preferred source has no chapters`() = runTest {
+        val english = candidate("english", 0, language = "en")
+        val multilingual = candidate("multi", 5, language = "all")
+        val result = matcher(listOf(english, multilingual), setOf("english", "multi"))
+            .match(series, ReaderPreferences(ReadingLanguage.ENGLISH)) as SmartMatchResult.Ready
+        assertEquals("multi", result.selected.extension.packageName)
+        assertTrue(result.canRead)
     }
 
     @Test fun `cancellation is not swallowed`() = runTest {

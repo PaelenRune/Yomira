@@ -39,7 +39,10 @@ data class CatalogCopy(
 data class UpdateDialogCopy(
     val title: String = "Yeni Sürüm Mevcut!",
     val changesLabel: String = "Değişiklikler",
-    val apkNote: String = "APK, GitHub Releases sayfası üzerinden tarayıcıda indirilir.",
+    val apkNote: String = "Güncelleme uygulama içinde indirilir, ardından Android kurulum ekranı açılır.",
     val updateNow: String = "Şimdi Güncelle",
     val later: String = "Daha sonra",
+    val downloading: String = "İndiriliyor…",
+    val install: String = "Kur",
+    val failed: String = "Güncelleme tamamlanamadı. Bağlantıyı ve bilinmeyen uygulama yükleme iznini kontrol edip tekrar deneyin.",
 )

@@ -415,7 +415,7 @@ private fun ContinueReadingCard(
                 item.title,
                 Modifier
                     .width(58.dp)
-                    .aspectRatio(.68f)
+                    .aspectRatio(PosterAspectRatio)
                     .clip(RoundedCornerShape(12.dp)),
                 copy.catalog,
             )

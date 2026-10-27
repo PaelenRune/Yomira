@@ -26,8 +26,8 @@ class ContentRatingClassifierTest {
         }
     }
 
-    @Test fun explicitEvidenceCannotBeOverriddenByTitleOrOfficialPublication() {
-        assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput(
+    @Test fun knownMatureSerialsCorrectMisleadingProviderRatings() {
+        assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput(
             "Prison School", externalRatings = listOf(ExternalRating.PORNOGRAPHIC), isOfficialPublication = true,
         )))
     }
@@ -39,15 +39,15 @@ class ContentRatingClassifierTest {
 
     @Test fun ecchiDoesNotRequireAnAllowlistedTitle() {
         assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput("New story", tags = listOf("Ecchi"))))
-        assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput("Unknown", externalRatings = listOf(ExternalRating.EROTICA))))
+        assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput("Unknown", externalRatings = listOf(ExternalRating.EROTICA))))
     }
 
     @Test fun titleKeywordsAndDoujinshiAloneAreNotPornographicEvidence() {
         assertEquals(ContentRating.SAFE, classifier.classify(ClassificationInput("Hentai Detective", publicationType = "Doujinshi")))
     }
 
-    @Test fun serializedEroticManhwaIsNotDowngradedByDramaOrPublisher() {
-        assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput(
+    @Test fun serializedEroticManhwaDoesNotBecomePornWithoutExplicitEvidence() {
+        assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput(
             "Unknown adult manhwa", genres = listOf("Drama"), publicationType = "Manhwa",
             isOfficialPublication = true, externalRatings = listOf(ExternalRating.EROTICA),
         )))
@@ -55,5 +55,54 @@ class ContentRatingClassifierTest {
 
     @Test fun associatedTitlesSupportTranslatedNames() {
         assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput("監獄学園", altTitles = listOf("Kangoku Gakuen"))))
+    }
+
+    @Test fun milfPartyVariantsStayPublicEvenWithIncorrectHentaiMetadata() {
+        listOf(
+            "I Formed a MILF Party with the Heroes' Mothers",
+            " I FORMED A MILF PARTY WITH THE HEROES’ MOTHERS! ",
+            "I Formed a MILF Party with the Heroes Mothers",
+            "Yuusha no Haha",
+            "Yuusha no Haha Oya to Party wo Kumimashita!",
+            "Yuusha no Hahaoya-tachi to Party wo Kumimashita!",
+            "I Formed a MILF Party with the Heroes' Mothers! — Volume 1",
+            "I Formed a MILF Party with the Hero's Mothers",
+            "Yuusha ni Zenbu Ubawareta Ore wa Yuusha no Hahaoya to Party wo Kumimashita!",
+            "Betrayed by the Hero, I Formed a MILF Party with His Mom!",
+        ).forEach { title ->
+            assertEquals(title, ContentRating.MATURE, classifier.classify(ClassificationInput(
+                title, tags = listOf("Hentai"), externalRatings = listOf(ExternalRating.PORNOGRAPHIC),
+            )))
+        }
+    }
+
+    @Test fun ecchiAndEroticaAreMatureRegardlessOfPublicationFormatOrOfficialStatus() {
+        listOf(null, "Manga", "Comic", "Manhwa", "Manhua", "Webtoon", "Doujinshi").forEach { type ->
+            listOf(null, true, false).forEach { official ->
+                assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput(
+                    "New serialized story", genres = listOf("Romance, Ecchi; Erotica"),
+                    publicationType = type, isOfficialPublication = official,
+                )))
+            }
+        }
+    }
+
+    @Test fun adultWebtoonAndSmutAreNotHardcoreEvidence() {
+        listOf("Adult Webtoon", "Adult Webtoons", "Smut", "Mature").forEach { tag ->
+            assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput("Unknown", tags = listOf(tag))))
+        }
+    }
+
+    @Test fun explicitTagsAreRecognizedInsideDelimitedProviderLabels() {
+        listOf("Romance, Drama, Hentai", "Ecchi | Explicit Sexual Content", "Uncensored Genitalia").forEach { tag ->
+            assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput("Unknown", tags = listOf(tag))))
+        }
+    }
+
+    @Test fun officialPublicationCannotHideActualPornographicEvidence() {
+        assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput(
+            "Unknown", genres = listOf("Drama", "Ecchi"), publicationType = "Webtoon",
+            isOfficialPublication = true, externalRatings = listOf(ExternalRating.PORNOGRAPHIC),
+        )))
     }
 }

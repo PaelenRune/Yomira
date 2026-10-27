@@ -23,6 +23,14 @@ import com.yomira.core.ui.theme.TextMuted
 import com.yomira.core.ui.theme.TextPrimary
 import com.yomira.core.ui.theme.TextSecondary
 
+enum class UpdateDownloadStatus { Idle, Downloading, ReadyToInstall, Error }
+
+data class UpdateDownloadState(
+    val status: UpdateDownloadStatus = UpdateDownloadStatus.Idle,
+    val progress: Float? = null,
+    val failed: Boolean = false,
+)
+
 /**
  * OLED update notice. Purely presentational: the caller owns the download
  * intent so the UI layer never decides where an APK comes from.
@@ -35,9 +43,11 @@ fun UpdateDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     copy: UpdateDialogCopy = UpdateDialogCopy(),
+    download: UpdateDownloadState = UpdateDownloadState(),
 ) {
+    val downloading = download.status == UpdateDownloadStatus.Downloading
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!downloading) onDismiss() },
         modifier = modifier.border(1.dp, HairlineBorder, RoundedCornerShape(24.dp)),
         containerColor = CardSurface,
         tonalElevation = 0.dp,
@@ -92,11 +102,24 @@ fun UpdateDialog(
                     style = MaterialTheme.typography.labelSmall,
                     color = TextMuted,
                 )
+                if (downloading) {
+                    Text(
+                        copy.downloading + (download.progress?.let { " %${(it * 100).toInt()}" } ?: ""),
+                        color = TextSecondary,
+                    )
+                    val progress = download.progress
+                    if (progress == null) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    else LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                }
+                if (download.failed || download.status == UpdateDownloadStatus.Error) {
+                    Text(copy.failed, color = MaterialTheme.colorScheme.error)
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = onUpdate,
+                enabled = !downloading,
                 shape = RoundedCornerShape(percent = 50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = NeonPurple,
@@ -105,12 +128,16 @@ fun UpdateDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.SystemUpdate, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(copy.updateNow)
+                    Text(when (download.status) {
+                        UpdateDownloadStatus.Downloading -> copy.downloading
+                        UpdateDownloadStatus.ReadyToInstall -> copy.install
+                        else -> copy.updateNow
+                    })
                 }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(copy.later, color = TextMuted) }
+            TextButton(onClick = onDismiss, enabled = !downloading) { Text(copy.later, color = TextMuted) }
         },
     )
 }

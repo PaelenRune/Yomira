@@ -9,6 +9,7 @@ import com.yomira.app.catalog.CatalogMerger
 import com.yomira.app.catalog.CatalogSeeder
 import com.yomira.app.catalog.PagedCatalogLoader
 import com.yomira.app.catalog.TrendingCatalogLoader
+import com.yomira.app.catalog.SourceMatchActivator
 import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.update.AppUpdateChecker
 import com.yomira.app.update.UpdateInfo
@@ -204,7 +205,19 @@ class YomiraViewModel @Inject constructor(
             // Seeding parses the bundled JSON and writes Room rows; trending parses the
             // AniList/MangaDex payloads. Both block for seconds on a cold start, so they
             // run on IO and only the resulting state publication stays on Main.
-            withContext(Dispatchers.IO) { catalogSeeder.seedIfEmpty() }
+            withContext(Dispatchers.IO) {
+                catalogSeeder.seedIfEmpty()
+                try {
+                    mangaDao.observeAll().first().forEach { entity ->
+                        val rating = CatalogMerger.reclassifiedRating(entity)
+                        if (rating != entity.contentRating) mangaDao.updateContentRating(entity.id, rating)
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // A temporarily unavailable database must not crash catalog bootstrap.
+                }
+            }
             // The existing Room observer sees seeded rows; do not reroll shelves
             // during bootstrap after the first frame has already been shown.
             if (!hasInternet()) return@launch
@@ -402,8 +415,10 @@ class YomiraViewModel @Inject constructor(
                     val stored = onboardingStore.read()?.preferences
                     val language = stored?.language ?: activeReadingLanguage()
                     val settings = stored?.copy(language = language) ?: ReaderPreferences(language)
-                    matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
+                    val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
                         settings.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
+                    if (result is SmartMatchResult.Ready) SourceMatchActivator(chapterDao).activate(manga.id, result)
+                    result
                 } else SmartMatchResult.Unavailable(listOf(SourceFailure("runtime", context.getString(R.string.match_engine_missing))))
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (error: Exception) {

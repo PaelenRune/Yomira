@@ -27,6 +27,15 @@ class ReaderPageRepository @Inject constructor(
     private val extensions: Optional<ExtensionRepository>,
 ) {
     suspend fun pages(sourceId: String, chapter: ChapterEntity): List<SourcePage> = withContext(Dispatchers.IO) {
+        val location = SourceChapterLocation.decode(chapter.url)
+        if (location != null) {
+            check(bridge.isPresent && extensions.isPresent) { "Source extension is unavailable" }
+            check(extensions.get().installed().any { it.packageName == location.packageName && it.trusted }) {
+                "Source extension is not installed or trusted"
+            }
+            val sourceChapter = SourceChapter(location.chapterId, chapter.title.orEmpty(), chapter.chapterNumber, chapter.releaseDate?.time)
+            return@withContext validate(bridge.get().getPageList(location.packageName, location.sourceId, sourceChapter).sortedBy { it.index })
+        }
         if (bridge.isPresent && extensions.isPresent) {
             val installed = extensions.get().installed().filter { it.trusted }.map { it.packageName }.toSet()
             val extension = extensions.get().available().firstOrNull {

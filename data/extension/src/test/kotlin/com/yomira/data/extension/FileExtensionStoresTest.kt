@@ -26,7 +26,7 @@ class FileExtensionStoresTest {
 
         assertEquals(3, repositories.size)
         assertTrue(repositories.all { it.startsWith("https://") })
-        assertTrue(repositories.any { it.contains("keiyoushi/extensions") })
+        assertEquals(EmbeddedRepositories.load().map { it.indexUrl }, repositories)
     }
 
     @Test fun `onboarding state including null repo round trips`() = runTest {
@@ -35,5 +35,13 @@ class FileExtensionStoresTest {
         assertNull(FileOnboardingStore(path).read())
         FileOnboardingStore(path).write(state)
         assertEquals(state, FileOnboardingStore(path).read())
+    }
+
+    @Test fun `legacy bundled indexes migrate without conflicting package ownership`() = runTest {
+        val path = temporary.root.toPath().resolve("legacy-repositories.json")
+        val store = FileRepositoryStore(path)
+        val custom = "https://example.org/custom.json"
+        store.write(listOf("https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json", custom))
+        assertEquals(EmbeddedRepositories.load().map { it.indexUrl } + custom, store.read())
     }
 }

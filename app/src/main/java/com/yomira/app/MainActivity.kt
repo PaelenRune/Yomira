@@ -31,6 +31,7 @@ import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.onboarding.OnboardingViewModel
 import com.yomira.app.settings.SettingsViewModel
 import com.yomira.app.settings.SettingsMaintenanceViewModel
+import com.yomira.app.update.InAppUpdateDialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
@@ -213,7 +214,6 @@ private fun YomiraNavigation(
     val scope = rememberCoroutineScope()
     val current = backStack?.destination?.route
     val catalogCopy = catalogCopy()
-    val updateLinkFailed = stringResource(R.string.update_link_failed)
     val secureLinkFailed = stringResource(R.string.secure_link_failed)
     val openSeriesFailed = stringResource(R.string.detail_open_series_failed)
     val offlineNotice = stringResource(R.string.offline_download_notice)
@@ -226,13 +226,8 @@ private fun YomiraNavigation(
         nav.navigate("details/${Uri.encode(manga.id)}")
     }
     pendingUpdate?.let { info ->
-        UpdateDialog(
-            version = info.version,
-            releaseNotes = info.releaseNotes,
-            onUpdate = {
-                if (openReference(info.apkDownloadUrl)) model.closeUpdate()
-                else scope.launch { snackbar.showSnackbar(updateLinkFailed) }
-            },
+        InAppUpdateDialog(
+            info = info,
             onDismiss = model::dismissUpdate,
             copy = updateDialogCopy(),
         )
@@ -740,6 +735,9 @@ private fun updateDialogCopy() = UpdateDialogCopy(
     apkNote = stringResource(R.string.update_apk_note),
     updateNow = stringResource(R.string.update_now),
     later = stringResource(R.string.update_later),
+    downloading = stringResource(R.string.update_downloading),
+    install = stringResource(R.string.update_install),
+    failed = stringResource(R.string.update_download_failed),
 )
 
 @Composable

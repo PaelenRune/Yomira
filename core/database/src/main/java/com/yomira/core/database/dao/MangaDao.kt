@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MangaDao {
+    @Query("UPDATE manga SET contentRating = :rating WHERE id = :mangaId")
+    suspend fun updateContentRating(mangaId: String, rating: com.yomira.core.model.ContentRating)
+
     @Query("UPDATE manga SET readingMode = :mode WHERE id = :mangaId")
     suspend fun updateReadingMode(mangaId: String, mode: com.yomira.core.model.ReadingMode)
 

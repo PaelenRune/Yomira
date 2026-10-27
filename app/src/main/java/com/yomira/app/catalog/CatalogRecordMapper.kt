@@ -1,7 +1,6 @@
 package com.yomira.app.catalog
 
 import com.yomira.core.model.ContentRating
-import com.yomira.core.model.ExternalRating
 import com.yomira.core.model.Manga
 import com.yomira.core.model.WesternComics
 import com.yomira.core.network.RemoteMetadata
@@ -42,7 +41,7 @@ object CatalogRecordMapper {
             ),
         )
         // The public feed never receives explicit titles from an uncurated remote feed.
-        if (!allowExplicit && (rating == ContentRating.EXPLICIT || record.contentRating == ExternalRating.PORNOGRAPHIC)) {
+        if (!allowExplicit && rating == ContentRating.EXPLICIT) {
             return null
         }
         val western = WesternComics.matches(

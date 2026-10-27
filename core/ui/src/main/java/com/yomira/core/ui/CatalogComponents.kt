@@ -43,6 +43,13 @@ import java.time.temporal.WeekFields
 import java.util.Locale
 
 /**
+ * Shared width/height for portrait covers: close to B6 tankobon (128 × 182 mm),
+ * between common 2:3 and 3:4 covers. Center-crop preserves image proportions.
+ * This is a display frame, not a source requirement (WEBTOON also uses 9:16).
+ */
+const val PosterAspectRatio = 0.70f
+
+/**
  * Poster artwork with a designed fallback instead of an empty box.
  *
  * Missing artwork keeps a readable title and a quiet OLED gradient, without
@@ -58,6 +65,7 @@ fun MangaArtwork(
     SubcomposeAsyncImage(
         model = url, contentDescription = title, modifier = modifier,
         contentScale = ContentScale.Crop,
+        alignment = Alignment.Center,
         loading = { ArtworkPlaceholder(title, copy, loading = true) },
         error = { ArtworkPlaceholder(title, copy, loading = false) },
     )
@@ -149,7 +157,7 @@ fun weeklyTrendOrder(items: List<Manga>, today: LocalDate = LocalDate.now()): Li
  * Cinematic hero carousel. When a series carries a real 16:9 landscape banner
  * (`bannerUrl` from AniList / Kitsu) the banner is shown sharp at its native
  * cinematic ratio under an elegant bottom gradient scrim; a portrait cover is only
- * reflected sharply into the OLED canvas as a fallback when no banner exists.
+ * shown upright with an OLED fade as a fallback when no banner exists.
  */
 @Composable
 fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier = Modifier, vault: Boolean = false, weeklyTrend: Boolean = true, copy: CatalogCopy = CatalogCopy()) {
@@ -184,7 +192,7 @@ fun HeroCarousel(manga: List<Manga>, onRead: (Manga) -> Unit, modifier: Modifier
     }
 }
 
-/** One hero stage: landscape artwork or a sharp, vertically mirrored poster. */
+/** One hero stage: landscape artwork or an upright poster with an OLED fade. */
 @Composable
 private fun HeroBanner(item: Manga, accent: Color, stageHeight: Dp, onRead: (Manga) -> Unit, copy: CatalogCopy) {
     val heroShape = MaterialTheme.shapes.medium
@@ -212,7 +220,7 @@ private fun HeroBanner(item: Manga, accent: Color, stageHeight: Dp, onRead: (Man
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 verticalAlignment = if (banner != null) Alignment.Bottom else Alignment.CenterVertically,
             ) {
-                Box(Modifier.width(coverWidth).aspectRatio(.66f).clip(MaterialTheme.shapes.medium)) {
+                Box(Modifier.width(coverWidth).aspectRatio(PosterAspectRatio).clip(MaterialTheme.shapes.medium)) {
                     MangaArtwork(item.coverUrl, item.title, Modifier.matchParentSize(), copy)
                     AgeRatingBadge(item.contentRating, Modifier.align(Alignment.TopStart).padding(6.dp))
                 }
@@ -265,7 +273,7 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
                 .shadow(4.dp, cardShape)
                 .clip(cardShape)
         ) {
-            MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f), copy)
+            MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(PosterAspectRatio), copy)
             AgeRatingBadge(manga.contentRating, Modifier.align(Alignment.TopStart).padding(8.dp))
         }
         Text(

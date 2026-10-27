@@ -103,7 +103,10 @@
     <!-- Update dialog -->
     <string name="update_title">New version available!</string>
     <string name="update_changes">Changes</string>
-    <string name="update_apk_note">The APK is downloaded in the browser from the GitHub Releases page.</string>
+    <string name="update_apk_note">The update downloads inside Yomira, then Android asks you to install it. You may need to allow installs from this app.</string>
+    <string name="update_downloading">Downloading…</string>
+    <string name="update_install">Install</string>
+    <string name="update_download_failed">Couldn’t complete the update. Check your connection and permission to install unknown apps, then try again.</string>
     <string name="update_now">Update now</string>
     <string name="update_later">Later</string>
     <string name="update_link_failed">Couldn’t open the update link.</string>

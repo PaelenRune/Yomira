@@ -407,7 +407,7 @@ private fun DetailHero(manga: Manga, onBack: () -> Unit, onPanic: (() -> Unit)?,
                 manga.title,
                 Modifier
                     .width(116.dp)
-                    .aspectRatio(.68f)
+                    .aspectRatio(PosterAspectRatio)
                     .clip(RoundedCornerShape(16.dp))
                     .border(1.dp, Color.White.copy(alpha = .14f), RoundedCornerShape(16.dp)),
                 copy.catalog,
@@ -487,7 +487,7 @@ private fun TwoPaneHero(manga: Manga, copy: DetailCopy) {
             horizontalArrangement = Arrangement.spacedBy(18.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
-            MangaArtwork(manga.coverUrl, manga.title, Modifier.width(150.dp).aspectRatio(.68f).clip(RoundedCornerShape(16.dp)), copy.catalog)
+            MangaArtwork(manga.coverUrl, manga.title, Modifier.width(150.dp).aspectRatio(PosterAspectRatio).clip(RoundedCornerShape(16.dp)), copy.catalog)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 manga.score?.let { ScoreBadge(it, copy.catalog) }
                 Text(manga.title, style = MaterialTheme.typography.headlineMedium, maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -871,7 +871,7 @@ private fun SeriesShowcaseRail(
             items(entries, key = { it.id }, contentType = { "series" }) { entry ->
                 Column(Modifier.width(132.dp).clip(RoundedCornerShape(14.dp)).clickable { onOpenSeries(entry.id, entry.title) }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box {
-                        MangaArtwork(entry.coverUrl, entry.title, Modifier.fillMaxWidth().aspectRatio(.68f).clip(RoundedCornerShape(14.dp)), copy.catalog)
+                        MangaArtwork(entry.coverUrl, entry.title, Modifier.fillMaxWidth().aspectRatio(PosterAspectRatio).clip(RoundedCornerShape(14.dp)), copy.catalog)
                         entry.score?.let { score -> Box(Modifier.align(Alignment.BottomEnd).padding(6.dp)) { ScoreBadge(score, copy.catalog) } }
                     }
                     Text(entry.title, style = MaterialTheme.typography.labelLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)

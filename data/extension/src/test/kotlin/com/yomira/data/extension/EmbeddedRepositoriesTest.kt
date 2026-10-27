@@ -16,7 +16,7 @@ class EmbeddedRepositoriesTest {
             override suspend fun write(urls: List<String>) = Unit
         }, RepositoryClient { error("Bundled indexes must not use the network") }, KeiyoushiRepoParser(),
             InstalledExtensionProvider { emptyList() })
-        assertEquals(2, manager.repositories().size)
+        assertEquals(3, manager.repositories().size)
         val available = manager.available()
         assertTrue(available.any { it.language == "tr" })
         assertTrue(available.any { it.language == "en" })
