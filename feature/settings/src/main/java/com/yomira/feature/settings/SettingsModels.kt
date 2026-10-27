@@ -54,10 +54,11 @@ data class SettingsMaintenanceState(
     val contentLanguage: com.yomira.domain.extension.ReadingLanguage? = null,
     val readerPreferences: com.yomira.domain.extension.ReaderPreferences? = null,
     val preferenceBusy: Boolean = false,
+    val resetBusy: Boolean = false,
     val message: MaintenanceMessage? = null,
 )
 
-enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, SYNC_FAILED, PREFERENCE_FAILED }
+enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, SYNC_FAILED, PREFERENCE_FAILED, RESET_FAILED }
 
 /** Reactive, atomically updated settings persistence. Implementations must be safe to call from any thread. */
 interface SettingsStore {

@@ -33,11 +33,64 @@ class SettingsMaintenanceViewModelTest {
     private val services = FakeServices()
     private val settings = MemorySettings()
     private val onboarding = MemoryOnboarding()
+    private var resetCalls = 0
+    private var resetFails = false
+    private val reset = FactoryReset {
+        resetCalls++
+        if (resetFails) throw IOException("reset refused")
+    }
 
     @Before fun setUp() { Dispatchers.setMain(dispatcher) }
     @After fun tearDown() { models.clear(); Dispatchers.resetMain() }
 
-    private fun model() = SettingsMaintenanceViewModel(services, settings, onboarding).also { models.put("settings", it) }
+    private fun model() = SettingsMaintenanceViewModel(services, settings, onboarding, reset).also { models.put("settings", it) }
+
+    @Test fun `factory reset only runs on explicit request and blocks duplicate mutations`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        assertEquals(0, resetCalls)
+        model.factoryReset()
+        model.factoryReset()
+        model.clearCache()
+        model.syncNow()
+        model.setAutomaticSync(true)
+        advanceUntilIdle()
+        assertEquals(1, resetCalls)
+        assertEquals(0, services.clearCalls)
+        assertFalse(settings.read().automaticSync)
+        assertTrue(model.state.value.resetBusy)
+    }
+
+    @Test fun `refused factory reset reports failure and permits retry`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        resetFails = true
+        model.factoryReset()
+        advanceUntilIdle()
+        assertFalse(model.state.value.resetBusy)
+        assertEquals(MaintenanceMessage.RESET_FAILED, model.state.value.message)
+        resetFails = false
+        model.factoryReset()
+        advanceUntilIdle()
+        assertEquals(2, resetCalls)
+        assertTrue(model.state.value.resetBusy)
+        assertNull(model.state.value.message)
+    }
+
+    @Test fun `factory reset waits until an active maintenance operation finishes`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        services.clearGate = CompletableDeferred()
+        model.clearCache()
+        model.factoryReset()
+        advanceUntilIdle()
+        assertEquals(0, resetCalls)
+        services.clearGate?.complete(Unit)
+        advanceUntilIdle()
+        model.factoryReset()
+        advanceUntilIdle()
+        assertEquals(1, resetCalls)
+    }
 
     @Test fun `cache size is refreshed after confirmed clear and duplicate operations are ignored`() = runTest(dispatcher) {
         val model = model()

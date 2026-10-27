@@ -25,6 +25,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     private val services: SettingsMaintenanceServices,
     private val store: SettingsStore,
     private val onboarding: OnboardingStore,
+    private val reset: FactoryReset,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SettingsMaintenanceState())
     val state = mutableState.asStateFlow()
@@ -61,7 +62,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun clearCache() {
-        if (state.value.cacheBusy) return
+        if (state.value.cacheBusy || state.value.resetBusy) return
         mutableState.update { it.copy(cacheBusy = true, message = null) }
         viewModelScope.launch {
             try {
@@ -77,6 +78,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun setAutomaticSync(enabled: Boolean) {
+        if (state.value.resetBusy) return
         viewModelScope.launch {
             try {
                 store.update { it.copy(automaticSync = enabled) }
@@ -87,7 +89,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun syncNow() {
-        if (state.value.syncBusy) return
+        if (state.value.syncBusy || state.value.resetBusy) return
         mutableState.update { it.copy(syncBusy = true, message = null) }
         viewModelScope.launch {
             try {
@@ -109,7 +111,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun setContentLanguage(language: ReadingLanguage) {
-        if (state.value.preferenceBusy) return
+        if (state.value.preferenceBusy || state.value.resetBusy) return
         mutableState.update { it.copy(preferenceBusy = true) }
         viewModelScope.launch {
             try {
@@ -127,7 +129,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     fun consumeMessage() { mutableState.update { it.copy(message = null) } }
 
     fun setReaderPreferences(preferences: ReaderPreferences) {
-        if (state.value.preferenceBusy) return
+        if (state.value.preferenceBusy || state.value.resetBusy) return
         mutableState.update { it.copy(preferenceBusy = true, message = null) }
         viewModelScope.launch {
             try {
@@ -140,6 +142,20 @@ class SettingsMaintenanceViewModel @Inject constructor(
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED)
             } finally { mutableState.update { it.copy(preferenceBusy = false) } }
+        }
+    }
+
+    fun factoryReset() {
+        if (state.value.run { resetBusy || cacheBusy || syncBusy || preferenceBusy }) return
+        mutableState.update { it.copy(resetBusy = true, message = null) }
+        viewModelScope.launch {
+            try {
+                reset.reset()
+                // Keep the UI blocked until Android stops the process. Relaunch loads onboarding.
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) {
+                mutableState.update { it.copy(resetBusy = false, message = MaintenanceMessage.RESET_FAILED) }
+            }
         }
     }
 

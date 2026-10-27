@@ -46,6 +46,10 @@ Android görselleri **Xiaomi Mi 10T** gerçek cihazından alınmıştır — moc
 
 ## ✨ Özellikler
 
+- 🗑️ **Fabrika Ayarlarına Dön (v8.0.1-Beta)** — Ayarlar → Depolama bölümündeki
+  “Tüm Verileri Sıfırla” onayından sonra tüm yerel uygulama verileri silinir ve uygulama kapanır.
+  Yeniden açıldığında ilk kurulum başlar. Drive yedekleri ve dışa aktarılan dosyalar korunur.
+  Ayrıntılar: [v8.0.1-Beta sürüm notları](release/RELEASE_NOTES_v8.0.1-Beta.md).
 - 🌐 **Dile duyarlı akıllı kaynak eşleştirme (Smart Matching)** — Onboarding sihirbazında veya
   ayarlarda seçilen aktif dil (TR/EN) birincil sıralama anahtarı olarak kullanılır. Doğru dildeki
   kaynaklar en başa yerleşir, uyumsuz tek dilli kaynaklar filtrelenir.

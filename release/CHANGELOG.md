@@ -4,6 +4,18 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v8.0.1-Beta
+
+Android versionCode `15`.
+
+- Türkçe/İngilizce onay penceresiyle tüm yerel uygulama verilerini fabrika ayarlarına döndürme.
+- Room tabloları, Settings/Onboarding DataStore, bellek/disk önbellekleri ve Android uygulama
+  verileri silinir; uygulama kapandıktan sonra yeniden açılış ilk kurulumla başlar.
+- Drive yedekleri ve dışa aktarılan dosyalar korunur.
+- [Sürüm notları](RELEASE_NOTES_v8.0.1-Beta.md).
+
+---
+
 # Yomira v5.4.0-beta
 
 27 Ekim 2026 · Android 8.0+ (API 26) · versionCode `9`

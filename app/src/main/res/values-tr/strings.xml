@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Türkçe arayüz katmanı; values/strings.xml (İngilizce varsayılan) ile birebir aynı anahtarları taşır. -->
 <resources>
+    <string name="settings_factory_reset">Tüm Verileri Sıfırla (Fabrika Ayarlarına Dön)</string>
+    <string name="settings_factory_reset_body">Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulduğu ilk günkü haline döner.</string>
+    <string name="settings_factory_reset_warning">Bu işlem geri alınamaz. Uygulama kapanır; yeniden açtığınızda ilk kurulum başlar. Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.</string>
+    <string name="settings_confirm_factory_reset">Tüm uygulama verileri silinsin mi?</string>
+    <string name="settings_reset">Sıfırla</string>
+    <string name="settings_resetting">Tüm veriler sıfırlanıyor…</string>
+    <string name="settings_reset_failed">Sıfırlama tamamlanamadı. Yeniden deneyin veya Android uygulama ayarlarından depolamayı temizleyin.</string>
     <string name="app_name">Yomira</string>
     <string name="home_subtitle">Metadata kütüphanen. Okuma deneyimin.</string>
     <string name="content_free_notice">Yomira telifli görsel veya bölüm barındırmaz.</string>

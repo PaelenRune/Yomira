@@ -20,7 +20,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 
-private val Context.onboardingDataStore by preferencesDataStore(name = "onboarding")
+internal val Context.onboardingDataStore by preferencesDataStore(name = "onboarding")
 
 @Module
 @InstallIn(SingletonComponent::class)

@@ -4,6 +4,13 @@
   ../values-tr/strings.xml and carries the exact same keys.
 -->
 <resources>
+    <string name="settings_factory_reset">Factory Reset All App Data</string>
+    <string name="settings_factory_reset_body">Your library, reading history, extension settings and caches will be permanently deleted. The app returns to its first-use state.</string>
+    <string name="settings_factory_reset_warning">This cannot be undone. The app will close; reopen it to start fresh onboarding. Google Drive backups and exported files are not deleted.</string>
+    <string name="settings_confirm_factory_reset">Delete all app data?</string>
+    <string name="settings_reset">Reset</string>
+    <string name="settings_resetting">Resetting all app data…</string>
+    <string name="settings_reset_failed">Reset could not finish. Retry, or clear storage in Android app settings.</string>
     <string name="app_name">Yomira</string>
     <string name="home_subtitle">Your metadata library. Your reading experience.</string>
     <string name="content_free_notice">Yomira does not host copyrighted images or chapters.</string>

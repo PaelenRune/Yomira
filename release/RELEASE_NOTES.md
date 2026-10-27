@@ -1,4 +1,16 @@
-# Yomira v5.4.0-beta
+# Yomira v8.0.1-Beta
+
+Android 8.0+ (API 26) · versionCode `15`
+
+**Tam sıfırlama:** Ayarlar → Depolama → Tüm Verileri Sıfırla. Onaydan sonra tüm yerel
+uygulama verileri silinir, uygulama kapanır ve yeniden açıldığında ilk kurulum başlar.
+Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.
+
+[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.1-Beta.md)
+
+---
+
+# Yomira v5.4.0-beta (arşiv)
 
 27 Ekim 2026 · Android 8.0+ (API 26) · versionCode `9`
 

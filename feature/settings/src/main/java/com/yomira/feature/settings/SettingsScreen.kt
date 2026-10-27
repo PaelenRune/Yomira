@@ -85,9 +85,11 @@ fun SettingsScreen(
     onStealthShieldChange: (Boolean) -> Unit = {},
     onReaderPreferencesChange: (ReaderPreferences) -> Unit = {},
     onRerunSurvey: () -> Unit = {},
+    onFactoryReset: () -> Unit = {},
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
+    var showResetDialog by rememberSaveable { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(maintenance.message) {
         val message = maintenance.message ?: return@LaunchedEffect
@@ -99,6 +101,7 @@ fun SettingsScreen(
             MaintenanceMessage.SIGN_IN_REQUIRED -> copy.signInRequired
             MaintenanceMessage.SYNC_FAILED -> copy.syncFailed
             MaintenanceMessage.PREFERENCE_FAILED -> copy.preferenceFailed
+            MaintenanceMessage.RESET_FAILED -> copy.resetFailed
         }
         snackbar.showSnackbar(text)
         onConsumeMessage()
@@ -150,6 +153,15 @@ fun SettingsScreen(
                             if (maintenance.cacheBusy) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                             else Text(copy.clearCache)
                         }
+                        HorizontalDivider()
+                        Text(copy.factoryResetBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Button(
+                            onClick = { showResetDialog = true },
+                            enabled = !maintenance.resetBusy && !maintenance.cacheBusy && !maintenance.syncBusy && !maintenance.preferenceBusy,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        ) { Text(copy.factoryReset) }
                     }
                 }
             }
@@ -324,6 +336,24 @@ fun SettingsScreen(
         }
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
+    if (maintenance.resetBusy) AlertDialog(
+        onDismissRequest = {},
+        title = { Text(copy.resetting) },
+        text = { CircularProgressIndicator() },
+        confirmButton = {},
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+    )
+    if (showResetDialog) AlertDialog(
+        onDismissRequest = { showResetDialog = false },
+        title = { Text(copy.confirmFactoryReset) },
+        text = { Text(copy.factoryResetBody + "\n\n" + copy.factoryResetWarning) },
+        confirmButton = {
+            TextButton(onClick = { showResetDialog = false; onFactoryReset() }) {
+                Text(copy.reset, color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text(copy.cancel) } },
+    )
     if (showCacheDialog) AlertDialog(
         onDismissRequest = { showCacheDialog = false },
         title = { Text(copy.confirmClearCache) },

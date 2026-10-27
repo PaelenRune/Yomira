@@ -1,6 +1,11 @@
 package com.yomira.app.di
 
 import android.content.Context
+import android.app.ActivityManager
+import androidx.datastore.preferences.core.edit
+import com.yomira.app.settings.CompleteFactoryReset
+import com.yomira.app.settings.FactoryReset
+import com.yomira.core.database.YomiraDatabase
 import androidx.datastore.preferences.preferencesDataStore
 import coil.imageLoader
 import com.yomira.app.settings.CacheManager
@@ -27,6 +32,16 @@ private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 @Module
 @InstallIn(SingletonComponent::class)
 object SettingsModule {
+    @Provides @Singleton
+    fun factoryReset(@ApplicationContext context: Context, database: YomiraDatabase, cache: CacheManager): FactoryReset =
+        CompleteFactoryReset(
+            clearDatabase = { database.clearAllTables() },
+            clearSettings = { context.settingsDataStore.edit { it.clear() }; Unit },
+            clearOnboarding = { context.onboardingDataStore.edit { it.clear() }; Unit },
+            clearCaches = { cache.clearAllCache().getOrThrow() },
+            clearApplicationUserData = { context.getSystemService(ActivityManager::class.java).clearApplicationUserData() },
+        )
+
     @Provides
     fun maintenanceServices(services: DefaultSettingsMaintenanceServices): SettingsMaintenanceServices = services
 
