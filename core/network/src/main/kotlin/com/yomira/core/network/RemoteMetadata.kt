@@ -40,6 +40,8 @@ data class RemoteMetadata(
     val year: Int? = null,
     val totalIssues: Int? = null,
     val sourceUrl: String? = null,
+    /** Language printed on the selected cover, when supplied by the provider. */
+    val coverLocale: String? = null,
 ) {
     init {
         require(sourceId.isNotBlank()) { "Source id must not be blank" }

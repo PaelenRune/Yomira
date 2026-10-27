@@ -251,15 +251,32 @@ fun ScoreBadge(score: Double, copy: CatalogCopy = CatalogCopy()) {
 
 @Composable
 fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy()) {
-    // Phones render a single hero-sized column, tablets up to six, the Windows
-    // desktop wall owns its own 6–8 column poster grid.
     require(columns in 1..8) { "Poster grid supports 1–8 columns, got $columns" }
     val cardShape = MaterialTheme.shapes.medium
-    Box(
-        modifier.shadow(4.dp, cardShape).clip(cardShape).clickable(onClick = onClick).semantics(mergeDescendants = true) {},
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .semantics(mergeDescendants = true) {},
     ) {
-        MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f), copy)
-        AgeRatingBadge(manga.contentRating, Modifier.align(Alignment.TopStart).padding(8.dp))
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, cardShape)
+                .clip(cardShape)
+        ) {
+            MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(.68f), copy)
+            AgeRatingBadge(manga.contentRating, Modifier.align(Alignment.TopStart).padding(8.dp))
+        }
+        Text(
+            text = manga.title,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium,
+            color = TextPrimary,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 2.dp).padding(top = 4.dp),
+        )
     }
 }
 

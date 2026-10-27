@@ -14,12 +14,26 @@ internal object ArtworkResolver {
         MetadataSources.COMICVINE, MetadataSources.BAKA_UPDATES, MetadataSources.OPENLIBRARY,
     )
 
-    fun cover(records: List<RemoteMetadata>): String? = select(records) { it.coverUrl }
+    fun cover(records: List<RemoteMetadata>): String? = records
+        .sortedWith(compareBy<RemoteMetadata> { coverLanguageRank(it) }.thenBy { sourceRank(it) })
+        .firstNotNullOfOrNull { it.coverUrl?.trim()?.takeIf(::isSecureImage) }
     fun backdrop(records: List<RemoteMetadata>): String? = select(records) { it.bannerUrl }
 
     private fun select(records: List<RemoteMetadata>, field: (RemoteMetadata) -> String?): String? =
-        records.sortedBy { priority.indexOf(it.sourceId).takeIf { rank -> rank >= 0 } ?: Int.MAX_VALUE }
+        records.sortedBy(::sourceRank)
             .firstNotNullOfOrNull { field(it)?.trim()?.takeIf(::isSecureImage) }
+
+    private fun sourceRank(record: RemoteMetadata): Int =
+        priority.indexOf(record.sourceId).takeIf { it >= 0 } ?: Int.MAX_VALUE
+
+    private fun coverLanguageRank(record: RemoteMetadata): Int = when {
+        record.coverLocale.equals("en", ignoreCase = true) -> 0
+        // An English title is only a hint when the provider omits the cover locale.
+        record.coverLocale.isNullOrBlank() &&
+            (!record.englishTitle.isNullOrBlank() || record.altTitles["en"].orEmpty().any { it.isNotBlank() }) -> 1
+        record.coverLocale.isNullOrBlank() -> 2
+        else -> 3
+    }
 
     private fun isSecureImage(value: String): Boolean = try {
         val uri = URI(value)

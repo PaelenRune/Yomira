@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import coil.ImageLoader
 import coil.ImageLoaderFactory
+import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.yomira.core.ui.ImageMemoryPolicy
 import androidx.hilt.work.HiltWorkerFactory
@@ -27,6 +28,13 @@ class YomiraApp : Application(), Configuration.Provider, ImageLoaderFactory {
                 .maxSizeBytes(ImageMemoryPolicy.artworkBytes(Runtime.getRuntime().maxMemory()))
                 .build()
         }
+        .diskCache {
+            DiskCache.Builder()
+                .directory(cacheDir.resolve("image_cache"))
+                .maxSizeBytes(250L * 1024 * 1024)
+                .build()
+        }
+        .respectCacheHeaders(false)
         .crossfade(false)
         .build()
 

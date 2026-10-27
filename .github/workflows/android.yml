@@ -44,6 +44,8 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME:-v5.0.0}"
         mkdir -p release
+        # Remove any stale APKs so only this exact release is published
+        rm -f release/yomira-*.apk
         # Ship the signed, minified release build; the debug APK stays a CI artifact.
         cp app/build/outputs/apk/release/app-release.apk release/yomira-${VERSION}.apk
         cd release && sha256sum yomira-${VERSION}.apk > SHA256SUMS.txt && cd ..
@@ -59,11 +61,10 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          release/yomira-*.apk
+          release/yomira-${{ github.ref_name }}.apk
           release/SHA256SUMS.txt
           release/RELEASE_NOTES.md
         body_path: release/RELEASE_NOTES.md
-        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

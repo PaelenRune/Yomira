@@ -189,8 +189,10 @@ class MangaDexClient(
             .mapNotNull { it.attributes?.name?.pickTitle()?.trim() }
             .filter { it.isNotEmpty() }
             .distinct()
-        val coverFile = relationships.firstOrNull { it.type == "cover_art" }
-            ?.attributes?.fileName
+        val covers = relationships.filter { it.type == "cover_art" && !it.attributes?.fileName.isNullOrBlank() }
+        val cover = covers.firstOrNull { it.attributes?.locale.equals("en", ignoreCase = true) }
+            ?: covers.firstOrNull()
+        val coverFile = cover?.attributes?.fileName
             ?.trim()
             ?.ifEmpty { null }
         val authorNames = relationships.filter { it.type == "author" }
@@ -214,6 +216,7 @@ class MangaDexClient(
             artist = artistNames.joinToString(", ").ifBlank { null },
             description = cleanText(attributes.description.pickTitle()),
             coverUrl = coverFile?.let { "${config.mangaDexUploadsUrl}/covers/$mangaId/$it.512.jpg" },
+            coverLocale = cover?.attributes?.locale,
             score = statistics?.rating?.average?.takeIf { it.isFinite() && it > 0.0 }
                 ?.coerceIn(0.0, 10.0),
             popularity = statistics?.follows?.takeIf { it >= 0 },
@@ -333,6 +336,7 @@ class MangaDexClient(
     @Serializable
     private data class MangaDexRelationshipAttributes(
         val fileName: String? = null,
+        val locale: String? = null,
         val name: String? = null,
         val imageUrl: String? = null,
     )

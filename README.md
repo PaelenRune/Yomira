@@ -4,15 +4,14 @@
 
 # Yomira
 
-*Free and open source multiplatform manga and comic reader for Android and Windows.*
+*Free and open source manga and comic reader for Android.*
 
 Manga, manhwa, webtoon ve Batı çizgi romanları için tek kütüphane, tek OLED Plum tasarım dili —
-Android ve Windows'ta.
+Android'de.
 
 [![Release v5.1.0](https://img.shields.io/github/v/release/PaelenRune/Yomira?style=flat-square&label=Release&labelColor=13141C&color=9D4EDD)](https://github.com/PaelenRune/Yomira/releases/latest)
 [![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=flat-square&labelColor=13141C&logo=android&logoColor=white)](https://github.com/PaelenRune/Yomira/releases/latest)
-[![Windows 10/11](https://img.shields.io/badge/Windows-10%2F11-0078D4?style=flat-square&labelColor=13141C&logo=windows&logoColor=white)](https://github.com/PaelenRune/Yomira/releases/latest)
-[![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-4285F4?style=flat-square&labelColor=13141C&logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/compose-multiplatform/)
+[![Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=flat-square&labelColor=13141C&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-6366F1?style=flat-square&labelColor=13141C)](LICENSE)
 
 [Hızlı İndirme](#-hızlı-indirme-download) · [Ekran Görüntüleri](#-ekran-görüntüleri) · [Özellikler](#-özellikler) · [Derleme](#-derleme) · [Sürüm Notları](release/RELEASE_NOTES.md)
@@ -25,32 +24,23 @@ Android ve Windows'ta.
 | :--- | :--- | ---: |
 | 🤖 **Android · Universal** | [`yomira-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/latest/download/yomira-v5.1.0.apk) | ~24.8 MB |
 | 🤖 **Android · arm64-v8a** | [`yomira-arm64-v8a-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/latest/download/yomira-arm64-v8a-v5.1.0.apk) | ~24.5 MB |
-| 🖥️ **Windows · taşınabilir** | [`Yomira-5.1.0.exe`](https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-5.1.0.exe) | — |
-| 🖥️ **Windows · kurulum** | [`Yomira-5.1.0.msi`](https://github.com/PaelenRune/Yomira/releases/latest/download/Yomira-5.1.0.msi) | — |
 
-> **Gereksinimler:** Android 8.0+ (API 26) · Windows 10/11 (x64).
+> **Gereksinimler:** Android 8.0+ (API 26).
 > Diğer ABI paketleri (`armeabi-v7a`, `x86_64`) ve [`SHA256SUMS.txt`](https://github.com/PaelenRune/Yomira/releases/latest/download/SHA256SUMS.txt)
 > için [tüm asset'lere](https://github.com/PaelenRune/Yomira/releases/latest) bak. Aynı imza
 > anahtarı sayesinde yeni sürüm eski kurulumun **üzerine** kurulur; kütüphane ve ilerleme korunur.
 
 ## 📸 Ekran Görüntüleri
 
-Android görselleri **Xiaomi Mi 10T** gerçek cihazından, Windows görseli masaüstü derlemesinden
-alınmıştır — mockup değildir.
+Android görselleri **Xiaomi Mi 10T** gerçek cihazından alınmıştır — mockup değildir.
 
 <div align="center">
 
 <img src="art/screenshots/real_phone_home.png" alt="Ana raf — OLED Plum, gerçek cihaz" width="230" /> &nbsp;
-<img src="art/screenshots/real_phone_detail.png" alt="Seri detayı — dile duyarlı kaynak eşleştirme" width="230" />
+<img src="art/screenshots/real_phone_detail.png" alt="Seri detayı — dile duyarlı kaynak eşleştirme" width="230" /> &nbsp;
+<img src="art/screenshot_phone_reader.png" alt="Okuyucu — webtoon ve manga okuma" width="230" />
 
-<sub><b>Android</b> · Xiaomi Mi 10T — ana raf ve dile duyarlı kaynak eşleştirmeli seri detayı</sub>
-
-<br/>
-<br/>
-
-<img src="art/screenshot_desktop_browse.png" alt="Windows masaüstü — katalog tarama" width="700" />
-
-<sub><b>Windows</b> · katalog tarama — aynı kütüphane, aynı tema</sub>
+<sub><b>Android</b> · Xiaomi Mi 10T — ana raf, dile duyarlı kaynak eşleştirmeli seri detayı ve okuyucu</sub>
 
 </div>
 
@@ -75,12 +65,9 @@ alınmıştır — mockup değildir.
 ```bash
 # Android — universal + ABI bazlı imzalı APK'lar
 ./gradlew assembleRelease
-
-# Windows — EXE ve MSI
-./gradlew :desktop:packageDistributionForCurrentOS
 ```
 
-Çıktılar: `app/build/outputs/apk/release/` ve `desktop/build/compose/binaries/main/{exe,msi}/`.
+Çıktılar: `app/build/outputs/apk/release/`.
 Release derlemeleri R8 tam modda çalışır; Room, Hilt, kotlinx.serialization ve WorkManager
 sınıfları `app/proguard-rules.pro` içinde korunur.
 

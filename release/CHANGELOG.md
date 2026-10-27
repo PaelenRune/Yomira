@@ -4,6 +4,32 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v5.2.0-beta
+
+**Saf Mobil Odak, Poster Altı Başlıklar, Hızlı Kapak Önbelleği & İngilizce Kapak Önceliği**
+
+---
+
+### 📱 Saf Android Odak & PC İzolasyonu
+- GitHub ana sayfası, dokümantasyon ve derleme kılavuzlarındaki tüm Windows/PC referansları, masaüstü ekran görüntüleri ve indirme linkleri temizlendi.
+- Uygulama mimarisi ve kullanıcı deneyimi tamamen Android telefon ve tablet platformuna odaklandı.
+
+### 🖼️ Posterlerin Altında Seri Adı
+- Vitrin raflarında (Trendler, Popüler, Size Özel) ve katalog ızgarasında yer alan `MangaCard` bileşenlerine serinin başlığı 2 satırlık, `TextOverflow.Ellipsis` özellikli tipografiyle entegre edildi.
+
+### ⚡ Kapak Yükleme Hızı & 250 MB DiskCache
+- `YomiraApp` ImageLoader yapılandırmasına 250 MB özel disk önbelleği eklendi.
+- İlk açılışta paralel görsel çözme hızlandırıldı; sonraki açılışlarda kapaklar diskten sıfır gecikmeyle gelir.
+
+### 🌐 İngilizce Kapak Önceliği
+- Uygulamada seçilen dil ne olursa olsun, manga ve webtoon kapakları için İngilizce kapaklar (`locale == "en"`) birincil öncelikle seçilir.
+- Orijinal Japonca kapaklar yalnızca İngilizce kapak bulunmadığında güvenli fallback olarak gösterilir.
+
+### 📦 Temiz Release Hijyeni
+- Sürüm varlıkları staging alanı eski sürümlerden arındırıldı. Release paketine yalnızca `yomira-v5.2.0-beta.apk` ve tekil `SHA256SUMS.txt` dahil edildi.
+
+---
+
 # Yomira v5.0.0
 
 **Modern UI & Webtoon Reader — Cstation vitrin dili, fütüristik Y logosu, yüzen kapsül okuma kontrolleri ve tüm eski sürümlerden tek dokunuşla v5'e yükseltme**

@@ -1,54 +1,40 @@
-# Yomira v5.1.0
+# Yomira v5.2.0-beta
 
-`v5.1.0` · 27 Ekim 2026 · Android 8.0+ (API 26) · Windows 10/11
+`v5.2.0-beta` · 27 Ekim 2026 · Android 8.0+ (API 26) · Mobil Odak
 
-[Önceki sürümle karşılaştır](https://github.com/PaelenRune/Yomira/compare/v5.0.0...v5.1.0) · [Sürüm geçmişi](CHANGELOG.md)
+[Önceki sürümle karşılaştır](https://github.com/PaelenRune/Yomira/compare/v5.1.0...v5.2.0-beta) · [Sürüm geçmişi](CHANGELOG.md)
 
 ---
 
 ## 🌟 New & Highlights
 
-- **Dile duyarlı kaynak eşleştirme:** Onboarding veya ayarlarda seçilen dil (TR/EN) kaynak
-  eşleştirme motoruna dinamik olarak bağlandı; doğru dildeki kaynaklar en yüksek öncelikle
-  sıralanıyor.
-- **Xiaomi MIUI ve Android 12 uyumluluk optimizasyonları.** MIUI'nin agresif süreç yönetimi ve
-  API 31 kısıtları altında soğuk açılış, kurulum ve arayüz yaşam döngüsü stabil.
-- **Windows eş sürüm.** `Yomira-5.1.0.exe` ve `.msi`, Android ile aynı kaynak ağacından üretildi.
+- **Saf Android & Mobil Odak:** GitHub ana sayfası, dokümantasyon ve release yapısı masaüstü (Windows/PC) kalıntılarından tamamen arındırıldı. Yomira artık doğrudan saf mobil deneyime odaklıdır.
+- **Posterlerin Altında Seri Adı:** Ana sayfa, raflar (Trendler, Popüler, Size Özel vb.) ve katalog ızgarasındaki tüm manga kartlarının altına 2 satırlı, okunaklı seri başlığı eklendi.
+- **Kapak Görseli Dil Önceliği:** Uygulamada hangi okuma/arayüz dili seçilirse seçilsin, manga ve webtoon kapaklarında İngilizce kapaklar (`locale == "en"`) birincil öncelikle seçilir. Japonca/orijinal yazılı kapaklar yalnızca İngilizce kapak bulunamadığında fallback olarak devreye girer.
+- **İlk Açılış Kapak Hızlandırması (Coil DiskCache):** Coil görüntü yükleyicisine 250 MB özel `DiskCache` ve agresif önbellekleme desteği entegre edildi. İlk açılışta kapaklar hızla yüklenir, sonraki açılışlarda diskten anında (sıfır gecikmeyle) sunulur.
+- **İzole & Temiz Sürüm Varlıkları:** Release yayın süreçlerinde geçmiş sürümlerin karışması engellendi; her sürüm yalnızca kendi APK'sını ve bağımsız SHA256 checksum değerini barındırır.
 
-## 🛠️ Fixes
+## 🛠️ Fixes & Improvements
 
-- **Android 12 & MIUI başlangıç çökmesi giderildi.** Room Database, Hilt Dependency Injection,
-  kotlinx.serialization ve WorkManager sınıfları için R8 ProGuard keep kuralları eklendi; release
-  derlemesi ilk açılışta yansımayla yüklenen sınıfları artıkelmiyor.
-- **APK derleme boyutları optimize edildi.** Universal paket ~24.8 MB'a indi; indirme boyutu ve
-  kurulum süresi düştü.
-- **Kararlılık.** Arka planda güvenli arayüz geçişleri sağlandı, kaynak eşleştirme kararlılığı
-  artırıldı.
+- **MangaCard Layout:** Kapak kartı `Box` yapısından `Column` mimarisine dönüştürülerek dokunma alanı genişletildi, başlıklar gölgeli posterin altına taşındı.
+- **MangaDex & ArtworkResolver:** Cover art seçiminde `en` filtreleme güçlendirildi; eksik kapak bilgisi durumunda güvenli HTTPS fallback mekanizması korundu.
+- **Release Hijyeni:** Staging alanındaki eski paket kalıntıları temizlendi, checksum dosyası `v5.2.0-beta` için tekil olarak üretildi.
 
 ## 👥 Contributors
 
-- **[PaelenRune](https://github.com/PaelenRune)** — sürüm hazırlığı, R8 keep kuralları,
-  MIUI / Android 12 doğrulaması
+- **[PaelenRune](https://github.com/PaelenRune)** — sürüm yönetimi, mobilizasyon ve UX mimarisi
 - Tüm [açık kaynak katkıda bulunanlar](https://github.com/PaelenRune/Yomira/graphs/contributors)
 
 ## 📦 Assets
 
 | Asset | Boyut | Hedef |
 | :--- | ---: | :--- |
-| [`yomira-arm64-v8a-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/yomira-arm64-v8a-v5.1.0.apk) | ~24.5 MB | Modern 64-bit telefon ve tabletler |
-| [`yomira-armeabi-v7a-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/yomira-armeabi-v7a-v5.1.0.apk) | ~22 MB | 32-bit Android cihazlar |
-| [`yomira-x86_64-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/yomira-x86_64-v5.1.0.apk) | ~26 MB | Emülatör ve x86 cihazlar |
-| [`yomira-v5.1.0.apk`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/yomira-v5.1.0.apk) (Universal) | ~24.8 MB | Tüm ABI'lar tek pakette |
-| [`Yomira-5.1.0.exe`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/Yomira-5.1.0.exe) | — | Windows masaüstü, taşınabilir |
-| [`Yomira-5.1.0.msi`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/Yomira-5.1.0.msi) | — | Windows masaüstü, kurulum paketi |
-| [`SHA256SUMS.txt`](https://github.com/PaelenRune/Yomira/releases/download/v5.1.0/SHA256SUMS.txt) | — | Bütünlük doğrulaması |
-
-> Emin değilsen **Universal** APK'yı indir. Bölünmüş paketler aynı imzayı taşır; v5.0.0 ve
-> öncesi kurulumların üzerine doğrudan kurulur, kütüphane ve ilerleme korunur.
+| [`yomira-v5.2.0-beta.apk`](https://github.com/PaelenRune/Yomira/releases/download/v5.2.0-beta/yomira-v5.2.0-beta.apk) | ~24.8 MB | Universal Android (arm64-v8a, armeabi-v7a, x86_64) |
+| [`SHA256SUMS.txt`](https://github.com/PaelenRune/Yomira/releases/download/v5.2.0-beta/SHA256SUMS.txt) | — | Bütünlük doğrulaması (Tekil v5.2.0-beta) |
 
 ```bash
-# Android — kurulum ve doğrulama
-adb install -r yomira-arm64-v8a-v5.1.0.apk
+# Kurulum ve doğrulama
+adb install -r yomira-v5.2.0-beta.apk
 sha256sum -c SHA256SUMS.txt
 ```
 

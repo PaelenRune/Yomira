@@ -7,6 +7,39 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ArtworkResolverTest {
+    @Test fun explicitEnglishCoverWinsOverProviderQualityAndEnglishTitleHints() {
+        val japanese = record(MetadataSources.ANILIST, "https://img.test/ja.jpg")
+            .copy(coverLocale = "ja", englishTitle = "Series")
+        val unknown = record(MetadataSources.KITSU, "https://img.test/unknown.jpg")
+            .copy(englishTitle = "Series")
+        val english = record(MetadataSources.MANGADEX, "https://img.test/en.jpg")
+            .copy(coverLocale = "EN")
+        assertEquals(english.coverUrl, ArtworkResolver.cover(listOf(japanese, unknown, english)))
+    }
+
+    @Test fun englishTitleHintWinsWhenCoverLocalesAreUnknown() {
+        val japanese = record(MetadataSources.ANILIST, "https://img.test/original.jpg")
+        val english = record(MetadataSources.KITSU, "https://img.test/english.jpg")
+            .copy(altTitles = mapOf("en" to listOf("Series")))
+        assertEquals(english.coverUrl, ArtworkResolver.cover(listOf(japanese, english)))
+    }
+
+    @Test fun invalidEnglishCoverFallsBackToUsableJapaneseCover() {
+        val japanese = record(MetadataSources.MANGADEX, "https://img.test/ja.jpg")
+            .copy(coverLocale = "ja")
+        val english = record(MetadataSources.KITSU, "http://img.test/en.jpg")
+            .copy(coverLocale = "en")
+        assertEquals(japanese.coverUrl, ArtworkResolver.cover(listOf(english, japanese)))
+    }
+
+    @Test fun coverLocaleDoesNotChangeLandscapePriority() {
+        val japanese = record(MetadataSources.ANILIST, banner = "https://img.test/banner.jpg")
+            .copy(coverLocale = "ja")
+        val english = record(MetadataSources.MANGADEX, banner = "https://img.test/other.jpg")
+            .copy(coverLocale = "en")
+        assertEquals(japanese.bannerUrl, ArtworkResolver.backdrop(listOf(english, japanese)))
+    }
+
     private fun record(source: String, cover: String? = null, banner: String? = null) =
         RemoteMetadata(source, "1", "Series", coverUrl = cover, bannerUrl = banner)
 
