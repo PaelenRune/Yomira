@@ -16,6 +16,9 @@ enum class ReadingLanguage(val code: String) {
 data class ReaderPreferences(
     val language: ReadingLanguage,
     val allowAdultContent: Boolean = false,
+    val isAdult: Boolean = false,
+    val excludedTags: Set<String> = emptySet(),
+    val favoriteGenres: Set<String> = emptySet(),
 )
 
 data class ExtensionSource(val id: String, val name: String, val language: String)

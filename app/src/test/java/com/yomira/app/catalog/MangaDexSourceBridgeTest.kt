@@ -6,6 +6,8 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -15,9 +17,24 @@ class MangaDexSourceBridgeTest {
         val server = MockWebServer()
         server.start()
         try {
-            server.enqueue(MockResponse().setBody("""{"data":[{"id":"$MANGA","attributes":{"title":{"ja":"Original"},"altTitles":[{"en":"Alias"}]}}]}"""))
-            server.enqueue(MockResponse().setBody("""{"total":1,"data":[{"id":"$CHAPTER","attributes":{"chapter":"1","title":"First","pages":2,"translatedLanguage":"tr","publishAt":"2026-01-01T00:00:00Z"}}]}"""))
-            server.enqueue(MockResponse().setBody("""{"baseUrl":"https://images.example.org","chapter":{"hash":"abcdef","data":["one.jpg","two.jpg"]}}"""))
+            // The matcher probes Turkish and its English fallback concurrently.
+            // Route by endpoint/language rather than assuming FIFO request order.
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse {
+                    val url = requireNotNull(request.requestUrl)
+                    val body = when (url.encodedPath) {
+                        "/manga" -> if (url.queryParameter("availableTranslatedLanguage[]") == "tr") {
+                            """{"data":[{"id":"$MANGA","attributes":{"title":{"ja":"Original"},"altTitles":[{"en":"Alias"}]}}]}"""
+                        } else """{"data":[]}"""
+                        "/manga/$MANGA/feed" -> if (url.queryParameter("translatedLanguage[]") == "tr") {
+                            """{"total":1,"data":[{"id":"$CHAPTER","attributes":{"chapter":"1","title":"First","pages":2,"translatedLanguage":"tr","publishAt":"2026-01-01T00:00:00Z"}}]}"""
+                        } else """{"total":0,"data":[]}"""
+                        "/at-home/server/$CHAPTER" -> """{"baseUrl":"https://images.example.org","chapter":{"hash":"abcdef","data":["one.jpg","two.jpg"]}}"""
+                        else -> return MockResponse().setResponseCode(404)
+                    }
+                    return MockResponse().setBody(body)
+                }
+            }
             val repository = NativeSourceRepository(EmptyRepository())
             val bridge = MangaDexSourceBridge(OkHttpClient(), repository, store(), server.url("/").toString())
             val matcher = SmartSourceMatcher(repository, bridge, RepositorySourceDiscovery(bridge))
@@ -28,9 +45,12 @@ class MangaDexSourceBridgeTest {
             assertEquals(1, match.chapters.size)
             val pages = bridge.getPageList(match.selected.extension.packageName, match.selected.source.id, match.chapters.single())
             assertEquals(listOf("https://images.example.org/data/abcdef/one.jpg", "https://images.example.org/data/abcdef/two.jpg"), pages.map { it.imageUrl })
-            assertEquals(listOf("tr"), server.takeRequest().requestUrl!!.queryParameterValues("availableTranslatedLanguage[]"))
-            assertEquals(listOf("tr"), server.takeRequest().requestUrl!!.queryParameterValues("translatedLanguage[]"))
-            assertEquals("/at-home/server/$CHAPTER", server.takeRequest().path)
+            val requests = List(server.requestCount) { server.takeRequest().requestUrl!! }
+            assertEquals(setOf("en", "tr"), requests.filter { it.encodedPath == "/manga" }
+                .map { it.queryParameter("availableTranslatedLanguage[]") }.toSet())
+            assertEquals(listOf("tr"), requests.single { it.encodedPath == "/manga/$MANGA/feed" }
+                .queryParameterValues("translatedLanguage[]"))
+            assertEquals(1, requests.count { it.encodedPath == "/at-home/server/$CHAPTER" })
         } finally {
             server.shutdown()
         }

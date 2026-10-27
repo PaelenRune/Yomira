@@ -13,11 +13,13 @@ class DynamicShelvesTest {
         id: String,
         score: Double? = null,
         genres: List<String> = emptyList(),
+        popularity: Long? = null,
     ) = Manga(
         id = id,
         title = id,
         score = score,
         genres = genres,
+        popularity = popularity,
         contentRating = ContentRating.SAFE,
         sourceId = "test",
     )
@@ -38,6 +40,29 @@ class DynamicShelvesTest {
         val shelf = popularTrendingShelf(catalog, updated = emptyList(), seed = 3, limit = 3)
         assertEquals("great", shelf.first().id)
         assertEquals(3, shelf.size)
+    }
+
+    @Test fun `global reader counts beat niche perfect scores and recent updates`() {
+        val hits = listOf("Solo Leveling", "One Piece", "Berserk", "Attack on Titan", "Jujutsu Kaisen")
+            .map { manga(it, 8.5, popularity = 1_000_000) }
+        val niche = manga("niche", 10.0, popularity = 10)
+        val catalog = hits + niche
+        val ranked = popularTrendingShelf(catalog, listOf(niche), seed = 3)
+        assertEquals(hits.map { it.id }.toSet(), ranked.take(5).map { it.id }.toSet())
+        assertEquals(ranked, popularTrendingShelf(catalog.reversed(), listOf(niche), seed = 999))
+    }
+
+    @Test fun `popularity uses log normalization and specified consensus weights`() {
+        val famous = manga("famous", 3.0, popularity = 1_000_000)
+        val contender = manga("contender", 9.0, popularity = 10_000)
+        // Log scale allows a well-rated established contender to beat a poorly rated giant.
+        assertEquals("contender", popularTrendingShelf(listOf(famous, contender), emptyList(), 0).first().id)
+    }
+
+    @Test fun `missing and zero popularity stay finite with stable ties and neutral score`() {
+        val catalog = listOf(manga("b", 7.0, popularity = 0), manga("a"))
+        assertEquals(listOf("a", "b"), popularTrendingShelf(catalog, emptyList(), 1).map { it.id })
+        assertTrue(popularTrendingShelf(emptyList(), emptyList(), 0).isEmpty())
     }
 
     @Test fun `personal shelf follows taste genres and skips read series`() {

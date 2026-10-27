@@ -108,7 +108,6 @@
     <string name="update_later">Daha sonra</string>
     <string name="update_link_failed">Güncelleme bağlantısı açılamadı.</string>
     <string name="secure_link_failed">Güvenli indirme bağlantısı açılamadı.</string>
-    <string name="offline_download_notice">Çevrimdışı indirme için kaynak sayfa sağlayıcısı gerekli; bu sürüm yalnızca bölüm referanslarını saklar.</string>
 
     <!-- Kurulum -->
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
@@ -186,9 +185,10 @@
     <string name="detail_date_missing">Tarih belirtilmedi</string>
     <string name="detail_mark_read">Okundu olarak işaretle</string>
     <string name="detail_mark_unread">Okunmadı olarak işaretle</string>
-    <string name="detail_downloaded">İndirildi</string>
-    <string name="detail_retry_download">İndirmeyi yeniden dene</string>
-    <string name="detail_download_chapter">Bölümü indir</string>
+    <string name="detail_read_label">Okundu</string>
+    <string name="detail_unread_only">Sadece Okunmamışlar</string>
+    <string name="detail_unread_empty_title">Okunmamış bölüm yok</string>
+    <string name="detail_unread_empty_message">Tüm bölümleri görmek için filtreyi kapat.</string>
     <string name="detail_match_title">Türkçe kaynak eşleştirmesi</string>
     <string name="detail_match_comparing">Kaynaklar karşılaştırılıyor…</string>
     <string name="detail_match_missing_extension">Bu seriyi Türkçe okumak için en iyi kaynak: %1$s (%2$d bölüm). Bu eklentiyi kurmak ister misin?</string>

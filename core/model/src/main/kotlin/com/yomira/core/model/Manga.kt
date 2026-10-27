@@ -16,11 +16,14 @@ data class Manga(
     val contentRating: ContentRating = ContentRating.SAFE,
     val sourceId: String,
     val publicationType: String? = null,
+    /** Global reader/subscriber count reported by the metadata provider. */
+    val popularity: Long? = null,
 ) {
     init {
         require(id.isNotBlank()) { "Manga ID must not be blank" }
         require(title.isNotBlank()) { "Manga title must not be blank" }
         require(sourceId.isNotBlank()) { "Source ID must not be blank" }
+        require(popularity == null || popularity >= 0) { "Popularity must not be negative" }
         require(score == null || (score.isFinite() && score in 0.0..10.0)) {
             "Score must be normalized to 0..10"
         }

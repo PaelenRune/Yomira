@@ -52,6 +52,7 @@ data class SettingsMaintenanceState(
     val driveSignInRequired: Boolean = false,
     val lastSyncedAt: Long? = null,
     val contentLanguage: com.yomira.domain.extension.ReadingLanguage? = null,
+    val readerPreferences: com.yomira.domain.extension.ReaderPreferences? = null,
     val preferenceBusy: Boolean = false,
     val message: MaintenanceMessage? = null,
 )

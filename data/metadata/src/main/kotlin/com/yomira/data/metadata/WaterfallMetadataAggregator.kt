@@ -97,6 +97,7 @@ class WaterfallMetadataAggregator(
             coverUrl = ArtworkResolver.cover(records), bannerUrl = ArtworkResolver.backdrop(records),
             author = text { it.author }, artist = text { it.artist }, synopsis = text { it.description },
             score = records.firstNotNullOfOrNull { it.score },
+            popularity = records.firstNotNullOfOrNull { it.popularity },
             status = records.firstOrNull { it.status != MangaStatus.UNKNOWN }?.status ?: MangaStatus.UNKNOWN,
             genres = genres,
             contentRating = classifier.classify(ClassificationInput(

@@ -4,7 +4,7 @@ import java.util.Locale
 import java.text.Normalizer
 import kotlin.random.Random
 
-/** Stable identities: selection belongs to the session, never to a composition or timer. */
+/** Stable shelf identities; the feed promotes them from observed reading affinity. */
 enum class HomeShelf(val title: String, private vararg val tags: String) {
     POPULAR("Popüler Seriler"),
     PERSONAL("Size Özel"),
@@ -50,9 +50,10 @@ enum class HomeShelf(val title: String, private vararg val tags: String) {
         val fixed: List<HomeShelf> = listOf(POPULAR, PERSONAL)
         val dynamicPool: List<HomeShelf> = entries.filterNot { it in fixed }
 
-        /** Sampling without replacement; injectable random makes the contract testable. */
+        /** Deterministic cold start with one of five dynamic slots reserved for discovery. */
+        @Suppress("UNUSED_PARAMETER") // Source compatibility for older seeded callers.
         fun select(random: Random = Random.Default): List<HomeShelf> =
-            fixed + dynamicPool.shuffled(random).take(DYNAMIC_COUNT)
+            fixed + dynamicPool.filterNot { it == DISCOVERY }.take(DYNAMIC_COUNT - 1) + DISCOVERY
     }
 }
 

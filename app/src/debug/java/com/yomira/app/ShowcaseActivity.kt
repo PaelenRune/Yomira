@@ -44,7 +44,6 @@ import com.yomira.core.ui.theme.YomiraTheme
 import com.yomira.domain.extension.SourcePage
 import com.yomira.feature.details.ChapterUiState
 import com.yomira.feature.details.DetailCopy
-import com.yomira.feature.details.DownloadState
 import com.yomira.feature.details.MangaDetailScreen
 import com.yomira.feature.home.ContinueReadingUi
 import com.yomira.feature.home.HomeCopy
@@ -232,7 +231,6 @@ private object ShowcaseData {
                 url = "file:///android_asset/pages/solo-leveling-1.png",
             ),
             read = index < 8,
-            download = if (index > 8) DownloadState.DOWNLOADED else DownloadState.NOT_DOWNLOADED,
         )
     }
 
@@ -344,7 +342,6 @@ private fun PhoneDetailShowcase() {
         onSave = {},
         onRead = {},
         onToggleRead = {},
-        onDownload = {},
         onContinue = {},
         copy = DetailCopyTr,
         twoPane = false,
@@ -411,7 +408,6 @@ private fun TabletShowcase() {
                 onSave = {},
                 onRead = {},
                 onToggleRead = {},
-                onDownload = {},
                 onContinue = {},
                 copy = DetailCopyTr,
                 twoPane = true,

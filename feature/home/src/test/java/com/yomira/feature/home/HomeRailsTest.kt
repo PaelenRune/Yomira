@@ -61,4 +61,34 @@ class HomeRailsTest {
         assertFalse(rails.first().items.isEmpty())
         assertEquals("fresh", rails.last().items.first().id)
     }
+
+    @Test fun `four affinity slots evolve with reads and saves while discovery is reserved`() {
+        val catalog = listOf(
+            manga("murim-1", "Murim"), manga("murim-2", "Martial Arts"),
+            manga("seinen", "Seinen"), manga("isekai", "Isekai"),
+        )
+        fun shelves(read: Set<String>, saved: Set<String> = emptySet(), seed: Int = 1) =
+            buildHomeRails(catalog, emptyList(), emptyList(), readIds = read, savedIds = saved, seed = seed)
+                .map { it.shelf }
+        val cold = shelves(emptySet())
+        assertEquals(cold, shelves(emptySet(), seed = 500))
+        val learned = shelves(setOf("murim-1", "murim-2"), setOf("seinen", "isekai"))
+        assertEquals(HomeShelf.fixed, learned.take(2))
+        assertEquals(listOf(HomeShelf.MARTIAL_ARTS, HomeShelf.ISEKAI, HomeShelf.SEINEN), learned.drop(2).take(3))
+        assertEquals(7, learned.size)
+        assertEquals(7, learned.distinct().size)
+        assertEquals(HomeShelf.DISCOVERY, learned.last())
+        assertEquals(HomeShelf.SEINEN, shelves(setOf("seinen"))[2])
+    }
+
+    @Test fun `affinity counts each read or saved title once and ignores explicit history`() {
+        val catalog = listOf(
+            manga("murim", "Murim"), manga("seinen-1", "Seinen"), manga("seinen-2", "Seinen"),
+            manga("adult", "Isekai", explicit = true),
+        )
+        val shelves = adaptiveHomeShelves(catalog + catalog, setOf("murim", "seinen-1", "seinen-2", "adult"), setOf("murim"))
+        assertEquals(HomeShelf.SEINEN, shelves[2])
+        assertEquals(HomeShelf.MARTIAL_ARTS, shelves[3])
+        assertFalse(HomeShelf.ISEKAI in shelves)
+    }
 }

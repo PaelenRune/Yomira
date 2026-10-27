@@ -31,7 +31,7 @@ class FileExtensionStoresTest {
 
     @Test fun `onboarding state including null repo round trips`() = runTest {
         val path = temporary.root.toPath().resolve("preferences.json")
-        val state = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH, true), null, emptyList(), true)
+        val state = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH, true, true, setOf("futanari", "gore"), setOf("romance")), null, emptyList(), true)
         assertNull(FileOnboardingStore(path).read())
         FileOnboardingStore(path).write(state)
         assertEquals(state, FileOnboardingStore(path).read())

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yomira.domain.extension.OnboardingStore
 import com.yomira.domain.extension.ReadingLanguage
+import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.sync.SyncResult
 import com.yomira.feature.settings.MaintenanceMessage
 import com.yomira.feature.settings.SettingsMaintenanceState
@@ -31,6 +32,14 @@ class SettingsMaintenanceViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
+                onboarding.observe().collect { saved ->
+                    mutableState.update { it.copy(readerPreferences = saved?.preferences, contentLanguage = saved?.preferences?.language) }
+                }
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED) }
+        }
+        viewModelScope.launch {
+            try {
                 services.lastSyncedAt.collect { timestamp ->
                     mutableState.update { it.copy(lastSyncedAt = timestamp) }
                 }
@@ -45,7 +54,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val saved = withContext(Dispatchers.IO) { onboarding.read() }
-                mutableState.update { it.copy(contentLanguage = saved?.preferences?.language) }
+                mutableState.update { it.copy(contentLanguage = saved?.preferences?.language, readerPreferences = saved?.preferences) }
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED) }
         }
@@ -108,7 +117,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
                     val saved = checkNotNull(onboarding.read())
                     onboarding.write(saved.copy(preferences = saved.preferences.copy(language = language)))
                 }
-                mutableState.update { it.copy(contentLanguage = language) }
+                mutableState.update { it.copy(contentLanguage = language, readerPreferences = it.readerPreferences?.copy(language = language)) }
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED)
             } finally { mutableState.update { it.copy(preferenceBusy = false) } }
@@ -116,6 +125,23 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun consumeMessage() { mutableState.update { it.copy(message = null) } }
+
+    fun setReaderPreferences(preferences: ReaderPreferences) {
+        if (state.value.preferenceBusy) return
+        mutableState.update { it.copy(preferenceBusy = true, message = null) }
+        viewModelScope.launch {
+            try {
+                val safe = preferences.copy(allowAdultContent = preferences.isAdult && preferences.allowAdultContent)
+                withContext(Dispatchers.IO) {
+                    val saved = checkNotNull(onboarding.read())
+                    onboarding.write(saved.copy(preferences = safe))
+                }
+                mutableState.update { it.copy(readerPreferences = safe, contentLanguage = safe.language) }
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED)
+            } finally { mutableState.update { it.copy(preferenceBusy = false) } }
+        }
+    }
 
     private suspend fun refreshCacheSize() {
         try {

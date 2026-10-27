@@ -34,10 +34,10 @@ class SmartSourceMatcherTest {
         assertEquals(listOf("two", "one"), result.alternatives.map { it.extension.packageName })
     }
 
-    @Test fun `filters wrong language and adult sources before discovery`() = runTest {
-        val english = candidate("english", 200, language = "en")
+    @Test fun `filters unrelated language and adult sources before discovery`() = runTest {
+        val japanese = candidate("japanese", 200, language = "ja")
         val adult = candidate("adult", 200, nsfw = true)
-        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(english, adult)).match(series, preferences))
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(japanese, adult)).match(series, preferences))
     }
 
     @Test fun `chosen language outranks a multilingual source with more chapters`() = runTest {
@@ -113,6 +113,30 @@ class SmartSourceMatcherTest {
         val result = matcher(listOf(english, multilingual), setOf("english", "multi"))
             .match(series, ReaderPreferences(ReadingLanguage.ENGLISH)) as SmartMatchResult.Ready
         assertEquals("multi", result.selected.extension.packageName)
+        assertTrue(result.canRead)
+    }
+
+    @Test fun `readable english fallback wins when Turkish has no chapters in either path`() = runTest {
+        val turkish = candidate("turkish", 0)
+        val english = candidate("english", 12, language = "en-US")
+        val candidates = listOf(turkish, english)
+        val ready = matcher(candidates, setOf("turkish", "english")).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("english", ready.selected.extension.packageName)
+        assertEquals(12, ready.chapters.size)
+        assertTrue(ready.canRead)
+        val missing = matcher(candidates).match(series, preferences) as SmartMatchResult.MissingExtension
+        assertEquals("english", missing.suggestedSource.extension.packageName)
+    }
+
+    @Test fun `preferred readable source outranks English even with fewer chapters`() = runTest {
+        val candidates = listOf(candidate("english", 500, language = "en"), candidate("turkish", 1))
+        val result = matcher(candidates, setOf("english", "turkish")).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("turkish", result.selected.extension.packageName)
+    }
+
+    @Test fun `English remains available when no Turkish title is found`() = runTest {
+        val result = matcher(listOf(candidate("english", 8, language = "en")), setOf("english"))
+            .match(series, preferences) as SmartMatchResult.Ready
         assertTrue(result.canRead)
     }
 
@@ -193,6 +217,68 @@ class SmartSourceMatcherTest {
         assertEquals(4, ready.chapters.size)
     }
 
+    @Test fun `search expands punctuation free Romaji and English aliases`() = runTest {
+        val cases = listOf(
+            Triple(SeriesIdentity("haikyu", "Haikyu!!"), "Haikyuu", "Haikyuu!!"),
+            Triple(SeriesIdentity("haikyuu", "Haikyuu!!"), "Haikyu", "Haikyu!!"),
+            Triple(SeriesIdentity("tokyo", "Tōkyō!"), "Toukyou", "Toukyou"),
+            Triple(SeriesIdentity("titan", "Attack on Titan", setOf("Shingeki no Kyojin!")), "Shingeki no Kyojin", "Shingeki no Kyojin"),
+            Triple(SeriesIdentity("titan", "Shingeki no Kyojin", setOf("Attack on Titan!")), "Attack on Titan", "Attack on Titan"),
+        )
+        for ((identity, requiredQuery, resultTitle) in cases) {
+            val found = candidate("one", 3).copy(manga = manga.copy(title = resultTitle))
+            val queries = mutableListOf<String>()
+            val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+                override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
+                    queries += query
+                    return if (query == requiredQuery) listOf(found.manga) else emptyList()
+                }
+            }
+            val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
+                SourceDiscovery { _, _ -> emptyList() }).match(identity, preferences)
+            assertTrue("Expected readable result for $identity, queries=$queries", result is SmartMatchResult.Ready)
+            assertTrue(queries.contains(requiredQuery))
+            assertTrue(queries.none { it.contains('!') })
+        }
+    }
+
+    @Test fun `core token containment accepts source subtitles and reordered names`() {
+        assertTrue(SmartSourceMatcher.matchesTitle("Attack on Titan - Full Color Edition", listOf("Attack on Titan")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Kyojin Shingeki no Manga Edition", listOf("Shingeki no Kyojin")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Toukyou", listOf("Tōkyō")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Naruto", listOf("Naruto (Official) (Digital)")))
+        assertFalse(SmartSourceMatcher.matchesTitle("Unrelated Adventures", listOf("Attack on Titan")))
+    }
+
+    @Test fun `empty title result does not hide readable alias results on the same source`() = runTest {
+        val found = candidate("one", 3)
+        val emptyManga = manga.copy(id = "empty")
+        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
+                if (query == "Alternate title") listOf(manga) else listOf(emptyManga)
+            override suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga) =
+                if (manga.id == "empty") emptyList() else FakeBridge(listOf(found)).getChapterList(packageName, sourceId, manga)
+        }
+        val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
+            SourceDiscovery { _, _ -> emptyList() }).match(series.copy(aliases = setOf("Alternate title")), preferences)
+            as SmartMatchResult.Ready
+        assertEquals(3, result.chapters.size)
+    }
+
+    @Test fun `harmless numbers do not prevent matches but sequel numbers stay distinct`() {
+        assertTrue(SmartSourceMatcher.matchesTitle("Mob Psycho", listOf("Mob Psycho 100")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Mob Psycho 100 2024 Vol 1", listOf("Mob Psycho 100")))
+        assertTrue(SmartSourceMatcher.matchesTitle("A Series (2024)", listOf("A Series")))
+        assertTrue(SmartSourceMatcher.matchesTitle("A Series Vol. 1", listOf("A Series")))
+        assertFalse(SmartSourceMatcher.matchesTitle("A Series 2", listOf("A Series 1")))
+        assertFalse(SmartSourceMatcher.matchesTitle("A Series 2", listOf("A Series")))
+        assertFalse(SmartSourceMatcher.matchesTitle("A Series 12", listOf("A Series 11")))
+    }
+
+    @Test fun `fuzzy threshold tolerates a moderate spelling variation`() {
+        assertTrue(SmartSourceMatcher.matchesTitle("Naroto", listOf("Naruto")))
+    }
+
     @Test fun `token order variation matches but a distinct sequel does not`() = runTest {
         val reordered = candidate("reordered", 3).copy(manga = manga.copy(title = "Series A"))
         val sequel = candidate("sequel", 30).copy(manga = manga.copy(title = "A Series 2"))
@@ -268,7 +354,7 @@ class SmartSourceMatcherTest {
 
     private fun matcher(candidates: List<SourceCandidate>, installed: Set<String> = emptySet()): SmartSourceMatcher =
         SmartSourceMatcher(FakeRepository(candidates.map { it.extension }, installed), FakeBridge(candidates),
-            SourceDiscovery { _, extensions -> candidates.filter { it.extension in extensions } })
+            SourceDiscovery { _, extensions -> candidates.filter { it.extension in extensions } }, nanoTime = { 0L })
 
     private class FakeRepository(
         val entries: List<ExtensionDescriptor>,

@@ -54,13 +54,21 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
     }
 
     fun complete(languageCode: String, integrateRepository: Boolean) {
+        save(languageCode, integrateRepository, false, emptySet(), emptySet())
+    }
+
+    fun complete(languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {
+        save(languageCode, true, isAdult, excludedTags, favoriteGenres)
+    }
+
+    private fun save(languageCode: String, integrateRepository: Boolean, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {
         if (mutableState.value.loading || mutableState.value.saving || mutableState.value.completed) return
         mutableState.value = mutableState.value.copy(saving = true, error = null)
         viewModelScope.launch {
             try {
                 val language = ReadingLanguage.entries.first { it.code == languageCode }
                 withContext(Dispatchers.IO) {
-                    wizard.complete(ReaderPreferences(language), integrateRepository)
+                    wizard.complete(ReaderPreferences(language, isAdult, isAdult, excludedTags, favoriteGenres), integrateRepository)
                 }
                 mutableState.value = OnboardingUiState(loading = false, completed = true,
                     languageCode = language.code)

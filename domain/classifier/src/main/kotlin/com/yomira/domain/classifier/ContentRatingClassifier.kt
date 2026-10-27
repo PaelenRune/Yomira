@@ -24,44 +24,53 @@ data class ClassificationInput(
 /**
  * Evidence-based routing, not age verification. Erotica and age labels are not proof of pornography.
  *
- * EXPLICIT is reserved for actual pornography: hentai/pornhwa tags, hardcore or genitalia
+ * EXPLICIT covers standalone hentai, pornhwa tags, hardcore or genitalia
  * evidence, explicit doujinshi and sources that only ever host adult comics
  * (`allporncomic`, `porncomix`, 3D porn sites). Everything soft — ecchi, fanservice,
  * suggestive romance, western erotica without hardcore evidence and serialized stories
- * with mature themes like Prison School — stays MATURE in the public catalogue instead
+ * with mature themes — stays MATURE in the public catalogue instead
  * of leaking into the +18 Vault.
+ * Serialized-fiction context can correct broad provider/hentai labels, but never
+ * direct explicit tags or an adult-only source.
  */
 class ContentRatingClassifier {
     fun classify(input: ClassificationInput): ContentRating {
-        // These serialized stories are frequently mislabeled by upstream providers.
-        // Apply the correction to both primary and translated titles before provider
-        // ratings, and before source detection: an adult aggregator hosting a
-        // serialized story does not turn it into pornography.
-        val knownStory = (input.altTitles + input.title).any { title ->
-            val normalized = normalize(title)
-            normalized in matureStories || matureStoryPrefixes.any { prefix ->
-                normalized == prefix || normalized.startsWith("$prefix ")
-            }
-        }
-        if (knownStory) return ContentRating.MATURE
-
         // Providers flatten several tags into one delimited string ("Romance, Hentai");
         // split first, then match on padded word boundaries so "Japanese Hentai Manga"
-        // is hentai but "Nonhentai" never is.
+        // matches the hentai label but "Nonhentai" never does.
         val labels = (input.genres + input.tags)
             .flatMap { it.split(Regex("[,;|/]+")) }
             .map { " ${normalize(it)} " }
-        if (ExternalRating.PORNOGRAPHIC in input.externalRatings ||
-            labels.containsAny(explicitLabels) ||
+        val hentai = labels.containsAny(setOf("hentai"))
+        val explicitDoujin = hentai && (labels.containsAny(setOf("doujin", "doujinshi")) ||
+            normalize(input.publicationType.orEmpty()) in setOf("doujin", "doujinshi"))
+        if (labels.containsAny(explicitLabels) || explicitDoujin ||
             normalize(input.sourceId.orEmpty()).split(' ').any { it in adultSourceTokens }
         ) {
             return ContentRating.EXPLICIT
         }
-        // Official status and format (manga, manhwa, webtoon, doujinshi, etc.)
-        // establish neither the presence nor absence of explicit sexual content.
-        return if (labels.containsAny(matureLabels) ||
-            input.externalRatings.any { it == ExternalRating.SUGGESTIVE || it == ExternalRating.EROTICA }
-        ) ContentRating.MATURE else ContentRating.SAFE
+        // A small, exact identity correction handles known bad provider records even
+        // after caching has dropped their original publication metadata. It never
+        // overrides direct explicit evidence above; arbitrary title keywords do not count.
+        val knownSerializedErotica = (listOf(input.title) + input.altTitles)
+            .any { normalize(it) in serializedEroticaTitles }
+        val fictionContext = input.isOfficialPublication == true ||
+            labels.containsAny(serializedFictionLabels) || knownSerializedErotica
+        val providerPornographic = ExternalRating.PORNOGRAPHIC in input.externalRatings
+        if (fictionContext && (hentai || providerPornographic || knownSerializedErotica)) {
+            return ContentRating.MATURE
+        }
+        if (providerPornographic) return ContentRating.EXPLICIT
+        // Verified non-pornographic ratings cannot be escalated by an unverified
+        // hentai label. SAFE does not erase softer sexual evidence, however.
+        if (input.externalRatings.any { it in nonPornographicRatings }) {
+            return if (labels.containsAny(matureLabels) ||
+                input.externalRatings.any { it == ExternalRating.SUGGESTIVE || it == ExternalRating.EROTICA }
+            ) ContentRating.MATURE else ContentRating.SAFE
+        }
+        // Without contradictory publication/provider evidence, Hentai is explicit.
+        if (hentai) return ContentRating.EXPLICIT
+        return if (labels.containsAny(matureLabels)) ContentRating.MATURE else ContentRating.SAFE
     }
 
     private fun List<String>.containsAny(phrases: Set<String>): Boolean =
@@ -73,15 +82,15 @@ class ContentRatingClassifier {
     /** Hardcore pornography only. Anything softer must stay MATURE so it never reaches the Vault. */
     private val explicitLabels = setOf(
         // Japanese, Korean and Western adult comics; word matching also covers
-        // "Hentai Manga", "Hentai Doujinshi", "3D Hentai", "3D Porn", "Porn Comic", …
-        "hentai", "porn", "pornhwa", "pornography", "pornographic", "hardcore",
-        "genitalia", "explicit sexual content", "explicit sex", "explicit doujinshi", "explicit doujin",
+        // "3D Porn", "Porn Comic", etc. Hentai is evaluated with fiction context above.
+        "porn", "pornhwa", "pornography", "pornographic", "hardcore",
+        "genitalia", "explicit sexual content", "explicit sex", "uncensored sex", "explicit doujinshi", "explicit doujin",
         // Adult-only comic platforms that scrapers flatten into genres/tags.
         "allporncomic", "allporncomics", "all porn comic", "all porn comics", "porncomix", "porcomix", "porcat",
     )
-    /** Suggestive or softcore evidence. Public catalogue, never the Vault. */
+    /** Soft labels; Hentai additionally requires the contradictory evidence checked above. */
     private val matureLabels = setOf(
-        "ecchi", "mature", "adult", "smut", "sexual themes", "sexual content", "erotica", "erotic",
+        "ecchi", "hentai", "mature", "adult", "smut", "sexual themes", "sexual content", "erotica", "erotic",
         "suggestive", "fanservice", "nudity", "softcore", "nsfw", "18",
         "adult webtoon", "adult webtoons", "adult comic", "adult comics",
         "western erotica", "erotic comics", "erotic manga",
@@ -90,22 +99,22 @@ class ContentRatingClassifier {
     /** Source ids of adult-only platforms; scraping one is pornographic evidence by itself. */
     private val adultSourceTokens = setOf(
         "hentai", "porn", "pornhwa", "allporncomic", "porncomix", "porcomix", "porcat",
-        "nhentai", "hentai2read", "hentaifox", "asmhentai", "rule34",
+        "nhentai", "hentai2read", "hentaifox", "asmhentai", "rule34", "manhwa18",
     )
-    private val matureStories = listOf(
+    private val nonPornographicRatings = setOf(
+        ExternalRating.SAFE, ExternalRating.SUGGESTIVE, ExternalRating.EROTICA,
+    )
+    private val serializedFictionLabels = setOf(
+        "isekai", "action", "adventure", "comedy", "school life", "gyaru", "romance",
+        "fantasy", "supernatural", "shounen", "seinen",
+    )
+    private val serializedEroticaTitles = setOf(
         "I Formed a MILF Party with the Heroes' Mothers",
-        "Kimi wa Midara na Boku no Joou",
-        "Prison School",
-        "Kangoku Gakuen",
-        "Yuusha no Haha",
-        "Yuusha ni Zenbu Ubawareta Ore wa Yuusha no Hahaoya to Party wo Kumimashita",
-        "Betrayed by the Hero, I Formed a MILF Party with His Mom!",
-    ).map(::normalize).toSet()
-    private val matureStoryPrefixes = listOf(
-        "I Formed a MILF Party with the Heroes' Mothers",
+        "I Formed a MILF Party with the Heroes Mothers",
         "I Formed a MILF Party with the Hero's Mothers",
-        "Yuusha no Haha",
-        "Yuusha no Hahaoya",
-        "Yuusha no Hahaoya tachi",
-    ).map(::normalize)
+        "Yuusha no Haha Oya to Party wo Kumimashita",
+        "Yuusha no Hahaoya-tachi to Party wo Kumimashita",
+        "Yuusha ni Zenbu Ubawareta Ore wa Yuusha no Hahaoya to Party wo Kumimashita",
+        "Betrayed by the Hero, I Formed a MILF Party with His Mom",
+    ).map(::normalize).toSet()
 }

@@ -42,6 +42,9 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
+import com.yomira.core.model.isVisibleForReader
+import com.yomira.domain.extension.ReaderPreferences
+import com.yomira.domain.extension.ReadingLanguage
 import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.YomiraTheme
 import com.yomira.feature.details.DetailCopy
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                     YomiraNavigation(
                         model, readerModel, settingsModel, maintenanceModel, journeyModel, settings, authError,
                         onUnlockVault = {
-                            if (settings.vaultVisible) {
+                            if (settings.vaultVisible && maintenanceModel.state.value.readerPreferences?.let { it.isAdult && it.allowAdultContent } == true) {
                                 // "Protect with device lock" is the user's call; default is on.
                                 if (settings.requireDeviceLock) unlock() else model.unlocked.value = true
                             } else authError = getString(R.string.vault_adult_disabled)
@@ -203,13 +206,20 @@ private fun YomiraNavigation(
 ) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
-    val catalog by model.catalog.collectAsStateWithLifecycle()
-    val homeRails by model.homeRails.collectAsStateWithLifecycle()
+    val maintenanceState by maintenanceModel.state.collectAsStateWithLifecycle()
+    val preferences = maintenanceState.readerPreferences ?: ReaderPreferences(ReadingLanguage.TURKISH)
+    fun allowed(manga: Manga) = maintenanceState.readerPreferences != null && manga.isVisibleForReader(preferences.excludedTags, preferences.isAdult, preferences.allowAdultContent)
+    val vaultEnabled = settings.vaultVisible && preferences.isAdult && preferences.allowAdultContent
+    val rawCatalog by model.catalog.collectAsStateWithLifecycle()
+    val catalog = rawCatalog.copy(manga = rawCatalog.manga.filter(::allowed), updated = rawCatalog.updated.filter(::allowed))
+    val rawHomeRails by model.homeRails.collectAsStateWithLifecycle()
+    val homeRails = rawHomeRails.map { it.copy(items = it.items.filter(::allowed)) }
     val columns by model.columns.collectAsStateWithLifecycle()
     val vaultColumns by model.vaultColumns.collectAsStateWithLifecycle()
     val unlocked by model.unlocked.collectAsStateWithLifecycle()
     val saved by model.saved.collectAsStateWithLifecycle()
-    val libraryUpdates by model.libraryUpdates.collectAsStateWithLifecycle()
+    val rawLibraryUpdates by model.libraryUpdates.collectAsStateWithLifecycle()
+    val libraryUpdates = rawLibraryUpdates.filter { allowed(it.manga) && it.manga.contentRating != ContentRating.EXPLICIT }
     val libraryRefreshing by model.libraryRefreshing.collectAsStateWithLifecycle()
     val libraryRefreshError by model.libraryRefreshError.collectAsStateWithLifecycle()
     val adaptationBadges by model.adaptationBadges.collectAsStateWithLifecycle()
@@ -217,8 +227,10 @@ private fun YomiraNavigation(
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
     val selectedTags by model.selectedTags.collectAsStateWithLifecycle()
-    val discovery by model.discovery.collectAsStateWithLifecycle()
-    val vaultDiscovery by model.vaultDiscovery.collectAsStateWithLifecycle()
+    val rawDiscovery by model.discovery.collectAsStateWithLifecycle()
+    val discovery = rawDiscovery.copy(items = rawDiscovery.items.filter(::allowed))
+    val rawVaultDiscovery by model.vaultDiscovery.collectAsStateWithLifecycle()
+    val vaultDiscovery = rawVaultDiscovery.copy(items = rawVaultDiscovery.items.filter(::allowed))
     val pendingUpdate by model.update.collectAsStateWithLifecycle()
     val settingsState by settingsModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
@@ -227,7 +239,7 @@ private fun YomiraNavigation(
     val context = LocalContext.current
     var actionManga by remember(current, unlocked, settings.vaultVisible) { mutableStateOf<Manga?>(null) }
     val shareLabel = stringResource(R.string.control_share)
-    actionManga?.takeIf { it.contentRating != ContentRating.EXPLICIT || (unlocked && settings.vaultVisible) }?.let { manga ->
+    actionManga?.takeIf { allowed(it) && (it.contentRating != ContentRating.EXPLICIT || (unlocked && vaultEnabled)) }?.let { manga ->
         QuickActionSheet(manga.title, { actionManga = null }, listOf(
             stringResource(if (manga.id in saved) R.string.detail_save_remove else R.string.detail_save_add) to { model.toggleSaved(manga.id) },
             stringResource(R.string.detail_mark_read) to { model.markSeriesRead(manga.id) },
@@ -240,11 +252,11 @@ private fun YomiraNavigation(
     }
     val catalogCopy = catalogCopy()
     val openSeriesFailed = stringResource(R.string.detail_open_series_failed)
-    val offlineNotice = stringResource(R.string.offline_download_notice)
     val tagOptions = catalogTagChips()
     fun home() { nav.navigate("home") { popUpTo(nav.graph.id) { inclusive = false }; launchSingleTop = true } }
     fun panic() { model.lock(); home() }
     fun details(manga: Manga) {
+        if (!allowed(manga)) return
         if (manga.contentRating == ContentRating.EXPLICIT && !unlocked) return
         model.clearMatch()
         nav.navigate("details/${Uri.encode(manga.id)}")
@@ -263,11 +275,16 @@ private fun YomiraNavigation(
     }
     // Hiding the Vault must also lock it and leave its route: no back-stack entry
     // may keep adult content reachable once the tab is gone.
-    LaunchedEffect(settings.vaultVisible) {
-        if (!settings.vaultVisible) {
+    LaunchedEffect(vaultEnabled) {
+        if (!vaultEnabled) {
             model.lock()
             if (nav.currentDestination?.route == "vault") home()
         }
+    }
+    LaunchedEffect(preferences, current) {
+        val id = backStack?.arguments?.getString("id") ?: backStack?.arguments?.getString("mangaId")
+        val item = (rawCatalog.manga + rawDiscovery.items + rawVaultDiscovery.items).firstOrNull { it.id == id }
+        if (item != null && !allowed(item)) panic()
     }
     val showChrome = current == "home" || current == "discover" || current == "library" || current == "profile" || current == "vault"
     val showNavigation = current != "details/{id}" && current != "reader/{mangaId}/{chapterId}" && current != "settings" && current != "wrapped"
@@ -300,7 +317,7 @@ private fun YomiraNavigation(
             YomiraBottomNavBar(current, onSelect = { destination ->
                 if (destination != MainDestination.VAULT) model.lock()
                 nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
-            }, copy = catalogCopy, vaultVisible = settings.vaultVisible)
+            }, copy = catalogCopy, vaultVisible = vaultEnabled)
         }
     }) { padding ->
         Row(Modifier.fillMaxSize()
@@ -309,17 +326,17 @@ private fun YomiraNavigation(
                 YomiraNavigationRail(current, onSelect = { destination ->
                     if (destination != MainDestination.VAULT) model.lock()
                     nav.navigate(destination.route) { popUpTo("home") { inclusive = false }; launchSingleTop = true }
-                }, copy = catalogCopy, vaultVisible = settings.vaultVisible)
+                }, copy = catalogCopy, vaultVisible = vaultEnabled)
             }
             NavHost(nav, startDestination = "home", modifier = Modifier.weight(1f).fillMaxSize()) {
             listOf("home", "discover", "library").forEach { route ->
                 composable(route) {
                     var query by rememberSaveable { mutableStateOf("") }
                     val paging = if (route == "library") DiscoveryState(hasMore = false) else discovery
-                    val items = publicCatalog(catalog.manga).filter { route != "library" || it.id in saved }
+                    val items = publicCatalog(catalog.manga, preferences.excludedTags, preferences.isAdult).filter { route != "library" || it.id in saved }
                     val resume by model.continueReading.collectAsStateWithLifecycle()
                     val resumeItem = resume?.takeIf { entry ->
-                        unlocked || catalog.manga.firstOrNull { it.id == entry.mangaId }?.contentRating != ContentRating.EXPLICIT
+                        catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating != ContentRating.EXPLICIT } == true
                     }
                     val seriesContent: @Composable () -> Unit = { HomeScreen(
                         HomeUiState(
@@ -342,6 +359,8 @@ private fun YomiraNavigation(
                             rails = homeRails,
                             adaptationBadges = adaptationBadges,
                             unreadCounts = if (route == "library") libraryUpdates.groupingBy { it.manga.id }.eachCount() else emptyMap(),
+                            excludedTags = preferences.excludedTags,
+                            isAdult = preferences.isAdult,
                         ),
                         onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
                         title = when (route) { "discover" -> stringResource(R.string.title_discover); "library" -> stringResource(R.string.title_library); else -> stringResource(R.string.app_name) },
@@ -382,7 +401,7 @@ private fun YomiraNavigation(
             }
             composable("vault") {
                 BackHandler { panic() }
-                if (!settings.vaultVisible) {
+                if (!vaultEnabled) {
                     // The tab is gone; a stale back-stack entry must not reveal the Vault.
                     LaunchedEffect(Unit) { home() }
                 } else VaultScreen(
@@ -404,6 +423,9 @@ private fun YomiraNavigation(
                     pagingError = vaultDiscovery.error,
                     onLoadMore = { if (unlocked) model.loadNextPage(adult = true) },
                     copy = vaultCopy(catalogCopy),
+                    excludedTags = preferences.excludedTags,
+                    isAdult = preferences.isAdult,
+                    allowAdultContent = preferences.allowAdultContent,
                     adaptationBadges = if (unlocked) adaptationBadges else emptyMap(),
                     onPosterVisible = { if (unlocked && settings.vaultVisible) model.loadPosterAdaptations(listOf(it)) },
                 )
@@ -454,11 +476,12 @@ private fun YomiraNavigation(
                         } },
                         onToggleRead = { model.toggleRead(it.id) },
                         onMarkReadThrough = model::markReadThrough,
-                        onDownload = { scope.launch { snackbar.showSnackbar(offlineNotice) } },
                         onPanic = if (manga.contentRating == ContentRating.EXPLICIT) ::panic else null,
-                        related = connections.related,
-                        recommended = connections.recommended,
-                        adaptations = connections.adaptations,
+                        // Connection cards have no safety tags: only show metadata we can verify.
+                        related = connections.related.filter { relation -> catalog.manga.any { it.id == relation.id && allowed(it) } },
+                        recommended = connections.recommended.filter { recommendation -> catalog.manga.any { it.id == recommendation.id && allowed(it) } },
+                        adaptations = connections.adaptations.filter { preferences.excludedTags.isEmpty() &&
+                            (it.kind != com.yomira.core.model.AdaptationKind.HENTAI_OVA || vaultEnabled && unlocked) },
                         connectionsLoading = connections.loading,
                         onOpenSeries = { seriesId, seriesTitle ->
                             model.openSeries(seriesId, seriesTitle) { targetId ->
@@ -527,7 +550,29 @@ private fun YomiraNavigation(
                     onContentLanguageChange = maintenanceModel::setContentLanguage,
                     onConsumeMessage = maintenanceModel::consumeMessage,
                     buildInfo = "${BuildConfig.BUILD_TYPE} (${BuildConfig.VERSION_CODE})",
+                    onReaderPreferencesChange = maintenanceModel::setReaderPreferences,
+                    onRerunSurvey = { nav.navigate("survey") { launchSingleTop = true } },
                 )
+            }
+            composable("survey") {
+                var submitted by rememberSaveable { mutableStateOf(false) }
+                OnboardingScreen(
+                    saving = maintenanceState.preferenceBusy,
+                    error = if (maintenanceState.message == MaintenanceMessage.PREFERENCE_FAILED) "Tercihler kaydedilemedi. Yeniden dene." else null,
+                    initialLanguage = preferences.language.code,
+                    initialIsAdult = preferences.isAdult,
+                    initialExcludedTags = preferences.excludedTags,
+                    initialFavoriteGenres = preferences.favoriteGenres,
+                    onComplete = { language, adult, excluded, favorites ->
+                        submitted = true
+                        maintenanceModel.setReaderPreferences(ReaderPreferences(
+                            ReadingLanguage.entries.first { it.code == language }, adult, adult, excluded, favorites,
+                        ))
+                    },
+                )
+                LaunchedEffect(maintenanceState.readerPreferences, maintenanceState.preferenceBusy) {
+                    if (submitted && !maintenanceState.preferenceBusy && maintenanceState.message != MaintenanceMessage.PREFERENCE_FAILED) nav.popBackStack()
+                }
             }
             }
         }
@@ -739,9 +784,10 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     markRead = stringResource(R.string.detail_mark_read),
     markReadThrough = stringResource(R.string.control_mark_read_through),
     markUnread = stringResource(R.string.detail_mark_unread),
-    downloaded = stringResource(R.string.detail_downloaded),
-    retryDownload = stringResource(R.string.detail_retry_download),
-    downloadChapter = stringResource(R.string.detail_download_chapter),
+    readLabel = stringResource(R.string.detail_read_label),
+    unreadOnly = stringResource(R.string.detail_unread_only),
+    unreadEmptyTitle = stringResource(R.string.detail_unread_empty_title),
+    unreadEmptyMessage = stringResource(R.string.detail_unread_empty_message),
     relatedHeading = stringResource(R.string.detail_related_heading),
     relatedSubtitle = stringResource(R.string.detail_related_subtitle),
     recommendedHeading = stringResource(R.string.detail_recommended_heading),

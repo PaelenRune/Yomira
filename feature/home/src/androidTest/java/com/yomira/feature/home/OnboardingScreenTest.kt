@@ -4,7 +4,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.junit.Assert.assertEquals
@@ -14,42 +13,57 @@ import org.junit.Test
 class OnboardingScreenTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun englishCompletesInOneStepWithoutRepositoryOrContentPrompt() {
-        var result: Pair<String, Boolean>? = null
+    @Test fun fourStepsCollectLanguageAgeBlacklistAndTaste() {
+        var result: List<Any>? = null
         compose.setContent { MaterialTheme {
-            OnboardingScreen(false, null, { language, repository -> result = language to repository })
+            OnboardingScreen(false, null, { language, adult, excluded, favorites -> result = listOf(language, adult, excluded, favorites) })
         } }
         compose.onNodeWithText("Hangi dillerdeki serileri okumak istersiniz?").assertExists()
         compose.onNodeWithText("English").performClick()
-        compose.onNodeWithText("Devam et").assertDoesNotExist()
-        compose.onNodeWithText("Keiyoushi").assertDoesNotExist()
-        compose.onNodeWithContentDescription("Yetişkin içerik izni").assertDoesNotExist()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("Devam et").assertIsNotEnabled()
+        compose.onNodeWithText("🔞 18 Yaşından Büyüğüm").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("🚫 Yaoi / BL").performClick()
+        compose.onNodeWithText("🚫 Futanari").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("Isekai").performClick()
         compose.onNodeWithText("Başla ve Keşfet").performClick()
-        assertEquals("en" to true, result)
+        assertEquals(listOf("en", true, setOf("yaoi", "futanari"), setOf("isekai")), result)
     }
 
-    @Test fun defaultsRemainSafeAndCompletionAlwaysKeepsBundledRepositories() {
+    @Test fun minorSelectionCompletesInSafeMode() {
         var result: Pair<String, Boolean>? = null
         compose.setContent { MaterialTheme {
-            OnboardingScreen(false, null, { language, repository -> result = language to repository })
+            OnboardingScreen(false, null, { language, adult, _, _ -> result = language to adult })
         } }
         compose.onNodeWithText("Türkçe").assertIsEnabled()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("🛡️ 18 Yaşından Küçüğüm").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("Devam et").performClick()
         compose.onNodeWithText("Başla ve Keşfet").performClick()
-        assertEquals("tr" to true, result)
+        assertEquals("tr" to false, result)
     }
 
-    @Test fun bothLanguagesCompletesWithoutAnAdditionalSetupQuestion() {
+    @Test fun backNavigationPreservesLanguageSelection() {
         var result: Pair<String, Boolean>? = null
         compose.setContent { MaterialTheme {
-            OnboardingScreen(false, null, { language, repository -> result = language to repository })
+            OnboardingScreen(false, null, { language, adult, _, _ -> result = language to adult })
         } }
         compose.onNodeWithText("Her İkisi (Both)").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("Geri").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("🛡️ 18 Yaşından Küçüğüm").performClick()
+        compose.onNodeWithText("Devam et").performClick()
+        compose.onNodeWithText("Devam et").performClick()
         compose.onNodeWithText("Başla ve Keşfet").performClick()
-        assertEquals("both" to true, result)
+        assertEquals("both" to false, result)
     }
 
     @Test fun savingDisablesNavigationAndDuplicateSubmission() {
-        compose.setContent { MaterialTheme { OnboardingScreen(true, null, { _, _ -> error("Unexpected submission") }) } }
+        compose.setContent { MaterialTheme { OnboardingScreen(true, null, { _, _, _, _ -> error("Unexpected submission") }) } }
         compose.onNodeWithText("Kurulum kaydediliyor…").assertIsNotEnabled()
         compose.onNodeWithText("English").assertIsNotEnabled()
         compose.onNodeWithText("Her İkisi (Both)").assertIsNotEnabled()

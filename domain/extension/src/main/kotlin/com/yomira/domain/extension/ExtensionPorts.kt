@@ -25,6 +25,7 @@ fun interface SourceDiscovery {
 }
 
 interface OnboardingStore {
+    fun observe(): kotlinx.coroutines.flow.Flow<OnboardingState?> = kotlinx.coroutines.flow.flow { emit(read()) }
     suspend fun read(): OnboardingState?
     /** Atomically persist the complete state; implementations should use DataStore or a transaction. */
     suspend fun write(state: OnboardingState)

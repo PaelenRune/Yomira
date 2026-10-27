@@ -34,6 +34,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.unit.dp
 import com.yomira.domain.extension.ReadingLanguage
+import com.yomira.domain.extension.ReaderPreferences
+import com.yomira.core.model.blacklistTags
 import java.text.DateFormat
 import java.util.Date
 import com.yomira.core.model.ReadingMode
@@ -54,6 +56,7 @@ import com.yomira.core.ui.theme.TextPrimary
  * turning it back on routes through the caller, which must verify the device
  * credential before [onVaultVisibilityChange] is invoked with `true`.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
@@ -80,6 +83,8 @@ fun SettingsScreen(
     onConsumeMessage: () -> Unit = {},
     buildInfo: String = "",
     onStealthShieldChange: (Boolean) -> Unit = {},
+    onReaderPreferencesChange: (ReaderPreferences) -> Unit = {},
+    onRerunSurvey: () -> Unit = {},
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
@@ -105,6 +110,34 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             item { SettingsHeader(copy, onBack) }
+            item {
+                SettingsSection(Icons.Default.FilterAlt, "İçerik Filtreleri & Kara Liste", NeonPurple) {
+                    val preferences = maintenance.readerPreferences
+                    if (preferences != null) {
+                        ChoiceRow("Yaş ve içerik düzeyi") {
+                            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                                listOf("Güvenli Mod", "18+ · Normal", "18+ · Vault").forEachIndexed { index, label ->
+                                    val tier = if (!preferences.isAdult) 0 else if (!preferences.allowAdultContent) 1 else 2
+                                    SegmentedButton(selected = tier == index,
+                                        enabled = !maintenance.preferenceBusy,
+                                        onClick = { onReaderPreferencesChange(preferences.copy(isAdult = index > 0, allowAdultContent = index == 2)) },
+                                        shape = SegmentedButtonDefaults.itemShape(index, 3)) { Text(label) }
+                                }
+                            }
+                            Text("Seçili etiketlerdeki seriler her yerde gizlenir.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                blacklistTags.forEach { (key, label) ->
+                                    FilterChip(selected = key in preferences.excludedTags, enabled = !maintenance.preferenceBusy,
+                                        onClick = { onReaderPreferencesChange(preferences.copy(excludedTags =
+                                            if (key in preferences.excludedTags) preferences.excludedTags - key else preferences.excludedTags + key)) },
+                                        label = { Text(label) })
+                                }
+                            }
+                            OutlinedButton(onClick = onRerunSurvey, enabled = !maintenance.preferenceBusy) { Text("Okuma Anketini Baştan Yap") }
+                        }
+                    }
+                }
+            }
             item {
                 SettingsSection(Icons.Default.Storage, copy.storageSection, NeonPurple) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

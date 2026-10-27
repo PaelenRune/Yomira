@@ -66,6 +66,7 @@ object CatalogRecordMapper {
             artist = record.artist?.trim()?.takeIf { it.isNotEmpty() },
             synopsis = record.description?.trim()?.takeIf { it.isNotEmpty() },
             score = record.score?.takeIf { it.isFinite() }?.coerceIn(0.0, 10.0),
+            popularity = record.popularity,
             status = record.status,
             genres = if (western) WesternComics.tag(genres) else genres,
             contentRating = rating,

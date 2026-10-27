@@ -111,7 +111,6 @@
     <string name="update_later">Later</string>
     <string name="update_link_failed">Couldn’t open the update link.</string>
     <string name="secure_link_failed">Couldn’t open the secure download link.</string>
-    <string name="offline_download_notice">Offline downloads need a source page provider; this build stores chapter references only.</string>
 
     <!-- Onboarding -->
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
@@ -189,9 +188,10 @@
     <string name="detail_date_missing">Date not specified</string>
     <string name="detail_mark_read">Mark as read</string>
     <string name="detail_mark_unread">Mark as unread</string>
-    <string name="detail_downloaded">Downloaded</string>
-    <string name="detail_retry_download">Retry download</string>
-    <string name="detail_download_chapter">Download chapter</string>
+    <string name="detail_read_label">Read</string>
+    <string name="detail_unread_only">Show Unread Only</string>
+    <string name="detail_unread_empty_title">No unread chapters</string>
+    <string name="detail_unread_empty_message">Turn off the filter to see all chapters.</string>
     <string name="detail_match_title">Turkish source matching</string>
     <string name="detail_match_comparing">Comparing sources…</string>
     <string name="detail_match_missing_extension">The best source to read this series in Turkish: %1$s (%2$d chapters). Install this extension?</string>

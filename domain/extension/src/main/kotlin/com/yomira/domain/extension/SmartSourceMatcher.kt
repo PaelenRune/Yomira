@@ -41,7 +41,7 @@ class SmartSourceMatcher(
         }
         val candidates = mutableListOf<SourceCandidate>()
         val chaptersBySource = mutableMapOf<Pair<String, String>, List<SourceChapter>>()
-        val names = (series.aliases + series.title).map(::normalize).filter { it.isNotEmpty() }.toSet()
+        val names = queries(series).map(::normalize).toSet()
         val observations = coroutineScope {
             val permits = Semaphore(8)
             eligible.filter { it.packageName in installed }.flatMap { extension ->
@@ -79,6 +79,7 @@ class SmartSourceMatcher(
         val maxChapters = candidates.maxOfOrNull { it.chapterCount }?.coerceAtLeast(1) ?: 1
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
             .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount > 0 }
+                .thenByDescending { languageRank(it.source, preferences) }
                 .thenByDescending { qualityScore(it, preferences, maxChapters, now) }
                 .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE }
                 .thenByDescending { it.extension.packageName in installed }
@@ -106,15 +107,27 @@ class SmartSourceMatcher(
     ): Observation = try {
         withTimeout(15_000L) {
             val startedAt = nanoTime()
-            val manga = (listOf(series.title) + series.aliases).distinct().firstNotNullOfOrNull { query ->
-                bridge.getMangaList(extension.packageName, source.id, query)
+            var emptyMatch: SourceManga? = null
+            val visited = mutableSetOf<String>()
+            for (query in queries(series)) {
+                val results = bridge.getMangaList(extension.packageName, source.id, query)
                     .filter { matches(it.title, names) }
-                    .maxByOrNull { title -> names.maxOf { similarity(normalize(title.title), it) } }
-            } ?: return@withTimeout Observation()
-            val chapters = bridge.getChapterList(extension.packageName, source.id, manga).distinctBy { it.id }
-            val elapsedMillis = ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)
-            Observation(SourceCandidate(extension, source, manga, chapters.size,
-                chapters.mapNotNull { it.uploadedAt }.maxOrNull(), SourceHealth.HEALTHY, elapsedMillis), chapters)
+                    .sortedByDescending { title -> names.maxOf { similarity(normalize(title.title), it) } }
+                for (manga in results) {
+                    if (!visited.add(manga.id)) continue
+                    val chapters = bridge.getChapterList(extension.packageName, source.id, manga).distinctBy { it.id }
+                    if (chapters.isEmpty()) {
+                        if (emptyMatch == null) emptyMatch = manga
+                        continue
+                    }
+                    val elapsedMillis = ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)
+                    return@withTimeout Observation(SourceCandidate(extension, source, manga, chapters.size,
+                        chapters.mapNotNull { it.uploadedAt }.maxOrNull(), SourceHealth.HEALTHY, elapsedMillis), chapters)
+                }
+            }
+            val manga = emptyMatch ?: return@withTimeout Observation()
+            Observation(SourceCandidate(extension, source, manga, 0, null, SourceHealth.HEALTHY,
+                ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)))
         }
     } catch (error: TimeoutCancellationException) {
         currentCoroutineContext().ensureActive()
@@ -126,23 +139,22 @@ class SmartSourceMatcher(
     }
 
     /**
-     * Language gate for source matching. The language picked during onboarding is
-     * authoritative: sources in that language are eligible, multilingual ("all")
-     * sources are eligible as a fallback, and single-language sources in any other
-     * language are dropped. Region variants ("tr-TR") count as the base language.
+     * Prefer the onboarding language, but keep multilingual and English sources
+     * available when no readable translation exists. Region variants use the base language.
      */
     private fun accepts(source: ExtensionSource, preferences: ReaderPreferences): Boolean =
         languageRank(source, preferences) > 0
 
     /**
-     * Sort weight: 2 = exact match with the user's chosen language, 1 = multilingual
-     * source, 0 = unrelated language (already filtered by [accepts]).
+     * Sort tier: 2 = chosen language, 1 = multilingual or English fallback,
+     * 0 = unrelated language (filtered by [accepts]). Readability precedes this tier.
      */
     private fun languageRank(source: ExtensionSource, preferences: ReaderPreferences): Int {
         val sourceLanguage = source.language.trim().lowercase(java.util.Locale.ROOT).substringBefore('-').substringBefore('_')
         return when {
             sourceLanguage == "all" || sourceLanguage == "multi" || sourceLanguage == "mul" -> 1
             preferences.language.accepts(sourceLanguage) -> 2
+            sourceLanguage == "en" -> 1
             else -> 0
         }
     }
@@ -161,27 +173,56 @@ class SmartSourceMatcher(
     }
 
     companion object {
+        /** Use every supplied localized name; translation cannot be inferred from Romaji alone. */
+        private fun queries(series: SeriesIdentity): List<String> =
+            expandedQueries(listOf(series.title) + series.aliases)
+
+        private fun expandedQueries(titles: Collection<String>): List<String> = titles.flatMap { title ->
+            val romanized = title.replace("ō", "ou").replace("Ō", "Ou")
+                .replace("ū", "uu").replace("Ū", "Uu")
+            listOf(title, romanized).flatMap { spelling ->
+                val clean = java.text.Normalizer.normalize(spelling, java.text.Normalizer.Form.NFD)
+                    .replace(DIACRITICS, "")
+                    .replace(EDITORIAL_SUFFIX, " ")
+                    .replace(PUNCTUATION, " ").replace(WHITESPACE, " ").trim()
+                val shortVowels = clean.replace(LONG_VOWELS, "$1")
+                listOf(clean, shortVowels, shortVowels.replace(ROMAJI_OU, "o"),
+                    shortVowels.replace(TERMINAL_U, "uu"))
+            }
+        }.filter { it.isNotBlank() }.distinct()
+
         /** Shared by discovery adapters so they do not discard fuzzy matches before routing. */
         fun matchesTitle(title: String, aliases: Collection<String>): Boolean =
-            matches(title, aliases.map(::normalize).filter { it.isNotEmpty() }.toSet())
+            matches(title, expandedQueries(aliases).map(::normalize).toSet())
 
-        private fun normalize(title: String): String = title.trim().lowercase(java.util.Locale.ROOT)
+        private fun normalize(title: String): String = java.text.Normalizer.normalize(title, java.text.Normalizer.Form.NFD)
+            .replace(DIACRITICS, "").trim().lowercase(java.util.Locale.ROOT)
             .replace(EDITORIAL_SUFFIX, " ")
             .replace(PUNCTUATION, " ")
-            .replace(Regex("\\s+"), " ").trim()
+            .replace(WHITESPACE, " ").trim()
 
         private fun matches(title: String, names: Set<String>): Boolean {
             val normalized = normalize(title)
-            return normalized.isNotEmpty() && names.any { similarity(normalized, it) >= 0.85 }
+            return normalized.isNotEmpty() && names.any { similarity(normalized, it) >= 0.75 }
         }
 
         private fun similarity(left: String, right: String): Double {
             if (left == right) return 1.0
             if (left.isEmpty() || right.isEmpty()) return 0.0
-            // Edit distance alone would merge titles such as "A Series" and "A Series 2".
-            if (NUMBERS.findAll(left).map { it.value }.toList() != NUMBERS.findAll(right).map { it.value }.toList()) return 0.0
-            val a = left.replace(" ", "")
-            val b = right.replace(" ", "")
+            // Volume metadata, years and intrinsic large numbers are not sequel identifiers.
+            val leftCore = left.replace(VOLUME_NUMBER, " ").replace(HARMLESS_NUMBER, " ")
+                .replace(WHITESPACE, " ").trim()
+            val rightCore = right.replace(VOLUME_NUMBER, " ").replace(HARMLESS_NUMBER, " ")
+                .replace(WHITESPACE, " ").trim()
+            // Keep "A Series", "A Series 1" and "A Series 2" distinct, even under containment.
+            if (SEQUEL_NUMBER.findAll(leftCore).map { it.value }.toList() !=
+                SEQUEL_NUMBER.findAll(rightCore).map { it.value }.toList()) return 0.0
+            val leftTokens = leftCore.split(' ').filter { it.isNotEmpty() }.toSet()
+            val rightTokens = rightCore.split(' ').filter { it.isNotEmpty() }.toSet()
+            if (rightTokens.isNotEmpty() && leftTokens.containsAll(rightTokens)) return 1.0
+            val a = leftCore.replace(" ", "")
+            val b = rightCore.replace(" ", "")
+            if (a.isEmpty() || b.isEmpty()) return 0.0
             var previous = IntArray(b.length + 1) { it }
             for (i in a.indices) {
                 val row = IntArray(b.length + 1)
@@ -193,15 +234,19 @@ class SmartSourceMatcher(
                 previous = row
             }
             val editSimilarity = 1.0 - previous[b.length].toDouble() / maxOf(a.length, b.length)
-            val leftTokens = left.split(' ').toSet()
-            val rightTokens = right.split(' ').toSet()
-            // Divide by the larger set: a short title must not absorb an unrelated sequel/spinoff.
             val tokenSimilarity = leftTokens.intersect(rightTokens).size.toDouble() / maxOf(leftTokens.size, rightTokens.size)
             return maxOf(editSimilarity, tokenSimilarity)
         }
 
         private val EDITORIAL_SUFFIX = Regex("(?:\\s*(?:\\((?:official|color|webtoon|digital)\\)|\\bscanlation\\b)\\s*)+$", RegexOption.IGNORE_CASE)
         private val PUNCTUATION = Regex("[^\\p{L}\\p{N}\\s]")
-        private val NUMBERS = Regex("\\d+")
+        private val WHITESPACE = Regex("\\s+")
+        private val DIACRITICS = Regex("\\p{M}+")
+        private val LONG_VOWELS = Regex("([aeiou])\\1+", RegexOption.IGNORE_CASE)
+        private val ROMAJI_OU = Regex("ou", RegexOption.IGNORE_CASE)
+        private val TERMINAL_U = Regex("(?<=[a-z])u\\b", RegexOption.IGNORE_CASE)
+        private val VOLUME_NUMBER = Regex("\\b(?:vol(?:ume)?|chapter|ch)\\s+\\d+\\b")
+        private val HARMLESS_NUMBER = Regex("\\b(?:0|\\d{3,})\\b")
+        private val SEQUEL_NUMBER = Regex("\\b[1-9]\\d?\\b")
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
+import com.yomira.core.model.isVisibleForReader
 import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.NeonFuchsia
 import java.text.Normalizer
@@ -29,7 +30,7 @@ import java.util.Locale
  */
 val vaultGenreChips: List<String> = listOf("Adult Webtoons", "Hentai Manga", "Doujinshi", "Western / 3D")
 
-fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): List<Manga> {
+fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true): List<Manga> {
     if (!unlocked) return emptyList()
     val selectedGenre = genre?.let(::normalizeGenre)
     val aliases = when (selectedGenre) {
@@ -71,7 +72,7 @@ fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): 
             "western 3d" -> western
             else -> has(*aliases.toTypedArray())
         }
-        item.contentRating == ContentRating.EXPLICIT && matches
+        item.contentRating == ContentRating.EXPLICIT && matches && item.isVisibleForReader(excludedTags, isAdult, allowAdultContent)
     }
 }
 
@@ -119,7 +120,15 @@ data class VaultCopy(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}) {
+fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true) {
+    val eligible = isAdult && allowAdultContent
+    if (!eligible) {
+        Column(Modifier.fillMaxSize().padding(28.dp), verticalArrangement = Arrangement.Center) {
+            Text("Güvenli mod etkin. İçerik tercihlerini ayarlardan değiştirebilirsin.")
+            TextButton(onClick = onPanic) { Text(copy.backHome) }
+        }
+        return
+    }
     if (!unlocked) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(Icons.Default.Lock, null, Modifier.size(64.dp), tint = NeonFuchsia)
@@ -136,8 +145,12 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
     val gridColumns = columns.coerceIn(2, 4)
     // Room and the append-only page list are merged by id; the Vault never sees
     // public rows because vaultCatalog() filters EXPLICIT for every input.
-    val home = remember(manga, discovered, unlocked, selected) {
-        buildVaultHome(manga, discovered, unlocked, selected)
+    val home = remember(manga, discovered, unlocked, selected, excludedTags, isAdult, allowAdultContent) {
+        buildVaultHome(
+            vaultCatalog(manga, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
+            vaultCatalog(discovered, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
+            unlocked, selected,
+        )
     }
     val visible = home.collection
     val gridState = rememberLazyGridState()

@@ -24,8 +24,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
+import com.yomira.core.model.isVisibleForReader
 import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
+import com.yomira.core.model.globalRankScore
 import com.yomira.core.ui.*
 import java.util.Locale
 import com.yomira.core.ui.theme.CardSurface
@@ -38,7 +40,8 @@ import com.yomira.core.ui.theme.TextMuted
 import com.yomira.core.ui.theme.TextPrimary
 
 /** Apply at every presentation boundary, including search and curated rails. */
-fun publicCatalog(items: List<Manga>): List<Manga> = items.filter { it.contentRating != ContentRating.EXPLICIT }
+fun publicCatalog(items: List<Manga>, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true): List<Manga> =
+    items.filter { it.contentRating != ContentRating.EXPLICIT && it.isVisibleForReader(excludedTags, isAdult, false) }
 
 /**
  * The single "pick up where you left off" entry of the home shelf. It is a plain
@@ -87,6 +90,8 @@ data class HomeUiState(
     val rails: List<HomeRail> = emptyList(),
     val adaptationBadges: Map<String, String> = emptyMap(),
     val unreadCounts: Map<String, Int> = emptyMap(),
+    val excludedTags: Set<String> = emptySet(),
+    val isAdult: Boolean = true,
 )
 
 /**
@@ -154,8 +159,8 @@ fun HomeScreen(
     // Room re-emits every discovered row. Appending the page list after the
     // Room snapshot keeps newly fetched cards at the end without duplicating
     // a series that is already on screen.
-    val all = remember(state.manga, state.discovery) {
-        publicCatalog(state.manga + state.discovery).distinctBy { it.id }
+    val all = remember(state.manga, state.discovery, state.excludedTags, state.isAdult) {
+        publicCatalog(state.manga + state.discovery, state.excludedTags, state.isAdult).distinctBy { it.id }
     }
     val visible = remember(all, state.query, state.selectedTags) {
         all.filter {
@@ -235,7 +240,7 @@ fun HomeScreen(
             Column(Modifier.padding(20.dp)) { Text(message); TextButton(onClick = onRetry) { Text(copy.retry) } }
         } }
         if (showHero && quietShelf) {
-            item(key = "hero", contentType = "hero", span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending).take(6), onManga, copy = copy.catalog) }
+            item(key = "hero", contentType = "hero", span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending, state.excludedTags, state.isAdult).take(6), onManga, copy = copy.catalog) }
             state.rails.forEach { rail ->
                 item(key = "shelf-${rail.shelf.name}", contentType = "shelf", span = { GridItemSpan(maxLineSpan) }) {
                     val railTitle = copy.shelfTitles[rail.shelf] ?: when (rail.shelf) {
@@ -243,7 +248,7 @@ fun HomeScreen(
                         HomeShelf.PERSONAL -> copy.railPersonal
                         else -> rail.shelf.title
                     }
-                    MangaRail(railTitle, rail.items, onManga, copy.catalog, copy.emptyRail, onMangaLongClick, state.adaptationBadges, onPosterVisible)
+                    MangaRail(railTitle, publicCatalog(rail.items, state.excludedTags, state.isAdult), onManga, copy.catalog, copy.emptyRail, onMangaLongClick, state.adaptationBadges, onPosterVisible)
                 }
             }
         }
@@ -531,11 +536,8 @@ internal fun rotationNoise(key: String, seed: Int): Double {
     return ((hash.toLong() and 0x7FFF_FFFFL) % 1000L) / 1000.0
 }
 
-/**
- * "🔥 Popülerler & Trendler": score and freshness driven, with a small rotating
- * tie-break so the order feels alive rather than frozen. Recently updated rows
- * get a bonus, which lets new releases climb next to the established hits.
- */
+/** Global reader consensus leads; ratings and observed updates provide smaller bonuses. */
+@Suppress("UNUSED_PARAMETER") // Keep the caller's rotation contract; popularity never rotates.
 internal fun popularTrendingShelf(
     all: List<Manga>,
     updated: List<Manga>,
@@ -543,6 +545,7 @@ internal fun popularTrendingShelf(
     limit: Int = 14,
 ): List<Manga> {
     if (all.isEmpty()) return emptyList()
+    val maxPopularity = all.maxOf { it.popularity ?: 0L }
     val denominator = updated.size.coerceAtLeast(1)
     val freshness = updated.mapIndexed { index, item ->
         item.id to (1.0 - index.toDouble() / denominator)
@@ -550,9 +553,8 @@ internal fun popularTrendingShelf(
     return all.distinctBy { it.id }
         .sortedWith(
             compareByDescending<Manga> { item ->
-                val score = (item.score ?: FALLBACK_SCORE) / 10.0
                 val fresh = freshness[item.id] ?: 0.0
-                score * .58 + fresh * .27 + rotationNoise(item.id, seed) * .15
+                item.globalRankScore(maxPopularity, fresh)
             }.thenBy { it.id },
         )
         .take(limit)

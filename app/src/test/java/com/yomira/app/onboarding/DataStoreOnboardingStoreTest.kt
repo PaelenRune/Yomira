@@ -32,7 +32,7 @@ class DataStoreOnboardingStoreTest {
         val file = File(temporary.root, "persisted.preferences_pb")
         val firstJob = SupervisorJob()
         val firstScope = CoroutineScope(firstJob + Dispatchers.IO)
-        val state = OnboardingState(ReaderPreferences(ReadingLanguage.BOTH, true),
+        val state = OnboardingState(ReaderPreferences(ReadingLanguage.BOTH, true, true, setOf("yaoi", "ntr"), setOf("murim", "action")),
             OnboardingWizardManager.KEIYOUSHI_INDEX, listOf("extension.en"), true)
         try { store(file, firstScope).writeWithDiskRetry(state) } finally { firstScope.cancel(); firstJob.join() }
         kotlinx.coroutines.delay(50)

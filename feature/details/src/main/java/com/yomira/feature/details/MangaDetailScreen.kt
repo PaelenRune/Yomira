@@ -16,12 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
@@ -42,9 +44,18 @@ import com.yomira.core.ui.theme.*
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-enum class DownloadState { NOT_DOWNLOADED, QUEUED, DOWNLOADING, DOWNLOADED, FAILED }
 @Immutable
-data class ChapterUiState(val chapter: Chapter, val read: Boolean = false, val download: DownloadState = DownloadState.NOT_DOWNLOADED)
+data class ChapterUiState(val chapter: Chapter, val read: Boolean = false)
+
+internal fun visibleChapters(
+    chapters: List<ChapterUiState>,
+    descending: Boolean,
+    unreadOnly: Boolean,
+): List<ChapterUiState> {
+    val visible = if (unreadOnly) chapters.filterNot { it.read } else chapters
+    return if (descending) visible.sortedByDescending { it.chapter.chapterNumber }
+    else visible.sortedBy { it.chapter.chapterNumber }
+}
 
 /**
  * Localized texts of the detail sheet. The app module
@@ -81,9 +92,10 @@ data class DetailCopy(
     val markRead: String = "Okundu olarak işaretle",
     val markUnread: String = "Okunmadı olarak işaretle",
     val markReadThrough: String = "Buraya kadar olan bölümleri okundu say",
-    val downloaded: String = "İndirildi",
-    val retryDownload: String = "İndirmeyi yeniden dene",
-    val downloadChapter: String = "Bölümü indir",
+    val readLabel: String = "Okundu",
+    val unreadOnly: String = "Sadece Okunmamışlar",
+    val unreadEmptyTitle: String = "Okunmamış bölüm yok",
+    val unreadEmptyMessage: String = "Tüm bölümleri görmek için filtreyi kapat.",
     val relatedHeading: String = "İlgili Seriler",
     val relatedSubtitle: String = "Aynı evrenin diğer serileri",
     val recommendedHeading: String = "Bu Seriye Benzerler",
@@ -147,7 +159,6 @@ fun MangaDetailScreen(
     onSave: () -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
-    onDownload: (Chapter) -> Unit,
     onPanic: (() -> Unit)? = null,
     onContinue: ((Chapter) -> Unit)? = null,
     related: List<RelatedSeries> = emptyList(),
@@ -163,7 +174,7 @@ fun MangaDetailScreen(
         TwoPaneDetail(
             manga = manga, chapters = chapters, matching = matching, saved = saved,
             onBack = onBack, onSave = onSave,
-            onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
+            onRead = onRead, onToggleRead = onToggleRead,
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
             adaptations = adaptations,
@@ -173,7 +184,7 @@ fun MangaDetailScreen(
         SinglePaneDetail(
             manga = manga, chapters = chapters, matching = matching, saved = saved,
             onBack = onBack, onSave = onSave,
-            onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
+            onRead = onRead, onToggleRead = onToggleRead,
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
             adaptations = adaptations,
@@ -192,7 +203,6 @@ private fun SinglePaneDetail(
     onSave: () -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
-    onDownload: (Chapter) -> Unit,
     onPanic: (() -> Unit)?,
     onContinue: ((Chapter) -> Unit)?,
     related: List<RelatedSeries>,
@@ -205,9 +215,9 @@ private fun SinglePaneDetail(
 ) {
     var expanded by rememberSaveable(manga.id) { mutableStateOf(false) }
     var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
-    val sorted = remember(chapters, descending) {
-        if (descending) chapters.sortedByDescending { it.chapter.chapterNumber }
-        else chapters.sortedBy { it.chapter.chapterNumber }
+    var unreadOnly by rememberSaveable(manga.id) { mutableStateOf(false) }
+    val sorted = remember(chapters, descending, unreadOnly) {
+        visibleChapters(chapters, descending, unreadOnly)
     }
     val nextChapter = chapters.filterNot { it.read }.minByOrNull { it.chapter.chapterNumber }
         ?: chapters.minByOrNull { it.chapter.chapterNumber }
@@ -233,14 +243,17 @@ private fun SinglePaneDetail(
                     MetadataBlock(manga, copy)
                     if (adaptations.isNotEmpty()) AdaptationBadges(adaptations, copy)
                     SynopsisBlock(manga, expanded, onToggle = { expanded = !expanded }, copy)
-                    ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
+                    ChapterHeading(sorted.size, descending, { descending = !descending }, copy,
+                        unreadOnly, { unreadOnly = !unreadOnly })
                 }
             }
             if (chapters.isEmpty()) item(key = "empty", contentType = "empty") {
                 if (matching) ChaptersLoading(copy) else CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
+            } else if (sorted.isEmpty()) item(key = "unread-empty", contentType = "empty") {
+                CatalogEmptyState(copy.unreadEmptyTitle, copy.unreadEmptyMessage)
             }
             items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
-                ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp), onMarkReadThrough)
+                ChapterRow(entry, onRead, onToggleRead, copy, Modifier.padding(horizontal = 20.dp), onMarkReadThrough)
             }
             item(key = "connections", contentType = "connections") {
                 FranchiseShowcases(
@@ -276,7 +289,6 @@ private fun TwoPaneDetail(
     onSave: () -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
-    onDownload: (Chapter) -> Unit,
     onPanic: (() -> Unit)?,
     onContinue: ((Chapter) -> Unit)?,
     related: List<RelatedSeries>,
@@ -288,9 +300,9 @@ private fun TwoPaneDetail(
     onMarkReadThrough: (Chapter) -> Unit,
 ) {
     var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
-    val sorted = remember(chapters, descending) {
-        if (descending) chapters.sortedByDescending { it.chapter.chapterNumber }
-        else chapters.sortedBy { it.chapter.chapterNumber }
+    var unreadOnly by rememberSaveable(manga.id) { mutableStateOf(false) }
+    val sorted = remember(chapters, descending, unreadOnly) {
+        visibleChapters(chapters, descending, unreadOnly)
     }
     Row(Modifier.fillMaxSize()) {
         Column(
@@ -303,24 +315,19 @@ private fun TwoPaneDetail(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, copy.back) }
-                Text(
-                    String.format(copy.chaptersHeading, chapters.size),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                TextButton(onClick = { descending = !descending }) {
-                    Icon(Icons.Default.Sort, null)
-                    Text(if (descending) copy.sortNewest else copy.sortOldest)
+                Box(Modifier.weight(1f)) {
+                    ChapterHeading(sorted.size, descending, { descending = !descending }, copy,
+                        unreadOnly, { unreadOnly = !unreadOnly })
                 }
             }
             if (chapters.isEmpty()) {
                 if (matching) ChaptersLoading(copy) else CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
+            } else if (sorted.isEmpty()) {
+                CatalogEmptyState(copy.unreadEmptyTitle, copy.unreadEmptyMessage)
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
                     items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
-                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp), onMarkReadThrough)
+                        ChapterRow(entry, onRead, onToggleRead, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp), onMarkReadThrough)
                     }
                 }
             }
@@ -640,37 +647,51 @@ private fun ReadNowButton(
 }
 
 @Composable
-private fun ChapterHeading(count: Int, descending: Boolean, onToggle: () -> Unit, copy: DetailCopy) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+private fun ChapterHeading(
+    count: Int,
+    descending: Boolean,
+    onToggle: () -> Unit,
+    copy: DetailCopy,
+    unreadOnly: Boolean,
+    onToggleUnread: () -> Unit,
+) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(String.format(copy.chaptersHeading, count), style = MaterialTheme.typography.titleLarge)
-        Surface(
-            onClick = onToggle,
-            shape = RoundedCornerShape(percent = 50),
-            color = SurfaceRaised.copy(alpha = .7f),
-            border = BorderStroke(1.dp, HairlineBorder),
-            tonalElevation = 0.dp,
-        ) {
-            Row(
-                Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            FilterChip(
+                selected = unreadOnly,
+                onClick = onToggleUnread,
+                label = { Text(copy.unreadOnly) },
+                leadingIcon = if (unreadOnly) {
+                    { Icon(Icons.Default.Check, null, Modifier.size(16.dp)) }
+                } else null,
+            )
+            Surface(
+                onClick = onToggle,
+                shape = RoundedCornerShape(percent = 50),
+                color = SurfaceRaised.copy(alpha = .7f),
+                border = BorderStroke(1.dp, HairlineBorder),
+                tonalElevation = 0.dp,
             ) {
-                Icon(Icons.Default.Sort, null, Modifier.size(15.dp), tint = NeonLavender)
-                Text(
-                    if (descending) copy.sortNewest else copy.sortOldest,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = TextSecondary,
-                )
+                Row(
+                    Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Sort, null, Modifier.size(15.dp), tint = NeonLavender)
+                    Text(
+                        if (descending) copy.sortNewest else copy.sortOldest,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TextSecondary,
+                    )
+                }
             }
         }
     }
 }
 
 /**
- * One chapter row: a soft bordered capsule card, a numbered/checked leading tile
- * that also toggles the read flag, then the download affordance. Read chapters
- * drop to a muted title and keep a lavender check, so progress is obvious at a
- * glance without a second accent colour.
+ * Read chapters dim as a whole; unread chapters retain a crisp lavender outline.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -678,7 +699,6 @@ private fun ChapterRow(
     entry: ChapterUiState,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
-    onDownload: (Chapter) -> Unit,
     copy: DetailCopy,
     modifier: Modifier = Modifier,
     onMarkReadThrough: (Chapter) -> Unit,
@@ -687,14 +707,20 @@ private fun ChapterRow(
     if (showActions) QuickActionSheet(
         entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber),
         { showActions = false },
-        listOf(copy.markReadThrough to { onMarkReadThrough(entry.chapter) }),
+        listOf(
+            (if (entry.read) copy.markUnread else copy.markRead) to { onToggleRead(entry.chapter) },
+            copy.markReadThrough to { onMarkReadThrough(entry.chapter) },
+        ),
     )
     YomiraCard(
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).combinedClickable(
-            onClick = { onRead(entry.chapter) }, onLongClick = { showActions = true },
-        ),
+        modifier = modifier.fillMaxWidth().alpha(if (entry.read) 0.38f else 1.0f)
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, if (entry.read) HairlineBorder else NeonLavender.copy(alpha = .65f), RoundedCornerShape(16.dp))
+            .combinedClickable(
+                onClick = { onRead(entry.chapter) }, onLongClick = { showActions = true },
+            ),
         shape = RoundedCornerShape(16.dp),
-        containerColor = if (entry.read) CardSurface.copy(alpha = .55f) else CardSurface,
+        containerColor = if (entry.read) Color.Transparent else CardSurface,
     ) {
         Row(
             Modifier.padding(start = 10.dp, end = 6.dp, top = 9.dp, bottom = 9.dp),
@@ -704,23 +730,23 @@ private fun ChapterRow(
             Surface(
                 onClick = { onToggleRead(entry.chapter) },
                 shape = CircleShape,
-                color = if (entry.read) NeonPurple.copy(alpha = .18f) else SurfaceRaised,
+                color = if (entry.read) SurfaceRaised else NeonPurple.copy(alpha = .18f),
                 border = BorderStroke(
                     1.dp,
-                    if (entry.read) NeonPurple.copy(alpha = .4f) else HairlineBorder,
+                    if (entry.read) HairlineBorder else NeonLavender.copy(alpha = .65f),
                 ),
                 tonalElevation = 0.dp,
                 modifier = Modifier.size(36.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     if (entry.read) {
-                        Icon(Icons.Default.Check, copy.markUnread, Modifier.size(17.dp), tint = NeonLavender)
+                        Icon(Icons.Default.Check, copy.markUnread, Modifier.size(17.dp), tint = TextMuted)
                     } else {
                         Text(
                             chapterNumberLabel(entry.chapter.chapterNumber),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
-                            color = TextSecondary,
+                            color = NeonLavender,
                         )
                     }
                 }
@@ -729,6 +755,7 @@ private fun ChapterRow(
                 Text(
                     entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber),
                     style = MaterialTheme.typography.titleSmall,
+                    fontWeight = if (entry.read) FontWeight.Normal else FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = if (entry.read) TextMuted else TextPrimary,
@@ -740,30 +767,15 @@ private fun ChapterRow(
                         style = MaterialTheme.typography.labelSmall,
                         color = TextMuted,
                     )
-                    if (entry.download == DownloadState.DOWNLOADED) {
-                        Icon(Icons.Default.DownloadDone, copy.downloaded, Modifier.size(13.dp), tint = NeonLavender)
-                    }
                 }
             }
-            when (entry.download) {
-                DownloadState.DOWNLOADING, DownloadState.QUEUED -> {
-                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = NeonLavender)
-                }
-                DownloadState.DOWNLOADED -> Icon(
-                    Icons.Default.DownloadDone,
-                    copy.downloaded,
-                    Modifier.padding(10.dp).size(18.dp),
-                    tint = NeonLavender,
-                )
-                else -> IconButton(
-                    onClick = { onDownload(entry.chapter) },
-                    modifier = Modifier.size(38.dp),
-                ) {
-                    Icon(
-                        if (entry.download == DownloadState.FAILED) Icons.Default.Refresh else Icons.Default.Download,
-                        if (entry.download == DownloadState.FAILED) copy.retryDownload else copy.downloadChapter,
-                        Modifier.size(19.dp),
-                        tint = if (entry.download == DownloadState.FAILED) MaterialTheme.colorScheme.error else TextMuted,
+            if (entry.read) {
+                Surface(color = SurfaceRaised, shape = RoundedCornerShape(percent = 50)) {
+                    Text(
+                        copy.readLabel,
+                        Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextMuted,
                     )
                 }
             }

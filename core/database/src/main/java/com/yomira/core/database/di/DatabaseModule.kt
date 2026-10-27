@@ -6,6 +6,7 @@ import com.yomira.core.database.YomiraDatabase
 import com.yomira.core.database.MIGRATION_2_3
 import com.yomira.core.database.MIGRATION_3_4
 import com.yomira.core.database.MIGRATION_4_5
+import com.yomira.core.database.MIGRATION_5_6
 import com.yomira.core.database.dao.ChapterDao
 import com.yomira.core.database.dao.JourneyProfileDao
 import com.yomira.core.database.dao.MangaDao
@@ -29,7 +30,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): YomiraDatabase =
         Room.databaseBuilder(context, YomiraDatabase::class.java, "yomira.db")
-            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             // A device that carries an older, partially migrated or otherwise incompatible
             // schema must still start: rebuild the cache-like tables instead of throwing
             // IllegalStateException out of Room during the first launch.

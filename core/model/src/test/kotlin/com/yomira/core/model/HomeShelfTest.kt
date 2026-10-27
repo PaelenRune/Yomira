@@ -27,11 +27,11 @@ class HomeShelfTest {
         }
     }
 
-    @Test fun `seeded sampling is reproducible and reaches every dynamic shelf`() {
+    @Test fun `cold start is deterministic across refresh seeds and reserves discovery`() {
         assertEquals(HomeShelf.select(Random(17)), HomeShelf.select(Random(17)))
         val selections = (0..100).map { HomeShelf.select(Random(it)) }
-        assertTrue(selections.distinct().size > 1)
-        assertEquals(HomeShelf.dynamicPool.toSet(), selections.flatMap { it.drop(2) }.toSet())
+        assertEquals(1, selections.distinct().size)
+        assertTrue(selections.all { it.last() == HomeShelf.DISCOVERY })
     }
 
     @Test fun `genre and format aliases match only their intended categories`() {

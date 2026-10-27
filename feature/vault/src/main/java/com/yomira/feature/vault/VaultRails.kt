@@ -1,6 +1,7 @@
 package com.yomira.feature.vault
 
 import com.yomira.core.model.Manga
+import com.yomira.core.model.globalRankScore
 
 data class VaultRail(val style: String, val items: List<Manga>)
 
@@ -17,17 +18,15 @@ fun buildVaultHome(
     if (!unlocked) return VaultHome(emptyList(), emptyList(), emptyList())
     val all = vaultCatalog(catalog + discovered, unlocked).distinctBy { it.id }
     val collection = vaultCatalog(all, unlocked, style)
-    val ranking = compareByDescending<Manga> { it.score ?: 0.0 }.thenBy { it.id }
     val discoveryIds = discovered.map { it.id }.toSet()
+    val maxPopularity = all.maxOfOrNull { it.popularity ?: 0L } ?: 0L
+    // Discovery is the only observed freshness signal: no fabricated release dates.
+    val ranking = compareByDescending<Manga> {
+        it.globalRankScore(maxPopularity, if (it.id in discoveryIds) 1.0 else 0.0)
+    }.thenBy { it.id }
     val rails = vaultGenreChips.filter { style == null || it == style }.map { genre ->
         val matches = vaultCatalog(all, unlocked, genre)
-        // Manga has no release timestamp. Newly discovered doujinshi come first;
-        // do not pretend that a provider's catalog order is publication recency.
-        val ordered = if (genre == "Doujinshi") {
-            matches.sortedWith(compareByDescending<Manga> { it.id in discoveryIds }.then(ranking))
-        } else {
-            matches.sortedWith(ranking)
-        }
+        val ordered = matches.sortedWith(ranking)
         VaultRail(genre, ordered.take(railLimit.coerceAtLeast(0)))
     }
     return VaultHome(collection, collection.sortedWith(ranking).take(6), rails)

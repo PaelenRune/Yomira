@@ -67,6 +67,9 @@ class FileOnboardingStore(path: Path) : OnboardingStore {
             preferences = ReaderPreferences(
                 ReadingLanguage.valueOf(value.getValue("language").jsonPrimitive.content),
                 value.getValue("allowAdultContent").jsonPrimitive.boolean,
+                value["isAdult"]?.jsonPrimitive?.boolean ?: false,
+                value["excludedTags"]?.jsonArray?.map { it.jsonPrimitive.content }?.toSet().orEmpty(),
+                value["favoriteGenres"]?.jsonArray?.map { it.jsonPrimitive.content }?.toSet().orEmpty(),
             ),
             repositoryUrl = value.getValue("repositoryUrl").jsonPrimitive.contentOrNull?.also(::requireHttps),
             suggestedPackages = value.getValue("suggestedPackages").jsonArray.map { it.jsonPrimitive.content },
@@ -79,6 +82,9 @@ class FileOnboardingStore(path: Path) : OnboardingStore {
         file.write(buildJsonObject {
             put("language", state.preferences.language.name)
             put("allowAdultContent", state.preferences.allowAdultContent)
+            put("isAdult", state.preferences.isAdult)
+            put("excludedTags", JsonArray(state.preferences.excludedTags.sorted().map(::JsonPrimitive)))
+            put("favoriteGenres", JsonArray(state.preferences.favoriteGenres.sorted().map(::JsonPrimitive)))
             put("repositoryUrl", state.repositoryUrl?.let(::JsonPrimitive) ?: JsonNull)
             put("suggestedPackages", JsonArray(state.suggestedPackages.map(::JsonPrimitive)))
             put("completed", state.completed)

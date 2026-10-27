@@ -27,4 +27,5 @@ data class MangaEntity(
     val contentRating: ContentRating = ContentRating.SAFE,
     val sourceId: String,
     val readingMode: ReadingMode = ReadingMode.MANGA_RTL,
+    val popularity: Long? = null,
 )

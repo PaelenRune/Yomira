@@ -123,6 +123,16 @@ class SettingsMaintenanceViewModelTest {
         assertEquals(before.copy(preferences = before.preferences.copy(language = ReadingLanguage.ENGLISH)), onboarding.value)
     }
 
+    @Test fun `safety settings persist blacklist and clear explicit consent for minors`() = runTest(dispatcher) {
+        val model = model()
+        model.state.first { it.readerPreferences != null }
+        val preferences = ReaderPreferences(ReadingLanguage.BOTH, true, false, setOf("ntr", "yuri"), setOf("murim"))
+        model.setReaderPreferences(preferences)
+        model.state.first { !it.preferenceBusy && it.readerPreferences?.excludedTags == preferences.excludedTags }
+        assertEquals(preferences.copy(allowAdultContent = false), onboarding.value.preferences)
+        assertEquals(onboarding.value.preferences, model.state.value.readerPreferences)
+    }
+
     private class FakeServices : SettingsMaintenanceServices {
         override val lastSyncedAt = MutableStateFlow<Long?>(null)
         var bytes = 4096L

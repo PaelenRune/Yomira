@@ -63,14 +63,31 @@ class VaultRailsTest {
         assertTrue(imported in home.rails.single().items)
     }
 
-    @Test fun `new doujinshi prioritize discovery without inventing release dates`() {
+    @Test fun `doujinshi freshness is a bonus not a replacement for consensus ranking`() {
         val new = manga("new", "Doujinshi", 5.0)
         val old = manga("old", "Doujinshi", 10.0)
         val home = buildVaultHome(listOf(old), listOf(new, old.copy(score = 1.0)), true, "Doujinshi", railLimit = 1)
         // Both are discovered here, so their canonical scores break the tie.
         assertEquals(listOf(old), home.rails.single().items)
-        assertEquals(listOf(new, old), buildVaultHome(listOf(old), listOf(new), true, "Doujinshi").rails.single().items)
+        assertEquals(listOf(old, new), buildVaultHome(listOf(old), listOf(new), true, "Doujinshi").rails.single().items)
         assertEquals(listOf(old, new), home.hero)
+    }
+
+    @Test fun `globally popular webtoons dominate heroes and genre rails over niche perfect ratings`() {
+        val hits = listOf("Secret Class", "Boarding Diary", "Silent War")
+            .map { manga(it, "Manhwa", 8.0).copy(popularity = 500_000) }
+        val niche = manga("niche", "Manhwa", 10.0).copy(popularity = 5)
+        val home = buildVaultHome(hits + niche, listOf(niche), true)
+        assertEquals(hits.map { it.id }.toSet(), home.hero.take(3).map { it.id }.toSet())
+        assertEquals(home.hero, home.rails.single { it.style == "Adult Webtoons" }.items)
+        assertEquals(home.hero, buildVaultHome((hits + niche).reversed(), listOf(niche), true).hero)
+    }
+
+    @Test fun `missing popularity is safe and absent scores use neutral seven`() {
+        val missing = manga("a", "Manhwa").copy(score = null)
+        val zero = manga("b", "Manhwa").copy(popularity = 0)
+        val home = buildVaultHome(listOf(zero, missing), emptyList(), true)
+        assertEquals(listOf(missing, zero), home.hero)
     }
 
     @Test fun `hero and rail limits never truncate the full collection`() {
