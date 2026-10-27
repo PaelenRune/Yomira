@@ -7,6 +7,44 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ArtworkResolverTest {
+    @Test fun westernProvidersBeatEnglishTitleHintsAndJapaneseOriginals() {
+        for (source in listOf(MetadataSources.COMICVINE, MetadataSources.OPENLIBRARY)) {
+            val original = record(MetadataSources.ANILIST, "https://img.test/original.jpg")
+                .copy(englishTitle = "Series")
+            val japanese = record(MetadataSources.KITSU, "https://img.test/ja.jpg")
+                .copy(coverLocale = "ja", englishTitle = "Series")
+            val western = record(source, "https://img.test/western.jpg")
+            assertEquals(western.coverUrl, ArtworkResolver.cover(listOf(original, japanese, western)))
+        }
+    }
+
+    @Test fun explicitEnglishCoverFromAnyProviderBeatsAniListOriginal() {
+        val original = record(MetadataSources.ANILIST, "https://img.test/original.jpg")
+            .copy(englishTitle = "Series")
+        for (source in listOf(MetadataSources.KITSU, MetadataSources.MANGADEX,
+            MetadataSources.COMICVINE, MetadataSources.BAKA_UPDATES, MetadataSources.OPENLIBRARY)) {
+            val english = record(source, "https://img.test/en.jpg").copy(coverLocale = "en")
+            assertEquals(english.coverUrl, ArtworkResolver.cover(listOf(original, english)))
+        }
+    }
+
+    @Test fun nonEnglishLocalesCannotBePromotedByProviderOrEnglishTitles() {
+        for (source in listOf(MetadataSources.ANILIST, MetadataSources.COMICVINE, MetadataSources.OPENLIBRARY)) {
+            for (locale in listOf("ja", "ko", "zh", "fr")) {
+                val localized = record(source, "https://img.test/localized.jpg")
+                    .copy(coverLocale = locale, englishTitle = "Series", altTitles = mapOf("en" to listOf("Series")))
+                val unknown = record(MetadataSources.BAKA_UPDATES, "https://img.test/unknown.jpg")
+                assertEquals(unknown.coverUrl, ArtworkResolver.cover(listOf(localized, unknown)))
+            }
+        }
+    }
+
+    @Test fun sourcePriorityBreaksTiesWithinEnglishTierOnly() {
+        val kitsu = record(MetadataSources.KITSU, "https://img.test/kitsu-en.jpg").copy(coverLocale = "en")
+        val mangaDex = record(MetadataSources.MANGADEX, "https://img.test/md-en.jpg").copy(coverLocale = "en")
+        assertEquals(kitsu.coverUrl, ArtworkResolver.cover(listOf(mangaDex, kitsu)))
+    }
+
     @Test fun explicitEnglishCoverWinsOverProviderQualityAndEnglishTitleHints() {
         val japanese = record(MetadataSources.ANILIST, "https://img.test/ja.jpg")
             .copy(coverLocale = "ja", englishTitle = "Series")

@@ -46,6 +46,9 @@ Android görselleri **Xiaomi Mi 10T** gerçek cihazından alınmıştır — moc
 
 ## ✨ Özellikler
 
+- 🖼️ **İngilizce kapak önceliği (v8.0.3-Beta)** — İngilizce yerelleştirilmiş metadata
+  kapakları Japonca/Korece/Çince orijinallerden önce seçilir. İngilizce yoksa diğer
+  kapaklar son çare olarak kalır. [Sürüm notları](release/RELEASE_NOTES_v8.0.3-Beta.md).
 - 🧩 **Eklentiler (v8.0.2-Beta)** — Ana ekran veya Ayarlar → Eklentiler: depo ekle,
   eklenti/kaynak ara, TR/EN ve yüklü/güncelleme filtrelerini kullan; eklentileri yükle,
   güncelle veya kaldır. [Sürüm notları](release/RELEASE_NOTES_v8.0.2-Beta.md).

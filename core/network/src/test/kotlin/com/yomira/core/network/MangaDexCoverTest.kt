@@ -8,6 +8,33 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MangaDexCoverTest {
+    @Test fun englishCoverBeatsUnknownAndEveryNonEnglishLocale() = runTest {
+        assertCover(
+            """{"type":"cover_art","attributes":{"fileName":"ja.jpg","locale":"ja"}},
+                {"type":"cover_art","attributes":{"fileName":"unknown.jpg"}},
+                {"type":"cover_art","attributes":{"fileName":"ko.jpg","locale":"ko"}},
+                {"type":"cover_art","attributes":{"fileName":"zh.jpg","locale":"zh"}},
+                {"type":"cover_art","attributes":{"fileName":"en.jpg","locale":"en"}}""",
+            "en.jpg", "en",
+        )
+    }
+
+    @Test fun unknownLocaleBeatsKnownNonEnglishFallback() = runTest {
+        assertCover(
+            """{"type":"cover_art","attributes":{"fileName":"ja.jpg","locale":"ja"}},
+                {"type":"cover_art","attributes":{"fileName":"unknown.jpg","locale":" "}}""",
+            "unknown.jpg", null,
+        )
+    }
+
+    @Test fun englishLocaleWhitespaceIsNormalized() = runTest {
+        assertCover(
+            """{"type":"cover_art","attributes":{"fileName":"ja.jpg","locale":"ja"}},
+                {"type":"cover_art","attributes":{"fileName":"en.jpg","locale":" en "}}""",
+            "en.jpg", "en",
+        )
+    }
+
     @Test fun englishCoverWinsRegardlessOfRelationshipOrder() = runTest {
         assertCover(
             """{"type":"cover_art","attributes":{"fileName":"ja.jpg","locale":"ja"}},

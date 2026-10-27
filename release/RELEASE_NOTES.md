@@ -1,4 +1,18 @@
-# Yomira v8.0.2-Beta
+# Yomira v8.0.3-Beta
+
+Android 8.0+ (API 26) · versionCode `17`
+
+**İngilizce kapak önceliği:** Doğrulanmış İngilizce ve Batılı kaynak kapakları,
+orijinal Japonca/Korece/Çince kapaklardan önce seçilir. MangaDex İngilizce cilt
+kapağı AniList orijinal kapağını geçer; İngilizce seri adı tek başına kapak dilini
+doğrulamaz. İngilizce yoksa bilinmeyen, ardından İngilizce olmayan kapaklar son çare
+olarak kullanılabilir; görsel OCR doğrulaması yapılmaz.
+
+[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.3-Beta.md)
+
+---
+
+# Yomira v8.0.2-Beta (arşiv)
 
 Android 8.0+ (API 26) · versionCode `16`
 

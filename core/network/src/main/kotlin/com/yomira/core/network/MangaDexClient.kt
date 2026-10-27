@@ -190,7 +190,10 @@ class MangaDexClient(
             .filter { it.isNotEmpty() }
             .distinct()
         val covers = relationships.filter { it.type == "cover_art" && !it.attributes?.fileName.isNullOrBlank() }
-        val cover = covers.firstOrNull { it.attributes?.locale.equals("en", ignoreCase = true) }
+        // Cover locale, not the manga's English title, identifies localized artwork.
+        // Unknown artwork is preferable to a known non-English fallback.
+        val cover = covers.firstOrNull { it.attributes?.locale?.trim().equals("en", ignoreCase = true) }
+            ?: covers.firstOrNull { it.attributes?.locale.isNullOrBlank() }
             ?: covers.firstOrNull()
         val coverFile = cover?.attributes?.fileName
             ?.trim()
@@ -216,7 +219,7 @@ class MangaDexClient(
             artist = artistNames.joinToString(", ").ifBlank { null },
             description = cleanText(attributes.description.pickTitle()),
             coverUrl = coverFile?.let { "${config.mangaDexUploadsUrl}/covers/$mangaId/$it.512.jpg" },
-            coverLocale = cover?.attributes?.locale,
+            coverLocale = cover?.attributes?.locale?.trim()?.takeIf { it.isNotEmpty() },
             score = statistics?.rating?.average?.takeIf { it.isFinite() && it > 0.0 }
                 ?.coerceIn(0.0, 10.0),
             popularity = statistics?.follows?.takeIf { it >= 0 },

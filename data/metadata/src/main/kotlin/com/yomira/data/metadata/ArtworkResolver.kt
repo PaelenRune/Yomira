@@ -28,11 +28,12 @@ internal object ArtworkResolver {
 
     private fun coverLanguageRank(record: RemoteMetadata): Int = when {
         record.coverLocale.equals("en", ignoreCase = true) -> 0
+        // Explicit non-English evidence overrides provider and title hints.
+        !record.coverLocale.isNullOrBlank() -> 3
+        record.sourceId == MetadataSources.COMICVINE || record.sourceId == MetadataSources.OPENLIBRARY -> 0
         // An English title is only a hint when the provider omits the cover locale.
-        record.coverLocale.isNullOrBlank() &&
-            (!record.englishTitle.isNullOrBlank() || record.altTitles["en"].orEmpty().any { it.isNotBlank() }) -> 1
-        record.coverLocale.isNullOrBlank() -> 2
-        else -> 3
+        !record.englishTitle.isNullOrBlank() || record.altTitles["en"].orEmpty().any { it.isNotBlank() } -> 1
+        else -> 2
     }
 
     private fun isSecureImage(value: String): Boolean = try {

@@ -4,6 +4,17 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v8.0.3-Beta
+
+Android versionCode `17`.
+
+- İngilizce yerelleştirilmiş metadata kapakları için kaynaklar arası mutlak dil önceliği.
+- ComicVine/OpenLibrary önceliği; açıkça İngilizce olmayan kapaklar en düşük seviyede.
+- MangaDex İngilizce kapak seçimi, dil aktarımı ve bilinmeyen dil fallback testleri.
+- [Sürüm notları](RELEASE_NOTES_v8.0.3-Beta.md).
+
+---
+
 # Yomira v8.0.2-Beta
 
 Android versionCode `16`.
