@@ -1,0 +1,11 @@
+<resources>
+    <string name="library_series">Seriler</string>
+    <string name="library_updates">Güncellemeler</string>
+    <string name="library_read">▶ Oku</string>
+    <string name="library_chapter">Bölüm %1$s</string>
+    <string name="library_updates_empty_title">Okunmamış bölüm yok</string>
+    <string name="library_updates_empty_message">Kayıtlı serilerin bölüm listesi güncellendiğinde okunmamış bölümleri burada görünür.</string>
+    <string name="library_unread_chapters">+%1$d Bölüm</string>
+    <string name="library_refresh">Güncellemeleri kontrol et</string>
+    <string name="library_refresh_failed">Bazı bölüm listeleri güncellenemedi. Yeniden dene.</string>
+</resources>

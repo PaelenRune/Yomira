@@ -30,6 +30,7 @@ class SettingsModelsTest {
         val defaults = AppSettings()
         assertFalse(defaults.vaultVisible)
         assertFalse(defaults.automaticSync)
+        assertTrue(defaults.stealthShieldEnabled)
         assertTrue(defaults.requireDeviceLock)
         assertTrue(defaults.lockOnBackground)
         assertEquals(ReadingMode.MANGA_RTL, defaults.readingMode)

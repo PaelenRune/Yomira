@@ -79,6 +79,7 @@ fun SettingsScreen(
     onContentLanguageChange: (ReadingLanguage) -> Unit = {},
     onConsumeMessage: () -> Unit = {},
     buildInfo: String = "",
+    onStealthShieldChange: (Boolean) -> Unit = {},
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
@@ -139,6 +140,9 @@ fun SettingsScreen(
             }
             item {
                 SettingsSection(icon = Icons.Default.Security, title = copy.privacySection, accent = NeonFuchsia) {
+                    SettingsSwitchRow(copy.stealthShieldTitle, copy.stealthShieldBody,
+                        state.settings.stealthShieldEnabled, onStealthShieldChange, NeonPurple)
+                    RowDivider()
                     SettingsSwitchRow(
                         title = copy.vaultTitle,
                         body = copy.vaultBody,

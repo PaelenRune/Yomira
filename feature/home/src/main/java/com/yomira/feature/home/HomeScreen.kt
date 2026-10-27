@@ -2,6 +2,8 @@ package com.yomira.feature.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.*
@@ -9,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,6 +54,7 @@ data class ContinueReadingUi(
     val chapterTitle: String,
     val pageIndex: Int,
     val pageCount: Int,
+    val updatedAt: Long = 0L,
 ) {
     /** 0f..1f reading completion of the open chapter. */
     val fraction: Float
@@ -81,6 +85,8 @@ data class HomeUiState(
     /** Ids the user keeps in the library; a second, stronger taste signal. */
     val savedIds: Set<String> = emptySet(),
     val rails: List<HomeRail> = emptyList(),
+    val adaptationBadges: Map<String, String> = emptyMap(),
+    val unreadCounts: Map<String, Int> = emptyMap(),
 )
 
 /**
@@ -114,6 +120,9 @@ data class HomeCopy(
     val catalog: CatalogCopy = CatalogCopy(),
     val shelfTitles: Map<HomeShelf, String> = emptyMap(),
     val emptyRail: String = "Bu rafta henüz seri yok.",
+    val dismissContinueReading: String = "Devam et kartını kaldır",
+    val resetProgress: String = "Okuma ilerlemesini sıfırla",
+    val unreadChapters: String = "+%1\$d Bölüm",
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -136,6 +145,10 @@ fun HomeScreen(
     /** Newest open chapter, rendered as the floating resume capsule on Home. */
     continueReading: ContinueReadingUi? = null,
     onContinueReading: (ContinueReadingUi) -> Unit = {},
+    onDismissContinueReading: (ContinueReadingUi) -> Unit = {},
+    onResetProgress: (String) -> Unit = {},
+    onMangaLongClick: (Manga) -> Unit = {},
+    onPosterVisible: (Manga) -> Unit = {},
 ) {
     val columns = AdaptiveLayout.catalogColumns(sizeClass, state.columns)
     // Room re-emits every discovered row. Appending the page list after the
@@ -190,6 +203,8 @@ fun HomeScreen(
                     item = continueReading,
                     copy = copy,
                     onClick = { onContinueReading(continueReading) },
+                    onDismiss = { onDismissContinueReading(continueReading) },
+                    onReset = { onResetProgress(continueReading.mangaId) },
                     modifier = Modifier.padding(horizontal = 20.dp),
                 )
             }
@@ -228,7 +243,7 @@ fun HomeScreen(
                         HomeShelf.PERSONAL -> copy.railPersonal
                         else -> rail.shelf.title
                     }
-                    MangaRail(railTitle, rail.items, onManga, copy.catalog, copy.emptyRail)
+                    MangaRail(railTitle, rail.items, onManga, copy.catalog, copy.emptyRail, onMangaLongClick, state.adaptationBadges, onPosterVisible)
                 }
             }
         }
@@ -239,7 +254,12 @@ fun HomeScreen(
             )
         }
         items(visible, key = { it.id }, contentType = { "manga" }) { manga ->
-            MangaCard(manga, columns, { onManga(manga) }, Modifier.padding(horizontal = 4.dp), copy.catalog)
+            LaunchedEffect(manga.id) { onPosterVisible(manga) }
+            MangaCard(manga, columns, { onManga(manga) }, Modifier.padding(horizontal = 4.dp), copy.catalog,
+                onLongClick = { onMangaLongClick(manga) },
+                adaptationBadge = state.adaptationBadges[manga.id],
+                unreadBadge = state.unreadCounts[manga.id]?.takeIf { it > 0 }?.let { String.format(copy.unreadChapters, it) },
+            )
         }
         if (state.loadingMore) {
             item(key = "paging-loading", contentType = "loading", span = { GridItemSpan(maxLineSpan) }) { NeonPagingIndicator(message = copy.pagingLoading) }
@@ -380,20 +400,27 @@ private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
  * violet halo, a small cover, the chapter line and a violet → lavender progress
  * bar. Tapping anywhere resumes; the round action is a second, obvious affordance.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ContinueReadingCard(
     item: ContinueReadingUi,
     copy: HomeCopy,
     onClick: () -> Unit,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(24.dp)
+    var showActions by remember(item.mangaId) { mutableStateOf(false) }
+    if (showActions) QuickActionSheet(item.title, { showActions = false }, listOf(
+        copy.dismissContinueReading to onDismiss,
+        copy.resetProgress to onReset,
+    ))
     YomiraCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clip(shape).combinedClickable(onClick = onClick, onLongClick = { showActions = true }),
         shape = shape,
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         glow = true,
-        onClick = onClick,
     ) {
         Row(
             Modifier
@@ -461,6 +488,9 @@ private fun ContinueReadingCard(
                         modifier = Modifier.size(22.dp),
                     )
                 }
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(Icons.Default.Close, contentDescription = copy.dismissContinueReading, tint = TextMuted)
             }
         }
     }
@@ -629,14 +659,17 @@ private const val MIN_EDITORS_POOL = 6
 private const val LOAD_MORE_THRESHOLD = 6
 
 @Composable
-private fun MangaRail(title: String, manga: List<Manga>, onManga: (Manga) -> Unit, copy: CatalogCopy, emptyMessage: String) {
+private fun MangaRail(title: String, manga: List<Manga>, onManga: (Manga) -> Unit, copy: CatalogCopy, emptyMessage: String, onLongClick: (Manga) -> Unit, adaptationBadges: Map<String, String>, onPosterVisible: (Manga) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         SectionTitle(title, Modifier.padding(horizontal = 20.dp))
         if (manga.isEmpty()) {
             Text(emptyMessage, Modifier.padding(horizontal = 20.dp), color = TextMuted, style = MaterialTheme.typography.bodySmall)
         }
         LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(manga, key = { it.id }, contentType = { "manga" }) { item -> MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy) }
+            items(manga, key = { it.id }, contentType = { "manga" }) { item ->
+                LaunchedEffect(item.id) { onPosterVisible(item) }
+                MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy, onLongClick = { onLongClick(item) }, adaptationBadge = adaptationBadges[item.id])
+            }
         }
     }
 }

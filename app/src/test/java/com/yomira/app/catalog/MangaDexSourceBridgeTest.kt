@@ -1,6 +1,7 @@
 package com.yomira.app.catalog
 
 import com.yomira.domain.extension.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -9,7 +10,8 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MangaDexSourceBridgeTest {
-    @Test fun productionFallbackResolvesSelectedLanguageAndLoadsRealPages() = runTest {
+    // Real OkHttp callbacks must not race runTest's auto-advancing virtual timeout.
+    @Test fun productionFallbackResolvesSelectedLanguageAndLoadsRealPages() = runBlocking {
         val server = MockWebServer()
         server.start()
         try {
@@ -20,7 +22,7 @@ class MangaDexSourceBridgeTest {
             val bridge = MangaDexSourceBridge(OkHttpClient(), repository, store(), server.url("/").toString())
             val matcher = SmartSourceMatcher(repository, bridge, RepositorySourceDiscovery(bridge))
             val match = matcher.match(SeriesIdentity("catalog", "Alias"), ReaderPreferences(ReadingLanguage.TURKISH))
-            assertTrue(match is SmartMatchResult.Ready)
+            assertTrue("Expected Ready, got $match", match is SmartMatchResult.Ready)
             match as SmartMatchResult.Ready
             assertEquals("tr", match.selected.source.language)
             assertEquals(1, match.chapters.size)

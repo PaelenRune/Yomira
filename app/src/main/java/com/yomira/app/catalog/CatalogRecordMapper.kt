@@ -27,7 +27,10 @@ object CatalogRecordMapper {
         // AniList romaji *Shingeki no Kyojin*.
         val canonical = (record.englishTitle ?: record.title).trim().takeIf { it.isNotEmpty() } ?: return null
         val titles = record.allTitles()
-        val genres = record.genres.map { it.trim() }.filter { it.isNotEmpty() }
+        // Room persists flattened labels, not a publication-type column. Keep
+        // format evidence (including provider tags) through that round-trip.
+        val genres = (record.genres + record.tags + listOfNotNull(record.publicationType))
+            .map { it.trim() }.filter { it.isNotEmpty() }
             .distinctBy { it.lowercase(Locale.ROOT) }
         val rating = classifier.classify(
             ClassificationInput(
@@ -67,6 +70,7 @@ object CatalogRecordMapper {
             genres = if (western) WesternComics.tag(genres) else genres,
             contentRating = rating,
             sourceId = record.sourceId,
+            publicationType = record.publicationType,
         )
     }
 

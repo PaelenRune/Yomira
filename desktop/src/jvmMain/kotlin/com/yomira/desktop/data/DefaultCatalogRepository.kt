@@ -188,6 +188,7 @@ class DefaultCatalogRepository(
                 externalRatings = listOfNotNull(record.contentRating),
                 isOfficialPublication = record.isOfficialPublication,
                 publicationType = record.publicationType,
+                sourceId = record.sourceId,
             ),
         ) == ContentRating.EXPLICIT
     }

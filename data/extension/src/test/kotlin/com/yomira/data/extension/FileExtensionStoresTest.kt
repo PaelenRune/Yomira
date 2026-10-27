@@ -24,7 +24,7 @@ class FileExtensionStoresTest {
         val path = temporary.root.toPath().resolve("repositories.json")
         val repositories = FileRepositoryStore(path).read()
 
-        assertEquals(3, repositories.size)
+        assertEquals(1, repositories.size)
         assertTrue(repositories.all { it.startsWith("https://") })
         assertEquals(EmbeddedRepositories.load().map { it.indexUrl }, repositories)
     }
@@ -41,7 +41,9 @@ class FileExtensionStoresTest {
         val path = temporary.root.toPath().resolve("legacy-repositories.json")
         val store = FileRepositoryStore(path)
         val custom = "https://example.org/custom.json"
-        store.write(listOf("https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json", custom))
+        store.write(listOf("https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/turkish/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/global/index.min.json", custom))
         assertEquals(EmbeddedRepositories.load().map { it.indexUrl } + custom, store.read())
     }
 }

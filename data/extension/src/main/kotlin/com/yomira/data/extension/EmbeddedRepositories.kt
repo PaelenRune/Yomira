@@ -1,8 +1,5 @@
 package com.yomira.data.extension
 
-import com.yomira.domain.extension.requireHttps
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -17,49 +14,25 @@ data class EmbeddedRepository(
     val indexUrl: String,
     val payload: String,
     val upstreamUrl: String? = null,
-    val group: String? = null,
-    val westernPackages: List<String> = emptyList(),
 )
 
-/** JVM resources are carried into the Android APK too; an empty URL store needs no setup. */
+/** Clean JVM resources are also packaged in the Android APK; no URL setup is required. */
 object EmbeddedRepositories {
-    @Serializable
-    private data class CatalogEntry(
-        val resource: String,
-        val indexUrl: String,
-        val upstreamUrl: String? = null,
-        val group: String? = null,
-        val westernPackages: List<String> = emptyList(),
-    )
+    const val UPSTREAM_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/main/index.json"
 
     fun load(): List<EmbeddedRepository> {
-        val entries = Json.decodeFromString(ListSerializer(CatalogEntry.serializer()), resource("catalog.json"))
-        require(entries.map { it.indexUrl }.distinct().size == entries.size) { "Duplicate embedded repositories" }
-        return entries.map {
-            requireHttps(it.indexUrl)
-            require(it.resource.matches(Regex("[a-zA-Z0-9_/.\\-]+\\.(json|enc)")) && !it.resource.contains(".."))
-            it.upstreamUrl?.let(::requireHttps)
-            EmbeddedRepository(it.indexUrl, RepositoryPayload.decode(resource(it.resource), it.resource.endsWith(".enc")),
-                it.upstreamUrl, it.group, it.westernPackages)
-        }
+        val payload = requireNotNull(javaClass.getResourceAsStream("/assets/keiyoushi/index.min.json")) {
+            "Missing bundled Keiyoushi manifest"
+        }.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        return listOf(EmbeddedRepository(UPSTREAM_URL, payload, UPSTREAM_URL))
     }
 
-    /** Upstream v2 metadata is converted in memory; executable APKs are never downloaded here. */
-    internal fun refreshedPayload(repository: EmbeddedRepository, upstream: String): String {
+    /** Convert all upstream v2 metadata, without selecting or favoring any site. */
+    internal fun refreshedPayload(upstream: String): String {
         val extensions = Json.parseToJsonElement(upstream).jsonObject
             .getValue("extensionList").jsonObject.getValue("extensions").jsonArray
         require(extensions.size >= 100) { "Upstream index looks truncated" }
-        val entries = extensions.filter { element ->
-            val pkg = element.jsonObject.getValue("packageName").jsonPrimitive.content
-            val turkish = pkg.startsWith("eu.kanade.tachiyomi.extension.tr.")
-            val western = pkg.substringAfterLast('.') in repository.westernPackages
-            when (repository.group) {
-                "turkish" -> turkish
-                "western" -> !turkish && western
-                "global" -> !turkish && !western
-                else -> error("Unknown embedded repository group")
-            }
-        }.map { element ->
+        return JsonArray(extensions.map { element ->
             val entry = element.jsonObject
             val sources = entry.getValue("sources").jsonArray
             buildJsonObject {
@@ -76,12 +49,6 @@ object EmbeddedRepositories {
                         "lang" to value.getValue("language")))
                 }))
             }
-        }
-        return JsonArray(entries).toString()
+        }).toString()
     }
-
-    private fun resource(name: String): String =
-        requireNotNull(EmbeddedRepositories::class.java.getResourceAsStream("/yomira/repositories/$name")) {
-            "Missing embedded repository resource: $name"
-        }.bufferedReader(Charsets.UTF_8).use { it.readText() }
 }

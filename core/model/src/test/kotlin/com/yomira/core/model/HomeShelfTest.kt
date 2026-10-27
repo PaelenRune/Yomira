@@ -52,8 +52,32 @@ class HomeShelfTest {
         examples.forEach { (shelf, record) -> assertTrue(shelf.name, shelf.matches(record)) }
         assertFalse(HomeShelf.ISEKAI.matches(manga("Fantasy")))
         assertFalse(HomeShelf.HORROR.matches(manga("Fantasy")))
-        assertFalse(HomeShelf.WEBTOON.matches(manga("Manhwa")))
+        assertTrue(HomeShelf.WEBTOON.matches(manga("Manhwa")))
         assertFalse(HomeShelf.COMPLETED.matches(manga("Action")))
         assertTrue(HomeShelf.COMPLETED.matches(manga("Award-Winning")))
+    }
+
+    @Test fun `webtoon shelf checks publication format and delimited tags without title guessing`() {
+        listOf("Webtoon", "Manhwa", "Pornhwa", "Long-Strip").forEach { format ->
+            assertTrue(format, HomeShelf.WEBTOON.matches(manga().copy(publicationType = format)))
+            assertTrue(format, HomeShelf.WEBTOON.matches(manga("Drama | $format")))
+        }
+        listOf("Manga", "Comic", "Manhua", "Notwebtoon").forEach { format ->
+            assertFalse(format, HomeShelf.WEBTOON.matches(manga().copy(publicationType = format)))
+        }
+        assertFalse(HomeShelf.WEBTOON.matches(manga().copy(title = "Webtoon Romance")))
+    }
+
+    @Test fun `genre shelves require genuine genre evidence across media`() {
+        val western = manga("Western Comic").copy(publicationType = "Comic")
+        assertTrue(HomeShelf.WESTERN.matches(western))
+        assertTrue(HomeShelf.WESTERN.matches(manga().copy(publicationType = "Graphic Novel")))
+        HomeShelf.dynamicPool.filterNot { it in listOf(HomeShelf.WESTERN, HomeShelf.DISCOVERY) }.forEach { shelf ->
+            assertFalse(shelf.name, shelf.matches(western))
+        }
+        assertTrue(HomeShelf.ACTION.matches(western.copy(genres = western.genres + "Action")))
+        assertFalse(HomeShelf.SEINEN.matches(western.copy(genres = western.genres + "Action")))
+        assertTrue(HomeShelf.ACTION.matches(manga("Action; Adventure").copy(publicationType = "Manhwa")))
+        assertFalse(HomeShelf.ACTION.matches(manga().copy(publicationType = "Action")))
     }
 }

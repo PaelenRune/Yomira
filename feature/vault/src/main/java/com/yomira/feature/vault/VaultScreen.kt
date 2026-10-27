@@ -34,34 +34,51 @@ fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): 
     val selectedGenre = genre?.let(::normalizeGenre)
     val aliases = when (selectedGenre) {
         // Korean adult webtoons and other vertical-scroll adult comics.
-        "adult webtoons" -> setOf("adult webtoon", "adult webtoons", "webtoon", "webtoons", "manhwa", "pornhwa", "adult comic", "adult comics")
-        "hentai manga" -> setOf("hentai manga", "hentai")
+        "adult webtoons" -> setOf("adult webtoon", "adult webtoons", "webtoon", "webtoons", "manhwa", "pornhwa", "long strip", "longstrip", "vertical", "vertical scroll", "dikey okuma")
+        "hentai manga" -> setOf("manga", "japanese manga")
         // Preserve callers using the former chip without showing it as a category.
         "smut" -> setOf("smut", "erotica", "erotic")
         // Western erotica and 3D-rendered adult comics, including everything scraped
         // from allporncomic-type platforms whose tags survive verbatim.
         "western 3d" -> setOf(
             "western erotica", "western erotic", "erotic comics", "erotic comic",
-            "3d comic", "3d comics", "3d comix", "3d porn", "3dcg porn", "3d hentai",
+            "western comic", "western comics", "comic", "comics", "graphic novel",
+            "3d", "3dcg", "3d cg", "cg set", "3d comic", "3d comics", "3d comix", "3d porn", "3dcg porn", "3d hentai",
             "allporncomic", "allporncomics", "all porn comic", "all porn comics", "porn comic", "porn comics", "porncomix", "porcomix", "western porn",
         )
         "doujinshi" -> setOf("doujinshi", "doujin", "doujinshis", "doujins", "dōjinshi", "dōjin")
         else -> emptySet()
     }
     return manga.filter { item ->
-        // Source identity also identifies AllPornComic imports with missing genre metadata.
-        val labels = if (selectedGenre == "western 3d") item.genres + item.sourceId else item.genres
-        item.contentRating == ContentRating.EXPLICIT && (genre == null || labels.any { label ->
-            // Providers flatten tags into genres, sometimes as a single delimited string.
-            // Word boundaries allow "Hentai Doujinshi" but never "Nonhentai".
+        val labels = item.genres + listOfNotNull(item.publicationType)
+        fun has(vararg values: String): Boolean = labels.any { label ->
             val normalized = " ${normalizeGenre(label)} "
-            aliases.any { alias -> " $alias " in normalized }
-        })
+            values.any { " $it " in normalized }
+        }
+        val webtoon = has("webtoon", "webtoons", "manhwa", "pornhwa", "long strip", "longstrip", "vertical", "dikey okuma")
+        val western = has("western", "comic", "comics", "comix", "graphic novel", "3d", "3dcg", "cg set", "allporncomic", "allporncomics", "all porn comic", "all porn comics", "porncomix", "porcomix") ||
+            normalizeGenre(item.sourceId).split(' ').any { it in setOf("allporncomic", "allporncomics", "porncomix", "porcomix") }
+        val doujin = has("doujinshi", "doujin", "doujinshis", "doujins", "dōjinshi", "dōjin")
+        // Format conflicts beat broad adult tags. In particular, Hentai is often
+        // applied to Korean webtoons and is never allowed to override their format.
+        val matches = when (selectedGenre) {
+            null -> true
+            "adult webtoons" -> webtoon && !western && !doujin
+            "hentai manga" -> !webtoon && !western && !doujin && !has("manhua") &&
+                (item.publicationType?.let(::normalizeGenre)?.let { it in setOf("manga", "japanese manga") } ?: true) &&
+                has(*aliases.toTypedArray())
+            "doujinshi" -> doujin && !webtoon && !western
+            "western 3d" -> western
+            else -> has(*aliases.toTypedArray())
+        }
+        item.contentRating == ContentRating.EXPLICIT && matches
     }
 }
 
+private val genreSeparators = Regex("[^\\p{L}\\p{N}]+")
+
 private fun normalizeGenre(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFKC)
-    .lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
+    .lowercase(Locale.ROOT).replace(genreSeparators, " ").trim()
 
 internal fun toggleVaultGenre(selected: String?, clicked: String): String? =
     if (selected == clicked) null else clicked
@@ -102,7 +119,7 @@ data class VaultCopy(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy()) {
+fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}) {
     if (!unlocked) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp), verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(Icons.Default.Lock, null, Modifier.size(64.dp), tint = NeonFuchsia)
@@ -164,7 +181,7 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
         }
         home.rails.forEach { rail ->
             item(key = "vault-rail-${rail.style}", contentType = "rail", span = { GridItemSpan(maxLineSpan) }) {
-                VaultMangaRail(rail, onManga, copy)
+                VaultMangaRail(rail, onManga, copy, onMangaLongClick, adaptationBadges, onPosterVisible)
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -174,7 +191,10 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
             }
         }
         if (visible.isEmpty() && !loading && error == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState(copy.emptyTitle, copy.emptyMessage) }
-        items(visible, key = { it.id }) { item -> MangaCard(item, gridColumns, { onManga(item) }, Modifier.padding(horizontal = 4.dp), copy.catalog) }
+        items(visible, key = { it.id }) { item ->
+            LaunchedEffect(item.id) { onPosterVisible(item) }
+            MangaCard(item, gridColumns, { onManga(item) }, Modifier.padding(horizontal = 4.dp), copy.catalog, onLongClick = { onMangaLongClick(item) }, adaptationBadge = adaptationBadges[item.id])
+        }
         if (loadingMore) {
             item(span = { GridItemSpan(maxLineSpan) }) { NeonPagingIndicator(accent = NeonFuchsia, message = copy.pagingLoading) }
         } else if (pagingError != null) {
@@ -199,7 +219,7 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
 }
 
 @Composable
-private fun VaultMangaRail(rail: VaultRail, onManga: (Manga) -> Unit, copy: VaultCopy) {
+private fun VaultMangaRail(rail: VaultRail, onManga: (Manga) -> Unit, copy: VaultCopy, onLongClick: (Manga) -> Unit, adaptationBadges: Map<String, String>, onPosterVisible: (Manga) -> Unit) {
     val title = copy.railTitle(rail.style)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(title, Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium)
@@ -208,7 +228,8 @@ private fun VaultMangaRail(rail: VaultRail, onManga: (Manga) -> Unit, copy: Vaul
         } else {
             LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(rail.items, key = { it.id }, contentType = { "manga" }) { item ->
-                    MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy.catalog)
+                    LaunchedEffect(item.id) { onPosterVisible(item) }
+                    MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy.catalog, onLongClick = { onLongClick(item) }, adaptationBadge = adaptationBadges[item.id])
                 }
             }
         }

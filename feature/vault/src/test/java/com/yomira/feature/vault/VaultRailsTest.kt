@@ -11,7 +11,7 @@ class VaultRailsTest {
 
     private val catalog = listOf(
         manga("webtoon", "Manhwa"),
-        manga("hentai", "Hentai", 9.0),
+        manga("hentai", "Hentai Manga", 9.0),
         manga("doujin", "Doujinshi"),
         manga("western", "3D Comics"),
         manga("unclassified", "Romance"),
@@ -74,10 +74,47 @@ class VaultRailsTest {
     }
 
     @Test fun `hero and rail limits never truncate the full collection`() {
-        val items = (1..20).map { manga("series-$it", "Hentai") }
+        val items = (1..20).map { manga("series-$it", "Hentai Manga") }
         val home = buildVaultHome(items, items, true)
         assertEquals(20, home.collection.size)
         assertEquals(6, home.hero.size)
         assertEquals(14, home.rails.single { it.style == "Hentai Manga" }.items.size)
+    }
+
+    @Test fun `hentai tags never override webtoon manhwa or long strip formats`() {
+        val formats = listOf("Webtoon", "Webtoons", "Manhwa", "Pornhwa", "Long Strip", "Longstrip", "Vertical", "Dikey Okuma")
+        val items = formats.flatMap { format ->
+            listOf(
+                manga("tags-$format", "Hentai, Manga | $format"),
+                manga("type-$format", "Hentai Manga").copy(publicationType = format),
+                manga("conflict-$format", "Hentai | $format").copy(publicationType = "Manga"),
+            )
+        }
+        val home = buildVaultHome(items, items, true)
+        assertTrue(home.rails.single { it.style == "Hentai Manga" }.items.isEmpty())
+        assertTrue(home.rails.single { it.style == "Doujinshi" }.items.isEmpty())
+        assertEquals(items.toSet(), buildVaultHome(items, emptyList(), true, "Adult Webtoons", railLimit = 100).rails.single().items.toSet())
+        assertTrue(buildVaultHome(items, items, true, "Hentai Manga").collection.isEmpty())
+    }
+
+    @Test fun `format rails stay disjoint despite broad adult labels`() {
+        val japanese = manga("japanese", "Hentai").copy(publicationType = "Manga")
+        val japaneseFormatOnly = manga("manga", "Romance").copy(publicationType = "Manga")
+        val fan = manga("fan", "Hentai Doujinshi")
+        val western = manga("western", "Hentai | Western Erotica")
+        val cg = manga("cg", "Hentai | 3D CG")
+        val imported = manga("imported", "Hentai Manga").copy(sourceId = "en.allporncomic")
+        val chinese = manga("chinese", "Hentai | Manhua")
+        val unknownComic = manga("generic", "Adult Comic")
+        val unknown = manga("unknown", "Smut | Romance")
+        val unclassifiedHentai = manga("hentai-only", "Hentai")
+        val items = listOf(japanese, japaneseFormatOnly, fan, western, cg, imported, chinese, unknownComic, unknown, unclassifiedHentai)
+        val home = buildVaultHome(items, emptyList(), true)
+        assertEquals(listOf(japanese, japaneseFormatOnly), home.rails.single { it.style == "Hentai Manga" }.items)
+        assertEquals(listOf(fan), home.rails.single { it.style == "Doujinshi" }.items)
+        assertEquals(setOf(western, cg, imported, unknownComic), home.rails.single { it.style == "Western / 3D" }.items.toSet())
+        assertTrue(home.rails.single { it.style == "Adult Webtoons" }.items.isEmpty())
+        val classifiedIds = home.rails.flatMap { it.items }.map { it.id }
+        assertEquals(classifiedIds.size, classifiedIds.distinct().size)
     }
 }

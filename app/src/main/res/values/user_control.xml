@@ -1,0 +1,6 @@
+<resources>
+    <string name="control_dismiss_resume">Dismiss continue reading</string>
+    <string name="control_reset_progress">Reset reading progress</string>
+    <string name="control_mark_read_through">Mark this and all previous chapters as read</string>
+    <string name="control_share">Share</string>
+</resources>

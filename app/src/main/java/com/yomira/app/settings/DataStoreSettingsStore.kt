@@ -35,6 +35,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         guidedView = this[guidedView] ?: false,
         bundledRepositoriesSeeded = this[bundledSeeded] ?: false,
         automaticSync = this[automaticSync] ?: false,
+        stealthShieldEnabled = this[stealthShield] ?: true,
     )
 
     private fun MutablePreferences.write(settings: AppSettings) {
@@ -45,6 +46,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         set(guidedView, settings.guidedView)
         set(bundledSeeded, settings.bundledRepositoriesSeeded)
         set(automaticSync, settings.automaticSync)
+        set(stealthShield, settings.stealthShieldEnabled)
     }
 
     private companion object {
@@ -55,6 +57,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         val guidedView = booleanPreferencesKey("guidedView")
         val bundledSeeded = booleanPreferencesKey("bundledRepositoriesSeeded")
         val automaticSync = booleanPreferencesKey("automaticSync")
+        val stealthShield = booleanPreferencesKey("stealthShieldEnabled")
         val readingModes = ReadingMode.entries.associateBy { it.name }
     }
 }

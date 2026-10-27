@@ -1,0 +1,11 @@
+<resources>
+    <string name="library_series">Series</string>
+    <string name="library_updates">Updates</string>
+    <string name="library_read">▶ Read</string>
+    <string name="library_chapter">Chapter %1$s</string>
+    <string name="library_updates_empty_title">No unread chapters</string>
+    <string name="library_updates_empty_message">Unread chapters from saved series appear here when their chapter index updates.</string>
+    <string name="library_unread_chapters">+%1$d chapters</string>
+    <string name="library_refresh">Check for updates</string>
+    <string name="library_refresh_failed">Some chapter indexes could not be refreshed. Try again.</string>
+</resources>

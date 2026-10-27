@@ -6,11 +6,10 @@ plugins {
 
 kotlin { jvmToolchain(17) }
 
-// Package the same curated indexes on Android and desktop; no network bootstrap required.
+// The clean official catalog is shared by Android and desktop; no network bootstrap required.
 tasks.processResources {
-    from(rootProject.file("repositories")) {
-        exclude("export/**")
-        into("yomira/repositories")
+    from(rootProject.file("assets/keiyoushi")) {
+        into("assets/keiyoushi")
     }
 }
 

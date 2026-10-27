@@ -8,10 +8,10 @@ import org.junit.Test
 
 class RepositorySyncTest {
     private val upstreamUrl = "https://example.org/upstream.json"
-    private val repository = EmbeddedRepository("https://example.org/global.json", "[]", upstreamUrl, "global")
+    private val repository = EmbeddedRepository("https://example.org/index.json", "[]", upstreamUrl)
 
     @Test fun `normal and encoded indexes parse identically including UTF8 and large IDs`() {
-        val payload = EmbeddedRepositories.refreshedPayload(repository, upstream())
+        val payload = EmbeddedRepositories.refreshedPayload(upstream())
         val encoded = encode(payload)
         assertFalse(encoded.contains("Örnek"))
         assertFalse(encoded.contains("source.example.org"))
@@ -21,17 +21,7 @@ class RepositorySyncTest {
         assertTrue(parser.parse(encoded, repository.indexUrl).all { it.nsfw })
     }
 
-    @Test fun `bundled resources are encoded and plaintext exports are not on classpath`() {
-        val loader = EmbeddedRepositories::class.java
-        for (group in listOf("turkish", "western", "global")) {
-            val encoded = loader.getResourceAsStream("/yomira/repositories/$group/index.enc")!!
-                .bufferedReader().use { it.readText() }
-            assertTrue(encoded.startsWith("YOMIRA-XOR-1:"))
-            assertFalse(encoded.contains("pkgName"))
-            assertTrue(RepositoryPayload.decode(encoded, encrypted = true).startsWith("["))
-            assertNull(loader.getResource("/yomira/repositories/$group/index.min.json"))
-            assertNull(loader.getResource("/yomira/repositories/export/$group/index.min.json"))
-        }
+    @Test fun `bundled clean catalog includes all languages without grouping`() {
         assertTrue(EmbeddedRepositories.load().flatMap {
             KeiyoushiRepoParser().parse(it.payload, it.indexUrl)
         }.size > 1000)
@@ -55,12 +45,9 @@ class RepositorySyncTest {
         assertEquals(3, requests)
     }
 
-    @Test fun `upstream is fetched once for all groups and their ownership does not overlap`() = runTest {
+    @Test fun `full official upstream is fetched once without dropping entries`() = runTest {
         var requests = 0
-        val repositories = listOf("turkish", "western", "global").map { group ->
-            repository.copy(indexUrl = "https://example.org/$group.json", group = group, westernPackages = listOf("item0"))
-        }
-        val manager = manager(repositories) { requests++; upstream() }
+        val manager = manager { requests++; upstream() }
         val entries = manager.available()
         assertEquals(1, requests)
         assertEquals(100, entries.size)

@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class VaultIsolationTest {
-    private val series = ContentRating.entries.map { Manga(it.name, it.name, sourceId = "source", contentRating = it, genres = listOf("Hentai")) }
+    private val series = ContentRating.entries.map { Manga(it.name, it.name, sourceId = "source", contentRating = it, genres = listOf("Hentai Manga")) }
     @Test fun `locked vault exposes no records`() { assertTrue(vaultCatalog(series, false).isEmpty()) }
     @Test fun `unlocked vault contains explicit records only`() {
         assertEquals(listOf(ContentRating.EXPLICIT), vaultCatalog(series, true).map { it.contentRating })
@@ -20,7 +20,7 @@ class VaultIsolationTest {
     @Test fun `chips match delimited mixed case labels and format aliases`() {
         val labels = mapOf(
             "Adult Webtoons" to listOf(" Romance, Adult Webtoon ", " Full-Color MANHWA ", "Pornhwa", "Webtoons"),
-            "Hentai Manga" to listOf("Romance, Drama, HENTAI", "Hentai-Manga", "Japanese Hentai Manga"),
+            "Hentai Manga" to listOf("Romance, Drama, HENTAI Manga", "Hentai-Manga", "Japanese Hentai Manga"),
             "Smut" to listOf("Romance | SMUT", "Adult Smut Manga", "Erotica"),
             "Doujinshi" to listOf("Drama; DOUJINSHI", "Doujin", "Hentai Doujinshi"),
             "Western / 3D" to listOf("Western Erotica", "Erotic Comics", "3D Porn", "3D Comics", "AllPornComic", "Romance | ALLPORNCOMIC"),

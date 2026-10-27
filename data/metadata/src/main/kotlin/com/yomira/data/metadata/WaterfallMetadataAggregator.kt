@@ -83,7 +83,8 @@ class WaterfallMetadataAggregator(
     private fun merge(records: List<RemoteMetadata>): Manga {
         val first = records.first()
         fun text(select: (RemoteMetadata) -> String?) = records.firstNotNullOfOrNull { select(it)?.takeIf(String::isNotBlank) }
-        val genres = records.flatMap { it.genres }.distinctBy { it.lowercase(Locale.ROOT) }
+        val genres = records.flatMap { it.genres + it.tags + listOfNotNull(it.publicationType) }
+            .distinctBy { it.lowercase(Locale.ROOT) }
         // English display title wins: `Shingeki no Kyojin` is shelved as `Attack on Titan`,
         // `Boku no Hero Academia` as `My Hero Academia`. The romaji survives as an alt title,
         // so search and cross-provider identity matching keep working.
@@ -105,6 +106,7 @@ class WaterfallMetadataAggregator(
                 publicationType = text { it.publicationType },
             )),
             sourceId = first.sourceId,
+            publicationType = text { it.publicationType },
         )
     }
 

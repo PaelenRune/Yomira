@@ -17,8 +17,10 @@ import javax.inject.Inject
 class YomiraApp : Application(), Configuration.Provider, ImageLoaderFactory {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var automaticSync: AutomaticSyncController
+    @Inject lateinit var httpClient: okhttp3.OkHttpClient
 
     override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)
+        .okHttpClient(httpClient)
         // minSdk 26: Coil may decode straight into hardware-backed buffers when safe.
         // Coil still falls back to software for transformations and unsupported devices.
         .allowHardware(true)

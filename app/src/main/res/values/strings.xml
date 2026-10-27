@@ -315,4 +315,6 @@
     <string name="settings_version_title">Version</string>
     <string name="settings_github_title">Yomira on GitHub</string>
     <string name="settings_github_body">Source code, release notes and support.</string>
+    <string name="settings_stealth_shield_title">Stealth Shield</string>
+    <string name="settings_stealth_shield_body">Uses encrypted DNS and TLS fragmentation to help bypass ISP blocks without an external VPN. May not work on every network; does not provide anonymity.</string>
 </resources>

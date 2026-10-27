@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -78,6 +80,7 @@ data class DetailCopy(
     val dateMissing: String = "Tarih belirtilmedi",
     val markRead: String = "Okundu olarak işaretle",
     val markUnread: String = "Okunmadı olarak işaretle",
+    val markReadThrough: String = "Buraya kadar olan bölümleri okundu say",
     val downloaded: String = "İndirildi",
     val retryDownload: String = "İndirmeyi yeniden dene",
     val downloadChapter: String = "Bölümü indir",
@@ -154,6 +157,7 @@ fun MangaDetailScreen(
     copy: DetailCopy = DetailCopy(),
     twoPane: Boolean = false,
     adaptations: List<WatchableAdaptation> = emptyList(),
+    onMarkReadThrough: (Chapter) -> Unit = {},
 ) {
     if (twoPane) {
         TwoPaneDetail(
@@ -163,6 +167,7 @@ fun MangaDetailScreen(
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
             adaptations = adaptations,
+            onMarkReadThrough = onMarkReadThrough,
         )
     } else {
         SinglePaneDetail(
@@ -172,6 +177,7 @@ fun MangaDetailScreen(
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
             adaptations = adaptations,
+            onMarkReadThrough = onMarkReadThrough,
         )
     }
 }
@@ -195,6 +201,7 @@ private fun SinglePaneDetail(
     connectionsLoading: Boolean,
     onOpenSeries: (String, String) -> Unit,
     copy: DetailCopy,
+    onMarkReadThrough: (Chapter) -> Unit,
 ) {
     var expanded by rememberSaveable(manga.id) { mutableStateOf(false) }
     var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
@@ -233,7 +240,7 @@ private fun SinglePaneDetail(
                 if (matching) ChaptersLoading(copy) else CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
             }
             items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
-                ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp))
+                ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp), onMarkReadThrough)
             }
             item(key = "connections", contentType = "connections") {
                 FranchiseShowcases(
@@ -278,6 +285,7 @@ private fun TwoPaneDetail(
     connectionsLoading: Boolean,
     onOpenSeries: (String, String) -> Unit,
     copy: DetailCopy,
+    onMarkReadThrough: (Chapter) -> Unit,
 ) {
     var descending by rememberSaveable(manga.id) { mutableStateOf(true) }
     val sorted = remember(chapters, descending) {
@@ -312,7 +320,7 @@ private fun TwoPaneDetail(
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
                     items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
-                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp))
+                        ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 12.dp, vertical = 3.dp), onMarkReadThrough)
                     }
                 }
             }
@@ -664,6 +672,7 @@ private fun ChapterHeading(count: Int, descending: Boolean, onToggle: () -> Unit
  * drop to a muted title and keep a lavender check, so progress is obvious at a
  * glance without a second accent colour.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChapterRow(
     entry: ChapterUiState,
@@ -672,12 +681,20 @@ private fun ChapterRow(
     onDownload: (Chapter) -> Unit,
     copy: DetailCopy,
     modifier: Modifier = Modifier,
+    onMarkReadThrough: (Chapter) -> Unit,
 ) {
+    var showActions by remember(entry.chapter.id) { mutableStateOf(false) }
+    if (showActions) QuickActionSheet(
+        entry.chapter.title ?: String.format(copy.chapterFallback, entry.chapter.chapterNumber),
+        { showActions = false },
+        listOf(copy.markReadThrough to { onMarkReadThrough(entry.chapter) }),
+    )
     YomiraCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).combinedClickable(
+            onClick = { onRead(entry.chapter) }, onLongClick = { showActions = true },
+        ),
         shape = RoundedCornerShape(16.dp),
         containerColor = if (entry.read) CardSurface.copy(alpha = .55f) else CardSurface,
-        onClick = { onRead(entry.chapter) },
     ) {
         Row(
             Modifier.padding(start = 10.dp, end = 6.dp, top = 9.dp, bottom = 9.dp),

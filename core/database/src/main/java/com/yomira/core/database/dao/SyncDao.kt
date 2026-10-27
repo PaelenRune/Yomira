@@ -17,6 +17,21 @@ interface SyncDao {
     @Query("SELECT * FROM reader_progress ORDER BY updatedAt DESC LIMIT 1")
     fun observeLatestReaderProgress(): Flow<ReaderProgressEntity?>
 
+    @Query("SELECT * FROM reader_progress WHERE mangaId = :mangaId ORDER BY updatedAt DESC")
+    fun observeReaderProgress(mangaId: String): Flow<List<ReaderProgressEntity>>
+
+    @Query("DELETE FROM reader_progress WHERE mangaId = :mangaId")
+    suspend fun deleteReaderProgress(mangaId: String)
+
+    @Query("DELETE FROM reading_progress WHERE mangaId = :mangaId")
+    suspend fun deleteReadingProgress(mangaId: String)
+
+    @Transaction
+    suspend fun resetProgress(mangaId: String) {
+        deleteReaderProgress(mangaId)
+        deleteReadingProgress(mangaId)
+    }
+
     /** Local dirty revision, separate from the server's lastSyncedAt watermark. */
     @Transaction
     suspend fun markReaderDirty(deviceId: String) {

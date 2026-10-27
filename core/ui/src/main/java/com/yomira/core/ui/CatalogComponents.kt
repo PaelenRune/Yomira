@@ -7,7 +7,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.yomira.core.model.ContentRating
+import com.yomira.core.model.AdaptationKind
 import com.yomira.core.model.Manga
 import com.yomira.core.ui.theme.*
 import java.time.LocalDate
@@ -257,14 +259,15 @@ fun ScoreBadge(score: Double, copy: CatalogCopy = CatalogCopy()) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy()) {
+fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifier = Modifier, copy: CatalogCopy = CatalogCopy(), onLongClick: (() -> Unit)? = null, adaptationBadge: String? = null, unreadBadge: String? = null) {
     require(columns in 1..8) { "Poster grid supports 1–8 columns, got $columns" }
     val cardShape = MaterialTheme.shapes.medium
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .semantics(mergeDescendants = true) {},
     ) {
         Box(
@@ -275,6 +278,12 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
         ) {
             MangaArtwork(manga.coverUrl, manga.title, Modifier.fillMaxWidth().aspectRatio(PosterAspectRatio), copy)
             AgeRatingBadge(manga.contentRating, Modifier.align(Alignment.TopStart).padding(8.dp))
+            adaptationBadge?.let { label ->
+                PosterLabel(label, Modifier.align(Alignment.TopEnd).padding(start = if (posterAgeLabel(manga.contentRating) != null) 42.dp else 8.dp, end = 8.dp, top = 8.dp))
+            }
+            unreadBadge?.let { label ->
+                PosterLabel(label, Modifier.align(Alignment.BottomEnd).padding(8.dp))
+            }
         }
         Text(
             text = manga.title,
@@ -294,7 +303,22 @@ internal fun posterAgeLabel(rating: ContentRating): String? = when (rating) {
     ContentRating.MATURE, ContentRating.EXPLICIT -> "+18"
 }
 
-/** The only overlay allowed on a series poster: a small translucent age label. */
+fun adaptationPosterLabel(kind: AdaptationKind, format: String? = null): String = when (kind) {
+    AdaptationKind.ANIME -> "📺 Anime"
+    AdaptationKind.HENTAI_OVA -> "🔞 Hentai OVA"
+    AdaptationKind.LIVE_ACTION -> if (format?.replace('_', '-')?.equals("K-Drama", ignoreCase = true) == true) "🎬 K-Drama" else "🎬 Live Action"
+    AdaptationKind.DONGHUA -> "🐉 Donghua"
+    AdaptationKind.SPECIAL -> "📺 Special"
+}
+
+@Composable
+private fun PosterLabel(label: String, modifier: Modifier = Modifier) {
+    Surface(modifier, shape = RoundedCornerShape(6.dp), color = Color.Black.copy(alpha = .78f), contentColor = TextPrimary) {
+        Text(label, Modifier.padding(horizontal = 6.dp, vertical = 3.dp), style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/** Age labels stay independent from adaptation and unread indicators. */
 @Composable
 private fun AgeRatingBadge(rating: ContentRating, modifier: Modifier = Modifier) {
     val label = posterAgeLabel(rating) ?: return

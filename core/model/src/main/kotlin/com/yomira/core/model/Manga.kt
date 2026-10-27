@@ -15,6 +15,7 @@ data class Manga(
     val genres: List<String> = emptyList(),
     val contentRating: ContentRating = ContentRating.SAFE,
     val sourceId: String,
+    val publicationType: String? = null,
 ) {
     init {
         require(id.isNotBlank()) { "Manga ID must not be blank" }

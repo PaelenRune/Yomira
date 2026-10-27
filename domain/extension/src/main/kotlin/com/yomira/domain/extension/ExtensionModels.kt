@@ -45,16 +45,21 @@ data class SourcePage(val index: Int, val imageUrl: String, val headers: Map<Str
 /** A stable external ID and aliases prevent unrelated similarly named series being merged. */
 data class SeriesIdentity(val id: String, val title: String, val aliases: Set<String> = emptySet())
 
+enum class SourceHealth { UNKNOWN, HEALTHY, BLOCKED }
+
 data class SourceCandidate(
     val extension: ExtensionDescriptor,
     val source: ExtensionSource,
     val manga: SourceManga,
     val chapterCount: Int,
     val latestChapterAt: Long?,
+    val health: SourceHealth = SourceHealth.UNKNOWN,
+    val responseTimeMillis: Long? = null,
 ) {
     init {
         require(chapterCount >= 0)
         require(source in extension.sources)
+        require(responseTimeMillis == null || responseTimeMillis >= 0)
     }
 }
 

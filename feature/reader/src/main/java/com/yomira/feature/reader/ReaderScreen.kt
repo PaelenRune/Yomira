@@ -16,7 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.Lifecycle
 import android.graphics.Bitmap
-import coil.ImageLoader
+import coil.imageLoader
 import coil.memory.MemoryCache
 import com.yomira.core.model.ReadingMode
 import com.yomira.core.ui.ImageMemoryPolicy
@@ -65,7 +65,9 @@ fun ReaderScreen(mangaId: String, chapterId: String, model: ReaderViewModel, onB
     // Coil owns bitmap lifetimes. Disposed lazy items release their painters; a bounded LRU
     // reuses decoded pages. Never recycle a bitmap still referenced by Compose's renderer.
     val loader = remember(context) {
-        ImageLoader.Builder(context)
+        // Inherit the application's transport (encrypted DNS and TLS fragmentation).
+        // A standalone builder would silently bypass Stealth Shield for page CDNs.
+        context.imageLoader.newBuilder()
             .allowHardware(true)
             .bitmapConfig(Bitmap.Config.HARDWARE)
             .memoryCache {

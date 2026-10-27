@@ -34,7 +34,7 @@ class FileRepositoryStore(
     override suspend fun read(): List<String> = file.read()?.let { text ->
         Json.parseToJsonElement(text).jsonArray.flatMap {
             val url = it.jsonPrimitive.content.also(::requireHttps)
-            // Migrate the old auto-seeded overlapping indexes to the non-overlapping bundled catalog.
+            // Migrate superseded auto-seeded indexes to the single full official catalog.
             if (url in LEGACY_BUNDLED_URLS) EmbeddedRepositories.load().map { entry -> entry.indexUrl }
             else listOf(url)
         }.distinct()
@@ -50,6 +50,10 @@ class FileRepositoryStore(
             "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
             "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
             "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/global/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/turkish/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/western/index.min.json",
+            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/global/index.min.json",
         )
     }
 }

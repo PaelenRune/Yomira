@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "6.0.0-Beta"
+        versionCode = 12
+        versionName = "7.0.0-Beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.okhttp)
+    implementation(libs.conscrypt.android)
     implementation(libs.coil.compose)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)

@@ -16,4 +16,5 @@ data class NetworkConfiguration(
     val comicVineBaseUrl: String = "https://comicvine.gamespot.com/api",
     val openLibraryBaseUrl: String = "https://openlibrary.org",
     val openLibraryCoversUrl: String = "https://covers.openlibrary.org",
+    val stealthShieldEnabled: Boolean = true,
 )

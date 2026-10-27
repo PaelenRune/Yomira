@@ -22,11 +22,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.yomira.app.catalog.catalogTagChips
+import com.yomira.app.achievement.AchievementBannerHost
+import com.yomira.domain.journey.JourneyRepository
+import javax.inject.Inject
 import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.app.onboarding.OnboardingViewModel
 import com.yomira.app.settings.SettingsViewModel
@@ -59,6 +63,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    @Inject lateinit var journeyRepository: JourneyRepository
     private val model: YomiraViewModel by viewModels()
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
@@ -128,6 +133,7 @@ class MainActivity : AppCompatActivity() {
                 if (onboarding.completed) onboarding.languageCode?.takeIf { it == "tr" || it == "en" }
                     ?.let(LocaleManagerCompat::syncApplicationLocalesOnStartup)
             }
+            Box(Modifier.fillMaxSize()) {
             when {
                 onboarding.loading -> Surface(color = Color(0xFF0D0D12), modifier = Modifier.fillMaxSize()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -161,6 +167,8 @@ class MainActivity : AppCompatActivity() {
                         ::openReference,
                     )
                 }
+            }
+            AchievementBannerHost(journeyRepository.unlockEvents)
             }
         } }
     }
@@ -201,6 +209,10 @@ private fun YomiraNavigation(
     val vaultColumns by model.vaultColumns.collectAsStateWithLifecycle()
     val unlocked by model.unlocked.collectAsStateWithLifecycle()
     val saved by model.saved.collectAsStateWithLifecycle()
+    val libraryUpdates by model.libraryUpdates.collectAsStateWithLifecycle()
+    val libraryRefreshing by model.libraryRefreshing.collectAsStateWithLifecycle()
+    val libraryRefreshError by model.libraryRefreshError.collectAsStateWithLifecycle()
+    val adaptationBadges by model.adaptationBadges.collectAsStateWithLifecycle()
     val read by model.read.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
@@ -212,6 +224,20 @@ private fun YomiraNavigation(
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val current = backStack?.destination?.route
+    val context = LocalContext.current
+    var actionManga by remember(current, unlocked, settings.vaultVisible) { mutableStateOf<Manga?>(null) }
+    val shareLabel = stringResource(R.string.control_share)
+    actionManga?.takeIf { it.contentRating != ContentRating.EXPLICIT || (unlocked && settings.vaultVisible) }?.let { manga ->
+        QuickActionSheet(manga.title, { actionManga = null }, listOf(
+            stringResource(if (manga.id in saved) R.string.detail_save_remove else R.string.detail_save_add) to { model.toggleSaved(manga.id) },
+            stringResource(R.string.detail_mark_read) to { model.markSeriesRead(manga.id) },
+            stringResource(R.string.control_reset_progress) to { model.resetProgress(manga.id) },
+            shareLabel to {
+                val intent = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, manga.title) }
+                context.startActivity(Intent.createChooser(intent, shareLabel))
+            },
+        ))
+    }
     val catalogCopy = catalogCopy()
     val openSeriesFailed = stringResource(R.string.detail_open_series_failed)
     val offlineNotice = stringResource(R.string.offline_download_notice)
@@ -295,7 +321,7 @@ private fun YomiraNavigation(
                     val resumeItem = resume?.takeIf { entry ->
                         unlocked || catalog.manga.firstOrNull { it.id == entry.mangaId }?.contentRating != ContentRating.EXPLICIT
                     }
-                    HomeScreen(
+                    val seriesContent: @Composable () -> Unit = { HomeScreen(
                         HomeUiState(
                             manga = items,
                             trending = items.sortedByDescending { it.score },
@@ -314,6 +340,8 @@ private fun YomiraNavigation(
                             readIds = read,
                             savedIds = saved,
                             rails = homeRails,
+                            adaptationBadges = adaptationBadges,
+                            unreadCounts = if (route == "library") libraryUpdates.groupingBy { it.manga.id }.eachCount() else emptyMap(),
                         ),
                         onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
                         title = when (route) { "discover" -> stringResource(R.string.title_discover); "library" -> stringResource(R.string.title_library); else -> stringResource(R.string.app_name) },
@@ -325,10 +353,31 @@ private fun YomiraNavigation(
                         onLoadMore = { if (route != "library") model.loadNextPage() },
                         sizeClass = windowSizeClass,
                         continueReading = if (route == "home") resumeItem else null,
+                        onDismissContinueReading = model::dismissContinueReading,
+                        onResetProgress = model::resetProgress,
+                        onMangaLongClick = { actionManga = it },
+                        onPosterVisible = { model.loadPosterAdaptations(listOf(it)) },
                         onContinueReading = { entry ->
                             nav.navigate("reader/${Uri.encode(entry.mangaId)}/${Uri.encode(entry.chapterId)}")
                         },
-                    )
+                    ) }
+                    if (route == "library") LibraryScreen(
+                        updates = libraryUpdates,
+                        onRead = { update -> nav.navigate("reader/${Uri.encode(update.manga.id)}/${Uri.encode(update.chapter.id)}") },
+                        copy = LibraryCopy(
+                            series = stringResource(R.string.library_series),
+                            updates = stringResource(R.string.library_updates),
+                            read = stringResource(R.string.library_read),
+                            chapter = stringResource(R.string.library_chapter),
+                            emptyTitle = stringResource(R.string.library_updates_empty_title),
+                            emptyMessage = stringResource(R.string.library_updates_empty_message),
+                            refresh = stringResource(R.string.library_refresh),
+                        ),
+                        onRefresh = model::refreshLibraryUpdates,
+                        refreshing = libraryRefreshing,
+                        refreshError = libraryRefreshError,
+                        series = seriesContent,
+                    ) else seriesContent()
                 }
             }
             composable("vault") {
@@ -344,6 +393,7 @@ private fun YomiraNavigation(
                     onUnlock = onUnlockVault,
                     onPanic = ::panic,
                     onManga = ::details,
+                    onMangaLongClick = { actionManga = it },
                     authError = authError,
                     loading = catalog.loading,
                     error = catalog.error,
@@ -354,6 +404,8 @@ private fun YomiraNavigation(
                     pagingError = vaultDiscovery.error,
                     onLoadMore = { if (unlocked) model.loadNextPage(adult = true) },
                     copy = vaultCopy(catalogCopy),
+                    adaptationBadges = if (unlocked) adaptationBadges else emptyMap(),
+                    onPosterVisible = { if (unlocked && settings.vaultVisible) model.loadPosterAdaptations(listOf(it)) },
                 )
             }
             composable("profile") {
@@ -401,6 +453,7 @@ private fun YomiraNavigation(
                             }
                         } },
                         onToggleRead = { model.toggleRead(it.id) },
+                        onMarkReadThrough = model::markReadThrough,
                         onDownload = { scope.launch { snackbar.showSnackbar(offlineNotice) } },
                         onPanic = if (manga.contentRating == ContentRating.EXPLICIT) ::panic else null,
                         related = connections.related,
@@ -456,6 +509,7 @@ private fun YomiraNavigation(
                     // Hiding is instant; revealing must pass the device-credential gate first.
                     onVaultVisibilityChange = { visible -> if (visible) onRevealVault() else settingsModel.setVaultVisible(false) },
                     onRequireDeviceLockChange = settingsModel::setRequireDeviceLock,
+                    onStealthShieldChange = settingsModel::setStealthShield,
                     onLockOnBackgroundChange = settingsModel::setLockOnBackground,
                     onLanguageChange = { language -> LocaleManagerCompat.setApplicationLocales(language.tag) },
                     onReadingModeChange = settingsModel::setReadingMode,
@@ -518,6 +572,8 @@ private fun settingsCopy() = SettingsCopy(
     contentLanguageBody = stringResource(R.string.settings_content_language_body),
     cacheClearSuccess = stringResource(R.string.settings_cache_clear_success),
     privacySection = stringResource(R.string.settings_privacy_section),
+    stealthShieldTitle = stringResource(R.string.settings_stealth_shield_title),
+    stealthShieldBody = stringResource(R.string.settings_stealth_shield_body),
     vaultTitle = stringResource(R.string.settings_vault_title),
     vaultBody = stringResource(R.string.settings_vault_body),
     vaultHiddenBadge = stringResource(R.string.settings_vault_hidden_badge),
@@ -617,11 +673,14 @@ private fun homeCopy(catalog: CatalogCopy) = HomeCopy(
     continueReading = stringResource(R.string.home_continue_reading),
     continueAction = stringResource(R.string.home_continue_action),
     continueProgress = stringResource(R.string.home_continue_progress),
+    dismissContinueReading = stringResource(R.string.control_dismiss_resume),
+    resetProgress = stringResource(R.string.control_reset_progress),
     catalog = catalog,
     shelfTitles = com.yomira.core.model.HomeShelf.entries.zip(
         androidx.compose.ui.res.stringArrayResource(R.array.home_shelf_titles).toList(),
     ).toMap(),
     emptyRail = stringResource(R.string.home_shelf_empty),
+    unreadChapters = stringResource(R.string.library_unread_chapters),
 )
 
 @Composable
@@ -678,6 +737,7 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     chapterFallback = stringResource(R.string.detail_chapter_fallback),
     dateMissing = stringResource(R.string.detail_date_missing),
     markRead = stringResource(R.string.detail_mark_read),
+    markReadThrough = stringResource(R.string.control_mark_read_through),
     markUnread = stringResource(R.string.detail_mark_unread),
     downloaded = stringResource(R.string.detail_downloaded),
     retryDownload = stringResource(R.string.detail_retry_download),

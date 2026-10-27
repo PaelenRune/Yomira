@@ -7,10 +7,9 @@
 * `:data:extension`: `KeiyoushiRepoParser`, `ExtensionManager`, bounded/cancellable
   `OkHttpRepositoryClient`, atomic private-file persistence, and `SandboxSourceBridge`.
 
-The core contains no chapter content, source implementations, APK bundles, or server. Curated repository
-indexes are packaged as JVM resources (also included in the Android APK) under `yomira/repositories/`.
-`repositories/catalog.json` lists their canonical HTTPS identities and resource paths. Every index in
-that catalog is immediately available through `ExtensionManager`, even with an empty URL store and
+The core contains no chapter content, source implementations, APK bundles, or server. The full official
+Keiyoushi catalog is packaged as one clean JVM resource (also included in the Android APK) at
+`assets/keiyoushi/index.min.json`. It is immediately loaded by `ExtensionManager`, even with an empty URL store and
 without calling `refresh`. Bundled snapshots require no network to load. `available()` automatically
 attempts an upstream metadata sync on first use and then at most once per six hours while in use;
 `refresh()` forces a check. Offline/invalid upstream responses retain the last valid in-memory snapshot.
@@ -18,28 +17,21 @@ No background service runs while the app is closed, and refreshed indexes are no
 process restarts. Explicit additional URLs are fetched on refresh. Completing onboarding does
 **not silently install or automatically trust APK code**.
 
-## Bundled catalog generation and exports
+## Bundled catalog generation
 
 Run `powershell -ExecutionPolicy Bypass -File scripts/update-curated-repositories.ps1` on Windows,
 or `pwsh -File scripts/update-curated-repositories.ps1` using PowerShell 7 on Linux/macOS.
-The generator fetches Keiyoushi's v2 metadata and produces non-overlapping Turkish, Western, and
-remaining-global catalogs, including all upstream entries. This is repository metadata conversion,
+The generator fetches Keiyoushi's current v2 metadata and includes every upstream entry in
+`assets/keiyoushi/index.min.json`. This is repository metadata conversion,
 not conversion of executable APK scraping code into JSON.
 
-* `repositories/{turkish,western,global}/index.enc`: bundled UTF-8 JSON encoded with the versioned
-  `YOMIRA-XOR-1:` wrapper. The loader and parser accept ordinary JSON and wrapped payloads.
-* `repositories/export/{turkish,western,global}/index.min.json`: clean, publishable JSON copies.
-  **Never package this folder**: `processResources` explicitly excludes `export/**`.
-* `repositories/catalog.json`: resource paths, canonical HTTPS identities, upstream URL and grouping.
-  The application checks upstream directly; publishing the export URLs is not needed for auto-sync.
+The old encrypted group indexes, catalog indirection and redundant exports are retired. The bundled
+resource is ordinary UTF-8 JSON. The parser retains backwards compatibility for manually configured
+wrapped repositories; the bundled loader needs no decoder or key. No APK execution trust or automatic
+source installation is implied by a metadata update. Existing auto-seeded group URLs migrate to the
+official full catalog; manually added custom HTTPS repositories remain supported.
 
-All groups are encoded, including any adult metadata in otherwise general-purpose groups. Fixed-key
-XOR only hides readable strings from casual APK inspection. It is **not cryptographic secrecy**:
-the app carries the key, a determined analyst can decode the files, and users can see source metadata
-in memory. Repository exports and this source checkout intentionally contain plaintext metadata.
-No APK execution trust or automatic source installation is implied by a metadata update.
-
-For daily export regeneration, schedule the same command using Task Scheduler, or use cron:
+For daily catalog regeneration, schedule the same command using Task Scheduler, or use cron:
 
 ```cron
 0 4 * * * cd /path/to/Yomira && pwsh -NoProfile -File scripts/update-curated-repositories.ps1
@@ -82,7 +74,13 @@ APK publisher-signature verification and does not grant execution trust.
    uninstalled sources. If no catalog exists, return an empty list; **do not invent chapter counts**.
 5. `SmartSourceMatcher.match` filters by consent/language, searches trusted installed sources,
    fetches their chapter lists, and merges independently observed uninstalled-source candidates.
-   It ranks by chapter count, then latest upload timestamp, then installed status for ties.
+   Up to eight trusted-source probes race concurrently with a 15-second per-source deadline. Titles
+   match after punctuation/editorial-suffix normalization with >=85% edit or token similarity. Numeric
+   sequel identifiers must agree. Readable candidates rank by bounded runtime weights: exact language
+   +1000, chapter completeness relative to the best observed source +500, recency +200, verified healthy
+   status +300 and response speed +100. Blocked discoveries are excluded; unknown health earns no bonus.
+   No site is favored. Probe failures silently leave the next healthy candidate eligible. Reader hosts
+   can call `failover(series, preferences, failedSources)` after a later failure to rerace remaining sites.
 6. `MissingExtension` supplies the suggested source, factual chapter count, install URL, and alternatives
    for a confirmation modal. The host handles user-approved APK download, package/certificate checks,
     sandbox conversion through `SandboxExtensionInstaller`, and refresh after installation. `Ready` supplies chapters and
@@ -103,8 +101,8 @@ The Keiyoushi index contains `apk`, `pkgName`, `lang`, `nsfw`, `version`, numeri
 filenames resolve under the index's `apk/` directory. Numeric source IDs are preserved as strings to
 avoid precision loss. New repository snapshots replace the old only after every index validates;
 duplicate package ownership across repositories is rejected instead of silently selecting a publisher.
-Adding a full upstream repository that overlaps a curated snapshot therefore still requires an
-explicit ownership policy; the manager deliberately does not silently replace a curated publisher.
+Adding another repository that overlaps the bundled snapshot still requires an explicit ownership
+policy; the manager deliberately does not silently replace a publisher.
 
 ## Verification
 

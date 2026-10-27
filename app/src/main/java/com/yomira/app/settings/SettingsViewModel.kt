@@ -129,6 +129,8 @@ class SettingsViewModel @Inject constructor(
 
     fun setRequireDeviceLock(enabled: Boolean) = updateSettings { it.copy(requireDeviceLock = enabled) }
 
+    fun setStealthShield(enabled: Boolean) = updateSettings { it.copy(stealthShieldEnabled = enabled) }
+
     fun setLockOnBackground(enabled: Boolean) = updateSettings { it.copy(lockOnBackground = enabled) }
 
     fun setReadingMode(mode: ReadingMode) = updateSettings { it.copy(readingMode = mode) }

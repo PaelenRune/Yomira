@@ -312,4 +312,6 @@
     <string name="settings_version_title">Sürüm</string>
     <string name="settings_github_title">GitHub’da Yomira</string>
     <string name="settings_github_body">Kaynak kod, sürüm notları ve destek.</string>
+    <string name="settings_stealth_shield_title">Gizlilik &amp; Sansür Kalkanı</string>
+    <string name="settings_stealth_shield_body">Harici VPN gerekmeden İSS engellerini ve DNS takibini aşar. Her ağda çalışmayabilir; anonimlik sağlamaz.</string>
 </resources>

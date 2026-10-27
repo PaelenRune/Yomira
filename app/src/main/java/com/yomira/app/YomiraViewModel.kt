@@ -30,6 +30,9 @@ import com.yomira.domain.extension.*
 import com.yomira.feature.details.ChapterUiState
 import com.yomira.feature.home.ContinueReadingUi
 import com.yomira.feature.home.buildHomeRails
+import com.yomira.feature.home.LibraryUpdateUi
+import com.yomira.feature.home.unreadLibraryChapters
+import com.yomira.feature.home.chronologicalLibraryUpdates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -43,6 +46,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import com.yomira.core.ui.adaptationPosterLabel
 
 data class CatalogState(val manga: List<Manga> = emptyList(), val updated: List<Manga> = emptyList(), val loading: Boolean = true, val error: String? = null)
 
@@ -100,11 +106,19 @@ class YomiraViewModel @Inject constructor(
     val vaultColumns = MutableStateFlow(preferences.getInt("vault_columns", 3).coerceIn(2, 4))
     val saved = MutableStateFlow(preferences.getStringSet("saved", emptySet())!!.toSet())
     val read = MutableStateFlow(preferences.getStringSet("read", emptySet())!!.toSet())
+    private val dismissedResume = MutableStateFlow(preferences.getStringSet("dismissed_resume", emptySet())!!.toSet())
     val unlocked = MutableStateFlow(false)
     val match = MutableStateFlow<SmartMatchResult?>(null)
     val matching = MutableStateFlow(false)
     val liveSearch = MutableStateFlow(LiveSearchState())
     val connections = MutableStateFlow(SeriesConnectionState())
+    val adaptationBadges = MutableStateFlow(preferences.all.entries.mapNotNull { (key, value) ->
+        if (key.startsWith("poster_adaptation:") && value is String) key.removePrefix("poster_adaptation:") to value else null
+    }.toMap())
+    private val requestedPosterAdaptations = mutableSetOf<String>()
+    private val posterLookupPermits = Semaphore(3)
+    val libraryRefreshing = MutableStateFlow(false)
+    val libraryRefreshError = MutableStateFlow<String?>(null)
     val update = MutableStateFlow<UpdateInfo?>(null)
     val infiniteLoading = MutableStateFlow(false)
     private var currentTrendingPage = 1
@@ -137,7 +151,9 @@ class YomiraViewModel @Inject constructor(
      * model for the Home resume capsule. Room emits on every saved page, so the
      * card tracks reading without a manual refresh.
      */
-    val continueReading: StateFlow<ContinueReadingUi?> = syncDao.observeLatestReaderProgress()
+    val continueReading: StateFlow<ContinueReadingUi?> = combine(syncDao.observeLatestReaderProgress(), dismissedResume) { progress, dismissed ->
+        progress?.takeUnless { "${it.chapterId}:${it.updatedAt}" in dismissed }
+    }
         .mapLatest { progress ->
             if (progress == null) return@mapLatest null
             val manga = mangaDao.getById(progress.mangaId) ?: return@mapLatest null
@@ -151,6 +167,7 @@ class YomiraViewModel @Inject constructor(
                     ?: "Bölüm ${chapter?.chapterNumber ?: progress.chapterIndex + 1}",
                 pageIndex = progress.pageIndex,
                 pageCount = progress.pageCount,
+                updatedAt = progress.updatedAt,
             )
         }
         .flowOn(Dispatchers.IO)
@@ -158,6 +175,21 @@ class YomiraViewModel @Inject constructor(
 
     /** Independent cursor for the +18 Vault; never mixed with the public feed. */
     val vaultDiscovery = MutableStateFlow(DiscoveryState())
+
+    /** Subscribe only to saved titles; Room invalidation updates arrivals and read badges live. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val libraryUpdates: StateFlow<List<LibraryUpdateUi>> = combine(saved, catalog) { ids, state ->
+        state.manga.filter { it.id in ids && it.contentRating != ContentRating.EXPLICIT }
+    }.distinctUntilChanged().flatMapLatest { titles ->
+        if (titles.isEmpty()) flowOf(emptyList())
+        else combine(titles.map { manga ->
+            combine(chapterDao.observeByMangaId(manga.id), syncDao.observeReaderProgress(manga.id), read) { entities, progress, readIds ->
+                val chapters = entities.map { it.toModel() }
+                val lastNumber = progress.mapNotNull { position -> chapters.firstOrNull { it.id == position.chapterId }?.chapterNumber }.maxOrNull()
+                unreadLibraryChapters(chapters, readIds, lastNumber).map { LibraryUpdateUi(manga, it) }
+            }
+        }) { chronologicalLibraryUpdates(it.toList().flatten()) }
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private var matchJob: Job? = null
     private var catalogJob: Job? = null
@@ -180,9 +212,66 @@ class YomiraViewModel @Inject constructor(
 
     fun clearTags() { selectedTags.value = emptyList() }
 
+    /** Small, cached enhancement of visible posters, never a lookup for the entire catalogue. */
+    fun loadPosterAdaptations(items: List<Manga>) {
+        items.take(12).filter { it.contentRating != ContentRating.EXPLICIT || unlocked.value }.forEach { manga ->
+            if (manga.id in adaptationBadges.value || !requestedPosterAdaptations.add(manga.id)) return@forEach
+            viewModelScope.launch {
+                try {
+                    val adaptation = posterLookupPermits.withPermit {
+                        withContext(Dispatchers.IO) { seriesConnections.connectionsFor(manga).adaptations.firstOrNull() }
+                    }
+                    adaptation?.let { rememberPosterAdaptation(manga.id, it) }
+                } catch (cancelled: CancellationException) { throw cancelled
+                } catch (_: Exception) { /* A missing badge must never block the catalogue. */ }
+            }
+        }
+    }
+
+    private fun rememberPosterAdaptation(id: String, adaptation: WatchableAdaptation) {
+        val label = adaptationPosterLabel(adaptation.kind, adaptation.format)
+        adaptationBadges.value = adaptationBadges.value + (id to label)
+        persist { putString("poster_adaptation:$id", label) }
+    }
+
     fun refresh() {
         shelfSession.value = Random.nextInt() to HomeShelf.select()
         observeCatalog()
+    }
+
+    /** Refresh references, not pages. Keep the current source so read chapter IDs stay stable. */
+    fun refreshLibraryUpdates() {
+        if (libraryRefreshing.value) return
+        if (!matcher.isPresent) {
+            libraryRefreshError.value = context.getString(R.string.library_refresh_failed)
+            return
+        }
+        libraryRefreshing.value = true
+        libraryRefreshError.value = null
+        val titles = catalog.value.manga.filter { it.id in saved.value && it.contentRating != ContentRating.EXPLICIT }
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val stored = onboardingStore.read()?.preferences
+                    val language = stored?.language ?: activeReadingLanguage()
+                    val preferences = (stored ?: ReaderPreferences(language)).copy(language = language, allowAdultContent = false)
+                    for (manga in titles) {
+                        try {
+                            val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()), preferences)
+                            if (result is SmartMatchResult.Ready && result.canRead) {
+                                val current = chapterDao.getByMangaId(manga.id).firstOrNull()?.url?.let(SourceChapterLocation::decode)
+                                if (current == null || (current.packageName == result.selected.extension.packageName && current.sourceId == result.selected.source.id)) {
+                                    SourceMatchActivator(chapterDao).activate(manga.id, result)
+                                } else libraryRefreshError.value = context.getString(R.string.library_refresh_failed)
+                            } else libraryRefreshError.value = context.getString(R.string.library_refresh_failed)
+                        } catch (cancelled: CancellationException) { throw cancelled
+                        } catch (_: Exception) { libraryRefreshError.value = context.getString(R.string.library_refresh_failed) }
+                    }
+                }
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) { libraryRefreshError.value = context.getString(R.string.library_refresh_failed)
+            } finally { libraryRefreshing.value = false }
+        }
     }
 
     private fun observeCatalog() {
@@ -374,6 +463,41 @@ class YomiraViewModel @Inject constructor(
         persist { putStringSet("read", snapshot) }
     }
 
+    /** Hide this saved position, without throwing away the reader's page. A new read resurfaces it. */
+    fun dismissContinueReading(item: ContinueReadingUi) {
+        dismissedResume.value = dismissedResume.value + "${item.chapterId}:${item.updatedAt}"
+        persist { putStringSet("dismissed_resume", dismissedResume.value) }
+    }
+
+    fun markSeriesRead(mangaId: String) {
+        viewModelScope.launch {
+            val ids = withContext(Dispatchers.IO) { chapterDao.getByMangaId(mangaId).map { it.id } }
+            read.value = read.value + ids + mangaId
+            persist { putStringSet("read", read.value) }
+        }
+    }
+
+    fun markReadThrough(chapter: com.yomira.core.model.Chapter) {
+        viewModelScope.launch {
+            val ids = withContext(Dispatchers.IO) {
+                chapterDao.getByMangaId(chapter.mangaId).filter { it.chapterNumber <= chapter.chapterNumber }.map { it.id }
+            }
+            read.value = read.value + ids
+            persist { putStringSet("read", read.value) }
+        }
+    }
+
+    fun resetProgress(mangaId: String) {
+        viewModelScope.launch {
+            val ids = withContext(Dispatchers.IO) {
+                syncDao.resetProgress(mangaId)
+                chapterDao.getByMangaId(mangaId).map { it.id }.toSet()
+            }
+            read.value = read.value - ids - mangaId
+            persist { putStringSet("read", read.value) }
+        }
+    }
+
     private fun persist(edit: android.content.SharedPreferences.Editor.() -> Unit) {
         // apply() updates memory synchronously and serializes disk writes off the UI thread.
         // Keeping edits on the caller thread preserves rapid tap ordering.
@@ -464,6 +588,9 @@ class YomiraViewModel @Inject constructor(
             connections.value = SeriesConnectionState(loading = true)
             connections.value = try {
                 val found = withContext(Dispatchers.IO) { seriesConnections.connectionsFor(manga) }
+                found.adaptations.firstOrNull()?.let { adaptation ->
+                    rememberPosterAdaptation(manga.id, adaptation)
+                }
                 SeriesConnectionState(related = found.related, recommended = found.recommended, adaptations = found.adaptations)
             } catch (cancelled: CancellationException) {
                 throw cancelled

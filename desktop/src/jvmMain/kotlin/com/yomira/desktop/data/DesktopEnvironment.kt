@@ -33,7 +33,7 @@ class DesktopEnvironment private constructor(
                 // Optional key: without it ComicVine simply opts out of the waterfall.
                 comicVineApiKey = System.getenv("YOMIRA_COMICVINE_API_KEY").orEmpty(),
             )
-            val client = OkHttpClient.Builder()
+            val client = com.yomira.core.network.StealthShield(config).configure(OkHttpClient.Builder())
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)

@@ -88,7 +88,7 @@ class ExtensionManager(
                 .associateWith { client.fetch(it) }
             val refreshed = embedded.flatMap { repository ->
                 val payload = repository.upstreamUrl?.let {
-                    EmbeddedRepositories.refreshedPayload(repository, upstream.getValue(it))
+                    EmbeddedRepositories.refreshedPayload(upstream.getValue(it))
                 } ?: repository.payload
                 parser.parse(payload, repository.indexUrl)
             }

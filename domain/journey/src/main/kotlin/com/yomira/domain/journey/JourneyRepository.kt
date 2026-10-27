@@ -11,6 +11,9 @@ import java.time.DayOfWeek
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.sync.Mutex
@@ -30,6 +33,9 @@ class JourneyRepository @Inject constructor(
     private val clock: JourneyClock,
 ) {
     private val awardMutex = Mutex()
+    private val _unlockEvents = MutableSharedFlow<AchievementUnlockEvent>(extraBufferCapacity = 32)
+    // No replay: opening the app must not celebrate previously earned badges again.
+    val unlockEvents: SharedFlow<AchievementUnlockEvent> = _unlockEvents.asSharedFlow()
 
     fun observeDashboard(): Flow<JourneyDashboard> = combine(
         activityDao.observeTotals(),
@@ -73,7 +79,21 @@ class JourneyRepository @Inject constructor(
                         unlockedAt = now,
                     ),
                 )
-                if (inserted != -1L) bonus += tier.xp
+                if (inserted != -1L) {
+                    bonus += tier.xp
+                    _unlockEvents.emit(
+                        AchievementUnlockEvent(
+                            badgeId = definition.id,
+                            tier = tier,
+                            titleTr = definition.titleTr,
+                            titleEn = definition.titleEn,
+                            emoji = definition.emoji,
+                            xpBonus = tier.xp,
+                            descriptionTr = definition.descriptionTr,
+                            descriptionEn = definition.descriptionEn,
+                        ),
+                    )
+                }
             }
         }
         if (bonus > 0) profileDao.awardBonusXp(bonus, now)

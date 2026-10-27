@@ -40,6 +40,8 @@ data class AppSettings(
     val bundledRepositoriesSeeded: Boolean = false,
     /** Local opt-in; never overwritten by a restored cloud document. */
     val automaticSync: Boolean = false,
+    /** Encrypted DNS and best-effort TLS ClientHello fragmentation; device-local. */
+    val stealthShieldEnabled: Boolean = true,
 )
 
 data class SettingsMaintenanceState(
