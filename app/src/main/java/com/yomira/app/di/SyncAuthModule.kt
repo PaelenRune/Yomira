@@ -1,25 +1,23 @@
 package com.yomira.app.di
 
 import com.yomira.data.sync.DriveAccessTokenProvider
+import com.yomira.app.settings.GoogleDriveAuthStore
+import com.yomira.app.settings.DriveAccountAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * OAuth boundary for Google Drive.
- *
- * Yomira never ships a client secret or a static token. Once the sign-in screen is
- * connected to Google Identity Services, replace this provider with one that returns
- * a short-lived token for the `drive.appdata` scope. Until then sync stays dormant
- * and [com.yomira.domain.sync.SyncWorker] finishes successfully instead of retrying.
- */
+/** OAuth boundary: no client secret or static access token is shipped or persisted. */
 @Module
 @InstallIn(SingletonComponent::class)
 object SyncAuthModule {
     @Provides
+    fun provideDriveAccountAuth(auth: GoogleDriveAuthStore): DriveAccountAuth = auth
+
+    @Provides
     @Singleton
-    fun provideDriveAccessTokenProvider(): DriveAccessTokenProvider =
-        DriveAccessTokenProvider { null }
+    fun provideDriveAccessTokenProvider(auth: GoogleDriveAuthStore): DriveAccessTokenProvider =
+        DriveAccessTokenProvider { auth.accessToken() }
 }

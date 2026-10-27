@@ -1,4 +1,17 @@
-# Yomira v8.0.3-Beta
+# Yomira v8.0.4-Beta
+
+Android 8.0+ (API 26) · versionCode `18`
+
+**Google Drive hesabı:** Ayarlar'dan Google hesabıyla giriş yapın, bağlı e-postanızı
+görün, manuel/otomatik eşitlemeyi kullanın veya hesabı ayırın. Hesap bağlanmadan
+eşitleme kapalıdır. Dağıtım için Google Cloud OAuth paket/imza kaydı gereklidir.
+
+[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.4-Beta.md) ·
+[Google Cloud kurulumu](../docs/GOOGLE_DRIVE_AUTH.md)
+
+---
+
+# Yomira v8.0.3-Beta (arşiv)
 
 Android 8.0+ (API 26) · versionCode `17`
 

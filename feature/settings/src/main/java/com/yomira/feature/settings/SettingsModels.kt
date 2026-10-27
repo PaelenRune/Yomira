@@ -50,6 +50,8 @@ data class SettingsMaintenanceState(
     val cacheBusy: Boolean = false,
     val syncBusy: Boolean = false,
     val driveSignInRequired: Boolean = false,
+    val driveAccountEmail: String? = null,
+    val driveAuthBusy: Boolean = false,
     val lastSyncedAt: Long? = null,
     val contentLanguage: com.yomira.domain.extension.ReadingLanguage? = null,
     val readerPreferences: com.yomira.domain.extension.ReaderPreferences? = null,
@@ -58,7 +60,7 @@ data class SettingsMaintenanceState(
     val message: MaintenanceMessage? = null,
 )
 
-enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, SYNC_FAILED, PREFERENCE_FAILED, RESET_FAILED }
+enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, AUTH_FAILED, DISCONNECT_FAILED, SYNC_FAILED, PREFERENCE_FAILED, RESET_FAILED }
 
 /** Reactive, atomically updated settings persistence. Implementations must be safe to call from any thread. */
 interface SettingsStore {

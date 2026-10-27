@@ -12,7 +12,15 @@
     <string name="settings_last_synced">Son eşitleme: %1$s</string>
     <string name="settings_never_synced">Henüz eşitlenmedi</string>
     <string name="settings_sync_success">Google Drive ile eşitlendi.</string>
-    <string name="settings_sign_in_required">Google Drive henüz bağlı değil. Eşitlemenin çalışması için Google hesabı bağlantısı yapılandırılmalı.</string>
+    <string name="settings_sign_in_required">Eşitlemek için Google hesabınızla giriş yapın.</string>
+    <string name="settings_connect_drive">Google Hesabı ile Giriş Yap</string>
+    <string name="settings_connect_drive_body">Yedeklerinizi ve okuma geçmişinizi Google Drive\'da saklamak için Google hesabınızla giriş yapın.</string>
+    <string name="settings_disconnect_drive">Çıkış Yap / Hesabı Ayır</string>
+    <string name="settings_drive_connected">Google Drive bağlı: %1$s</string>
+    <string name="settings_drive_sync_active">Otomatik eşitleme etkin</string>
+    <string name="settings_drive_sync_manual">Bağlı · Elle eşitleme hazır</string>
+    <string name="settings_auth_failed">Google hesabına bağlanılamadı. Lütfen yeniden deneyin.</string>
+    <string name="settings_disconnect_failed">Yerel bağlantı kapatıldı. Google hesap izinlerinizi kontrol edin; erişim iptal edilememiş olabilir.</string>
     <string name="settings_sync_failed">Eşitleme tamamlanamadı. Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="settings_cache_size_failed">Önbellek boyutu okunamadı. Ayarları yeniden açıp deneyin.</string>
     <string name="settings_preference_failed">Tercih kaydedilemedi. Lütfen yeniden deneyin.</string>

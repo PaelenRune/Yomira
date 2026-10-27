@@ -4,6 +4,17 @@ Arşivlenmiş sürüm notları. Güncel sürüm için [RELEASE_NOTES.md](RELEASE
 
 ---
 
+# Yomira v8.0.4-Beta
+
+Android versionCode `18`.
+
+- Google hesabıyla Drive app-data izni, kalıcı hesap e-postası ve kısa ömürlü token sağlayıcısı.
+- Giriş yapılmadan manuel/otomatik eşitleme kilidi; hesap ayırmada otomatik eşitleme kapatma.
+- TR/EN giriş, hesap durumu, bağlantı ayırma ve hata metinleri; kimlik doğrulama testleri.
+- [Sürüm notları](RELEASE_NOTES_v8.0.4-Beta.md) ve [OAuth kurulumu](../docs/GOOGLE_DRIVE_AUTH.md).
+
+---
+
 # Yomira v8.0.3-Beta
 
 Android versionCode `17`.

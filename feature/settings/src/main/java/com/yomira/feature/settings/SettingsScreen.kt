@@ -88,6 +88,8 @@ fun SettingsScreen(
     onFactoryReset: () -> Unit = {},
     onOpenExtensions: () -> Unit = {},
     extensionsLabel: String = "Eklentiler / Extensions",
+    onConnectDrive: () -> Unit = {},
+    onDisconnectDrive: () -> Unit = {},
 ) {
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
@@ -101,6 +103,8 @@ fun SettingsScreen(
             MaintenanceMessage.CACHE_SIZE_FAILED -> copy.cacheSizeFailed
             MaintenanceMessage.SYNC_SUCCESS -> copy.syncSuccess
             MaintenanceMessage.SIGN_IN_REQUIRED -> copy.signInRequired
+            MaintenanceMessage.AUTH_FAILED -> copy.authFailed
+            MaintenanceMessage.DISCONNECT_FAILED -> copy.disconnectFailed
             MaintenanceMessage.SYNC_FAILED -> copy.syncFailed
             MaintenanceMessage.PREFERENCE_FAILED -> copy.preferenceFailed
             MaintenanceMessage.RESET_FAILED -> copy.resetFailed
@@ -176,8 +180,25 @@ fun SettingsScreen(
             }
             item {
                 SettingsSection(Icons.Default.CloudSync, copy.syncSection, NeonPurple) {
+                    val connected = maintenance.driveAccountEmail != null
+                    val available = connected && !maintenance.driveAuthBusy && !maintenance.resetBusy
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (connected) {
+                            Text(copy.driveConnected.format(maintenance.driveAccountEmail), style = MaterialTheme.typography.titleMedium)
+                            Text(if (maintenance.syncBusy) copy.syncing else if (state.settings.automaticSync)
+                                copy.driveSyncActive else copy.driveSyncManual, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                            OutlinedButton(onClick = onDisconnectDrive,
+                                enabled = available && !maintenance.syncBusy,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.disconnectDrive) }
+                        } else {
+                            Text(copy.connectDriveBody, style = MaterialTheme.typography.bodyMedium)
+                            Button(onClick = onConnectDrive, enabled = !maintenance.driveAuthBusy && !maintenance.resetBusy,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.connectDrive) }
+                        }
+                        if (maintenance.driveAuthBusy) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    }
                     SettingsSwitchRow(copy.automaticSync, copy.automaticSyncBody, state.settings.automaticSync,
-                        onAutomaticSyncChange, NeonPurple)
+                        onAutomaticSyncChange, NeonPurple, enabled = available && !maintenance.syncBusy)
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         if (!state.settings.automaticSync) Text(copy.syncSuggestion, style = MaterialTheme.typography.bodySmall, color = TextMuted)
                         if (maintenance.driveSignInRequired) Text(copy.signInRequired,
@@ -185,7 +206,7 @@ fun SettingsScreen(
                         Text(copy.lastSynced.format(maintenance.lastSyncedAt?.let {
                             DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(it))
                         } ?: copy.neverSynced), style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                        OutlinedButton(onClick = onSyncNow, enabled = !maintenance.syncBusy,
+                        OutlinedButton(onClick = onSyncNow, enabled = available && !maintenance.syncBusy,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text(if (maintenance.syncBusy) copy.syncing else copy.syncNow)
                         }
@@ -426,8 +447,9 @@ private fun SettingsSwitchRow(
     accent: Color,
     badge: String? = null,
     error: String? = null,
+    enabled: Boolean = true,
 ) {
-    Column(Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+    Column(Modifier.fillMaxWidth().toggleable(value = checked, enabled = enabled, role = Role.Switch, onValueChange = onCheckedChange)
         .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -443,7 +465,7 @@ private fun SettingsSwitchRow(
                 body?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = TextMuted) }
             }
             Spacer(Modifier.width(12.dp))
-            Switch(checked = checked, onCheckedChange = null, colors = neonSwitchColors(accent))
+            Switch(checked = checked, enabled = enabled, onCheckedChange = null, colors = neonSwitchColors(accent))
         }
         error?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
     }

@@ -46,6 +46,10 @@ Android görselleri **Xiaomi Mi 10T** gerçek cihazından alınmıştır — moc
 
 ## ✨ Özellikler
 
+- ☁️ **Google Drive hesabı (v8.0.4-Beta)** — Ayarlar'dan Google hesabıyla giriş yap,
+  bağlı e-postayı gör, manuel/otomatik eşitlemeyi kullan veya hesabı ayır.
+  [Sürüm notları](release/RELEASE_NOTES_v8.0.4-Beta.md) ·
+  [Google Cloud kurulum gereksinimleri](docs/GOOGLE_DRIVE_AUTH.md).
 - 🖼️ **İngilizce kapak önceliği (v8.0.3-Beta)** — İngilizce yerelleştirilmiş metadata
   kapakları Japonca/Korece/Çince orijinallerden önce seçilir. İngilizce yoksa diğer
   kapaklar son çare olarak kalır. [Sürüm notları](release/RELEASE_NOTES_v8.0.3-Beta.md).

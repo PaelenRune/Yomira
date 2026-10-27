@@ -530,6 +530,12 @@ private fun YomiraNavigation(
             }
             composable("settings") {
                 val maintenance by maintenanceModel.state.collectAsStateWithLifecycle()
+                val driveSignIn = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                ) { result ->
+                    maintenanceModel.completeDriveSignIn(result.data,
+                        cancelled = result.resultCode == android.app.Activity.RESULT_CANCELED && result.data == null)
+                }
                 LaunchedEffect(Unit) { maintenanceModel.refresh(); settingsModel.refreshRepositories() }
                 SettingsScreen(
                     state = settingsState,
@@ -555,6 +561,13 @@ private fun YomiraNavigation(
                     maintenance = maintenance,
                     onAutomaticSyncChange = maintenanceModel::setAutomaticSync,
                     onSyncNow = maintenanceModel::syncNow,
+                    onConnectDrive = {
+                        maintenanceModel.beginDriveSignIn()?.let { intent ->
+                            try { driveSignIn.launch(intent) }
+                            catch (_: Exception) { maintenanceModel.driveSignInLaunchFailed() }
+                        }
+                    },
+                    onDisconnectDrive = maintenanceModel::disconnectDrive,
                     onContentLanguageChange = maintenanceModel::setContentLanguage,
                     onConsumeMessage = maintenanceModel::consumeMessage,
                     buildInfo = "${BuildConfig.BUILD_TYPE} (${BuildConfig.VERSION_CODE})",
@@ -627,6 +640,14 @@ private fun settingsCopy() = SettingsCopy(
     resetting = stringResource(R.string.settings_resetting),
     resetFailed = stringResource(R.string.settings_reset_failed),
     syncSection = stringResource(R.string.settings_sync_section),
+    connectDrive = stringResource(R.string.settings_connect_drive),
+    connectDriveBody = stringResource(R.string.settings_connect_drive_body),
+    disconnectDrive = stringResource(R.string.settings_disconnect_drive),
+    driveConnected = stringResource(R.string.settings_drive_connected),
+    driveSyncActive = stringResource(R.string.settings_drive_sync_active),
+    driveSyncManual = stringResource(R.string.settings_drive_sync_manual),
+    authFailed = stringResource(R.string.settings_auth_failed),
+    disconnectFailed = stringResource(R.string.settings_disconnect_failed),
     automaticSync = stringResource(R.string.settings_automatic_sync),
     automaticSyncBody = stringResource(R.string.settings_automatic_sync_body),
     syncSuggestion = stringResource(R.string.settings_sync_suggestion),

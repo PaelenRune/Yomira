@@ -1,5 +1,6 @@
 package com.yomira.app.settings
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yomira.domain.extension.OnboardingStore
@@ -26,11 +27,22 @@ class SettingsMaintenanceViewModel @Inject constructor(
     private val store: SettingsStore,
     private val onboarding: OnboardingStore,
     private val reset: FactoryReset,
+    private val auth: DriveAccountAuth,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SettingsMaintenanceState())
     val state = mutableState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            auth.email.collect { email ->
+                mutableState.update { it.copy(driveAccountEmail = email, driveSignInRequired = email == null) }
+                if (email == null) {
+                    try { store.update { it.copy(automaticSync = false) }
+                    } catch (cancelled: CancellationException) { throw cancelled
+                    } catch (_: Exception) { message(MaintenanceMessage.PREFERENCE_FAILED) }
+                }
+            }
+        }
         viewModelScope.launch {
             try {
                 onboarding.observe().collect { saved ->
@@ -78,7 +90,8 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun setAutomaticSync(enabled: Boolean) {
-        if (state.value.resetBusy) return
+        if (state.value.resetBusy || state.value.driveAuthBusy) return
+        if (enabled && auth.email.value == null) { message(MaintenanceMessage.SIGN_IN_REQUIRED); return }
         viewModelScope.launch {
             try {
                 store.update { it.copy(automaticSync = enabled) }
@@ -89,7 +102,8 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun syncNow() {
-        if (state.value.syncBusy || state.value.resetBusy) return
+        if (state.value.syncBusy || state.value.resetBusy || state.value.driveAuthBusy) return
+        if (auth.email.value == null) { message(MaintenanceMessage.SIGN_IN_REQUIRED); return }
         mutableState.update { it.copy(syncBusy = true, message = null) }
         viewModelScope.launch {
             try {
@@ -99,6 +113,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
                         message(MaintenanceMessage.SYNC_SUCCESS)
                     }
                     SyncResult.NotSignedIn -> {
+                        auth.clearConnection()
                         mutableState.update { it.copy(driveSignInRequired = true) }
                         message(MaintenanceMessage.SIGN_IN_REQUIRED)
                     }
@@ -128,6 +143,49 @@ class SettingsMaintenanceViewModel @Inject constructor(
 
     fun consumeMessage() { mutableState.update { it.copy(message = null) } }
 
+    fun beginDriveSignIn(): Intent? {
+        if (state.value.run { driveAuthBusy || syncBusy || resetBusy }) return null
+        return try {
+            auth.signInIntent().also { mutableState.update { it.copy(driveAuthBusy = true, message = null) } }
+        } catch (_: Exception) {
+            message(MaintenanceMessage.AUTH_FAILED)
+            null
+        }
+    }
+
+    fun completeDriveSignIn(data: Intent?, cancelled: Boolean = false) {
+        try {
+            if (!cancelled && !auth.completeSignIn(data)) message(MaintenanceMessage.AUTH_FAILED)
+        } catch (error: com.google.android.gms.common.api.ApiException) {
+            if (error.statusCode != com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED) {
+                message(MaintenanceMessage.AUTH_FAILED)
+            }
+        } catch (_: Exception) {
+            message(MaintenanceMessage.AUTH_FAILED)
+        } finally { mutableState.update { it.copy(driveAuthBusy = false) } }
+    }
+
+    fun driveSignInLaunchFailed() {
+        mutableState.update { it.copy(driveAuthBusy = false, message = MaintenanceMessage.AUTH_FAILED) }
+    }
+
+    fun disconnectDrive() {
+        if (state.value.run { driveAuthBusy || syncBusy || resetBusy }) return
+        mutableState.update { it.copy(driveAuthBusy = true, message = null) }
+        viewModelScope.launch {
+            try {
+                store.update { it.copy(automaticSync = false) }
+                auth.disconnect { success ->
+                    mutableState.update { it.copy(driveAuthBusy = false,
+                        message = if (success) null else MaintenanceMessage.DISCONNECT_FAILED) }
+                }
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (_: Exception) {
+                mutableState.update { it.copy(driveAuthBusy = false, message = MaintenanceMessage.DISCONNECT_FAILED) }
+            }
+        }
+    }
+
     fun setReaderPreferences(preferences: ReaderPreferences) {
         if (state.value.preferenceBusy || state.value.resetBusy) return
         mutableState.update { it.copy(preferenceBusy = true, message = null) }
@@ -146,7 +204,7 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun factoryReset() {
-        if (state.value.run { resetBusy || cacheBusy || syncBusy || preferenceBusy }) return
+        if (state.value.run { resetBusy || cacheBusy || syncBusy || preferenceBusy || driveAuthBusy }) return
         mutableState.update { it.copy(resetBusy = true, message = null) }
         viewModelScope.launch {
             try {

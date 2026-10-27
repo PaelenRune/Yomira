@@ -33,6 +33,7 @@ class SettingsMaintenanceViewModelTest {
     private val services = FakeServices()
     private val settings = MemorySettings()
     private val onboarding = MemoryOnboarding()
+    private val auth = FakeAuth()
     private var resetCalls = 0
     private var resetFails = false
     private val reset = FactoryReset {
@@ -43,7 +44,7 @@ class SettingsMaintenanceViewModelTest {
     @Before fun setUp() { Dispatchers.setMain(dispatcher) }
     @After fun tearDown() { models.clear(); Dispatchers.resetMain() }
 
-    private fun model() = SettingsMaintenanceViewModel(services, settings, onboarding, reset).also { models.put("settings", it) }
+    private fun model() = SettingsMaintenanceViewModel(services, settings, onboarding, reset, auth).also { models.put("settings", it) }
 
     @Test fun `factory reset only runs on explicit request and blocks duplicate mutations`() = runTest(dispatcher) {
         val model = model()
@@ -138,6 +139,7 @@ class SettingsMaintenanceViewModelTest {
     }
 
     @Test fun `manual sync exposes transport failure and observes persisted background timestamps`() = runTest(dispatcher) {
+        auth.email.value = "reader@gmail.com"
         val model = model()
         advanceUntilIdle()
         services.result = SyncResult.Failure("offline", retryable = true)
@@ -156,12 +158,14 @@ class SettingsMaintenanceViewModelTest {
     }
 
     @Test fun `automatic sync opt in is persisted and attempts an immediate sync`() = runTest(dispatcher) {
+        auth.email.value = "reader@gmail.com"
+        services.result = SyncResult.Success(SyncPayload(deviceId = "test"), false, true, 5678L)
         val model = model()
         advanceUntilIdle()
         model.setAutomaticSync(true)
         advanceUntilIdle()
         assertTrue(settings.read().automaticSync)
-        assertEquals(MaintenanceMessage.SIGN_IN_REQUIRED, model.state.value.message)
+        assertEquals(MaintenanceMessage.SYNC_SUCCESS, model.state.value.message)
         model.setAutomaticSync(false)
         advanceUntilIdle()
         assertFalse(settings.read().automaticSync)
@@ -186,6 +190,88 @@ class SettingsMaintenanceViewModelTest {
         assertEquals(onboarding.value.preferences, model.state.value.readerPreferences)
     }
 
+    @Test fun `disconnected account gates sync and automatic opt in`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        model.setAutomaticSync(true)
+        model.syncNow()
+        advanceUntilIdle()
+        assertFalse(settings.read().automaticSync)
+        assertEquals(0, services.syncCalls)
+        assertEquals(MaintenanceMessage.SIGN_IN_REQUIRED, model.state.value.message)
+    }
+
+    @Test fun `restored account displays email and disconnect disables automatic sync`() = runTest(dispatcher) {
+        auth.email.value = "reader@gmail.com"
+        settings.update { it.copy(automaticSync = true) }
+        val model = model()
+        advanceUntilIdle()
+        assertEquals("reader@gmail.com", model.state.value.driveAccountEmail)
+        model.disconnectDrive()
+        advanceUntilIdle()
+        assertNull(model.state.value.driveAccountEmail)
+        assertTrue(model.state.value.driveSignInRequired)
+        assertFalse(settings.read().automaticSync)
+        assertFalse(model.state.value.driveAuthBusy)
+        assertEquals(1, auth.disconnectCalls)
+    }
+
+    @Test fun `revoked consent gates sync and clears automatic preference`() = runTest(dispatcher) {
+        auth.email.value = "reader@gmail.com"
+        services.result = SyncResult.Success(SyncPayload(deviceId = "test"), false, true, 5678L)
+        val model = model()
+        advanceUntilIdle()
+        model.setAutomaticSync(true)
+        advanceUntilIdle()
+        auth.email.value = null
+        advanceUntilIdle()
+        assertFalse(settings.read().automaticSync)
+        assertNull(model.state.value.driveAccountEmail)
+    }
+
+    @Test fun `cancelled sign in is quiet and failed consent reports an error`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        model.completeDriveSignIn(null, cancelled = true)
+        assertNull(model.state.value.message)
+        model.completeDriveSignIn(null)
+        assertEquals(MaintenanceMessage.AUTH_FAILED, model.state.value.message)
+        assertNull(model.state.value.driveAccountEmail)
+        assertFalse(model.state.value.driveAuthBusy)
+    }
+
+    @Test fun `successful consent publishes account and failed revocation stays disconnected`() = runTest(dispatcher) {
+        val model = model()
+        advanceUntilIdle()
+        auth.signInSucceeds = true
+        model.completeDriveSignIn(null)
+        advanceUntilIdle()
+        assertEquals("reader@gmail.com", model.state.value.driveAccountEmail)
+        auth.revokeSucceeds = false
+        model.disconnectDrive()
+        advanceUntilIdle()
+        assertNull(model.state.value.driveAccountEmail)
+        assertEquals(MaintenanceMessage.DISCONNECT_FAILED, model.state.value.message)
+    }
+
+    private class FakeAuth : DriveAccountAuth {
+        override val email = MutableStateFlow<String?>(null)
+        var disconnectCalls = 0
+        var signInSucceeds = false
+        var revokeSucceeds = true
+        override fun signInIntent(): android.content.Intent = error("Not needed in JVM tests")
+        override fun completeSignIn(data: android.content.Intent?): Boolean {
+            if (signInSucceeds) email.value = "reader@gmail.com"
+            return signInSucceeds
+        }
+        override fun disconnect(onComplete: (Boolean) -> Unit) {
+            disconnectCalls++
+            email.value = null
+            onComplete(revokeSucceeds)
+        }
+        override fun clearConnection() { email.value = null }
+    }
+
     private class FakeServices : SettingsMaintenanceServices {
         override val lastSyncedAt = MutableStateFlow<Long?>(null)
         var bytes = 4096L
@@ -193,6 +279,7 @@ class SettingsMaintenanceViewModelTest {
         var clearFails = false
         var clearGate: CompletableDeferred<Unit>? = null
         var result: SyncResult = SyncResult.NotSignedIn
+        var syncCalls = 0
         override suspend fun cacheSize() = bytes
         override suspend fun clearCache() {
             clearCalls++
@@ -200,7 +287,7 @@ class SettingsMaintenanceViewModelTest {
             if (clearFails) throw IOException("disk unavailable")
             bytes = 0L
         }
-        override suspend fun sync() = result
+        override suspend fun sync(): SyncResult { syncCalls++; return result }
     }
 
     private class MemorySettings : SettingsStore {

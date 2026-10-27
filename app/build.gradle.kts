@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 17
-        versionName = "8.0.3-Beta"
+        versionCode = 18
+        versionName = "8.0.4-Beta"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -66,6 +66,7 @@ android {
 kotlin { jvmToolchain(17) }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation(project(":data:extension"))
     implementation("androidx.datastore:datastore-preferences:1.1.7")
     testImplementation(libs.junit)
