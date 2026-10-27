@@ -14,8 +14,8 @@ import kotlinx.coroutines.withTimeout
 class SmartSourceMatcher(
     private val extensions: ExtensionRepository,
     private val bridge: SourceBridge,
-    private val discovery: SourceDiscovery,
-    private val currentTimeMillis: () -> Long = System::currentTimeMillis,
+    @Suppress("UNUSED_PARAMETER") discovery: SourceDiscovery,
+    @Suppress("UNUSED_PARAMETER") currentTimeMillis: () -> Long = System::currentTimeMillis,
     private val nanoTime: () -> Long = System::nanoTime,
 ) {
     suspend fun match(series: SeriesIdentity, preferences: ReaderPreferences): SmartMatchResult =
@@ -36,7 +36,12 @@ class SmartSourceMatcher(
     ): SmartMatchResult {
         val failures = mutableListOf<SourceFailure>()
         val installed = extensions.installed().filter { it.trusted }.associateBy { it.packageName }
-        val eligible = extensions.available().filter {
+        // Legacy providers may still obtain descriptors from the user's repository snapshot.
+        val legacy = if (installed.values.any { it.descriptor == null }) extensions.available() else emptyList()
+        val eligible = installed.values.mapNotNull { entry ->
+            entry.descriptor?.takeIf { it.packageName == entry.packageName }
+                ?: legacy.firstOrNull { it.packageName == entry.packageName }
+        }.filter {
             (preferences.allowAdultContent || !it.nsfw) && it.sources.any { source -> accepts(source, preferences) }
         }
         val candidates = mutableListOf<SourceCandidate>()
@@ -44,7 +49,7 @@ class SmartSourceMatcher(
         val names = queries(series).map(::normalize).toSet()
         val observations = coroutineScope {
             val permits = Semaphore(8)
-            eligible.filter { it.packageName in installed }.flatMap { extension ->
+            eligible.flatMap { extension ->
                 extension.sources.filter {
                     accepts(it, preferences) && (extension.packageName to it.id) !in excluded
                 }.map { source ->
@@ -59,38 +64,12 @@ class SmartSourceMatcher(
                 chaptersBySource[it.extension.packageName to it.source.id] = observation.chapters
             }
         }
-        val missing = eligible.filter { it.packageName !in installed }
-        if (missing.isNotEmpty()) {
-            try {
-                val allowed = missing.associateBy { it.packageName }
-                candidates += discovery.discover(series, missing).filter {
-                    allowed[it.extension.packageName] == it.extension && accepts(it.source, preferences) &&
-                        it.extension.packageName to it.source.id !in excluded &&
-                        it.health != SourceHealth.BLOCKED && matches(it.manga.title, names) &&
-                        (languageRank(it.source, preferences) == 2 || it.chapterCount > 0)
-                }
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                failures += SourceFailure("catalog", error.message ?: "Catalog unavailable")
-            }
-        }
-        val now = currentTimeMillis()
-        val maxChapters = candidates.maxOfOrNull { it.chapterCount }?.coerceAtLeast(1) ?: 1
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
-            .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount > 0 }
-                .thenByDescending { languageRank(it.source, preferences) }
-                .thenByDescending { qualityScore(it, preferences, maxChapters, now) }
-                .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE }
-                .thenByDescending { it.extension.packageName in installed }
-                .thenBy { it.extension.packageName }.thenBy { it.source.id })
+            .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount }
+                .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE })
         val best = ranked.firstOrNull()
             ?: return if (failures.isEmpty()) SmartMatchResult.NoMatch else SmartMatchResult.Unavailable(failures)
-        return if (best.extension.packageName in installed) {
-            SmartMatchResult.Ready(best, chaptersBySource.getValue(best.extension.packageName to best.source.id), ranked.drop(1))
-        } else {
-            SmartMatchResult.MissingExtension(best, best.chapterCount, best.extension.apkUrl, ranked.drop(1))
-        }
+        return SmartMatchResult.Ready(best, chaptersBySource.getValue(best.extension.packageName to best.source.id), ranked.drop(1))
     }
 
     private data class Observation(
@@ -107,7 +86,6 @@ class SmartSourceMatcher(
     ): Observation = try {
         withTimeout(15_000L) {
             val startedAt = nanoTime()
-            var emptyMatch: SourceManga? = null
             val visited = mutableSetOf<String>()
             for (query in queries(series)) {
                 val results = bridge.getMangaList(extension.packageName, source.id, query)
@@ -117,7 +95,6 @@ class SmartSourceMatcher(
                     if (!visited.add(manga.id)) continue
                     val chapters = bridge.getChapterList(extension.packageName, source.id, manga).distinctBy { it.id }
                     if (chapters.isEmpty()) {
-                        if (emptyMatch == null) emptyMatch = manga
                         continue
                     }
                     val elapsedMillis = ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)
@@ -125,9 +102,7 @@ class SmartSourceMatcher(
                         chapters.mapNotNull { it.uploadedAt }.maxOrNull(), SourceHealth.HEALTHY, elapsedMillis), chapters)
                 }
             }
-            val manga = emptyMatch ?: return@withTimeout Observation()
-            Observation(SourceCandidate(extension, source, manga, 0, null, SourceHealth.HEALTHY,
-                ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)))
+            Observation()
         }
     } catch (error: TimeoutCancellationException) {
         currentCoroutineContext().ensureActive()
@@ -138,16 +113,13 @@ class SmartSourceMatcher(
         Observation(failure = SourceFailure(source.id, error.message ?: "Source unavailable"))
     }
 
-    /**
-     * Prefer the onboarding language, but keep multilingual and English sources
-     * available when no readable translation exists. Region variants use the base language.
-     */
+    /** Language is an eligibility filter only, never a ranking factor. */
     private fun accepts(source: ExtensionSource, preferences: ReaderPreferences): Boolean =
         languageRank(source, preferences) > 0
 
     /**
-     * Sort tier: 2 = chosen language, 1 = multilingual or English fallback,
-     * 0 = unrelated language (filtered by [accepts]). Readability precedes this tier.
+     * 2 = chosen language, 1 = multilingual or English fallback,
+     * 0 = unrelated language (filtered by [accepts]).
      */
     private fun languageRank(source: ExtensionSource, preferences: ReaderPreferences): Int {
         val sourceLanguage = source.language.trim().lowercase(java.util.Locale.ROOT).substringBefore('-').substringBefore('_')
@@ -157,19 +129,6 @@ class SmartSourceMatcher(
             sourceLanguage == "en" -> 1
             else -> 0
         }
-    }
-
-    /** Bounded runtime weights; neither package names nor favorite sites affect quality. */
-    private fun qualityScore(candidate: SourceCandidate, preferences: ReaderPreferences, maxChapters: Int, now: Long): Double {
-        val language = if (languageRank(candidate.source, preferences) == 2) 1000.0 else 0.0
-        val completeness = 500.0 * candidate.chapterCount / maxChapters
-        val recency = candidate.latestChapterAt?.takeIf { it > 0 }?.let { uploadedAt ->
-            val ageDays = (now.coerceAtLeast(uploadedAt) - uploadedAt) / 86_400_000L
-            200.0 * (30L - ageDays).coerceIn(0L, 30L) / 30.0
-        } ?: 0.0
-        val health = if (candidate.health == SourceHealth.HEALTHY) 300.0 else 0.0
-        val speed = candidate.responseTimeMillis?.let { 100.0 * (10_000L - it).coerceIn(0L, 10_000L) / 10_000.0 } ?: 0.0
-        return language + completeness + recency + health + speed
     }
 
     companion object {

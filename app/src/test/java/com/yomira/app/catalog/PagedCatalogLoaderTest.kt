@@ -5,6 +5,7 @@ import com.yomira.core.database.entity.MangaEntity
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.ReadingMode
 import com.yomira.core.network.AniListClient
+import com.yomira.core.network.BakaUpdatesClient
 import com.yomira.core.network.ComicVineClient
 import com.yomira.core.network.MangaDexClient
 import com.yomira.core.network.NetworkConfiguration
@@ -36,6 +37,7 @@ class PagedCatalogLoaderTest {
         val aniList = MockWebServer()
         val mangaDex = MockWebServer()
         val openLibrary = MockWebServer()
+        val bakaUpdates = MockWebServer()
         try {
             aniList.dispatcher = jsonDispatcher("""
                 {"data":{"page":{"pageInfo":{"hasNextPage":true},"media":[{
@@ -79,10 +81,19 @@ class PagedCatalogLoaderTest {
                   "publisher":["DC Comics"]
                 }]}
             """.trimIndent())
+            bakaUpdates.dispatcher = jsonDispatcher("""
+                {"total_hits":100,"results":[{"record":{
+                  "series_id":88,"title":"Metadata Discovery","type":"Manga",
+                  "associated":[{"title":"Alternate Discovery"}],
+                  "authors":[{"name":"Discovery Author","type":"Author"}],
+                  "genres":[{"genre":"Adventure"}],"bayesian_rating":9.2
+                }}]}
+            """.trimIndent())
 
             aniList.start()
             mangaDex.start()
             openLibrary.start()
+            bakaUpdates.start()
 
             val dao = FakeMangaDao()
             val loader = PagedCatalogLoader(
@@ -95,6 +106,10 @@ class PagedCatalogLoaderTest {
                     config = NetworkConfiguration(mangaDexBaseUrl = mangaDex.url("/").toString().trimEnd('/')),
                 ),
                 comicVineClient = ComicVineClient(OkHttpClient()),
+                bakaUpdatesClient = BakaUpdatesClient(
+                    OkHttpClient(),
+                    config = NetworkConfiguration(mangaUpdatesBaseUrl = bakaUpdates.url("/").toString().trimEnd('/')),
+                ),
                 openLibraryClient = OpenLibraryClient(
                     OkHttpClient(),
                     config = NetworkConfiguration(openLibraryBaseUrl = openLibrary.url("/").toString().trimEnd('/')),
@@ -108,9 +123,9 @@ class PagedCatalogLoaderTest {
 
             assertEquals(2, page.page)
             assertTrue(page.hasMore)
-            assertEquals(3, page.items.size)
-            assertEquals(setOf("anilist:77", "mangadex:manga-1", "openlibrary:OL123W"), dao.rows.map { it.id }.toSet())
-            page.items.forEach { manga ->
+            assertEquals(4, page.items.size)
+            assertEquals(setOf("anilist:77", "mangadex:manga-1", "openlibrary:OL123W", "bakaupdates:88"), dao.rows.map { it.id }.toSet())
+            page.items.filterNot { it.sourceId == "bakaupdates" }.forEach { manga ->
                 assertTrue("${manga.title} must be tagged for the western shelf", "Western Comic" in manga.genres)
             }
             assertTrue(dao.rows.any { it.title == "Spider-Man" && it.readingMode == ReadingMode.WESTERN_LTR })
@@ -121,10 +136,15 @@ class PagedCatalogLoaderTest {
             assertTrue(dexRequests.any { it.requestUrl?.queryParameter("offset") == "25" })
             val openRequest = openLibrary.takeRequest()
             assertEquals("2", openRequest.requestUrl?.queryParameter("page"))
+            val bakaRequest = bakaUpdates.takeRequest()
+            assertEquals("/v1/series/search", bakaRequest.path)
+            assertTrue(bakaRequest.body.readUtf8().contains("\"page\":2"))
+            assertEquals("Discovery Author", page.items.single { it.sourceId == "bakaupdates" }.author)
         } finally {
             aniList.shutdown()
             mangaDex.shutdown()
             openLibrary.shutdown()
+            bakaUpdates.shutdown()
         }
     }
 
@@ -150,6 +170,10 @@ class PagedCatalogLoaderTest {
                     config = NetworkConfiguration(mangaDexBaseUrl = aniList.url("/").toString().trimEnd('/')),
                 ),
                 comicVineClient = ComicVineClient(OkHttpClient()),
+                bakaUpdatesClient = BakaUpdatesClient(
+                    OkHttpClient(),
+                    config = NetworkConfiguration(mangaUpdatesBaseUrl = aniList.url("/baka").toString().trimEnd('/')),
+                ),
                 openLibraryClient = OpenLibraryClient(OkHttpClient()),
                 mangaDao = dao,
                 classifier = ContentRatingClassifier(),
@@ -161,6 +185,8 @@ class PagedCatalogLoaderTest {
             assertEquals(listOf("anilist:2"), page.items.map { it.id })
             assertEquals(ContentRating.EXPLICIT, page.items.single().contentRating)
             assertTrue(dao.rows.none { it.id == "anilist:1" })
+            val requests = generateSequence { aniList.takeRequest(1, java.util.concurrent.TimeUnit.SECONDS) }.toList()
+            assertTrue(requests.none { it.path.orEmpty().startsWith("/baka") })
         } finally {
             aniList.shutdown()
         }

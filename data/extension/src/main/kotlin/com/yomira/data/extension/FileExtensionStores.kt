@@ -32,11 +32,8 @@ class FileRepositoryStore(
     private val file = AtomicJsonFile(path)
 
     override suspend fun read(): List<String> = file.read()?.let { text ->
-        Json.parseToJsonElement(text).jsonArray.flatMap {
-            val url = it.jsonPrimitive.content.also(::requireHttps)
-            // Migrate superseded auto-seeded indexes to the single full official catalog.
-            if (url in LEGACY_BUNDLED_URLS) EmbeddedRepositories.load().map { entry -> entry.indexUrl }
-            else listOf(url)
+        Json.parseToJsonElement(text).jsonArray.map {
+            it.jsonPrimitive.content.also(::requireHttps)
         }.distinct()
     } ?: defaultRepositories
 
@@ -45,17 +42,6 @@ class FileRepositoryStore(
         file.write(JsonArray(urls.distinct().map(::JsonPrimitive)).toString())
     }
 
-    private companion object {
-        val LEGACY_BUNDLED_URLS = setOf(
-            "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/global/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/turkish/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/western/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/global/index.min.json",
-        )
-    }
 }
 
 class FileOnboardingStore(path: Path) : OnboardingStore {

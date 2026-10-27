@@ -142,5 +142,6 @@ class JsonSourceManifestTest {
         assertEquals(descriptor.packageName, installed.packageName)
         assertEquals(14L, installed.versionCode)
         assertTrue(installed.trusted)
+        assertEquals(descriptor, installed.descriptor)
     }
 }

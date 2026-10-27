@@ -21,34 +21,38 @@ class RepositorySyncTest {
         assertTrue(parser.parse(encoded, repository.indexUrl).all { it.nsfw })
     }
 
-    @Test fun `bundled clean catalog includes all languages without grouping`() {
-        assertTrue(EmbeddedRepositories.load().flatMap {
-            KeiyoushiRepoParser().parse(it.payload, it.indexUrl)
-        }.size > 1000)
+    @Test fun `engine ships no default catalog`() {
+        assertTrue(EmbeddedRepositories.load().isEmpty())
     }
 
-    @Test fun `automatic sync is throttled explicit refresh sees new versions and offline retains snapshot`() = runTest {
+    @Test fun `only explicit refresh fetches user repositories and failure retains snapshot`() = runTest {
         var requests = 0
-        var response = upstream()
+        var response = EmbeddedRepositories.refreshedPayload(upstream())
         val manager = manager {
             assertEquals(upstreamUrl, it)
             requests++
             response
         }
-        assertEquals(100, manager.available().size)
+        assertTrue(manager.available().isEmpty())
+        assertEquals(0, requests)
+        assertEquals(100, manager.refresh().size)
         manager.available()
         assertEquals(1, requests)
-        response = upstream(version = 2)
+        response = EmbeddedRepositories.refreshedPayload(upstream(version = 2))
         assertTrue(manager.refresh().all { it.versionCode == 2L })
         response = "{}"
-        assertTrue(manager.refresh().all { it.versionCode == 2L })
+        try {
+            manager.refresh()
+            fail("Expected invalid repository")
+        } catch (_: IllegalArgumentException) { }
+        assertTrue(manager.available().all { it.versionCode == 2L })
         assertEquals(3, requests)
     }
 
-    @Test fun `full official upstream is fetched once without dropping entries`() = runTest {
+    @Test fun `user configured repository is fetched once without dropping entries`() = runTest {
         var requests = 0
-        val manager = manager { requests++; upstream() }
-        val entries = manager.available()
+        val manager = manager { requests++; EmbeddedRepositories.refreshedPayload(upstream()) }
+        val entries = manager.refresh()
         assertEquals(1, requests)
         assertEquals(100, entries.size)
         assertEquals(100, entries.map { it.packageName }.distinct().size)
@@ -56,7 +60,7 @@ class RepositorySyncTest {
 
     @Test fun `sync cancellation propagates rather than being hidden as offline`() = runTest {
         try {
-            manager { throw CancellationException("cancelled") }.available()
+            manager { throw CancellationException("cancelled") }.refresh()
             fail("Expected cancellation")
         } catch (_: CancellationException) { }
     }
@@ -72,12 +76,11 @@ class RepositorySyncTest {
     }
 
     private fun manager(
-        repositories: List<EmbeddedRepository> = listOf(repository),
         fetch: suspend (String) -> String,
     ) = ExtensionManager(object : RepositoryStore {
-        override suspend fun read() = emptyList<String>()
+        override suspend fun read() = listOf(upstreamUrl)
         override suspend fun write(urls: List<String>) = Unit
-    }, RepositoryClient(fetch), KeiyoushiRepoParser(), InstalledExtensionProvider { emptyList() }, repositories)
+    }, RepositoryClient(fetch), KeiyoushiRepoParser(), InstalledExtensionProvider { emptyList() })
 
     private fun upstream(version: Int = 1): String = """{"extensionList":{"extensions":[${
         (0 until 100).joinToString(",") { index ->

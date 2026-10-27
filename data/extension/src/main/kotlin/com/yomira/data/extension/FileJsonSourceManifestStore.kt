@@ -123,7 +123,7 @@ class FileJsonSourceManifestStore(private val layout: SandboxLayout) {
  */
 class ManifestInstalledExtensionProvider(private val store: FileJsonSourceManifestStore) : InstalledExtensionProvider {
     override suspend fun installed(): List<InstalledExtension> =
-        store.all().map { InstalledExtension(it.packageName, it.versionCode, trusted = true) }
+        store.all().map { InstalledExtension(it.packageName, it.versionCode, trusted = true, descriptor = it.descriptor()) }
 }
 
 /**

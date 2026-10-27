@@ -20,11 +20,11 @@ class FileExtensionStoresTest {
         assertEquals(listOf("https://example.org/index.json"), FileRepositoryStore(path).read())
     }
 
-    @Test fun `a fresh install starts with the bundled repositories`() = runTest {
+    @Test fun `a fresh install starts without repositories`() = runTest {
         val path = temporary.root.toPath().resolve("repositories.json")
         val repositories = FileRepositoryStore(path).read()
 
-        assertEquals(1, repositories.size)
+        assertEquals(0, repositories.size)
         assertTrue(repositories.all { it.startsWith("https://") })
         assertEquals(EmbeddedRepositories.load().map { it.indexUrl }, repositories)
     }
@@ -37,13 +37,12 @@ class FileExtensionStoresTest {
         assertEquals(state, FileOnboardingStore(path).read())
     }
 
-    @Test fun `legacy bundled indexes migrate without conflicting package ownership`() = runTest {
+    @Test fun `user configured indexes are preserved without substitution`() = runTest {
         val path = temporary.root.toPath().resolve("legacy-repositories.json")
         val store = FileRepositoryStore(path)
         val custom = "https://example.org/custom.json"
-        store.write(listOf("https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/turkish/index.min.json",
-            "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/export/global/index.min.json", custom))
-        assertEquals(EmbeddedRepositories.load().map { it.indexUrl } + custom, store.read())
+        val urls = listOf("https://example.org/first.json", "https://example.org/second.json", custom)
+        store.write(urls)
+        assertEquals(urls, FileRepositoryStore(path).read())
     }
 }

@@ -56,6 +56,5 @@ class ExtensionManagerTest {
         },
         RepositoryClient(fetch), KeiyoushiRepoParser(),
         InstalledExtensionProvider { listOf(InstalledExtension("example", 1, true)) },
-        embedded = emptyList(),
     )
 }

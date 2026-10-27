@@ -7,6 +7,7 @@ import com.yomira.core.model.Manga
 import com.yomira.core.model.PageSlice
 import com.yomira.core.model.PageWindow
 import com.yomira.core.network.AniListClient
+import com.yomira.core.network.BakaUpdatesClient
 import com.yomira.core.network.ComicVineClient
 import com.yomira.core.network.MangaDexClient
 import com.yomira.core.network.OpenLibraryClient
@@ -29,10 +30,11 @@ data class CatalogPage(
 /**
  * Endless discovery engine.
  *
- * Every call fetches the next window from four independent catalogues in
+ * Every call fetches the next window from five independent catalogues in
  * parallel:
  *  - AniList GraphQL (`page` + `perPage: 25`),
  *  - MangaDex REST (`offset = (page - 1) * 25`),
+ *  - MangaUpdates (rating-ranked metadata),
  *  - ComicVine (`offset`, key-gated) for the western spotlight,
  *  - OpenLibrary (key-less) as the graphic-novel fallback.
  *
@@ -44,6 +46,7 @@ data class CatalogPage(
 class PagedCatalogLoader @Inject constructor(
     private val aniListClient: AniListClient,
     private val mangaDexClient: MangaDexClient,
+    private val bakaUpdatesClient: BakaUpdatesClient,
     private val comicVineClient: ComicVineClient,
     private val openLibraryClient: OpenLibraryClient,
     private val mangaDao: MangaDao,
@@ -65,6 +68,10 @@ class PagedCatalogLoader @Inject constructor(
                     mangaDexClient.discover(window.page, window.pageSize, includeAdult = adult)
                 }
             }
+            val bakaUpdates = async {
+                if (adult) null
+                else attempt { bakaUpdatesClient.discover(window.page, window.pageSize) }
+            }
             // Western fallbacks are public-shelf only; the +18 Vault has its own feed.
             // A skipped provider is `null` (neutral), not an empty success, so an
             // offline page can be distinguished from a genuinely exhausted feed.
@@ -80,7 +87,7 @@ class PagedCatalogLoader @Inject constructor(
                 if (adult) null
                 else attempt { openLibraryClient.discover(window.page, window.pageSize) }
             }
-            listOf(aniList.await(), mangaDex.await(), mangaDexWestern.await(), comicVine.await(), openLibrary.await())
+            listOf(aniList.await(), mangaDex.await(), bakaUpdates.await(), mangaDexWestern.await(), comicVine.await(), openLibrary.await())
         }
 
         // Every active provider failed: surface an error without advancing the

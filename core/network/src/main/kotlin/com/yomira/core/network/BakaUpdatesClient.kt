@@ -1,6 +1,8 @@
 package com.yomira.core.network
 
 import com.yomira.core.model.MangaStatus
+import com.yomira.core.model.PageSlice
+import com.yomira.core.model.PageWindow
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,6 +30,49 @@ class BakaUpdatesClient(
 ) : MetadataProvider {
 
     override val sourceId: String = MetadataSources.BAKA_UPDATES
+
+    /** Rating-ranked catalogue discovery, with the public catalogue as a degraded fallback. */
+    suspend fun discover(
+        page: Int = 1,
+        perPage: Int = PageWindow.DEFAULT_PAGE_SIZE,
+    ): PageSlice<RemoteMetadata> = withContext(Dispatchers.IO) {
+        val window = PageWindow(page, perPage.coerceIn(1, PageWindow.MAX_PAGE_SIZE))
+        try {
+            val payload = """{"stype":"title","orderby":"rating","page":${window.page},"perpage":${window.pageSize}}"""
+            val request = Request.Builder()
+                .url("${config.mangaUpdatesBaseUrl}/v1/series/search")
+                .commonHeaders(config.userAgent)
+                .post(payload.asJsonBody())
+                .build()
+            val response = httpClient.executeChecked(request, sourceId).use {
+                it.decodeJson<BakaSearchResponse>(json, sourceId)
+            }
+            PageSlice(
+                response.results.mapNotNull { it.record?.toMetadata() },
+                response.total_hits?.let { window.page.toLong() * window.pageSize < it }
+                    ?: (response.results.size >= window.pageSize),
+            )
+        } catch (_: MetadataClientException) {
+            discoverHtml(window)
+        }
+    }
+
+    private fun discoverHtml(window: PageWindow): PageSlice<RemoteMetadata> {
+        val url = "${config.mangaUpdatesWebUrl}/series.html".toHttpUrlOrNull()!!.newBuilder()
+            .addQueryParameter("orderby", "rating")
+            .addQueryParameter("page", window.page.toString())
+            .addQueryParameter("perpage", window.pageSize.toString())
+            .build()
+        val request = Request.Builder().url(url).commonHeaders(config.userAgent).get().build()
+        // Let a failed fallback propagate: an unreachable provider is not an exhausted feed.
+        val html = httpClient.executeChecked(request, sourceId).use { it.body?.string().orEmpty() }
+        val items = parseHtmlSearch(html, config.mangaUpdatesWebUrl, window.pageSize)
+        val document = Jsoup.parse(html, config.mangaUpdatesWebUrl)
+        val hasNext = document.select("a[href]").any {
+            it.attr("rel").equals("next", true) || it.text().trim().equals("Next", true)
+        }
+        return PageSlice(items, hasNext || items.size >= window.pageSize)
+    }
 
     override suspend fun search(query: String, limit: Int): List<RemoteMetadata> =
         withContext(Dispatchers.IO) {
@@ -233,6 +278,7 @@ class BakaUpdatesClient(
 
     @Serializable
     private data class BakaSearchResponse(
+        val total_hits: Long? = null,
         val results: List<BakaSearchResult> = emptyList(),
     )
 

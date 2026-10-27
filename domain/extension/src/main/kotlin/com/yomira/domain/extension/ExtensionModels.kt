@@ -39,7 +39,13 @@ data class ExtensionDescriptor(
     }
 }
 
-data class InstalledExtension(val packageName: String, val versionCode: Long, val trusted: Boolean)
+data class InstalledExtension(
+    val packageName: String,
+    val versionCode: Long,
+    val trusted: Boolean,
+    /** Installed metadata remains usable without a remote repository or network refresh. */
+    val descriptor: ExtensionDescriptor? = null,
+)
 data class ExtensionUpdate(val installed: InstalledExtension, val available: ExtensionDescriptor)
 data class SourceManga(val id: String, val title: String, val url: String)
 data class SourceChapter(val id: String, val name: String, val number: Double?, val uploadedAt: Long?)

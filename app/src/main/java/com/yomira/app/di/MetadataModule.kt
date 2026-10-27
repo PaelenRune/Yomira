@@ -31,6 +31,13 @@ object MetadataModule {
 
     @Provides
     @Singleton
+    fun provideBakaUpdatesClient(
+        client: OkHttpClient,
+        config: NetworkConfiguration,
+    ): BakaUpdatesClient = BakaUpdatesClient(client, config = config)
+
+    @Provides
+    @Singleton
     fun provideNetworkConfiguration(): NetworkConfiguration = NetworkConfiguration()
 
     @Provides
@@ -59,12 +66,13 @@ object MetadataModule {
         cache: MetadataCacheDao,
         aniList: AniListClient,
         mangaDex: MangaDexClient,
+        bakaUpdates: BakaUpdatesClient,
         comicVine: ComicVineClient,
         openLibrary: OpenLibraryClient,
     ): WaterfallMetadataAggregator =
         WaterfallMetadataAggregator(
             listOf(
-                BakaUpdatesClient(client),
+                bakaUpdates,
                 aniList,
                 mangaDex,
                 KitsuClient(client),

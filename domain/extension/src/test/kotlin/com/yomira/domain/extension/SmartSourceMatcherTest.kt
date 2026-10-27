@@ -11,361 +11,211 @@ class SmartSourceMatcherTest {
     private val series = SeriesIdentity("series:1", "A Series")
     private val manga = SourceManga("m1", "A Series", "/a-series")
 
-    @Test fun `missing extension carries factual count and install URL`() = runTest {
-        val candidate = candidate("one", 145)
-        val result = matcher(listOf(candidate)).match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals(145, result.chapterCount)
-        assertEquals(candidate.extension.apkUrl, result.installUrl)
-    }
-
-    @Test fun `installed extension supplies chapters and enables reading`() = runTest {
-        val candidate = candidate("one", 2)
-        val result = matcher(listOf(candidate), setOf("one")).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals(2, result.chapters.size)
-        assertTrue(result.canRead)
-    }
-
-    @Test fun `ranks equally healthy sources by completeness then latest date`() = runTest {
-        val a = candidate("one", 2, 200)
-        val b = candidate("two", 3, 100)
-        val c = candidate("three", 3, 300)
-        val result = matcher(listOf(a, b, c), setOf("one", "two", "three")).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("three", result.selected.extension.packageName)
-        assertEquals(listOf("two", "one"), result.alternatives.map { it.extension.packageName })
-    }
-
-    @Test fun `filters unrelated language and adult sources before discovery`() = runTest {
-        val japanese = candidate("japanese", 200, language = "ja")
-        val adult = candidate("adult", 200, nsfw = true)
-        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(japanese, adult)).match(series, preferences))
-    }
-
-    @Test fun `chosen language outranks a multilingual source with more chapters`() = runTest {
-        val multilingual = candidate("multi", 500, language = "all")
-        val turkish = candidate("turkish", 2, language = "tr")
-        val result = matcher(listOf(multilingual, turkish), setOf("multi", "turkish"))
-            .match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("turkish", result.selected.extension.packageName)
-        assertEquals(listOf("multi"), result.alternatives.map { it.extension.packageName })
-    }
-
-    @Test fun `region variants of the chosen language are accepted`() = runTest {
-        val regional = candidate("regional", 5, language = "tr-TR")
-        val result = matcher(listOf(regional), setOf("regional")).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("regional", result.selected.extension.packageName)
-    }
-
-    @Test fun `english preference drops turkish only sources`() = runTest {
-        val turkish = candidate("turkish", 200, language = "tr")
-        val english = candidate("english", 1, language = "en")
-        val result = matcher(listOf(turkish, english), setOf("turkish", "english"))
-            .match(series, preferences.copy(language = ReadingLanguage.ENGLISH)) as SmartMatchResult.Ready
-        assertEquals("english", result.selected.extension.packageName)
-        assertTrue(result.alternatives.isEmpty())
-    }
-
-    @Test fun `adult preference explicitly allows adult sources`() = runTest {
-        assertTrue(matcher(listOf(candidate("adult", 200, nsfw = true)))
-            .match(series, preferences.copy(allowAdultContent = true)) is SmartMatchResult.MissingExtension)
-    }
-
-    @Test fun `english discovery does not query unrelated language extensions`() = runTest {
-        val english = candidate("english", 3, language = "en-US")
-        val multilingual = candidate("multi", 400, language = "mul")
-        val turkish = candidate("turkish", 900, language = "tr")
-        val repository = FakeRepository(listOf(english, multilingual, turkish).map { it.extension })
-        val matcher = SmartSourceMatcher(repository, FakeBridge(emptyList()), SourceDiscovery { _, extensions ->
-            assertFalse(extensions.any { it.packageName == "turkish" })
-            listOf(turkish, multilingual, english) // Defensive filtering of discovery output too.
-        })
-        val result = matcher.match(series, ReaderPreferences(ReadingLanguage.ENGLISH)) as SmartMatchResult.MissingExtension
-        assertEquals("english", result.suggestedSource.extension.packageName)
-        assertEquals(listOf("multi"), result.alternatives.map { it.extension.packageName })
-    }
-
-    @Test fun `both languages ranks Turkish and English equally and excludes other languages`() = runTest {
-        val turkish = candidate("turkish", 20, language = "tr")
-        val english = candidate("english", 30, language = "en-US")
-        val japanese = candidate("japanese", 500, language = "ja")
-        val multilingual = candidate("multilingual", 600, language = "all")
-        val result = matcher(listOf(turkish, english, japanese, multilingual),
-            setOf("turkish", "english", "japanese", "multilingual"))
-            .match(series, preferences.copy(language = ReadingLanguage.BOTH)) as SmartMatchResult.Ready
-        assertEquals("english", result.selected.extension.packageName)
-        assertEquals(listOf("turkish", "multilingual"), result.alternatives.map { it.extension.packageName })
-    }
-
-    @Test fun `better missing source wins over installed source`() = runTest {
-        val result = matcher(listOf(candidate("one", 2), candidate("two", 145)), setOf("one"))
-            .match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("two", result.suggestedSource.extension.packageName)
-        assertEquals(1, result.alternatives.size)
-    }
-
-    @Test fun `empty chapters never enable reading`() = runTest {
-        val result = matcher(listOf(candidate("one", 0)), setOf("one")).match(series, preferences) as SmartMatchResult.Ready
-        assertFalse(result.canRead)
-    }
-
-    @Test fun `readable multilingual fallback wins when preferred source has no chapters`() = runTest {
-        val english = candidate("english", 0, language = "en")
-        val multilingual = candidate("multi", 5, language = "all")
-        val result = matcher(listOf(english, multilingual), setOf("english", "multi"))
-            .match(series, ReaderPreferences(ReadingLanguage.ENGLISH)) as SmartMatchResult.Ready
-        assertEquals("multi", result.selected.extension.packageName)
-        assertTrue(result.canRead)
-    }
-
-    @Test fun `readable english fallback wins when Turkish has no chapters in either path`() = runTest {
-        val turkish = candidate("turkish", 0)
-        val english = candidate("english", 12, language = "en-US")
-        val candidates = listOf(turkish, english)
-        val ready = matcher(candidates, setOf("turkish", "english")).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("english", ready.selected.extension.packageName)
-        assertEquals(12, ready.chapters.size)
-        assertTrue(ready.canRead)
-        val missing = matcher(candidates).match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("english", missing.suggestedSource.extension.packageName)
-    }
-
-    @Test fun `preferred readable source outranks English even with fewer chapters`() = runTest {
-        val candidates = listOf(candidate("english", 500, language = "en"), candidate("turkish", 1))
-        val result = matcher(candidates, setOf("english", "turkish")).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("turkish", result.selected.extension.packageName)
-    }
-
-    @Test fun `English remains available when no Turkish title is found`() = runTest {
-        val result = matcher(listOf(candidate("english", 8, language = "en")), setOf("english"))
-            .match(series, preferences) as SmartMatchResult.Ready
-        assertTrue(result.canRead)
-    }
-
-    @Test fun `cancellation is not swallowed`() = runTest {
-        val candidate = candidate("one", 3)
-        val repository = FakeRepository(listOf(candidate.extension))
-        val matcher = SmartSourceMatcher(repository, FakeBridge(emptyList()), SourceDiscovery { _, _ -> throw CancellationException("cancel") })
-        try {
-            matcher.match(series, preferences)
-            fail("Cancellation must propagate")
-        } catch (_: CancellationException) { }
-    }
-
-    @Test fun `catalog failure produces unavailable not no match`() = runTest {
-        val candidate = candidate("one", 3)
-        val result = SmartSourceMatcher(FakeRepository(listOf(candidate.extension)), FakeBridge(emptyList()),
-            SourceDiscovery { _, _ -> error("offline") }).match(series, preferences)
-        assertTrue(result is SmartMatchResult.Unavailable)
-    }
-
-    @Test fun `installed healthy source beats a marginally larger missing source`() = runTest {
-        val result = matcher(listOf(candidate("installed", 20), candidate("missing", 21)), setOf("installed"))
-            .match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("installed", result.selected.extension.packageName)
-    }
-
-    @Test fun `recent chapters improve quality within the chosen language`() = runTest {
-        val now = 1_800_000_000_000L
-        val recent = candidate("recent", 10, now)
-        val old = candidate("old", 11, now - 90L * 86_400_000L)
-        val result = SmartSourceMatcher(FakeRepository(listOf(recent.extension, old.extension)),
-            FakeBridge(emptyList()), SourceDiscovery { _, _ -> listOf(old, recent) }, currentTimeMillis = { now })
-            .match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("recent", result.suggestedSource.extension.packageName)
-    }
-
-    @Test fun `fast healthy source receives a bounded response time bonus`() = runTest {
-        val slow = candidate("slow", 10)
-        val fast = candidate("fast", 10)
-        val ticks = listOf(0L, 10_000_000_000L, 10_000_000_000L, 10_100_000_000L).iterator()
-        val result = SmartSourceMatcher(FakeRepository(listOf(slow.extension, fast.extension), setOf("slow", "fast")),
-            FakeBridge(listOf(slow, fast)), SourceDiscovery { _, _ -> emptyList() }, nanoTime = { ticks.next() })
-            .match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("fast", result.selected.extension.packageName)
-    }
-
-    @Test fun `language tier cannot be outweighed by multilingual completeness`() = runTest {
-        val result = matcher(listOf(candidate("multi", 100_000, language = "multi"), candidate("turkish", 1)))
-            .match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("turkish", result.suggestedSource.extension.packageName)
-    }
-
-    @Test fun `discovery cannot supply unrelated series or empty multilingual fallbacks`() = runTest {
-        val wrong = candidate("wrong", 100, language = "all").copy(manga = manga.copy(title = "Unrelated"))
-        val empty = candidate("empty", 0, language = "mul")
-        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(wrong, empty)).match(series, preferences))
-    }
-
-    @Test fun `installed source searches aliases before giving up`() = runTest {
-        val found = candidate("one", 2)
-        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
-            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
-                if (query == "Alternate title") listOf(manga) else emptyList()
-        }
-        val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
-            SourceDiscovery { _, _ -> emptyList() })
-            .match(series.copy(aliases = setOf("Alternate title")), preferences) as SmartMatchResult.Ready
-        assertEquals("one", result.selected.extension.packageName)
-        assertEquals(2, result.chapters.size)
-    }
-
-    @Test fun `fuzzy spelling punctuation and stacked editorial suffixes match in both paths`() = runTest {
-        val identity = series.copy(title = "Haikyu!!")
-        val found = candidate("arbitrary-source", 4).copy(manga = manga.copy(title = "Haikyuu!! (Official) (Digital) Scanlation"))
-        val missing = matcher(listOf(found)).match(identity, preferences) as SmartMatchResult.MissingExtension
-        assertEquals(found, missing.suggestedSource)
-        val ready = matcher(listOf(found), setOf("arbitrary-source")).match(identity, preferences) as SmartMatchResult.Ready
-        assertEquals(4, ready.chapters.size)
-    }
-
-    @Test fun `search expands punctuation free Romaji and English aliases`() = runTest {
-        val cases = listOf(
-            Triple(SeriesIdentity("haikyu", "Haikyu!!"), "Haikyuu", "Haikyuu!!"),
-            Triple(SeriesIdentity("haikyuu", "Haikyuu!!"), "Haikyu", "Haikyu!!"),
-            Triple(SeriesIdentity("tokyo", "Tōkyō!"), "Toukyou", "Toukyou"),
-            Triple(SeriesIdentity("titan", "Attack on Titan", setOf("Shingeki no Kyojin!")), "Shingeki no Kyojin", "Shingeki no Kyojin"),
-            Triple(SeriesIdentity("titan", "Shingeki no Kyojin", setOf("Attack on Titan!")), "Attack on Titan", "Attack on Titan"),
-        )
-        for ((identity, requiredQuery, resultTitle) in cases) {
-            val found = candidate("one", 3).copy(manga = manga.copy(title = resultTitle))
-            val queries = mutableListOf<String>()
-            val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
-                override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
-                    queries += query
-                    return if (query == requiredQuery) listOf(found.manga) else emptyList()
-                }
-            }
-            val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
-                SourceDiscovery { _, _ -> emptyList() }).match(identity, preferences)
-            assertTrue("Expected readable result for $identity, queries=$queries", result is SmartMatchResult.Ready)
-            assertTrue(queries.contains(requiredQuery))
-            assertTrue(queries.none { it.contains('!') })
-        }
-    }
-
-    @Test fun `core token containment accepts source subtitles and reordered names`() {
-        assertTrue(SmartSourceMatcher.matchesTitle("Attack on Titan - Full Color Edition", listOf("Attack on Titan")))
-        assertTrue(SmartSourceMatcher.matchesTitle("Kyojin Shingeki no Manga Edition", listOf("Shingeki no Kyojin")))
-        assertTrue(SmartSourceMatcher.matchesTitle("Toukyou", listOf("Tōkyō")))
-        assertTrue(SmartSourceMatcher.matchesTitle("Naruto", listOf("Naruto (Official) (Digital)")))
-        assertFalse(SmartSourceMatcher.matchesTitle("Unrelated Adventures", listOf("Attack on Titan")))
-    }
-
-    @Test fun `empty title result does not hide readable alias results on the same source`() = runTest {
-        val found = candidate("one", 3)
-        val emptyManga = manga.copy(id = "empty")
-        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
-            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
-                if (query == "Alternate title") listOf(manga) else listOf(emptyManga)
-            override suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga) =
-                if (manga.id == "empty") emptyList() else FakeBridge(listOf(found)).getChapterList(packageName, sourceId, manga)
-        }
-        val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
-            SourceDiscovery { _, _ -> emptyList() }).match(series.copy(aliases = setOf("Alternate title")), preferences)
-            as SmartMatchResult.Ready
-        assertEquals(3, result.chapters.size)
-    }
-
-    @Test fun `harmless numbers do not prevent matches but sequel numbers stay distinct`() {
-        assertTrue(SmartSourceMatcher.matchesTitle("Mob Psycho", listOf("Mob Psycho 100")))
-        assertTrue(SmartSourceMatcher.matchesTitle("Mob Psycho 100 2024 Vol 1", listOf("Mob Psycho 100")))
-        assertTrue(SmartSourceMatcher.matchesTitle("A Series (2024)", listOf("A Series")))
-        assertTrue(SmartSourceMatcher.matchesTitle("A Series Vol. 1", listOf("A Series")))
-        assertFalse(SmartSourceMatcher.matchesTitle("A Series 2", listOf("A Series 1")))
-        assertFalse(SmartSourceMatcher.matchesTitle("A Series 2", listOf("A Series")))
-        assertFalse(SmartSourceMatcher.matchesTitle("A Series 12", listOf("A Series 11")))
-    }
-
-    @Test fun `fuzzy threshold tolerates a moderate spelling variation`() {
-        assertTrue(SmartSourceMatcher.matchesTitle("Naroto", listOf("Naruto")))
-    }
-
-    @Test fun `token order variation matches but a distinct sequel does not`() = runTest {
-        val reordered = candidate("reordered", 3).copy(manga = manga.copy(title = "Series A"))
-        val sequel = candidate("sequel", 30).copy(manga = manga.copy(title = "A Series 2"))
-        val result = matcher(listOf(sequel, reordered)).match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("reordered", result.suggestedSource.extension.packageName)
-        assertTrue(result.alternatives.isEmpty())
-    }
-
-    @Test fun `failed chapter probe silently falls back to another site`() = runTest {
-        val best = candidate("previously-best", 50)
-        val backup = candidate("new-site", 4)
-        val bridge = object : SourceBridge by FakeBridge(listOf(best, backup)) {
-            override suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga): List<SourceChapter> {
-                if (sourceId == best.source.id) error("Blocked")
-                return FakeBridge(listOf(backup)).getChapterList(packageName, sourceId, manga)
-            }
-        }
-        val result = SmartSourceMatcher(FakeRepository(listOf(best.extension, backup.extension), setOf("previously-best", "new-site")),
-            bridge, SourceDiscovery { _, _ -> emptyList() }).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("new-site", result.selected.extension.packageName)
-    }
-
-    @Test fun `reader failover excludes all failed sources and reraces remaining sites`() = runTest {
-        val best = candidate("best", 50)
-        val backup = candidate("backup", 40)
-        val router = matcher(listOf(best, backup), setOf("best", "backup"))
-        val first = router.match(series, preferences) as SmartMatchResult.Ready
-        val next = router.failover(series, preferences, listOf(first.selected)) as SmartMatchResult.Ready
-        assertEquals("backup", next.selected.extension.packageName)
-        assertEquals(SmartMatchResult.NoMatch, router.failover(series, preferences, listOf(best, backup)))
-    }
-
-    @Test fun `blocked discovery source is excluded and observed health earns bounded bonus`() = runTest {
-        val blocked = candidate("blocked", 100).copy(health = SourceHealth.BLOCKED)
-        val healthy = candidate("healthy", 19).copy(health = SourceHealth.HEALTHY)
-        val unknown = candidate("unknown", 20)
-        val result = matcher(listOf(blocked, unknown, healthy)).match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("healthy", result.suggestedSource.extension.packageName)
-        assertEquals(listOf("unknown"), result.alternatives.map { it.extension.packageName })
-    }
-
-    @Test fun `completeness is a bounded ratio rather than raw chapter count`() = runTest {
-        val healthy = candidate("healthy", 99_000).copy(health = SourceHealth.HEALTHY)
-        val unknown = candidate("unknown", 100_000)
-        val result = matcher(listOf(unknown, healthy)).match(series, preferences) as SmartMatchResult.MissingExtension
-        assertEquals("healthy", result.suggestedSource.extension.packageName)
-    }
-
-    @Test fun `runtime probes race concurrently and a stalled site cannot prevent fallback`() = runTest {
-        val slow = candidate("stalled", 50)
-        val fast = candidate("responsive", 5)
-        var fastWasQueried = false
-        val bridge = object : SourceBridge by FakeBridge(listOf(slow, fast)) {
+    @Test fun `only installed trusted extensions are queried and discovery is never called`() = runTest {
+        val installed = candidate("installed", 2)
+        val missing = candidate("missing", 1000)
+        val untrusted = candidate("untrusted", 2000)
+        val repo = FakeRepository(listOf(installed, missing, untrusted), setOf("installed", "untrusted"), setOf("untrusted"))
+        val bridge = object : SourceBridge by FakeBridge(listOf(installed)) {
             override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
-                if (sourceId == "stalled") {
-                    delay(100)
-                    assertTrue(fastWasQueried)
-                    delay(60_000)
-                }
-                fastWasQueried = true
+                assertEquals("installed", packageName)
                 return listOf(manga)
             }
         }
-        val result = SmartSourceMatcher(FakeRepository(listOf(slow.extension, fast.extension), setOf("stalled", "responsive")),
-            bridge, SourceDiscovery { _, _ -> emptyList() }).match(series, preferences) as SmartMatchResult.Ready
+        val result = SmartSourceMatcher(repo, bridge, noDiscovery).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("installed", result.selected.extension.packageName)
+        assertTrue(result.alternatives.isEmpty())
+        assertEquals(0, repo.catalogReads)
+    }
+
+    @Test fun `no installations means no match even when repository advertises titles`() = runTest {
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(candidate("missing", 500)), emptySet()).match(series, preferences))
+    }
+
+    @Test fun `chapter count is primary and freshness is secondary`() = runTest {
+        val values = listOf(candidate("one", 2, 900), candidate("two", 3, 100), candidate("three", 3, 300))
+        val result = matcher(values).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("three", result.selected.extension.packageName)
+        assertEquals(listOf("two", "one"), result.alternatives.map { it.extension.packageName })
+        assertEquals(3, result.chapters.size)
+        assertTrue(result.canRead)
+    }
+
+    @Test fun `old but complete source beats recent source with fewer chapters`() = runTest {
+        val values = listOf(candidate("recent", 10, 1_800_000_000_000), candidate("old", 11, 100))
+        val result = matcher(values).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("old", result.selected.extension.packageName)
+    }
+
+    @Test fun `unknown chapter dates sort behind known dates at equal completeness`() = runTest {
+        val result = matcher(listOf(candidate("unknown", 3, null), candidate("dated", 3, 100)))
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("dated", result.selected.extension.packageName)
+    }
+
+    @Test fun `language cannot outweigh completeness among accepted sources`() = runTest {
+        val result = matcher(listOf(candidate("turkish", 1), candidate("multi", 1000, language = "all"),
+            candidate("english", 500, language = "en"))).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("multi", result.selected.extension.packageName)
+        assertEquals(listOf("english", "turkish"), result.alternatives.map { it.extension.packageName })
+    }
+
+    @Test fun `latency never breaks a count or freshness tie`() = runTest {
+        val values = listOf(candidate("slow", 3), candidate("fast", 3))
+        val ticks = listOf(0L, 10_000_000_000L, 10_000_000_000L, 10_100_000_000L).iterator()
+        val result = SmartSourceMatcher(FakeRepository(values), FakeBridge(values), noDiscovery, nanoTime = { ticks.next() })
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("slow", result.selected.extension.packageName)
+    }
+
+    @Test fun `unrelated language and adult sources are filtered before probing`() = runTest {
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(candidate("japanese", 200, language = "ja"),
+            candidate("adult", 200, nsfw = true))).match(series, preferences))
+        assertTrue(matcher(listOf(candidate("adult", 200, nsfw = true)))
+            .match(series, preferences.copy(allowAdultContent = true)) is SmartMatchResult.Ready)
+    }
+
+    @Test fun `empty source silently falls back and all empty sources return no match`() = runTest {
+        val result = matcher(listOf(candidate("empty", 0), candidate("backup", 4)))
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("backup", result.selected.extension.packageName)
+        assertTrue(result.alternatives.isEmpty())
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(candidate("empty", 0))).match(series, preferences))
+    }
+
+    @Test fun `failed chapter probe silently falls back and all failures return unavailable`() = runTest {
+        val values = listOf(candidate("best", 50), candidate("backup", 4))
+        val bridge = object : SourceBridge by FakeBridge(values) {
+            override suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga): List<SourceChapter> {
+                if (packageName == "best") error("offline")
+                return FakeBridge(values).getChapterList(packageName, sourceId, manga)
+            }
+        }
+        val result = SmartSourceMatcher(FakeRepository(values), bridge, noDiscovery).match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("backup", result.selected.extension.packageName)
+        assertTrue(SmartSourceMatcher(FakeRepository(values, setOf("best")), bridge, noDiscovery)
+            .match(series, preferences) is SmartMatchResult.Unavailable)
+    }
+
+    @Test fun `reader failover excludes failed sources and selects next installed source`() = runTest {
+        val values = listOf(candidate("best", 50), candidate("backup", 40))
+        val router = matcher(values)
+        val first = router.match(series, preferences) as SmartMatchResult.Ready
+        val next = router.failover(series, preferences, listOf(first.selected)) as SmartMatchResult.Ready
+        assertEquals("backup", next.selected.extension.packageName)
+        assertEquals(SmartMatchResult.NoMatch, router.failover(series, preferences, values))
+    }
+
+    @Test fun `source cancellation propagates`() = runTest {
+        val values = listOf(candidate("one", 3))
+        val bridge = object : SourceBridge by FakeBridge(values) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> =
+                throw CancellationException("cancelled")
+        }
+        try {
+            SmartSourceMatcher(FakeRepository(values), bridge, noDiscovery).match(series, preferences)
+            fail("Expected cancellation")
+        } catch (_: CancellationException) { }
+    }
+
+    @Test fun `stalled probes are bounded and do not prevent concurrent fallback`() = runTest {
+        val values = listOf(candidate("stalled", 50), candidate("responsive", 5))
+        var responsiveQueried = false
+        val bridge = object : SourceBridge by FakeBridge(values) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
+                if (sourceId == "stalled") {
+                    delay(100)
+                    assertTrue(responsiveQueried)
+                    delay(60_000)
+                }
+                responsiveQueried = true
+                return listOf(manga)
+            }
+        }
+        val result = SmartSourceMatcher(FakeRepository(values), bridge, noDiscovery).match(series, preferences) as SmartMatchResult.Ready
         assertEquals("responsive", result.selected.extension.packageName)
     }
 
-    private fun candidate(name: String, count: Int, date: Long = 100, language: String = "tr", nsfw: Boolean = false): SourceCandidate {
+    @Test fun `aliases are searched even after an empty title match`() = runTest {
+        val found = candidate("one", 3)
+        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
+                listOf(if (query == "Alternate title") manga else manga.copy(id = "empty"))
+            override suspend fun getChapterList(packageName: String, sourceId: String, manga: SourceManga) =
+                if (manga.id == "empty") emptyList() else FakeBridge(listOf(found)).getChapterList(packageName, sourceId, manga)
+        }
+        val result = SmartSourceMatcher(FakeRepository(listOf(found)), bridge, noDiscovery)
+            .match(series.copy(aliases = setOf("Alternate title")), preferences) as SmartMatchResult.Ready
+        assertEquals(3, result.chapters.size)
+    }
+
+    @Test fun `fuzzy spelling punctuation and editorial suffixes match installed titles`() = runTest {
+        val found = candidate("one", 4).copy(manga = manga.copy(title = "Haikyuu!! (Official) (Digital) Scanlation"))
+        val result = matcher(listOf(found)).match(series.copy(title = "Haikyu!!"), preferences) as SmartMatchResult.Ready
+        assertEquals(4, result.chapters.size)
+    }
+
+    @Test fun `search expands Romaji punctuation and aliases`() = runTest {
+        val cases = listOf(
+            Triple(SeriesIdentity("one", "Haikyu!!"), "Haikyuu", "Haikyuu!!"),
+            Triple(SeriesIdentity("two", "Tōkyō!"), "Toukyou", "Toukyou"),
+            Triple(SeriesIdentity("three", "Attack on Titan", setOf("Shingeki no Kyojin!")), "Shingeki no Kyojin", "Shingeki no Kyojin"),
+        )
+        for ((identity, requiredQuery, resultTitle) in cases) {
+            val found = candidate("one", 3).copy(manga = manga.copy(title = resultTitle))
+            val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+                override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
+                    if (query == requiredQuery) listOf(found.manga) else emptyList()
+            }
+            assertTrue(SmartSourceMatcher(FakeRepository(listOf(found)), bridge, noDiscovery)
+                .match(identity, preferences) is SmartMatchResult.Ready)
+        }
+    }
+
+    @Test fun `token containment tolerates subtitles and numbers but not distinct sequels`() {
+        assertTrue(SmartSourceMatcher.matchesTitle("Attack on Titan Full Color Edition", listOf("Attack on Titan")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Series A", listOf("A Series")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Mob Psycho 100 2024 Vol 1", listOf("Mob Psycho 100")))
+        assertTrue(SmartSourceMatcher.matchesTitle("A Series Vol. 1", listOf("A Series")))
+        assertTrue(SmartSourceMatcher.matchesTitle("Naroto", listOf("Naruto")))
+        assertFalse(SmartSourceMatcher.matchesTitle("A Series 2", listOf("A Series")))
+        assertFalse(SmartSourceMatcher.matchesTitle("A Series 12", listOf("A Series 11")))
+        assertFalse(SmartSourceMatcher.matchesTitle("Unrelated Adventures", listOf("Attack on Titan")))
+    }
+
+    @Test fun `unrelated titles and sequels never enter ranking`() = runTest {
+        val unrelated = candidate("unrelated", 100).copy(manga = manga.copy(title = "Unrelated"))
+        val sequel = candidate("sequel", 100).copy(manga = manga.copy(title = "A Series 2"))
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(unrelated, sequel)).match(series, preferences))
+    }
+
+    private fun candidate(name: String, count: Int, date: Long? = 100, language: String = "tr", nsfw: Boolean = false): SourceCandidate {
         val source = ExtensionSource(name, name, language)
         return SourceCandidate(ExtensionDescriptor(name, name, language, nsfw, "1", 1, "https://example.org/$name.apk", listOf(source)), source, manga, count, date)
     }
 
-    private fun matcher(candidates: List<SourceCandidate>, installed: Set<String> = emptySet()): SmartSourceMatcher =
-        SmartSourceMatcher(FakeRepository(candidates.map { it.extension }, installed), FakeBridge(candidates),
-            SourceDiscovery { _, extensions -> candidates.filter { it.extension in extensions } }, nanoTime = { 0L })
+    private val noDiscovery = SourceDiscovery { _, _ -> error("Uninstalled discovery must never run") }
+
+    private fun matcher(values: List<SourceCandidate>, installed: Set<String> = values.map { it.extension.packageName }.toSet()) =
+        SmartSourceMatcher(FakeRepository(values, installed), FakeBridge(values), noDiscovery, nanoTime = { 0L })
 
     private class FakeRepository(
-        val entries: List<ExtensionDescriptor>,
-        val installedPackages: Set<String> = emptySet(),
+        val values: List<SourceCandidate>,
+        val installedPackages: Set<String> = values.map { it.extension.packageName }.toSet(),
+        val untrusted: Set<String> = emptySet(),
     ) : ExtensionRepository {
+        var catalogReads = 0
         override suspend fun addRepository(indexUrl: String) = Unit
         override suspend fun removeRepository(indexUrl: String) = Unit
         override suspend fun repositories() = emptyList<String>()
-        override suspend fun refresh() = entries
-        override suspend fun available() = entries
-        override suspend fun installed() = installedPackages.map { InstalledExtension(it, 1, true) }
+        override suspend fun refresh() = values.map { it.extension }
+        override suspend fun available(): List<ExtensionDescriptor> {
+            catalogReads++
+            error("Installed manifests do not need catalog access")
+        }
+        override suspend fun installed() = values.filter { it.extension.packageName in installedPackages }.map {
+            InstalledExtension(it.extension.packageName, 1, it.extension.packageName !in untrusted, it.extension)
+        }
     }
 
     private class FakeBridge(val candidates: List<SourceCandidate>) : SourceBridge {

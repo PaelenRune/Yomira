@@ -16,16 +16,9 @@ data class EmbeddedRepository(
     val upstreamUrl: String? = null,
 )
 
-/** Clean JVM resources are also packaged in the Android APK; no URL setup is required. */
+/** The engine ships without repositories. Users explicitly configure their own indexes. */
 object EmbeddedRepositories {
-    const val UPSTREAM_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/main/index.json"
-
-    fun load(): List<EmbeddedRepository> {
-        val payload = requireNotNull(javaClass.getResourceAsStream("/assets/keiyoushi/index.min.json")) {
-            "Missing bundled Keiyoushi manifest"
-        }.bufferedReader(Charsets.UTF_8).use { it.readText() }
-        return listOf(EmbeddedRepository(UPSTREAM_URL, payload, UPSTREAM_URL))
-    }
+    fun load(): List<EmbeddedRepository> = emptyList()
 
     /** Convert all upstream v2 metadata, without selecting or favoring any site. */
     internal fun refreshedPayload(upstream: String): String {
