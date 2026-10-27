@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0.0",
+  "handoffId": "HO-TASK-001-RECORD",
+  "from": {
+    "taskId": "TASK_001",
+    "wbs": "1.0",
+    "phase": "PHASE-1",
+    "provider": "evren",
+    "model": "evren/deepseek-v4.1-flash",
+    "executionPhase": "PHASE_SETUP"
+  },
+  "to": {
+    "taskId": null,
+    "note": "Orchestrator - task-context handoffs for SM-001, VC-001 and WA-001"
+  },
+  "createdAt": "2026-10-27T15:04:11Z",
+  "status": "ready",
+  "contextRef": "handoffs/task-context/TASK_001.json",
+  "summary": {
+    "providers": 7,
+    "inventoryModels": 90,
+    "eligibleModels": 89,
+    "excludedModels": 1,
+    "baseModels": 60,
+    "phases": 6,
+    "tasks": 27,
+    "completedTasks": 2,
+    "openBlockers": 1,
+    "risks": 10
+  },
+  "stateFiles": [
+    "model-registry/providers.json",
+    "model-registry/endpoints.json",
+    "model-registry/base-models.json",
+    "model-registry/capabilities.json",
+    "model-registry/benchmarks.json",
+    "model-registry/pricing.json",
+    "model-registry/sources.json",
+    "project-management/project-charter.json",
+    "project-management/wbs.json",
+    "project-management/task-dependencies.json",
+    "project-management/schedule.json",
+    "project-management/critical-path.json",
+    "project-management/resource-assignments.json",
+    "project-management/risk-register.json",
+    "execution/agent-assignments.json",
+    "execution/active-tasks.json",
+    "execution/completed-tasks.json",
+    "execution/blockers.json",
+    "performance/credits.json",
+    "performance/context-usage.json",
+    "performance/actual-performance.json"
+  ],
+  "validations": [
+    "All JSON files parse with a schemaVersion field.",
+    "Registry counts are 7 providers, 90 inventory endpoints, 89 eligible, 1 excluded.",
+    "No assignment references google/antigravity-gemini-3.8-flash or a matching alias.",
+    "Roadmap covers all five objectives plus the release gate.",
+    "Risks R-001, R-002 and R-003 cover model isolation, AniList limits and offline fallbacks."
+  ],
+  "openItems": [
+    "PHASE-2 baseline metrics are not measured yet.",
+    "Device installation is blocked until the owner approves it.",
+    "Pricing and context limits are partially unknown."
+  ],
+  "artifacts": []
+}

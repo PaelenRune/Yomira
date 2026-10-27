@@ -1,0 +1,57 @@
+Applications Graphics Acceleration Info:
+Uptime: 26859496 Realtime: 26859496
+
+** Graphics info for pid 19272 [com.yomira.app] **
+
+Stats since: 26770792613797ns
+Total frames rendered: 2275
+Janky frames: 57 (2.51%)
+Janky frames (legacy): 768 (33.76%)
+50th percentile: 17ms
+90th percentile: 27ms
+95th percentile: 28ms
+99th percentile: 109ms
+Number Missed Vsync: 25
+Number High input latency: 4212
+Number Slow UI thread: 49
+Number Slow bitmap uploads: 0
+Number Slow issue draw commands: 11
+Number Frame deadline missed: 57
+Number Frame deadline missed (legacy): 36
+HISTOGRAM: 5ms=36 6ms=58 7ms=136 8ms=107 9ms=52 10ms=65 11ms=86 12ms=81 13ms=53 14ms=184 15ms=186 16ms=86 17ms=169 18ms=49 19ms=67 20ms=75 21ms=93 22ms=68 23ms=40 24ms=27 25ms=59 26ms=155 27ms=213 28ms=54 29ms=17 30ms=3 31ms=2 32ms=1 34ms=1 36ms=2 38ms=2 40ms=1 42ms=1 44ms=3 46ms=0 48ms=3 53ms=2 57ms=2 61ms=2 65ms=2 69ms=3 73ms=0 77ms=0 81ms=1 85ms=1 89ms=1 93ms=0 97ms=0 101ms=2 105ms=0 109ms=2 113ms=1 117ms=1 121ms=0 125ms=1 129ms=1 133ms=2 150ms=3 200ms=0 250ms=0 300ms=2 350ms=0 400ms=0 450ms=1 500ms=1 550ms=0 600ms=0 650ms=0 700ms=0 750ms=1 800ms=0 850ms=0 900ms=0 950ms=0 1000ms=0 1050ms=0 1100ms=0 1150ms=0 1200ms=0 1250ms=0 1300ms=0 1350ms=0 1400ms=0 1450ms=0 1500ms=0 1550ms=0 1600ms=0 1650ms=0 1700ms=0 1750ms=0 1800ms=0 1850ms=0 1900ms=0 1950ms=0 2000ms=0 2050ms=0 2100ms=0 2150ms=0 2200ms=0 2250ms=0 2300ms=0 2350ms=0 2400ms=0 2450ms=0 2500ms=0 2550ms=0 2600ms=0 2650ms=0 2700ms=0 2750ms=0 2800ms=0 2850ms=0 2900ms=0 2950ms=0 3000ms=0 3050ms=0 3100ms=0 3150ms=0 3200ms=0 3250ms=0 3300ms=0 3350ms=0 3400ms=0 3450ms=0 3500ms=0 3550ms=0 3600ms=0 3650ms=0 3700ms=0 3750ms=0 3800ms=0 3850ms=0 3900ms=0 3950ms=0 4000ms=0 4050ms=0 4100ms=0 4150ms=0 4200ms=0 4250ms=0 4300ms=0 4350ms=0 4400ms=0 4450ms=0 4500ms=0 4550ms=0 4600ms=0 4650ms=0 4700ms=0 4750ms=0 4800ms=0 4850ms=0 4900ms=0 4950ms=8
+50th gpu percentile: 3ms
+90th gpu percentile: 4ms
+95th gpu percentile: 7ms
+99th gpu percentile: 9ms
+GPU HISTOGRAM: 1ms=1 2ms=168 3ms=1872 4ms=80 5ms=10 6ms=25 7ms=13 8ms=82 9ms=15 10ms=1 11ms=0 12ms=0 13ms=0 14ms=0 15ms=0 16ms=0 17ms=0 18ms=0 19ms=0 20ms=0 21ms=0 22ms=0 23ms=0 24ms=0 25ms=0 4950ms=8
+Pipeline=Skia (OpenGL)
+CPU Caches:
+  Glyph Cache: 327.41 KB (1 entry)
+  skia/sk_resource_cache/mipmap_0xb400007b0e3513a0: 23.07 KB (1 entry)
+  Glyph Count: 63
+Total CPU memory usage:
+  358884 bytes, 350.47 KB (0.00 bytes is purgeable)
+GPU Caches:
+  Other:
+    Other: 13.76 KB (1 entry)
+  Image:
+    Texture: 114.39 KB (38 entries)
+  Scratch:
+    RenderTarget: 14.88 MB (2 entries)
+    Buffer Object: 48.00 KB (1 entry)
+    Texture: 2.00 MB (2 entries)
+Total GPU memory usage:
+  17875220 bytes, 17.05 MB (14.97 MB is purgeable)
+
+Profile data in ms:
+
+	com.yomira.app/com.yomira.app.MainActivity/android.view.ViewRootImpl@2aebdc3 (visibility=0)
+View hierarchy:
+
+  com.yomira.app/com.yomira.app.MainActivity/android.view.ViewRootImpl@2aebdc3
+  14 views, 25.05 kB of render nodes
+
+
+Total ViewRootImpl   : 1
+Total attached Views : 14
+Total RenderNode     : 25.05 kB (used) / 57.27 kB (capacity)

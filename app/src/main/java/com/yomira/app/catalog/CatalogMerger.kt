@@ -36,14 +36,21 @@ object CatalogMerger {
 
     /** Derived historical ratings are not provider evidence; re-run the actual metadata. */
     fun reclassifiedRating(entity: MangaEntity): ContentRating = classifyRating(
-        entity.title, entity.altTitles, entity.genres, emptyList(),
+        entity.title, entity.altTitles, entity.genres, emptyList(), entity.sourceId,
     ).takeUnless { it == ContentRating.SAFE } ?: entity.contentRating
 
-    private fun classifyRating(title: String, aliases: List<String>, genres: List<String>, ratings: List<ContentRating>): ContentRating =
+    private fun classifyRating(
+        title: String,
+        aliases: List<String>,
+        genres: List<String>,
+        ratings: List<ContentRating>,
+        sourceId: String? = null,
+    ): ContentRating =
         classifier.classify(ClassificationInput(
             title = title,
             altTitles = aliases,
             genres = genres,
+            sourceId = sourceId,
             externalRatings = ratings.map {
                 when (it) {
                     ContentRating.EXPLICIT -> ExternalRating.PORNOGRAPHIC
@@ -104,7 +111,7 @@ object CatalogMerger {
             score = incoming.score ?: existing.score,
             status = if (incoming.status != MangaStatus.UNKNOWN) incoming.status else existing.status,
             genres = genres,
-            contentRating = classifyRating(displayTitle, aliases, genres, listOf(incoming.contentRating))
+            contentRating = classifyRating(displayTitle, aliases, genres, listOf(incoming.contentRating), existing.sourceId)
                 .takeUnless { it == ContentRating.SAFE } ?: existing.contentRating,
             // Identity columns never move: ids are referenced by chapters and by the
             // user's library, and the reading mode is a stored personal preference.

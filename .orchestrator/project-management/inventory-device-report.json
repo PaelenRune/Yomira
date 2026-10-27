@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-10-27T08:55:55Z",
+  "specialist": "Inventory & Device Specialist",
+  "status": "partially-completed-device-install-blocked",
+  "device": {
+    "adbPath": "C:\\Users\\paele\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "adbOnPath": false,
+    "serial": "b4bc1593",
+    "state": "device",
+    "model": "M2007J3SY",
+    "product": "apollo_global",
+    "packageName": "com.yomira.app",
+    "initialPackageQuery": "pm list packages com.yomira.app: empty output",
+    "uninstall": "not-needed-package-not-installed",
+    "apk": "release/yomira-v5.1.0-beta.apk",
+    "apkSha256": "9DA8AF5865F6693B3A5768670602ADCFCA2CD5598941ADFD1C1197F9F2143EA5",
+    "installCommand": "adb -s b4bc1593 install -r release/yomira-v5.1.0-beta.apk",
+    "installExitCode": 1,
+    "installResult": "INSTALL_FAILED_USER_RESTRICTED: Install canceled by user",
+    "postInstallPackageQuery": "pm list packages com.yomira.app: empty output",
+    "activityResolution": "No activity found",
+    "launchVerified": false,
+    "nextAction": "User must allow USB installation on the phone and approve the installation prompt. Then retry install and verify launch. No security setting was changed or bypassed."
+  },
+  "inventory": {
+    "requestedExactFilenameFound": false,
+    "requestedFilename": "OpenChamber_Aktif_Modeller_Listesi(1).pdf",
+    "discoveredFiles": [
+      "C:\\Users\\paele\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf",
+      "C:\\Users\\paele\\OneDrive\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf"
+    ],
+    "bothFilesSha256": "5B19EDE4449C2098D55D11DD8D1975DA5D3897FD6F2141EE2126BF0F67458D8B",
+    "pdfPages": 4,
+    "sourceReportDate": "2026-10-20",
+    "sourceModelCount": 90,
+    "eligibleModelCount": 89,
+    "providerCount": 7,
+    "eligibleProviderCounts": { "google": 6, "evren": 8, "evren2": 8, "evren3": 8, "nvidia": 9, "openai": 14, "opencode": 36 },
+    "eligibleBaseModelCount": 60,
+    "policyRef": "../model-registry/exclusion-policy.json",
+    "existingStructuresPreserved": true,
+    "liveModelAvailabilityVerified": false
+  }
+}

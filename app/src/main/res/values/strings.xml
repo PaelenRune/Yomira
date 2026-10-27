@@ -145,6 +145,12 @@
     <string name="vault_retry">Try again</string>
     <string name="vault_filter_all">All</string>
     <string name="vault_collection_title">Private collection</string>
+    <string name="vault_rail_trending_webtoons">🔥 Trending Adult Webtoons</string>
+    <string name="vault_rail_hentai_manga">🌸 Hentai Manga &amp; Classics</string>
+    <string name="vault_rail_new_doujinshi">⚡ New Doujinshi</string>
+    <string name="vault_rail_western_3d">🌐 Western &amp; 3D Erotic Comics</string>
+    <string name="vault_rail_popular">Popular in Vault</string>
+    <string name="vault_rail_empty">No series on this shelf yet. Sync your sources or change the filter.</string>
     <string name="vault_empty_title">This shelf is empty</string>
     <string name="vault_empty_message">No adult series in the selected genre. Sync your sources or change the filter.</string>
     <string name="vault_unlock_prompt_title">Yomira Vault</string>
@@ -177,7 +183,8 @@
     <string name="detail_sort_newest">Newest</string>
     <string name="detail_sort_oldest">Oldest</string>
     <string name="detail_chapters_empty_title">No chapters yet</string>
-    <string name="detail_chapters_empty_message">Run the Turkish source match or sync the series source.</string>
+    <string name="detail_chapters_empty_message">No readable chapters were found in your selected language.</string>
+    <string name="detail_chapters_loading">Finding the best source and loading chapters…</string>
     <string name="detail_chapter_fallback">Chapter %1$s</string>
     <string name="detail_date_missing">Date not specified</string>
     <string name="detail_mark_read">Mark as read</string>
@@ -211,6 +218,12 @@
     <string name="detail_relation_parent">Parent series</string>
     <string name="detail_relation_character">Character</string>
     <string name="detail_relation_other">Related</string>
+    <string name="detail_adaptation_anime">Anime adaptation</string>
+    <string name="detail_adaptation_hentai_ova">Hentai OVA</string>
+    <string name="detail_adaptation_live_action">Drama / Live-action adaptation</string>
+    <string name="detail_adaptation_donghua">Donghua adaptation</string>
+    <string name="detail_adaptation_special">Special episode</string>
+    <string name="detail_adaptation_episodes">%1$d episodes</string>
     <string name="detail_open_series_failed">This series could not be opened.</string>
     <string name="detail_not_found_title">Series not found</string>
     <string name="detail_not_found_message">The series may have been removed, or the catalog hasn’t loaded yet.</string>

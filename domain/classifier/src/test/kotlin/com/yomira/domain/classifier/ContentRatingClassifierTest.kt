@@ -88,8 +88,37 @@ class ContentRatingClassifierTest {
     }
 
     @Test fun adultWebtoonAndSmutAreNotHardcoreEvidence() {
-        listOf("Adult Webtoon", "Adult Webtoons", "Smut", "Mature").forEach { tag ->
+        listOf("Adult Webtoon", "Adult Webtoons", "Smut", "Mature", "Fanservice", "Suggestive Romance",
+            "3D Comic", "3D Comics", "18+", "R-18", "Western Erotica", "Erotic Comics").forEach { tag ->
             assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput("Unknown", tags = listOf(tag))))
+        }
+    }
+
+    @Test fun pornographicPlatformsAndComicTagsAreExplicit() {
+        listOf("AllPornComic", "ALLPORNCOMICS", "All Porn Comic", "3D Porn",
+            "18+ Pornographic Comics", "Explicit Doujinshi", "Explicit Doujin",
+            "Pornographic Webtoon", "Hardcore", "Romance | allporncomic; Drama").forEach { tag ->
+            assertEquals(tag, ContentRating.EXPLICIT, classifier.classify(ClassificationInput("Unknown", tags = listOf(tag))))
+        }
+    }
+
+    @Test fun adultWebtoonWithPornhwaEvidenceIsExplicit() {
+        assertEquals(ContentRating.EXPLICIT, classifier.classify(ClassificationInput(
+            "Unknown", tags = listOf("Adult Webtoon", "Ecchi", "Pornhwa"),
+        )))
+    }
+
+    @Test fun platformNamesInTitlesAndLookalikeTagsAreNotEvidence() {
+        assertEquals(ContentRating.SAFE, classifier.classify(ClassificationInput(
+            "AllPornComic Detective", tags = listOf("Nonhentai", "NotAllPornComic", "NotPornhwa"),
+        )))
+    }
+
+    @Test fun knownEcchiTitlesStayMatureDespiteMisleadingPlatformTags() {
+        listOf("Prison School", "Kangoku Gakuen").forEach { title ->
+            assertEquals(ContentRating.MATURE, classifier.classify(ClassificationInput(
+                title, tags = listOf("AllPornComic", "Hentai", "Hardcore"),
+            )))
         }
     }
 

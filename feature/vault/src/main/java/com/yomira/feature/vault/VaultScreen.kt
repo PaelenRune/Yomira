@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
@@ -22,18 +23,35 @@ import com.yomira.core.ui.theme.NeonFuchsia
 import java.text.Normalizer
 import java.util.Locale
 
+/**
+ * The four distinct Vault shelves. Chips only ever filter [ContentRating.EXPLICIT]
+ * titles, so a mature-but-soft series can never appear under any of them.
+ */
+val vaultGenreChips: List<String> = listOf("Adult Webtoons", "Hentai Manga", "Doujinshi", "Western / 3D")
+
 fun vaultCatalog(manga: List<Manga>, unlocked: Boolean, genre: String? = null): List<Manga> {
     if (!unlocked) return emptyList()
     val selectedGenre = genre?.let(::normalizeGenre)
     val aliases = when (selectedGenre) {
-        "adult webtoons" -> setOf("adult webtoon", "adult webtoons", "webtoon", "webtoons", "manhwa", "pornhwa")
+        // Korean adult webtoons and other vertical-scroll adult comics.
+        "adult webtoons" -> setOf("adult webtoon", "adult webtoons", "webtoon", "webtoons", "manhwa", "pornhwa", "adult comic", "adult comics")
         "hentai manga" -> setOf("hentai manga", "hentai")
+        // Preserve callers using the former chip without showing it as a category.
         "smut" -> setOf("smut", "erotica", "erotic")
+        // Western erotica and 3D-rendered adult comics, including everything scraped
+        // from allporncomic-type platforms whose tags survive verbatim.
+        "western 3d" -> setOf(
+            "western erotica", "western erotic", "erotic comics", "erotic comic",
+            "3d comic", "3d comics", "3d comix", "3d porn", "3dcg porn", "3d hentai",
+            "allporncomic", "allporncomics", "all porn comic", "all porn comics", "porn comic", "porn comics", "porncomix", "porcomix", "western porn",
+        )
         "doujinshi" -> setOf("doujinshi", "doujin", "doujinshis", "doujins", "dōjinshi", "dōjin")
         else -> emptySet()
     }
     return manga.filter { item ->
-        item.contentRating == ContentRating.EXPLICIT && (genre == null || item.genres.any { label ->
+        // Source identity also identifies AllPornComic imports with missing genre metadata.
+        val labels = if (selectedGenre == "western 3d") item.genres + item.sourceId else item.genres
+        item.contentRating == ContentRating.EXPLICIT && (genre == null || labels.any { label ->
             // Providers flatten tags into genres, sometimes as a single delimited string.
             // Word boundaries allow "Hentai Doujinshi" but never "Nonhentai".
             val normalized = " ${normalizeGenre(label)} "
@@ -65,7 +83,22 @@ data class VaultCopy(
     val pagingLoading: String = "Daha fazla yetişkin serisi yükleniyor",
     val pagingEnd: String = "Tüm yetişkin serileri yüklendi · %1\$d seri",
     val catalog: CatalogCopy = CatalogCopy(),
-)
+    val badge: String = "+18",
+    val railTrendingWebtoons: String = "🔥 Trending Adult Webtoons",
+    val railHentaiManga: String = "🌸 Hentai Manga & Classics",
+    val railNewDoujinshi: String = "⚡ New Doujinshi",
+    val railWestern3D: String = "🌐 Western & 3D Erotic Comics",
+    val railPopular: String = "Popular in Vault",
+    val emptyRail: String = "No series on this shelf yet. Sync your sources or change the filter.",
+) {
+    fun railTitle(style: String): String = when (style) {
+        "Adult Webtoons" -> railTrendingWebtoons
+        "Hentai Manga" -> railHentaiManga
+        "Doujinshi" -> railNewDoujinshi
+        "Western / 3D" -> railWestern3D
+        else -> railPopular
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -86,9 +119,10 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
     val gridColumns = columns.coerceIn(2, 4)
     // Room and the append-only page list are merged by id; the Vault never sees
     // public rows because vaultCatalog() filters EXPLICIT for every input.
-    val all = (manga + discovered).distinctBy { it.id }
-    val adult = vaultCatalog(all, unlocked)
-    val visible = vaultCatalog(all, unlocked, selected)
+    val home = remember(manga, discovered, unlocked, selected) {
+        buildVaultHome(manga, discovered, unlocked, selected)
+    }
+    val visible = home.collection
     val gridState = rememberLazyGridState()
     val nearBottom by remember(gridState) {
         derivedStateOf {
@@ -98,17 +132,19 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
         }
     }
     LaunchedEffect(unlocked) { if (unlocked) onLoadMore() }
-    LaunchedEffect(nearBottom, loadingMore, hasMore) {
-        if (nearBottom && hasMore && !loadingMore) onLoadMore()
+    LaunchedEffect(nearBottom, loadingMore, hasMore, pagingError, discovered.size) {
+        if (nearBottom && hasMore && !loadingMore && pagingError == null) onLoadMore()
     }
     LazyVerticalGrid(state = gridState, columns = GridCells.Fixed(gridColumns), contentPadding = PaddingValues(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             FlowRow(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(copy.heading, style = MaterialTheme.typography.headlineLarge, color = NeonFuchsia)
+                Surface(shape = RoundedCornerShape(8.dp), color = NeonFuchsia.copy(alpha = .14f), contentColor = NeonFuchsia) {
+                    Text(copy.badge, Modifier.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge)
+                }
                 FilledTonalButton(onClick = onPanic) { Icon(Icons.Default.Lock, null); Spacer(Modifier.width(8.dp)); Text(copy.lockFast) }
             }
         }
-        item(span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(adult.sortedByDescending { it.score }.take(6), onManga, vault = true, copy = copy.catalog) }
         if (loading) item(span = { GridItemSpan(maxLineSpan) }) { LinearProgressIndicator(Modifier.fillMaxWidth(), color = NeonFuchsia) }
         error?.let { message -> item(span = { GridItemSpan(maxLineSpan) }) {
             Column(Modifier.padding(20.dp)) { Text(message); TextButton(onClick = onRetry) { Text(copy.retry) } }
@@ -116,9 +152,19 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
         item(span = { GridItemSpan(maxLineSpan) }) {
             LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 item { FilterChip(selected == null, { selected = null }, label = { Text(copy.filterAll) }) }
-                items(listOf("Adult Webtoons", "Hentai Manga", "Smut", "Doujinshi")) { genre ->
+                items(vaultGenreChips) { genre ->
                     FilterChip(selected == genre, { selected = toggleVaultGenre(selected, genre) }, label = { Text(genre) })
                 }
+            }
+        }
+        if (home.hero.isNotEmpty()) {
+            item(key = "vault-hero", span = { GridItemSpan(maxLineSpan) }) {
+                HeroCarousel(home.hero, onManga, vault = true, copy = copy.catalog)
+            }
+        }
+        home.rails.forEach { rail ->
+            item(key = "vault-rail-${rail.style}", contentType = "rail", span = { GridItemSpan(maxLineSpan) }) {
+                VaultMangaRail(rail, onManga, copy)
             }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -147,6 +193,23 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun VaultMangaRail(rail: VaultRail, onManga: (Manga) -> Unit, copy: VaultCopy) {
+    val title = copy.railTitle(rail.style)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(title, Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium)
+        if (rail.items.isEmpty()) {
+            Text(copy.emptyRail, Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        } else {
+            LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(rail.items, key = { it.id }, contentType = { "manga" }) { item ->
+                    MangaCard(item, 3, { onManga(item) }, Modifier.width(128.dp), copy.catalog)
+                }
             }
         }
     }

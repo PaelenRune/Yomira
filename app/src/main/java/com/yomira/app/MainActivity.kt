@@ -202,7 +202,6 @@ private fun YomiraNavigation(
     val unlocked by model.unlocked.collectAsStateWithLifecycle()
     val saved by model.saved.collectAsStateWithLifecycle()
     val read by model.read.collectAsStateWithLifecycle()
-    val match by model.match.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
     val selectedTags by model.selectedTags.collectAsStateWithLifecycle()
@@ -214,7 +213,6 @@ private fun YomiraNavigation(
     val scope = rememberCoroutineScope()
     val current = backStack?.destination?.route
     val catalogCopy = catalogCopy()
-    val secureLinkFailed = stringResource(R.string.secure_link_failed)
     val openSeriesFailed = stringResource(R.string.detail_open_series_failed)
     val offlineNotice = stringResource(R.string.offline_download_notice)
     val tagOptions = catalogTagChips()
@@ -389,10 +387,12 @@ private fun YomiraNavigation(
                     val chapterFlow = remember(id) { model.chapters(id) }
                     val chapters by chapterFlow.collectAsStateWithLifecycle(initialValue = emptyList())
                     val connections by model.connections.collectAsStateWithLifecycle()
-                    LaunchedEffect(id) { model.loadConnections(manga) }
-                    MangaDetailScreen(manga, chapters, match, matching, id in saved,
-                        onBack = { model.clearMatch(); nav.popBackStack() }, onSave = { model.toggleSaved(id) }, onMatch = { model.findSource(manga) },
-                        onInstall = { url -> if (!openReference(url)) scope.launch { snackbar.showSnackbar(secureLinkFailed) } },
+                    LaunchedEffect(id) {
+                        model.loadConnections(manga)
+                        model.ensureSource(manga)
+                    }
+                    MangaDetailScreen(manga, chapters, matching, id in saved,
+                        onBack = { model.clearMatch(); nav.popBackStack() }, onSave = { model.toggleSaved(id) },
                         onRead = { chapter -> nav.navigate("reader/${Uri.encode(manga.id)}/${Uri.encode(chapter.id)}") },
                         onContinue = { fallback -> model.resumeChapter(manga.id, fallback.id) { chapterId ->
                             // An asynchronous Room result must not reopen a screen the user left.
@@ -405,6 +405,7 @@ private fun YomiraNavigation(
                         onPanic = if (manga.contentRating == ContentRating.EXPLICIT) ::panic else null,
                         related = connections.related,
                         recommended = connections.recommended,
+                        adaptations = connections.adaptations,
                         connectionsLoading = connections.loading,
                         onOpenSeries = { seriesId, seriesTitle ->
                             model.openSeries(seriesId, seriesTitle) { targetId ->
@@ -639,6 +640,12 @@ private fun vaultCopy(catalog: CatalogCopy) = VaultCopy(
     emptyMessage = stringResource(R.string.vault_empty_message),
     pagingLoading = stringResource(R.string.vault_paging_loading),
     pagingEnd = stringResource(R.string.vault_paging_end),
+    railTrendingWebtoons = stringResource(R.string.vault_rail_trending_webtoons),
+    railHentaiManga = stringResource(R.string.vault_rail_hentai_manga),
+    railNewDoujinshi = stringResource(R.string.vault_rail_new_doujinshi),
+    railWestern3D = stringResource(R.string.vault_rail_western_3d),
+    railPopular = stringResource(R.string.vault_rail_popular),
+    emptyRail = stringResource(R.string.vault_rail_empty),
     catalog = catalog,
 )
 
@@ -667,6 +674,7 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     sortOldest = stringResource(R.string.detail_sort_oldest),
     chaptersEmptyTitle = stringResource(R.string.detail_chapters_empty_title),
     chaptersEmptyMessage = stringResource(R.string.detail_chapters_empty_message),
+    chaptersLoading = stringResource(R.string.detail_chapters_loading),
     chapterFallback = stringResource(R.string.detail_chapter_fallback),
     dateMissing = stringResource(R.string.detail_date_missing),
     markRead = stringResource(R.string.detail_mark_read),
@@ -674,16 +682,6 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     downloaded = stringResource(R.string.detail_downloaded),
     retryDownload = stringResource(R.string.detail_retry_download),
     downloadChapter = stringResource(R.string.detail_download_chapter),
-    matchTitle = stringResource(R.string.detail_match_title),
-    matchComparing = stringResource(R.string.detail_match_comparing),
-    matchMissingExtension = stringResource(R.string.detail_match_missing_extension),
-    matchInstall = stringResource(R.string.detail_match_install),
-    matchReady = stringResource(R.string.detail_match_ready),
-    matchNone = stringResource(R.string.detail_match_none),
-    matchUnavailable = stringResource(R.string.detail_match_unavailable),
-    matchIdle = stringResource(R.string.detail_match_idle),
-    matchFindBest = stringResource(R.string.detail_match_find_best),
-    matchRematch = stringResource(R.string.detail_match_rematch),
     relatedHeading = stringResource(R.string.detail_related_heading),
     relatedSubtitle = stringResource(R.string.detail_related_subtitle),
     recommendedHeading = stringResource(R.string.detail_recommended_heading),
@@ -698,6 +696,12 @@ private fun detailCopy(catalog: CatalogCopy) = DetailCopy(
     relationParent = stringResource(R.string.detail_relation_parent),
     relationCharacter = stringResource(R.string.detail_relation_character),
     relationOther = stringResource(R.string.detail_relation_other),
+    adaptationAnime = stringResource(R.string.detail_adaptation_anime),
+    adaptationHentaiOva = stringResource(R.string.detail_adaptation_hentai_ova),
+    adaptationLiveAction = stringResource(R.string.detail_adaptation_live_action),
+    adaptationDonghua = stringResource(R.string.detail_adaptation_donghua),
+    adaptationSpecial = stringResource(R.string.detail_adaptation_special),
+    adaptationEpisodes = stringResource(R.string.detail_adaptation_episodes),
     catalog = catalog,
 )
 

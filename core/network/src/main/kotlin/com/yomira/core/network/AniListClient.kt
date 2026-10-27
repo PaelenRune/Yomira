@@ -1,6 +1,8 @@
 package com.yomira.core.network
 
 import com.yomira.core.model.MangaStatus
+import com.yomira.core.model.AdaptationKind
+import com.yomira.core.model.WatchableAdaptation
 import com.yomira.core.model.RecommendedSeries
 import com.yomira.core.model.RelatedSeries
 import com.yomira.core.model.RelationRole
@@ -83,9 +85,8 @@ class AniListClient(
      * Franchise relations and community recommendations of one AniList manga.
      *
      * Feeds the detail page's "Related series" strip (prequels, sequels, spin-offs
-     * with their relation badge) and the "Series like this" strip. Only `MANGA`
-     * relation nodes are returned — an anime adaptation would open a detail page
-     * that cannot be read in Yomira.
+     * with their relation badge) and the "Series like this" strip. Watchable
+     * relations are kept separate so they never open the manga reader.
      */
     suspend fun connections(anilistId: Int, limit: Int = 12): SeriesConnections =
         withContext(Dispatchers.IO) {
@@ -118,8 +119,52 @@ class AniListClient(
                     score = entry.averageScore?.let { (it / 10.0).coerceIn(0.0, 10.0) },
                 )
             }.distinctBy { it.id }
-            SeriesConnections(related = related, recommended = recommended)
+            val adaptations = media.relations?.edges.orEmpty().mapNotNull { edge ->
+                val node = edge.node ?: return@mapNotNull null
+                // ADAPTATION is bidirectional: a manga adaptation is still readable,
+                // not a watchable entry. Missing types can occur in older payloads.
+                if (!node.type.equals("ANIME", ignoreCase = true) &&
+                    !(edge.relationType.equals("ADAPTATION", ignoreCase = true) &&
+                        !node.type.equals("MANGA", ignoreCase = true))
+                ) return@mapNotNull null
+                val id = node.id ?: return@mapNotNull null
+                val title = node.title?.display() ?: return@mapNotNull null
+                WatchableAdaptation(
+                    id = "$sourceId:$id",
+                    title = title,
+                    kind = node.adaptationKind(),
+                    format = node.format?.trim()?.uppercase()?.ifEmpty { null },
+                    episodes = node.episodes?.takeIf { it > 0 },
+                    releaseYear = node.startDate?.year?.takeIf { it > 0 },
+                    score = node.averageScore?.let { (it / 10.0).coerceIn(0.0, 10.0) },
+                    coverUrl = node.coverImage?.extraLarge?.ifBlank { null } ?: node.coverImage?.large?.ifBlank { null },
+                    bannerUrl = node.bannerImage?.ifBlank { null },
+                )
+            }.distinctBy { it.id }
+            SeriesConnections(related = related, recommended = recommended, adaptations = adaptations)
         }
+
+    private fun AniListMedia.adaptationKind(): AdaptationKind {
+        val format = format?.trim()?.uppercase()
+        val labels = (genres + tags.mapNotNull { it.name }).map { it.trim() }
+        return when {
+            labels.any { it.equals("Hentai", ignoreCase = true) } ||
+                (format == "OVA" && (isAdult || tags.any { it.isAdult } ||
+                    labels.any { it.equals("Explicit", ignoreCase = true) })) -> AdaptationKind.HENTAI_OVA
+            format in setOf("DRAMA", "LIVE_ACTION", "LIVE ACTION", "K_DRAMA", "K-DRAMA") ||
+                labels.any { it.equals("Live Action", ignoreCase = true) ||
+                    it.equals("Live-Action", ignoreCase = true) ||
+                    it.equals("K-Drama", ignoreCase = true) } -> AdaptationKind.LIVE_ACTION
+            countryOfOrigin.equals("CN", ignoreCase = true) || format == "DONGHUA" -> AdaptationKind.DONGHUA
+            format == "SPECIAL" || format == "TV_SPECIAL" -> AdaptationKind.SPECIAL
+            // Drama alone is also a common anime genre, so only use it when the
+            // provider has not explicitly identified an animation format.
+            format !in setOf("TV", "MOVIE", "OVA", "ONA") &&
+                labels.any { it.equals("Drama", ignoreCase = true) } -> AdaptationKind.LIVE_ACTION
+            // ONA means web animation, not necessarily Chinese animation.
+            else -> AdaptationKind.ANIME
+        }
+    }
 
     /** English display title first, matching the shelf title rule of the waterfall. */
     private fun AniListTitle.display(): String? = sequenceOf(english, romaji, native)
@@ -242,6 +287,9 @@ class AniListClient(
         val popularity: Int? = null,
         val status: String? = null,
         val genres: List<String> = emptyList(),
+        val tags: List<AniListTag> = emptyList(),
+        val isAdult: Boolean = false,
+        val episodes: Int? = null,
         val format: String? = null,
         val countryOfOrigin: String? = null,
         val startDate: AniListDate? = null,
@@ -250,6 +298,9 @@ class AniListClient(
         val relations: AniListRelations? = null,
         val recommendations: AniListRecommendations? = null,
     )
+
+    @Serializable
+    private data class AniListTag(val name: String? = null, val isAdult: Boolean = false)
 
     @Serializable
     private data class AniListRelations(val edges: List<AniListRelationEdge> = emptyList())
@@ -352,6 +403,15 @@ class AniListClient(
                     node {
                       id
                       type
+                      format
+                      status
+                      episodes
+                      genres
+                      tags { name isAdult }
+                      isAdult
+                      countryOfOrigin
+                      startDate { year }
+                      averageScore
                       title { romaji english native }
                       coverImage { extraLarge large }
                       bannerImage

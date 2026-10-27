@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "currency": "USD",
+  "status": "tracking-only",
+  "description": "Credit and spend ledger for orchestration. Provider plans and balances are unknown until the owner supplies them; unknown values stay null.",
+  "sourceRefs": [
+    "SRC-001",
+    "SRC-006"
+  ],
+  "policy": {
+    "paidOverflowApproved": false,
+    "approvalRequiredFor": [
+      "any paid overflow",
+      "a new provider account",
+      "a plan upgrade"
+    ],
+    "unknownValueRule": "Null means not measured. Zero is used only when a ledger event was actually observed.",
+    "allocationRule": "Credits are tracked per task and rolled up per phase; they are never inferred from token counts without a published rate."
+  },
+  "accounts": [
+    {
+      "providerId": "google",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Antigravity OAuth plugin; plan terms not in the inventory."
+    },
+    {
+      "providerId": "evren",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Primary orchestrator provider; no published rate."
+    },
+    {
+      "providerId": "evren2",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Secondary Evren gateway; no published rate."
+    },
+    {
+      "providerId": "evren3",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Tertiary Evren gateway; no published rate."
+    },
+    {
+      "providerId": "nvidia",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "NVIDIA NIM catalog entry; no rate."
+    },
+    {
+      "providerId": "openai",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Backup and security-provider candidates; no rate."
+    },
+    {
+      "providerId": "opencode",
+      "plan": null,
+      "creditBalanceUsd": null,
+      "monthlyQuotaUsd": null,
+      "quotaUnit": null,
+      "billingModel": "unknown",
+      "status": "unknown",
+      "lastCheckedAt": null,
+      "notes": "Includes free-tier entries; free availability is not assumed permanent."
+    }
+  ],
+  "allocations": [
+    {
+      "phase": "PHASE-1",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "complete",
+      "measured": false
+    },
+    {
+      "phase": "PHASE-2",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "not-started",
+      "measured": false
+    },
+    {
+      "phase": "PHASE-3",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "not-started",
+      "measured": false
+    },
+    {
+      "phase": "PHASE-4",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "not-started",
+      "measured": false
+    },
+    {
+      "phase": "PHASE-5",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "not-started",
+      "measured": false
+    },
+    {
+      "phase": "PHASE-6",
+      "estimateCreditsUsd": null,
+      "consumedCreditsUsd": 0,
+      "status": "not-started",
+      "measured": false
+    }
+  ],
+  "ledger": [],
+  "totals": {
+    "accounts": 7,
+    "accountsWithKnownBalance": 0,
+    "creditsGrantedUsd": null,
+    "creditsConsumedUsd": 0,
+    "creditsRemainingUsd": null,
+    "measuredSpendUsd": 0,
+    "unmeasuredTasks": 2,
+    "tasksWithCostData": 0,
+    "spendBasis": "Zero means no billable event was recorded, not that the plan is free."
+  },
+  "thresholds": {
+    "warnAtPercentOfKnownBudget": 70,
+    "pauseAtPercentOfKnownBudget": 90,
+    "behaviorWhenBudgetUnknown": "Continue eligible flat-rate or free work; require owner approval before any paid overflow."
+  },
+  "links": {
+    "pricing": "../model-registry/pricing.json",
+    "actualPerformance": "actual-performance.json",
+    "charterBudget": "../project-management/project-charter.json#budget"
+  }
+}

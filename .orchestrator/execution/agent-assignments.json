@@ -1,0 +1,255 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "description": "Static agent roster and model bindings for the Yomira orchestration. Each binding is validated against the eligible inventory before dispatch.",
+  "sourceRefs": [
+    "SRC-002",
+    "SRC-006",
+    "SRC-008"
+  ],
+  "policy": {
+    "enforcement": "hard-block-before-dispatch",
+    "excludedModelIds": [
+      "google/antigravity-gemini-3.8-flash"
+    ],
+    "denyModelIdRegex": "gemini[-_. ]?3[._-]?8[-_. ]?flash",
+    "caseInsensitive": true,
+    "validationOrder": [
+      "normalize provider/model id",
+      "reject any id or alias matching the deny regex",
+      "require the id in model-registry/providers.json",
+      "require a healthy provider endpoint",
+      "on failure, try the first eligible backup; never fall back to a denied model"
+    ],
+    "backupRule": "Backups come from a different provider where possible and are validated by the same checks.",
+    "orchestratorNote": "The excluded Gemini 3.8 Flash endpoint is not the orchestrator and is not a permitted worker or backup. The orchestrator binding is evren/deepseek-v4.1-flash."
+  },
+  "agents": [
+    {
+      "agentId": "AGENT-ORCHESTRATOR",
+      "role": "Orchestration and state integrity",
+      "status": "active",
+      "primary": {
+        "provider": "evren",
+        "model": "evren/deepseek-v4.1-flash"
+      },
+      "backups": [
+        "openai/gpt-6.1-sol",
+        "evren/qwen3.8-flash-next"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall",
+        "long-context"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        ".orchestrator/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 2
+      }
+    },
+    {
+      "agentId": "AGENT-ARCHITECT",
+      "role": "Domain modelling and technical design",
+      "status": "active",
+      "primary": {
+        "provider": "evren3",
+        "model": "evren3/glm-5.3"
+      },
+      "backups": [
+        "openai/gpt-6.1-sol"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall",
+        "long-context"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "docs/",
+        ".orchestrator/project-management/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    },
+    {
+      "agentId": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "status": "active",
+      "primary": {
+        "provider": "evren",
+        "model": "evren/deepseek-v4.1-flash"
+      },
+      "backups": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall",
+        "code"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "app/",
+        "core/",
+        "domain/",
+        "data/",
+        "feature/",
+        "desktop/",
+        "repositories/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    },
+    {
+      "agentId": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "status": "active",
+      "primary": {
+        "provider": "evren2",
+        "model": "evren2/qwen3.8-flash-next"
+      },
+      "backups": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall",
+        "structured-output"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "data/",
+        "domain/",
+        ".orchestrator/model-registry/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    },
+    {
+      "agentId": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "status": "active",
+      "primary": {
+        "provider": "evren",
+        "model": "evren/qwen3.8-flash-next"
+      },
+      "backups": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall",
+        "structured-output"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "**/src/test/",
+        "**/src/androidTest/",
+        ".orchestrator/execution/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    },
+    {
+      "agentId": "AGENT-SECURITY",
+      "role": "Realm isolation, privacy and threat controls",
+      "status": "active",
+      "primary": {
+        "provider": "google",
+        "model": "google/antigravity-claude-sonnet-5-5"
+      },
+      "backups": [
+        "openai/gpt-6.1-sol"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "threat-modeling"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "feature/vault/",
+        "core/security/",
+        "data/security/"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    },
+    {
+      "agentId": "AGENT-RELEASE",
+      "role": "Build, signing, packaging and release validation",
+      "status": "active",
+      "primary": {
+        "provider": "opencode",
+        "model": "opencode/deepseek-v4.1-flash"
+      },
+      "backups": [
+        "evren/deepseek-v4.1-flash"
+      ],
+      "capabilitiesRequired": [
+        "reasoning",
+        "toolCall"
+      ],
+      "concurrency": 1,
+      "currentTask": null,
+      "writeScope": [
+        "release/",
+        "scripts/",
+        "build.gradle.kts",
+        "gradle.properties"
+      ],
+      "policyCheck": {
+        "eligibleInventoryModel": true,
+        "deniedByRegex": false,
+        "excludedByPolicy": false,
+        "backupProviderDiversity": 1
+      }
+    }
+  ],
+  "totals": {
+    "agents": 7,
+    "active": 7,
+    "idle": 7,
+    "assignedNow": 0,
+    "primaryProviders": 5,
+    "distinctPrimaryModels": 5
+  },
+  "notes": [
+    "Five distinct primary providers and five distinct primary models serve seven agents; the repeated evren/deepseek binding for orchestration and implementation is intentional.",
+    "AGENT-SECURITY has no published context limit in the inventory; context budgeting must query the runtime before a long task.",
+    "This roster does not grant filesystem permission; it records intended ownership for handoffs."
+  ]
+}

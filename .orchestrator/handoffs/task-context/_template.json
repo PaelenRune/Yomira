@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "1.0.0",
+  "templateId": "TASK-CONTEXT-TEMPLATE",
+  "description": "Copy this file to handoffs/task-context/<TASK_ID>.json before dispatching a task. Replace every example value; do not leave placeholder text in a live handoff.",
+  "handoffId": "HO-<TASK_ID>",
+  "taskId": "<TASK-ID>",
+  "wbs": "<wbs-code>",
+  "phase": "<PHASE-N>",
+  "from": {
+    "taskId": "<source-task-or-null>",
+    "wbs": "<wbs-code>",
+    "phase": "<PHASE-N>",
+    "agentId": "<AGENT-ID>",
+    "provider": "<providerId>",
+    "model": "<providerId>/<slug>"
+  },
+  "to": {
+    "taskId": "<target-task>",
+    "phase": "<PHASE-N>",
+    "note": "<why this task is next>"
+  },
+  "createdAt": "<ISO-8601>",
+  "status": "draft|ready|accepted|superseded",
+  "summary": "<one paragraph: what the receiving agent must know first>",
+  "objective": "<the single outcome this task must produce>",
+  "inputs": [
+    {
+      "path": "<repo-relative path>",
+      "why": "<what to use it for>"
+    }
+  ],
+  "dependencies": {
+    "completed": [],
+    "readyRoots": [],
+    "blocked": []
+  },
+  "outputs": [
+    "<expected file or artifact>"
+  ],
+  "acceptanceCriteria": [
+    "<observable, testable condition>"
+  ],
+  "modelPolicy": {
+    "orchestratorModel": "evren/deepseek-v4.1-flash",
+    "excludedModelIds": [
+      "google/antigravity-gemini-3.8-flash"
+    ],
+    "denyModelIdRegex": "gemini[-_. ]?3[._-]?8[-_. ]?flash",
+    "rule": "Validate every proposed model and alias before dispatch."
+  },
+  "blockers": [],
+  "knownRisks": [],
+  "openItems": [],
+  "nextActions": [
+    {
+      "order": 1,
+      "action": "<first concrete step>",
+      "agentId": "<AGENT-ID>",
+      "model": "<providerId>/<slug>"
+    }
+  ],
+  "validation": {
+    "jsonFilesParsed": null,
+    "requiredPathsPresent": null,
+    "registryCountsVerified": null,
+    "modelPolicyVerified": null,
+    "checkedAt": "<ISO-8601>",
+    "checkedBy": "<task-id>"
+  }
+}

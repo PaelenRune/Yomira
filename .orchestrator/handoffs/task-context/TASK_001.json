@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "1.0.0",
+  "handoffId": "HO-TASK-001",
+  "taskId": "TASK_001",
+  "wbs": "1.0",
+  "phase": "PHASE-1",
+  "from": {
+    "taskId": "TASK_001",
+    "wbs": "1.0",
+    "phase": "PHASE-1",
+    "agentId": "AGENT-ORCHESTRATOR",
+    "provider": "evren",
+    "model": "evren/deepseek-v4.1-flash",
+    "executionPhase": "PHASE_SETUP"
+  },
+  "to": {
+    "taskId": null,
+    "phase": "PHASE-2",
+    "note": "Any post-bootstrap task: PHASE-2, PHASE-3 and PHASE-4 roots may start once dependencies are satisfied."
+  },
+  "createdAt": "2026-10-27T15:04:11Z",
+  "status": "ready",
+  "summary": "The Section 7 persistent management structure is initialized and validated. The registry holds 7 providers and 90 inventory endpoints (89 eligible, 1 excluded). The roadmap, dependency graph, schedule, critical path, risk register, execution ledger, performance ledgers and handoff contract are in place.",
+  "objective": "Give the next agent a complete, trustworthy starting state without re-reading the whole workspace.",
+  "inputs": [
+    {
+      "path": "model-registry/providers.json",
+      "why": "Source of truth for 7 providers and 89 eligible models."
+    },
+    {
+      "path": "model-registry/endpoints.json",
+      "why": "90 inventory model endpoints plus 7 provider endpoints; 1 endpoint excluded by policy."
+    },
+    {
+      "path": "model-registry/exclusion-policy.json",
+      "why": "Hard deny for google/antigravity-gemini-3.8-flash."
+    },
+    {
+      "path": "project-management/project-charter.json",
+      "why": "Objectives, scope, constraints and governance."
+    },
+    {
+      "path": "project-management/wbs.json",
+      "why": "27 tasks across 6 phases; 2 completed."
+    },
+    {
+      "path": "project-management/task-dependencies.json",
+      "why": "DAG edges; use it instead of guessing order."
+    },
+    {
+      "path": "project-management/schedule.json",
+      "why": "Milestones M0-M8 and target dates."
+    },
+    {
+      "path": "project-management/critical-path.json",
+      "why": "Longest chain and near-critical branches."
+    },
+    {
+      "path": "project-management/risk-register.json",
+      "why": "Top risks R-001 (model isolation), R-002 (AniList), R-003 (offline)."
+    },
+    {
+      "path": "execution/agent-assignments.json",
+      "why": "Agent-to-model bindings and policy checks."
+    },
+    {
+      "path": "execution/blockers.json",
+      "why": "BLK-001 blocks only the PHASE-6 device test."
+    }
+  ],
+  "dependencies": {
+    "completed": [
+      "TASK_001",
+      "TASK-01-INV"
+    ],
+    "readyRoots": [
+      "SM-001",
+      "VC-001",
+      "WA-001"
+    ],
+    "blocked": []
+  },
+  "outputs": [
+    ".orchestrator/model-registry/providers.json",
+    ".orchestrator/model-registry/endpoints.json",
+    ".orchestrator/model-registry/base-models.json",
+    ".orchestrator/model-registry/capabilities.json",
+    ".orchestrator/model-registry/benchmarks.json",
+    ".orchestrator/model-registry/pricing.json",
+    ".orchestrator/model-registry/sources.json",
+    ".orchestrator/project-management/project-charter.json",
+    ".orchestrator/project-management/wbs.json",
+    ".orchestrator/project-management/task-dependencies.json",
+    ".orchestrator/project-management/schedule.json",
+    ".orchestrator/project-management/critical-path.json",
+    ".orchestrator/project-management/resource-assignments.json",
+    ".orchestrator/project-management/risk-register.json",
+    ".orchestrator/execution/agent-assignments.json",
+    ".orchestrator/execution/active-tasks.json",
+    ".orchestrator/execution/completed-tasks.json",
+    ".orchestrator/execution/blockers.json",
+    ".orchestrator/performance/credits.json",
+    ".orchestrator/performance/context-usage.json",
+    ".orchestrator/performance/actual-performance.json",
+    ".orchestrator/handoffs/task-context/TASK_001.json"
+  ],
+  "acceptanceCriteria": [
+    "Every required .orchestrator directory and JSON file exists.",
+    "All JSON parses and carries a schemaVersion.",
+    "Registry keeps 7 providers, 90 inventory endpoints, 89 eligible and 1 excluded.",
+    "Roadmap covers Smart Matcher, Vault cleanup/classifier, Watchable adaptations, Vault 2.0 and the 10-minute mobile test.",
+    "Risk register records model isolation, AniList rate limits and offline fallbacks.",
+    "No file outside .orchestrator was modified."
+  ],
+  "modelPolicy": {
+    "orchestratorModel": "evren/deepseek-v4.1-flash",
+    "excludedModelIds": [
+      "google/antigravity-gemini-3.8-flash"
+    ],
+    "denyModelIdRegex": "gemini[-_. ]?3[._-]?8[-_. ]?flash",
+    "rule": "Validate every proposed model and alias before dispatch. The excluded model is never an orchestrator, worker or backup."
+  },
+  "blockers": [],
+  "knownRisks": [
+    "R-001 model isolation violation - hard release blocker if triggered.",
+    "R-002 AniList rate limits - throttle, cache, back off.",
+    "R-003 offline degradation - cached fallback with a visible notice.",
+    "BLK-001 device install requires owner approval before PHASE-6."
+  ],
+  "openItems": [
+    "Baseline Smart Matcher metrics must be measured in SM-001; none are recorded yet.",
+    "No provider pricing is known; keep cost null.",
+    "Two agents (security and release) have no published context limits.",
+    "AniList quota behavior is unmeasured until integration tests run."
+  ],
+  "nextActions": [
+    {
+      "order": 1,
+      "action": "Start SM-001: capture the v5.4.1-beta matcher baseline and freeze the scoring contract.",
+      "agentId": "AGENT-ARCHITECT",
+      "model": "evren3/glm-5.3"
+    },
+    {
+      "order": 2,
+      "action": "Start VC-001: audit Vault rows, remove duplicates and quarantine ambiguous records.",
+      "agentId": "AGENT-DATA",
+      "model": "evren2/qwen3.8-flash-next"
+    },
+    {
+      "order": 3,
+      "action": "Start WA-001: define the Anime/Hentai/Kdrama adaptation domain model.",
+      "agentId": "AGENT-ARCHITECT",
+      "model": "evren3/glm-5.3"
+    }
+  ],
+  "validation": {
+    "jsonFilesParsed": 30,
+    "requiredPathsPresent": true,
+    "registryCountsVerified": true,
+    "modelPolicyVerified": true,
+    "checkedAt": "2026-10-27T15:04:11Z",
+    "checkedBy": "TASK_001"
+  }
+}

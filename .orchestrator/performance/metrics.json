@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-10-26T18:48:10+00:00",
+  "description": "Task-level performance ledger (timing, tokens, cost, outcome).",
+  "recordSchema": {
+    "taskId": "string",
+    "wbs": "string",
+    "phase": "string",
+    "provider": "string",
+    "model": "string",
+    "startedAt": "ISO-8601",
+    "completedAt": "ISO-8601",
+    "durationSeconds": "number",
+    "tokens": {
+      "input": "number",
+      "output": "number",
+      "total": "number"
+    },
+    "costUsd": "number|null",
+    "outcome": "success|partial|failed",
+    "notes": "string"
+  },
+  "records": []
+}

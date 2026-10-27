@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "status": "partial",
+  "description": "Measured task outcomes versus estimates. Wall-clock durations are derived from recorded ledger timestamps; token and cost data are not reported by the runtime and remain null.",
+  "sourceRefs": [
+    "SRC-006",
+    "SRC-007"
+  ],
+  "definitions": {
+    "actualDurationHours": "Wall-clock span between recorded start and completion, in hours. Includes idle time and is not a clean effort measure.",
+    "tokens": "Input/output token counts reported by the provider or runtime. Null when unreported.",
+    "costUsd": "Provider-billed cost. Null when no dated rate exists.",
+    "outcome": "success | partial | failed",
+    "estimateVarianceHours": "actualDurationHours - estimateHours; negative means faster than planned."
+  },
+  "records": [
+    {
+      "taskId": "TASK-01-INV",
+      "wbs": "1.1.1",
+      "phase": "PHASE-1",
+      "agentId": "AGENT-DATA",
+      "provider": "evren3",
+      "model": "evren3/deepseek-v4.1-flash",
+      "estimateHours": 1.0,
+      "startedAt": "2026-10-26T18:00:00+00:00",
+      "completedAt": "2026-10-26T18:47:13+00:00",
+      "actualDurationHours": 0.79,
+      "estimateVarianceHours": -0.21,
+      "tokens": {
+        "input": null,
+        "output": null,
+        "total": null
+      },
+      "costUsd": null,
+      "compactions": null,
+      "outcome": "success",
+      "acceptance": "passed",
+      "evidence": [
+        "model-registry/providers.json: 7 providers, 89 eligible models",
+        "model-registry/endpoints.json: 90 inventory endpoints",
+        "project-management/inventory-device-report.json: device install attempt recorded"
+      ],
+      "notes": "Inventory ingestion completed. Device installation belongs to PHASE-6 and is blocked externally; it does not invalidate this task."
+    },
+    {
+      "taskId": "TASK_001",
+      "wbs": "1.0",
+      "phase": "PHASE-1",
+      "agentId": "AGENT-ORCHESTRATOR",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "estimateHours": 2.0,
+      "startedAt": "2026-10-27T14:50:00Z",
+      "completedAt": "2026-10-27T15:04:11Z",
+      "actualDurationHours": 0.24,
+      "estimateVarianceHours": -1.76,
+      "tokens": {
+        "input": null,
+        "output": null,
+        "total": null
+      },
+      "costUsd": null,
+      "compactions": null,
+      "outcome": "success",
+      "acceptance": "passed",
+      "evidence": [
+        "All Section 7 directories and required JSON files present",
+        "JSON validation run over .orchestrator",
+        "Model registry retains 7 providers, 90 inventory endpoints, 89 eligible, 1 excluded"
+      ],
+      "notes": "Duration is the recorded dispatch-to-state-write span, not a clean effort measure. The estimate included review and reconciliation.",
+      "executionPhase": "PHASE_SETUP"
+    }
+  ],
+  "aggregates": {
+    "tasksRecorded": 2,
+    "tasksWithTokenData": 0,
+    "tasksWithCostData": 0,
+    "totalEstimateHours": 3.0,
+    "totalActualHours": 1.03,
+    "estimateVarianceHours": -1.97,
+    "averageCostUsd": null,
+    "successRate": 1.0
+  },
+  "notes": [
+    "Null token and cost fields mean the runtime did not expose them; they are not zero.",
+    "Future records should be added after each task completes and before the phase gate.",
+    "Task-level raw timing also lives in performance/metrics.json; this file is the human-readable roll-up."
+  ]
+}

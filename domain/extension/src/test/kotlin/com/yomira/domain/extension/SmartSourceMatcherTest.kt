@@ -24,7 +24,7 @@ class SmartSourceMatcherTest {
         assertTrue(result.canRead)
     }
 
-    @Test fun `ranks chapter count first then latest date and lists alternatives`() = runTest {
+    @Test fun `ranks equally healthy sources by completeness then latest date`() = runTest {
         val a = candidate("one", 2, 200)
         val b = candidate("two", 3, 100)
         val c = candidate("three", 3, 300)
@@ -130,6 +130,57 @@ class SmartSourceMatcherTest {
         val result = SmartSourceMatcher(FakeRepository(listOf(candidate.extension)), FakeBridge(emptyList()),
             SourceDiscovery { _, _ -> error("offline") }).match(series, preferences)
         assertTrue(result is SmartMatchResult.Unavailable)
+    }
+
+    @Test fun `installed healthy source beats a marginally larger missing source`() = runTest {
+        val result = matcher(listOf(candidate("installed", 20), candidate("missing", 21)), setOf("installed"))
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("installed", result.selected.extension.packageName)
+    }
+
+    @Test fun `recent chapters improve quality within the chosen language`() = runTest {
+        val now = 1_800_000_000_000L
+        val recent = candidate("recent", 10, now)
+        val old = candidate("old", 11, now - 90L * 86_400_000L)
+        val result = SmartSourceMatcher(FakeRepository(listOf(recent.extension, old.extension)),
+            FakeBridge(emptyList()), SourceDiscovery { _, _ -> listOf(old, recent) }, currentTimeMillis = { now })
+            .match(series, preferences) as SmartMatchResult.MissingExtension
+        assertEquals("recent", result.suggestedSource.extension.packageName)
+    }
+
+    @Test fun `fast healthy source receives a bounded response time bonus`() = runTest {
+        val slow = candidate("slow", 10)
+        val fast = candidate("fast", 10)
+        val ticks = listOf(0L, 10_000_000_000L, 10_000_000_000L, 10_100_000_000L).iterator()
+        val result = SmartSourceMatcher(FakeRepository(listOf(slow.extension, fast.extension), setOf("slow", "fast")),
+            FakeBridge(listOf(slow, fast)), SourceDiscovery { _, _ -> emptyList() }, nanoTime = { ticks.next() })
+            .match(series, preferences) as SmartMatchResult.Ready
+        assertEquals("fast", result.selected.extension.packageName)
+    }
+
+    @Test fun `language tier cannot be outweighed by multilingual completeness`() = runTest {
+        val result = matcher(listOf(candidate("multi", 100_000, language = "multi"), candidate("turkish", 1)))
+            .match(series, preferences) as SmartMatchResult.MissingExtension
+        assertEquals("turkish", result.suggestedSource.extension.packageName)
+    }
+
+    @Test fun `discovery cannot supply unrelated series or empty multilingual fallbacks`() = runTest {
+        val wrong = candidate("wrong", 100, language = "all").copy(manga = manga.copy(title = "Unrelated"))
+        val empty = candidate("empty", 0, language = "mul")
+        assertEquals(SmartMatchResult.NoMatch, matcher(listOf(wrong, empty)).match(series, preferences))
+    }
+
+    @Test fun `installed source searches aliases before giving up`() = runTest {
+        val found = candidate("one", 2)
+        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int) =
+                if (query == "Alternate title") listOf(manga) else emptyList()
+        }
+        val result = SmartSourceMatcher(FakeRepository(listOf(found.extension), setOf("one")), bridge,
+            SourceDiscovery { _, _ -> emptyList() })
+            .match(series.copy(aliases = setOf("Alternate title")), preferences) as SmartMatchResult.Ready
+        assertEquals("one", result.selected.extension.packageName)
+        assertEquals(2, result.chapters.size)
     }
 
     private fun candidate(name: String, count: Int, date: Long = 100, language: String = "tr", nsfw: Boolean = false): SourceCandidate {

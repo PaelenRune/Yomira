@@ -1,0 +1,565 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "sourceRef": "SRC-006",
+  "policy": {
+    "orchestratorModelExcluded": "google/antigravity-gemini-3.8-flash",
+    "denyModelIdRegex": "gemini[-_. ]?3[._-]?8[-_. ]?flash",
+    "selectionRule": "Every assignment is checked against the exclusion policy before dispatch.",
+    "primaryProviderDiversity": 6
+  },
+  "assignments": [
+    {
+      "taskId": "TASK_001",
+      "wbs": "1.0",
+      "phase": "PHASE-1",
+      "agent": "AGENT-ORCHESTRATOR",
+      "role": "Orchestration and state integrity",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "openai/gpt-6.1-sol",
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 2.0,
+      "status": "completed",
+      "concurrencyKey": "AGENT-ORCHESTRATOR",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "TASK-01-INV",
+      "wbs": "1.1.1",
+      "phase": "PHASE-1",
+      "agent": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "provider": "evren2",
+      "model": "evren2/qwen3.8-flash-next",
+      "backupModels": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 1.0,
+      "status": "completed",
+      "concurrencyKey": "AGENT-DATA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "SM-001",
+      "wbs": "2.1.1",
+      "phase": "PHASE-2",
+      "agent": "AGENT-ARCHITECT",
+      "role": "Domain modelling and technical design",
+      "provider": "evren3",
+      "model": "evren3/glm-5.3",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 8.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-ARCHITECT",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "SM-002",
+      "wbs": "2.1.2",
+      "phase": "PHASE-2",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "SM-003",
+      "wbs": "2.2.1",
+      "phase": "PHASE-2",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 5.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "SM-004",
+      "wbs": "2.2.2",
+      "phase": "PHASE-2",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "SM-005",
+      "wbs": "2.3.1",
+      "phase": "PHASE-2",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 4.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VC-001",
+      "wbs": "3.1.1",
+      "phase": "PHASE-3",
+      "agent": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "provider": "evren2",
+      "model": "evren2/qwen3.8-flash-next",
+      "backupModels": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 4.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-DATA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VC-002",
+      "wbs": "3.1.2",
+      "phase": "PHASE-3",
+      "agent": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "provider": "evren2",
+      "model": "evren2/qwen3.8-flash-next",
+      "backupModels": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 8.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-DATA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VC-003",
+      "wbs": "3.2.1",
+      "phase": "PHASE-3",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 5.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VC-004",
+      "wbs": "3.2.2",
+      "phase": "PHASE-3",
+      "agent": "AGENT-SECURITY",
+      "role": "Realm isolation, privacy and threat controls",
+      "provider": "google",
+      "model": "google/antigravity-claude-sonnet-5-5",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 7.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-SECURITY",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VC-005",
+      "wbs": "3.3.1",
+      "phase": "PHASE-3",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 4.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-001",
+      "wbs": "4.1.1",
+      "phase": "PHASE-4",
+      "agent": "AGENT-ARCHITECT",
+      "role": "Domain modelling and technical design",
+      "provider": "evren3",
+      "model": "evren3/glm-5.3",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 5.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-ARCHITECT",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-002",
+      "wbs": "4.1.2",
+      "phase": "PHASE-4",
+      "agent": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "provider": "evren2",
+      "model": "evren2/qwen3.8-flash-next",
+      "backupModels": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 8.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-DATA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-003",
+      "wbs": "4.2.1",
+      "phase": "PHASE-4",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-004",
+      "wbs": "4.2.2",
+      "phase": "PHASE-4",
+      "agent": "AGENT-SECURITY",
+      "role": "Realm isolation, privacy and threat controls",
+      "provider": "google",
+      "model": "google/antigravity-claude-sonnet-5-5",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 5.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-SECURITY",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-005",
+      "wbs": "4.3.1",
+      "phase": "PHASE-4",
+      "agent": "AGENT-DATA",
+      "role": "Data ingestion, classification and persistence",
+      "provider": "evren2",
+      "model": "evren2/qwen3.8-flash-next",
+      "backupModels": [
+        "evren/qwen3.8-flash-next"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-DATA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "WA-006",
+      "wbs": "4.4.1",
+      "phase": "PHASE-4",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 7.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VR-001",
+      "wbs": "5.1.1",
+      "phase": "PHASE-5",
+      "agent": "AGENT-ARCHITECT",
+      "role": "Domain modelling and technical design",
+      "provider": "evren3",
+      "model": "evren3/glm-5.3",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-ARCHITECT",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VR-002",
+      "wbs": "5.1.2",
+      "phase": "PHASE-5",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 8.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VR-003",
+      "wbs": "5.2.1",
+      "phase": "PHASE-5",
+      "agent": "AGENT-SECURITY",
+      "role": "Realm isolation, privacy and threat controls",
+      "provider": "google",
+      "model": "google/antigravity-claude-sonnet-5-5",
+      "backupModels": [
+        "openai/gpt-6.1-sol"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-SECURITY",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VR-004",
+      "wbs": "5.2.2",
+      "phase": "PHASE-5",
+      "agent": "AGENT-KOTLIN",
+      "role": "Kotlin Multiplatform implementation",
+      "provider": "evren",
+      "model": "evren/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren2/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 6.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-KOTLIN",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "VR-005",
+      "wbs": "5.3.1",
+      "phase": "PHASE-5",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 5.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "MT-001",
+      "wbs": "6.1.1",
+      "phase": "PHASE-6",
+      "agent": "AGENT-RELEASE",
+      "role": "Build, signing, packaging and release validation",
+      "provider": "opencode",
+      "model": "opencode/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 3.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-RELEASE",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "MT-002",
+      "wbs": "6.2.1",
+      "phase": "PHASE-6",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 3.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "MT-003",
+      "wbs": "6.2.2",
+      "phase": "PHASE-6",
+      "agent": "AGENT-QA",
+      "role": "Test strategy, regression and acceptance evidence",
+      "provider": "evren",
+      "model": "evren/qwen3.8-flash-next",
+      "backupModels": [
+        "evren3/qwen3.8-flash-next"
+      ],
+      "allocationHours": 2.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-QA",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "MT-004",
+      "wbs": "6.3.1",
+      "phase": "PHASE-6",
+      "agent": "AGENT-RELEASE",
+      "role": "Build, signing, packaging and release validation",
+      "provider": "opencode",
+      "model": "opencode/deepseek-v4.1-flash",
+      "backupModels": [
+        "evren/deepseek-v4.1-flash"
+      ],
+      "allocationHours": 3.0,
+      "status": "pending",
+      "concurrencyKey": "AGENT-RELEASE",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    }
+  ],
+  "utilization": {
+    "AGENT-ORCHESTRATOR": 2.0,
+    "AGENT-ARCHITECT": 19.0,
+    "AGENT-KOTLIN": 44.0,
+    "AGENT-DATA": 27.0,
+    "AGENT-QA": 23.0,
+    "AGENT-SECURITY": 18.0,
+    "AGENT-RELEASE": 6.0
+  },
+  "notes": "Assigned models come from the 89 eligible inventory models. The excluded Gemini 3.8 Flash model is never assigned."
+}

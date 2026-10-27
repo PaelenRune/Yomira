@@ -1,0 +1,2529 @@
+{
+  "schemaVersion": "1.0.0",
+  "registry": "openchamber-active-models",
+  "policyAppliedAt": "2026-10-27T08:55:55Z",
+  "policyRef": "exclusion-policy.json",
+  "generatedAt": "2026-10-26T18:47:13+00:00",
+  "generatedBy": {
+    "taskId": "TASK-01-INV",
+    "wbs": "1.1.1",
+    "phase": "PHASE-1",
+    "provider": "evren3",
+    "model": "evren3/deepseek-v4.1-flash"
+  },
+  "source": {
+    "file": "C:\\Users\\paele\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf",
+    "format": "pdf",
+    "pages": 4,
+    "reportDate": "2026-10-20",
+    "reportCreatedAt": "2026-10-20T07:40:00+03:00",
+    "title": "OpenChamber & OpenCode Aktif Modeller"
+  },
+  "totals": {
+    "providers": 7,
+    "models": 89,
+    "activeModels": 89,
+    "sourceInventoryModels": 90,
+    "eligibleModels": 89,
+    "excludedModels": 1
+  },
+  "providers": [
+    {
+      "id": "google",
+      "name": "Google",
+      "modelCount": 6,
+      "share": "6.7%",
+      "status": "active",
+      "models": [
+        {
+          "index": 1,
+          "id": "google/antigravity-gemini-4-argon",
+          "providerId": "google",
+          "slug": "antigravity-gemini-4-argon",
+          "name": "Gemini 4 Argon (Antigravity)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 3,
+          "id": "google/antigravity-gemini-3.5-flash",
+          "providerId": "google",
+          "slug": "antigravity-gemini-3.5-flash",
+          "name": "Gemini 3.5 Flash (Antigravity)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 4,
+          "id": "google/antigravity-gemini-3.1-flash-image",
+          "providerId": "google",
+          "slug": "antigravity-gemini-3.1-flash-image",
+          "name": "Gemini 3.1 Flash Image (Antigravity)",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 5,
+          "id": "google/antigravity-claude-sonnet-5-5",
+          "providerId": "google",
+          "slug": "antigravity-claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5 (Antigravity)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 6,
+          "id": "google/antigravity-claude-opus-5-5",
+          "providerId": "google",
+          "slug": "antigravity-claude-opus-5-5",
+          "name": "Claude Opus 5.5 (Antigravity)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 7,
+          "id": "google/antigravity-gpt-oss-120b-medium",
+          "providerId": "google",
+          "slug": "antigravity-gpt-oss-120b-medium",
+          "name": "GPT-OSS 120B Medium (Antigravity)",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "evren",
+      "name": "Evren LLM API",
+      "modelCount": 8,
+      "share": "9.0%",
+      "status": "active",
+      "models": [
+        {
+          "index": 8,
+          "id": "evren/auto",
+          "providerId": "evren",
+          "slug": "auto",
+          "name": "Evren Auto (Router)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": false,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 32768,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 9,
+          "id": "evren/deepseek-v4.1-flash",
+          "providerId": "evren",
+          "slug": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 10,
+          "id": "evren/deepseek-v4-flash",
+          "providerId": "evren",
+          "slug": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 11,
+          "id": "evren/gemma-4-31b",
+          "providerId": "evren",
+          "slug": "gemma-4-31b",
+          "name": "Gemma 4 31B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 12,
+          "id": "evren/glm-5.3",
+          "providerId": "evren",
+          "slug": "glm-5.3",
+          "name": "GLM 5.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 524288,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 13,
+          "id": "evren/mimo-v2.6-pro",
+          "providerId": "evren",
+          "slug": "mimo-v2.6-pro",
+          "name": "MiMo V2.6 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 14,
+          "id": "evren/qwen3.8-flash-next",
+          "providerId": "evren",
+          "slug": "qwen3.8-flash-next",
+          "name": "Qwen3.8 Flash Next",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 15,
+          "id": "evren/qwen3-vl-30b",
+          "providerId": "evren",
+          "slug": "qwen3-vl-30b",
+          "name": "Qwen3 VL 30B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "evren2",
+      "name": "Evren LLM API 2",
+      "modelCount": 8,
+      "share": "9.0%",
+      "status": "active",
+      "models": [
+        {
+          "index": 16,
+          "id": "evren2/auto",
+          "providerId": "evren2",
+          "slug": "auto",
+          "name": "Evren Auto (Router)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": false,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 32768,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 17,
+          "id": "evren2/deepseek-v4.1-flash",
+          "providerId": "evren2",
+          "slug": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 18,
+          "id": "evren2/deepseek-v4-flash",
+          "providerId": "evren2",
+          "slug": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 19,
+          "id": "evren2/gemma-4-31b",
+          "providerId": "evren2",
+          "slug": "gemma-4-31b",
+          "name": "Gemma 4 31B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 20,
+          "id": "evren2/glm-5.3",
+          "providerId": "evren2",
+          "slug": "glm-5.3",
+          "name": "GLM 5.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 524288,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 21,
+          "id": "evren2/mimo-v2.6-pro",
+          "providerId": "evren2",
+          "slug": "mimo-v2.6-pro",
+          "name": "MiMo V2.6 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 22,
+          "id": "evren2/qwen3.8-flash-next",
+          "providerId": "evren2",
+          "slug": "qwen3.8-flash-next",
+          "name": "Qwen3.8 Flash Next",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 23,
+          "id": "evren2/qwen3-vl-30b",
+          "providerId": "evren2",
+          "slug": "qwen3-vl-30b",
+          "name": "Qwen3 VL 30B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "evren3",
+      "name": "Evren LLM API 3",
+      "modelCount": 8,
+      "share": "9.0%",
+      "status": "active",
+      "models": [
+        {
+          "index": 24,
+          "id": "evren3/auto",
+          "providerId": "evren3",
+          "slug": "auto",
+          "name": "Evren Auto (Router)",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": false,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 32768,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 25,
+          "id": "evren3/deepseek-v4.1-flash",
+          "providerId": "evren3",
+          "slug": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 65536
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 26,
+          "id": "evren3/deepseek-v4-flash",
+          "providerId": "evren3",
+          "slug": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 27,
+          "id": "evren3/gemma-4-31b",
+          "providerId": "evren3",
+          "slug": "gemma-4-31b",
+          "name": "Gemma 4 31B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 28,
+          "id": "evren3/glm-5.3",
+          "providerId": "evren3",
+          "slug": "glm-5.3",
+          "name": "GLM 5.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 524288,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 29,
+          "id": "evren3/mimo-v2.6-pro",
+          "providerId": "evren3",
+          "slug": "mimo-v2.6-pro",
+          "name": "MiMo V2.6 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 1048576,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 30,
+          "id": "evren3/qwen3.8-flash-next",
+          "providerId": "evren3",
+          "slug": "qwen3.8-flash-next",
+          "name": "Qwen3.8 Flash Next",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": true
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 31,
+          "id": "evren3/qwen3-vl-30b",
+          "providerId": "evren3",
+          "slug": "qwen3-vl-30b",
+          "name": "Qwen3 VL 30B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": true,
+            "reasoning": false
+          },
+          "limits": {
+            "context": 262144,
+            "output": 16384
+          },
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "nvidia",
+      "name": "Nvidia",
+      "modelCount": 9,
+      "share": "10.1%",
+      "status": "active",
+      "models": [
+        {
+          "index": 32,
+          "id": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+          "providerId": "nvidia",
+          "slug": "nvidia/nemotron-3.5-super-vl-120b-a12b",
+          "name": "Nemotron 3.5 Super VL 120B A12B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "thinking"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 33,
+          "id": "nvidia/stepfun-ai/step-5-preview",
+          "providerId": "nvidia",
+          "slug": "stepfun-ai/step-5-preview",
+          "name": "Step 5 Preview",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 34,
+          "id": "nvidia/z-ai/glm-5.3-flash",
+          "providerId": "nvidia",
+          "slug": "z-ai/glm-5.3-flash",
+          "name": "GLM 5.3 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "thinking"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 35,
+          "id": "nvidia/z-ai/glm-5.3",
+          "providerId": "nvidia",
+          "slug": "z-ai/glm-5.3",
+          "name": "GLM 5.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "thinking"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 36,
+          "id": "nvidia/meta/muse-glimmer-30b",
+          "providerId": "nvidia",
+          "slug": "meta/muse-glimmer-30b",
+          "name": "Muse Glimmer 30B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 37,
+          "id": "nvidia/google/gemma-4-31b-it",
+          "providerId": "nvidia",
+          "slug": "google/gemma-4-31b-it",
+          "name": "Gemma 4 31B Instruct",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "thinking"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 38,
+          "id": "nvidia/openai/gpt-oss-20b",
+          "providerId": "nvidia",
+          "slug": "openai/gpt-oss-20b",
+          "name": "GPT-OSS 20B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 39,
+          "id": "nvidia/meta/llama-3.2-11b-vision-instruct",
+          "providerId": "nvidia",
+          "slug": "meta/llama-3.2-11b-vision-instruct",
+          "name": "Llama 3.2 11B Vision Instruct",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 40,
+          "id": "nvidia/nvidia/nemotron-3-super-120b-a12b",
+          "providerId": "nvidia",
+          "slug": "nvidia/nemotron-3-super-120b-a12b",
+          "name": "Nemotron 3 Super 120B A12B",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "thinking"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "modelCount": 14,
+      "share": "15.7%",
+      "status": "active",
+      "models": [
+        {
+          "index": 41,
+          "id": "openai/gpt-6.1-sol",
+          "providerId": "openai",
+          "slug": "gpt-6.1-sol",
+          "name": "GPT-6.1 Sol",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 42,
+          "id": "openai/gpt-6-luna",
+          "providerId": "openai",
+          "slug": "gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 43,
+          "id": "openai/gpt-6-astra",
+          "providerId": "openai",
+          "slug": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 44,
+          "id": "openai/gpt-daybreak-red-latest",
+          "providerId": "openai",
+          "slug": "gpt-daybreak-red-latest",
+          "name": "Daybreak Red",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 45,
+          "id": "openai/gpt-5.6-terra",
+          "providerId": "openai",
+          "slug": "gpt-5.6-terra",
+          "name": "GPT-5.6 Terra",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 46,
+          "id": "openai/gpt-5.5-pro",
+          "providerId": "openai",
+          "slug": "gpt-5.5-pro",
+          "name": "GPT-5.5 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 47,
+          "id": "openai/gpt-5.4-mini",
+          "providerId": "openai",
+          "slug": "gpt-5.4-mini",
+          "name": "GPT-5.4 mini",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 48,
+          "id": "openai/gpt-5.4-nano",
+          "providerId": "openai",
+          "slug": "gpt-5.4-nano",
+          "name": "GPT-5.4 nano",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 49,
+          "id": "openai/gpt-5.3-codex-spark",
+          "providerId": "openai",
+          "slug": "gpt-5.3-codex-spark",
+          "name": "GPT-5.3 Codex Spark",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 50,
+          "id": "openai/gpt-5.3-codex",
+          "providerId": "openai",
+          "slug": "gpt-5.3-codex",
+          "name": "GPT-5.3 Codex",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 51,
+          "id": "openai/chatgpt-image-latest",
+          "providerId": "openai",
+          "slug": "chatgpt-image-latest",
+          "name": "chatgpt-image-latest",
+          "status": "active",
+          "variantMode": "image",
+          "variants": [
+            "Görsel"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text",
+              "image"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 52,
+          "id": "openai/o3-pro",
+          "providerId": "openai",
+          "slug": "o3-pro",
+          "name": "o3-pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 53,
+          "id": "openai/o3",
+          "providerId": "openai",
+          "slug": "o3",
+          "name": "o3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 54,
+          "id": "openai/text-embedding-3-small",
+          "providerId": "openai",
+          "slug": "text-embedding-3-small",
+          "name": "text-embedding-3-small",
+          "status": "active",
+          "variantMode": "embedding",
+          "variants": [
+            "Embedding"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "embedding"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        }
+      ]
+    },
+    {
+      "id": "opencode",
+      "name": "Personal / OpenCode",
+      "modelCount": 36,
+      "share": "40.4%",
+      "status": "active",
+      "models": [
+        {
+          "index": 55,
+          "id": "opencode/minimax-m3.1-flash-free",
+          "providerId": "opencode",
+          "slug": "minimax-m3.1-flash-free",
+          "name": "MiniMax M3.1 Flash Free",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 56,
+          "id": "opencode/nemotron-3.5-super-vl-free",
+          "providerId": "opencode",
+          "slug": "nemotron-3.5-super-vl-free",
+          "name": "Nemotron 3.5 Super VL Free",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 57,
+          "id": "opencode/gemini-4-argon",
+          "providerId": "opencode",
+          "slug": "gemini-4-argon",
+          "name": "Gemini 4 Argon",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 58,
+          "id": "opencode/claude-haiku-5-5",
+          "providerId": "opencode",
+          "slug": "claude-haiku-5-5",
+          "name": "Claude Haiku 5.5",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 59,
+          "id": "opencode/mistral-large-4",
+          "providerId": "opencode",
+          "slug": "mistral-large-4",
+          "name": "Mistral Large 4",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 60,
+          "id": "opencode/beam-free",
+          "providerId": "opencode",
+          "slug": "beam-free",
+          "name": "Beam Free",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 61,
+          "id": "opencode/gpt-6.1-sol",
+          "providerId": "opencode",
+          "slug": "gpt-6.1-sol",
+          "name": "GPT-6.1 Sol",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 62,
+          "id": "opencode/claude-sonnet-5-5",
+          "providerId": "opencode",
+          "slug": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 63,
+          "id": "opencode/longcat-2.5-preview-free",
+          "providerId": "opencode",
+          "slug": "longcat-2.5-preview-free",
+          "name": "LongCat 2.5 Preview Free",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 64,
+          "id": "opencode/claude-opus-5-5",
+          "providerId": "opencode",
+          "slug": "claude-opus-5-5",
+          "name": "Claude Opus 5.5",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 65,
+          "id": "opencode/gpt-6-luna",
+          "providerId": "opencode",
+          "slug": "gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 66,
+          "id": "opencode/mimo-v2.6-flash-free",
+          "providerId": "opencode",
+          "slug": "mimo-v2.6-flash-free",
+          "name": "MiMo-V2.6-Flash Free",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 67,
+          "id": "opencode/grok-4.7",
+          "providerId": "opencode",
+          "slug": "grok-4.7",
+          "name": "Grok 4.7",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 68,
+          "id": "opencode/deepseek-v4.1-flash",
+          "providerId": "opencode",
+          "slug": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 69,
+          "id": "opencode/gpt-6-astra",
+          "providerId": "opencode",
+          "slug": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 70,
+          "id": "opencode/gemini-3.8-flash",
+          "providerId": "opencode",
+          "slug": "gemini-3.8-flash",
+          "name": "Gemini 3.8 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 71,
+          "id": "opencode/muse-spark-1.3",
+          "providerId": "opencode",
+          "slug": "muse-spark-1.3",
+          "name": "Muse Spark 1.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "minimal",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 72,
+          "id": "opencode/claude-fable-5-1",
+          "providerId": "opencode",
+          "slug": "claude-fable-5-1",
+          "name": "Claude Fable 5.1",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 73,
+          "id": "opencode/glm-5.3-flash",
+          "providerId": "opencode",
+          "slug": "glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 74,
+          "id": "opencode/qwen3.8-flash",
+          "providerId": "opencode",
+          "slug": "qwen3.8-flash",
+          "name": "Qwen3.8 Flash",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 75,
+          "id": "opencode/glm-5.3",
+          "providerId": "opencode",
+          "slug": "glm-5.3",
+          "name": "GLM-5.3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 76,
+          "id": "opencode/gemini-3.5-flash-lite",
+          "providerId": "opencode",
+          "slug": "gemini-3.5-flash-lite",
+          "name": "Gemini 3.5 Flash Lite",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "minimal",
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 77,
+          "id": "opencode/kimi-k3",
+          "providerId": "opencode",
+          "slug": "kimi-k3",
+          "name": "Kimi K3",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 78,
+          "id": "opencode/gpt-5.6-terra",
+          "providerId": "opencode",
+          "slug": "gpt-5.6-terra",
+          "name": "GPT-5.6 Terra",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 79,
+          "id": "opencode/kimi-k2.7-code",
+          "providerId": "opencode",
+          "slug": "kimi-k2.7-code",
+          "name": "Kimi K2.7 Code",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 80,
+          "id": "opencode/deepseek-v4-pro",
+          "providerId": "opencode",
+          "slug": "deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 81,
+          "id": "opencode/gpt-5.5-pro",
+          "providerId": "opencode",
+          "slug": "gpt-5.5-pro",
+          "name": "GPT-5.5 Pro",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 82,
+          "id": "opencode/gpt-5.5",
+          "providerId": "opencode",
+          "slug": "gpt-5.5",
+          "name": "GPT-5.5",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 83,
+          "id": "opencode/grok-build-0.1",
+          "providerId": "opencode",
+          "slug": "grok-build-0.1",
+          "name": "Grok Build 0.1",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 84,
+          "id": "opencode/qwen3.6-plus",
+          "providerId": "opencode",
+          "slug": "qwen3.6-plus",
+          "name": "Qwen3.6 Plus",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "high",
+            "max"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 85,
+          "id": "opencode/gpt-5.4-mini",
+          "providerId": "opencode",
+          "slug": "gpt-5.4-mini",
+          "name": "GPT-5.4 Mini",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 86,
+          "id": "opencode/gpt-5.4-nano",
+          "providerId": "opencode",
+          "slug": "gpt-5.4-nano",
+          "name": "GPT-5.4 Nano",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 87,
+          "id": "opencode/gpt-5.3-codex",
+          "providerId": "opencode",
+          "slug": "gpt-5.3-codex",
+          "name": "GPT-5.3 Codex",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "none",
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 88,
+          "id": "opencode/gemini-3.1-pro",
+          "providerId": "opencode",
+          "slug": "gemini-3.1-pro",
+          "name": "Gemini 3.1 Pro Preview",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 89,
+          "id": "opencode/gpt-5.3-codex-spark",
+          "providerId": "opencode",
+          "slug": "gpt-5.3-codex-spark",
+          "name": "GPT-5.3 Codex Spark",
+          "status": "active",
+          "variantMode": "reasoning",
+          "variants": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": true
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        },
+        {
+          "index": 90,
+          "id": "opencode/big-pickle",
+          "providerId": "opencode",
+          "slug": "big-pickle",
+          "name": "Big Pickle",
+          "status": "active",
+          "variantMode": "standard",
+          "variants": [
+            "Standart"
+          ],
+          "capabilities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ],
+            "toolCall": null,
+            "reasoning": false
+          },
+          "limits": null,
+          "source": "pdf-inventory"
+        }
+      ]
+    }
+  ]
+}

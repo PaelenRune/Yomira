@@ -38,6 +38,9 @@ object CatalogRecordMapper {
                 externalRatings = listOfNotNull(record.contentRating),
                 isOfficialPublication = record.isOfficialPublication,
                 publicationType = record.publicationType,
+                // Adult-only platforms (allporncomic-type scrapers) are explicit evidence
+                // even when their tags are sparse or euphemistic.
+                sourceId = record.sourceId,
             ),
         )
         // The public feed never receives explicit titles from an uncurated remote feed.

@@ -9,6 +9,8 @@ class SmartSourceMatcher(
     private val extensions: ExtensionRepository,
     private val bridge: SourceBridge,
     private val discovery: SourceDiscovery,
+    private val currentTimeMillis: () -> Long = System::currentTimeMillis,
+    private val nanoTime: () -> Long = System::nanoTime,
 ) {
     suspend fun match(series: SeriesIdentity, preferences: ReaderPreferences): SmartMatchResult {
         val failures = mutableListOf<SourceFailure>()
@@ -18,15 +20,21 @@ class SmartSourceMatcher(
         }
         val candidates = mutableListOf<SourceCandidate>()
         val chaptersBySource = mutableMapOf<Pair<String, String>, List<SourceChapter>>()
+        val responseBonuses = mutableMapOf<Pair<String, String>, Long>()
+        val names = (series.aliases + series.title).map(::normalize).filter { it.isNotEmpty() }.toSet()
         for (extension in eligible.filter { it.packageName in installed }) {
             for (source in extension.sources.filter { accepts(it, preferences) }) {
                 try {
-                    val matches = bridge.getMangaList(extension.packageName, source.id, series.title)
-                    val names = (series.aliases + series.title).map(::normalize).toSet()
-                    val manga = matches.firstOrNull { normalize(it.title) in names } ?: continue
+                    val startedAt = nanoTime()
+                    val manga = (listOf(series.title) + series.aliases).distinct().firstNotNullOfOrNull { query ->
+                        bridge.getMangaList(extension.packageName, source.id, query)
+                            .firstOrNull { normalize(it.title) in names }
+                    } ?: continue
                     val chapters = bridge.getChapterList(extension.packageName, source.id, manga).distinctBy { it.id }
                     candidates += SourceCandidate(extension, source, manga, chapters.size, chapters.mapNotNull { it.uploadedAt }.maxOrNull())
                     chaptersBySource[extension.packageName to source.id] = chapters
+                    val elapsedMillis = ((nanoTime() - startedAt) / 1_000_000).coerceAtLeast(0)
+                    responseBonuses[extension.packageName to source.id] = 20L + (20L - elapsedMillis / 250L).coerceIn(0L, 20L)
                 } catch (error: TimeoutCancellationException) {
                     currentCoroutineContext().ensureActive()
                     failures += SourceFailure(source.id, "Source timed out")
@@ -42,7 +50,9 @@ class SmartSourceMatcher(
             try {
                 val allowed = missing.associateBy { it.packageName }
                 candidates += discovery.discover(series, missing).filter {
-                    allowed[it.extension.packageName] == it.extension && accepts(it.source, preferences)
+                    allowed[it.extension.packageName] == it.extension && accepts(it.source, preferences) &&
+                        normalize(it.manga.title) in names &&
+                        (languageRank(it.source, preferences) == 2 || it.chapterCount > 0)
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -50,10 +60,15 @@ class SmartSourceMatcher(
                 failures += SourceFailure("catalog", error.message ?: "Catalog unavailable")
             }
         }
+        val now = currentTimeMillis()
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
             .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount > 0 }
                 .thenByDescending { languageRank(it.source, preferences) }
-                .thenByDescending { it.chapterCount }
+                .thenByDescending { candidate ->
+                    val key = candidate.extension.packageName to candidate.source.id
+                    qualityScore(candidate, preferences, candidate.extension.packageName in installed, now) +
+                        (responseBonuses[key] ?: 0L)
+                }
                 .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE }
                 .thenByDescending { it.extension.packageName in installed }
                 .thenBy { it.extension.packageName }.thenBy { it.source.id })
@@ -86,6 +101,17 @@ class SmartSourceMatcher(
             preferences.language.accepts(sourceLanguage) -> 2
             else -> 0
         }
+    }
+
+    /** Language tiers are authoritative; quality only breaks ties inside a tier. */
+    private fun qualityScore(candidate: SourceCandidate, preferences: ReaderPreferences, installed: Boolean, now: Long): Long {
+        val language = if (languageRank(candidate.source, preferences) == 2) 1000L else 300L
+        // A bounded recency bonus cannot overwhelm completeness. Timestamps are epoch millis.
+        val recency = candidate.latestChapterAt?.takeIf { it > 0 }?.let { uploadedAt ->
+            val ageDays = (now.coerceAtLeast(uploadedAt) - uploadedAt) / 86_400_000L
+            (60L - ageDays).coerceIn(0L, 60L)
+        } ?: 0L
+        return language + candidate.chapterCount.toLong() * 2L + recency + if (installed) 100L else 0L
     }
 
     private fun normalize(title: String): String = title.trim().lowercase(java.util.Locale.ROOT)

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "description": "Provenance index for every fact used by the orchestration state store.",
+  "trustLevels": {
+    "primary": "Directly observed file, command output or device report.",
+    "directive": "Explicit instruction from the project owner.",
+    "derived": "Computed from primary sources by a named task.",
+    "secondary": "Repository documentation that may lag the code."
+  },
+  "sources": [
+    {
+      "id": "SRC-001",
+      "type": "inventory-pdf",
+      "title": "OpenChamber Active Models List (desktop inventory)",
+      "locator": "C:\\Users\\paele\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf",
+      "reportDate": "2026-10-20",
+      "retrievedAt": "2026-10-27T08:55:45Z",
+      "pages": 4,
+      "sha256": "5b19ede4449c2098d55d11dd8d1975da5d3897fd6f2141ee2126bf0f67458d8b",
+      "trust": "primary",
+      "usedFor": [
+        "providers.json",
+        "endpoints.json",
+        "base-models.json",
+        "capabilities.json"
+      ],
+      "limitations": "Catalog presence only; no authentication, quota or live inference test. Report date is historical."
+    },
+    {
+      "id": "SRC-002",
+      "type": "owner-directive",
+      "title": "Model isolation directive",
+      "locator": "User instruction recorded in the TASK_001 / TASK-01-INV briefs",
+      "reportDate": "2026-10-27",
+      "retrievedAt": "2026-10-27T15:04:11Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "directive",
+      "usedFor": [
+        "exclusion-policy.json",
+        "subagent-selection-policy.json",
+        "risk-register.json"
+      ],
+      "limitations": "google/antigravity-gemini-3.8-flash is excluded from all dispatch roles, including orchestrator and subagents."
+    },
+    {
+      "id": "SRC-003",
+      "type": "runtime-config",
+      "title": "OpenCode provider configuration",
+      "locator": "C:\\Users\\paele\\.config\\opencode\\opencode.json",
+      "reportDate": null,
+      "retrievedAt": "2026-10-26T18:47:13Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "primary",
+      "usedFor": [
+        "providers.json",
+        "endpoints.json"
+      ],
+      "limitations": "Used only to enrich evren, evren2 and evren3 limits/tool-call/reasoning; base URLs for other providers remain unpublished."
+    },
+    {
+      "id": "SRC-004",
+      "type": "manual",
+      "title": "Industrial Engineering Orchestrator V11.0, Section 7",
+      "locator": "User-supplied manual; persistent management structure specification",
+      "reportDate": null,
+      "retrievedAt": "2026-10-27T15:04:11Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "directive",
+      "usedFor": [
+        "directory layout",
+        "state file responsibilities",
+        "handoff contract"
+      ],
+      "limitations": "The manual is not checked into the repository; the layout below is the applied interpretation."
+    },
+    {
+      "id": "SRC-005",
+      "type": "repository-docs",
+      "title": "Yomira repository baseline documentation",
+      "locator": "README.md; release/CHANGELOG.md; release/RELEASE_NOTES.md; release/VALIDATION.md",
+      "reportDate": null,
+      "retrievedAt": "2026-10-27T15:04:11Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "secondary",
+      "usedFor": [
+        "project-charter.json",
+        "wbs.json"
+      ],
+      "limitations": "Documents describe released v5.4.0-beta/v5.4.1-beta behavior and may lag current code."
+    },
+    {
+      "id": "SRC-006",
+      "type": "dispatch-brief",
+      "title": "TASK_001 provider and model assignment",
+      "locator": "Orchestrator dispatch: provider evren, model evren/deepseek-v4.1-flash, backups openai/gpt-6.1-sol and evren/qwen3.8-flash-next",
+      "reportDate": "2026-10-27",
+      "retrievedAt": "2026-10-27T15:04:11Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "directive",
+      "usedFor": [
+        "resource-assignments.json",
+        "agent-assignments.json",
+        "performance/context-usage.json"
+      ],
+      "limitations": "Backup identifier is recorded exactly as dispatched; see risk R-007 for the catalog naming check."
+    },
+    {
+      "id": "SRC-007",
+      "type": "device-report",
+      "title": "Inventory and physical-device discovery report",
+      "locator": ".orchestrator/project-management/inventory-device-report.json",
+      "reportDate": "2026-10-27",
+      "retrievedAt": "2026-10-27T08:55:55Z",
+      "pages": null,
+      "sha256": null,
+      "trust": "primary",
+      "usedFor": [
+        "risk-register.json",
+        "blockers.json",
+        "wbs.json"
+      ],
+      "limitations": "Install failed with INSTALL_FAILED_USER_RESTRICTED; launch is unverified."
+    },
+    {
+      "id": "SRC-008",
+      "type": "derived-snapshot",
+      "title": "Extracted inventory snapshot",
+      "locator": ".orchestrator/model-registry/inventory-snapshot-2026-10-27.json",
+      "reportDate": "2026-10-20",
+      "retrievedAt": "2026-10-27T08:55:45Z",
+      "pages": 4,
+      "sha256": "5b19ede4449c2098d55d11dd8d1975da5d3897fd6f2141ee2126bf0f67458d8b",
+      "trust": "derived",
+      "usedFor": [
+        "endpoints.json",
+        "benchmarks.json"
+      ],
+      "limitations": "Derived from SRC-001; inherits its historical nature."
+    }
+  ],
+  "unresolved": [
+    "No dated provider price sheet has been supplied.",
+    "No runtime catalog export proves live availability after 2026-10-20.",
+    "The OpenChamber plugin base URLs for google, nvidia, openai and opencode are resolved at runtime, not published."
+  ]
+}

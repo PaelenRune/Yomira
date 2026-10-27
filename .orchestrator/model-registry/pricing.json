@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "status": "unknown",
+  "description": "Provider pricing reference for orchestration cost accounting. The source inventory does not publish prices or plan terms, so every rate is null until the owner supplies a current price sheet.",
+  "sourceRefs": [
+    "SRC-001",
+    "SRC-006"
+  ],
+  "currency": "USD",
+  "unit": "per-1M-tokens",
+  "policy": {
+    "fabricationProhibited": true,
+    "rule": "Rates and quotas are null unless taken from a dated provider price sheet. Estimated cost is never reported as spend.",
+    "billingUnknownBehavior": "Cost is recorded as null and the task is flagged unmeasured in performance/credits.json.",
+    "approvalRule": "Any paid overflow requires explicit owner approval before dispatch."
+  },
+  "providers": [
+    {
+      "providerId": "google",
+      "providerName": "Google (Antigravity)",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "Authenticated through the Antigravity OpenCode plugin; plan terms are not in the inventory."
+    },
+    {
+      "providerId": "evren",
+      "providerName": "Evren LLM API",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "OpenAI-compatible gateway at https://evren-llmapi.ssyz.org.tr/v1."
+    },
+    {
+      "providerId": "evren2",
+      "providerName": "Evren LLM API 2",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "OpenAI-compatible gateway at https://evren-llmapi.ssyz.org.tr/v1."
+    },
+    {
+      "providerId": "evren3",
+      "providerName": "Evren LLM API 3",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "OpenAI-compatible gateway at https://evren-llmapi.ssyz.org.tr/v1."
+    },
+    {
+      "providerId": "nvidia",
+      "providerName": "NVIDIA NIM",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "No rate published in the inventory."
+    },
+    {
+      "providerId": "openai",
+      "providerName": "OpenAI",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "No rate published in the inventory."
+    },
+    {
+      "providerId": "opencode",
+      "providerName": "OpenCode Zen",
+      "billingModel": "unknown",
+      "inputPer1M": null,
+      "outputPer1M": null,
+      "cachedInputPer1M": null,
+      "imagePerUnit": null,
+      "plan": null,
+      "notes": "Includes free-tier entries; free availability is not assumed to be permanent."
+    }
+  ],
+  "modelOverrides": [],
+  "totals": {
+    "providers": 7,
+    "providersWithPublishedRates": 0,
+    "providersWithUnknownRates": 7,
+    "measuredSpendUsd": 0,
+    "unmeasuredTasks": 2,
+    "spendBasis": "Zero means no billable event was recorded; rates remain unknown."
+  },
+  "links": {
+    "credits": "../performance/credits.json",
+    "actualPerformance": "../performance/actual-performance.json"
+  }
+}

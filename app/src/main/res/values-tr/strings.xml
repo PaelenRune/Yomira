@@ -142,6 +142,12 @@
     <string name="vault_retry">Yeniden dene</string>
     <string name="vault_filter_all">Tümü</string>
     <string name="vault_collection_title">Özel koleksiyon</string>
+    <string name="vault_rail_trending_webtoons">🔥 Trend Yetişkin Webtoon\'lar</string>
+    <string name="vault_rail_hentai_manga">🌸 Hentai Manga &amp; Klasikler</string>
+    <string name="vault_rail_new_doujinshi">⚡ Yeni Doujinshi\'ler</string>
+    <string name="vault_rail_western_3d">🌐 Batı &amp; 3D Erotik Çizgi Romanlar</string>
+    <string name="vault_rail_popular">Kasa Popülerleri</string>
+    <string name="vault_rail_empty">Bu rafta henüz seri yok. Kaynaklarını eşitle veya filtreyi değiştir.</string>
     <string name="vault_empty_title">Bu vitrin boş</string>
     <string name="vault_empty_message">Seçili türde yetişkin serisi bulunmuyor. Kaynaklarını eşitle veya filtreyi değiştir.</string>
     <string name="vault_unlock_prompt_title">Yomira Vault</string>
@@ -174,7 +180,8 @@
     <string name="detail_sort_newest">En yeni</string>
     <string name="detail_sort_oldest">En eski</string>
     <string name="detail_chapters_empty_title">Henüz bölüm yok</string>
-    <string name="detail_chapters_empty_message">Türkçe kaynak eşleştirmesini çalıştır veya seri kaynağını eşitle.</string>
+    <string name="detail_chapters_empty_message">Seçtiğin dilde okunabilir bölüm bulunamadı.</string>
+    <string name="detail_chapters_loading">En iyi kaynak taranıyor ve bölümler yükleniyor…</string>
     <string name="detail_chapter_fallback">Bölüm %1$s</string>
     <string name="detail_date_missing">Tarih belirtilmedi</string>
     <string name="detail_mark_read">Okundu olarak işaretle</string>
@@ -208,6 +215,12 @@
     <string name="detail_relation_parent">Ana seri</string>
     <string name="detail_relation_character">Karakter</string>
     <string name="detail_relation_other">İlişkili</string>
+    <string name="detail_adaptation_anime">Anime Uyarlaması</string>
+    <string name="detail_adaptation_hentai_ova">Hentai OVA</string>
+    <string name="detail_adaptation_live_action">Dizi / Canlı Uyarlama</string>
+    <string name="detail_adaptation_donghua">Donghua Uyarlaması</string>
+    <string name="detail_adaptation_special">Özel Bölüm</string>
+    <string name="detail_adaptation_episodes">%1$d Bölüm</string>
     <string name="detail_open_series_failed">Bu seri açılamadı.</string>
     <string name="detail_not_found_title">Seri bulunamadı</string>
     <string name="detail_not_found_message">Seri kaldırılmış veya katalog henüz yüklenmemiş olabilir.</string>

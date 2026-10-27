@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "description": "Context-window budget and per-task context ledger. Token counts remain null until a runtime reports them; limits are taken from the inventory and enriched provider configuration.",
+  "sourceRefs": [
+    "SRC-001",
+    "SRC-003"
+  ],
+  "policy": {
+    "warnAtPercent": 60,
+    "compactAtPercent": 75,
+    "handoffAtPercent": 85,
+    "hardStopAtPercent": 95,
+    "reserveOutputPercent": 10,
+    "rules": [
+      "Compact summaries before the handoff threshold; never let a task silently truncate critical state.",
+      "A handoff must carry dependencies, acceptance criteria, changed files and model policy.",
+      "If a model has no published limit, query the runtime before starting a long task.",
+      "Token counts are recorded only from a runtime or provider response, never estimated."
+    ]
+  },
+  "limits": [
+    {
+      "agentId": "AGENT-ORCHESTRATOR",
+      "model": "evren/deepseek-v4.1-flash",
+      "contextTokens": 1048576,
+      "maxOutputTokens": 65536,
+      "limitSource": "inventory + provider config",
+      "limitsKnown": true
+    },
+    {
+      "agentId": "AGENT-ARCHITECT",
+      "model": "evren3/glm-5.3",
+      "contextTokens": 524288,
+      "maxOutputTokens": 16384,
+      "limitSource": "inventory + provider config",
+      "limitsKnown": true
+    },
+    {
+      "agentId": "AGENT-KOTLIN",
+      "model": "evren/deepseek-v4.1-flash",
+      "contextTokens": 1048576,
+      "maxOutputTokens": 65536,
+      "limitSource": "inventory + provider config",
+      "limitsKnown": true
+    },
+    {
+      "agentId": "AGENT-DATA",
+      "model": "evren2/qwen3.8-flash-next",
+      "contextTokens": 262144,
+      "maxOutputTokens": 16384,
+      "limitSource": "inventory + provider config",
+      "limitsKnown": true
+    },
+    {
+      "agentId": "AGENT-QA",
+      "model": "evren/qwen3.8-flash-next",
+      "contextTokens": 262144,
+      "maxOutputTokens": 16384,
+      "limitSource": "inventory + provider config",
+      "limitsKnown": true
+    },
+    {
+      "agentId": "AGENT-SECURITY",
+      "model": "google/antigravity-claude-sonnet-5-5",
+      "contextTokens": null,
+      "maxOutputTokens": null,
+      "limitSource": "not published in inventory",
+      "limitsKnown": false
+    },
+    {
+      "agentId": "AGENT-RELEASE",
+      "model": "opencode/deepseek-v4.1-flash",
+      "contextTokens": null,
+      "maxOutputTokens": null,
+      "limitSource": "not published in inventory",
+      "limitsKnown": false
+    }
+  ],
+  "sessions": [],
+  "tasks": [
+    {
+      "taskId": "TASK-01-INV",
+      "agentId": "AGENT-DATA",
+      "model": "evren3/deepseek-v4.1-flash",
+      "status": "completed",
+      "peakContextTokens": null,
+      "totalInputTokens": null,
+      "totalOutputTokens": null,
+      "compactions": null,
+      "handoffRef": "handoffs/HO-01-INV.json",
+      "measured": false
+    },
+    {
+      "taskId": "TASK_001",
+      "agentId": "AGENT-ORCHESTRATOR",
+      "model": "evren/deepseek-v4.1-flash",
+      "status": "completed",
+      "peakContextTokens": null,
+      "totalInputTokens": null,
+      "totalOutputTokens": null,
+      "compactions": null,
+      "handoffRef": "handoffs/HO-TASK-001.json",
+      "measured": false
+    }
+  ],
+  "totals": {
+    "tasksRecorded": 2,
+    "measuredTasks": 0,
+    "unmeasuredTasks": 2,
+    "totalInputTokens": null,
+    "totalOutputTokens": null,
+    "contextLimitViolations": 0,
+    "agentsWithKnownLimits": 5,
+    "agentsWithoutKnownLimits": 2
+  },
+  "notes": [
+    "The inventory publishes limits for evren, evren2 and evren3 models only.",
+    "google/antigravity-claude-sonnet-5-5 and opencode/deepseek-v4.1-flash have null limits; treat them as unknown, not unlimited.",
+    "The 85% handoff threshold is a planning rule, not an enforced runtime guard."
+  ]
+}

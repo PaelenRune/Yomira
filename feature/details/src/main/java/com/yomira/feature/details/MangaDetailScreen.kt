@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.Chapter
+import com.yomira.core.model.AdaptationKind
+import com.yomira.core.model.WatchableAdaptation
 import com.yomira.core.model.Manga
 import com.yomira.core.model.MangaStatus
 import com.yomira.core.model.RecommendedSeries
@@ -35,7 +37,6 @@ import com.yomira.core.model.RelatedSeries
 import com.yomira.core.model.RelationRole
 import com.yomira.core.ui.*
 import com.yomira.core.ui.theme.*
-import com.yomira.domain.extension.SmartMatchResult
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -44,7 +45,7 @@ enum class DownloadState { NOT_DOWNLOADED, QUEUED, DOWNLOADING, DOWNLOADED, FAIL
 data class ChapterUiState(val chapter: Chapter, val read: Boolean = false, val download: DownloadState = DownloadState.NOT_DOWNLOADED)
 
 /**
- * Localized texts of the detail sheet and the smart source-match banner. The app module
+ * Localized texts of the detail sheet. The app module
  * builds it from string resources; the `%1$s`/`%1$d` placeholders stay in the resources.
  */
 @Immutable
@@ -71,7 +72,8 @@ data class DetailCopy(
     val sortNewest: String = "En yeni",
     val sortOldest: String = "En eski",
     val chaptersEmptyTitle: String = "Henüz bölüm yok",
-    val chaptersEmptyMessage: String = "Türkçe kaynak eşleştirmesini çalıştır veya seri kaynağını eşitle.",
+    val chaptersEmptyMessage: String = "Seçtiğin dilde okunabilir bölüm bulunamadı.",
+    val chaptersLoading: String = "En iyi kaynak taranıyor ve bölümler yükleniyor…",
     val chapterFallback: String = "Bölüm %1\$s",
     val dateMissing: String = "Tarih belirtilmedi",
     val markRead: String = "Okundu olarak işaretle",
@@ -79,16 +81,6 @@ data class DetailCopy(
     val downloaded: String = "İndirildi",
     val retryDownload: String = "İndirmeyi yeniden dene",
     val downloadChapter: String = "Bölümü indir",
-    val matchTitle: String = "Türkçe kaynak eşleştirmesi",
-    val matchComparing: String = "Kaynaklar karşılaştırılıyor…",
-    val matchMissingExtension: String = "Bu seriyi Türkçe okumak için en iyi kaynak: %1\$s (%2\$d bölüm). Bu eklentiyi kurmak ister misin?",
-    val matchInstall: String = "Eklentiyi kur",
-    val matchReady: String = "%1\$s hazır · %2\$d bölüm",
-    val matchNone: String = "Türkçe kaynak bulunamadı. Eklenti kataloğunu güncelleyip yeniden dene.",
-    val matchUnavailable: String = "Kaynak eşleştirmesi kullanılamıyor.",
-    val matchIdle: String = "Yüklü ve kullanılabilir kaynaklar arasından Türkçe bölümü en fazla olanı bul.",
-    val matchFindBest: String = "En iyi kaynağı bul",
-    val matchRematch: String = "Yeniden eşleştir",
     val relatedHeading: String = "İlgili Seriler",
     val relatedSubtitle: String = "Aynı evrenin diğer serileri",
     val recommendedHeading: String = "Bu Seriye Benzerler",
@@ -103,6 +95,12 @@ data class DetailCopy(
     val relationParent: String = "Ana seri",
     val relationCharacter: String = "Karakter",
     val relationOther: String = "İlişkili",
+    val adaptationAnime: String = "Anime Uyarlaması",
+    val adaptationHentaiOva: String = "Hentai OVA",
+    val adaptationLiveAction: String = "Dizi / Canlı Uyarlama",
+    val adaptationDonghua: String = "Donghua Uyarlaması",
+    val adaptationSpecial: String = "Özel Bölüm",
+    val adaptationEpisodes: String = "%1\$d Bölüm",
     val catalog: CatalogCopy = CatalogCopy(),
 ) {
     /** Localized franchise badge shown on a card of the "Related series" strip. */
@@ -118,6 +116,14 @@ data class DetailCopy(
         RelationRole.CHARACTER -> relationCharacter
         RelationRole.OTHER -> relationOther
     }
+
+    fun adaptationLabel(kind: AdaptationKind): String = when (kind) {
+        AdaptationKind.ANIME -> adaptationAnime
+        AdaptationKind.HENTAI_OVA -> adaptationHentaiOva
+        AdaptationKind.LIVE_ACTION -> adaptationLiveAction
+        AdaptationKind.DONGHUA -> adaptationDonghua
+        AdaptationKind.SPECIAL -> adaptationSpecial
+    }
 }
 
 /**
@@ -132,13 +138,10 @@ data class DetailCopy(
 fun MangaDetailScreen(
     manga: Manga,
     chapters: List<ChapterUiState>,
-    match: SmartMatchResult?,
     matching: Boolean,
     saved: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit,
-    onMatch: () -> Unit,
-    onInstall: (String) -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
     onDownload: (Chapter) -> Unit,
@@ -150,22 +153,25 @@ fun MangaDetailScreen(
     onOpenSeries: (id: String, title: String) -> Unit = { _, _ -> },
     copy: DetailCopy = DetailCopy(),
     twoPane: Boolean = false,
+    adaptations: List<WatchableAdaptation> = emptyList(),
 ) {
     if (twoPane) {
         TwoPaneDetail(
-            manga = manga, chapters = chapters, match = match, matching = matching, saved = saved,
-            onBack = onBack, onSave = onSave, onMatch = onMatch, onInstall = onInstall,
+            manga = manga, chapters = chapters, matching = matching, saved = saved,
+            onBack = onBack, onSave = onSave,
             onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
+            adaptations = adaptations,
         )
     } else {
         SinglePaneDetail(
-            manga = manga, chapters = chapters, match = match, matching = matching, saved = saved,
-            onBack = onBack, onSave = onSave, onMatch = onMatch, onInstall = onInstall,
+            manga = manga, chapters = chapters, matching = matching, saved = saved,
+            onBack = onBack, onSave = onSave,
             onRead = onRead, onToggleRead = onToggleRead, onDownload = onDownload,
             onPanic = onPanic, onContinue = onContinue, related = related, recommended = recommended,
             connectionsLoading = connectionsLoading, onOpenSeries = onOpenSeries, copy = copy,
+            adaptations = adaptations,
         )
     }
 }
@@ -174,13 +180,10 @@ fun MangaDetailScreen(
 private fun SinglePaneDetail(
     manga: Manga,
     chapters: List<ChapterUiState>,
-    match: SmartMatchResult?,
     matching: Boolean,
     saved: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit,
-    onMatch: () -> Unit,
-    onInstall: (String) -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
     onDownload: (Chapter) -> Unit,
@@ -188,6 +191,7 @@ private fun SinglePaneDetail(
     onContinue: ((Chapter) -> Unit)?,
     related: List<RelatedSeries>,
     recommended: List<RecommendedSeries>,
+    adaptations: List<WatchableAdaptation>,
     connectionsLoading: Boolean,
     onOpenSeries: (String, String) -> Unit,
     copy: DetailCopy,
@@ -220,12 +224,14 @@ private fun SinglePaneDetail(
                         }
                     }
                     MetadataBlock(manga, copy)
+                    if (adaptations.isNotEmpty()) AdaptationBadges(adaptations, copy)
                     SynopsisBlock(manga, expanded, onToggle = { expanded = !expanded }, copy)
-                    SmartMatchBanner(match, matching, onMatch, onInstall, copy)
                     ChapterHeading(chapters.size, descending, { descending = !descending }, copy)
                 }
             }
-            if (chapters.isEmpty()) item(key = "empty", contentType = "empty") { CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage) }
+            if (chapters.isEmpty()) item(key = "empty", contentType = "empty") {
+                if (matching) ChaptersLoading(copy) else CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
+            }
             items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
                 ChapterRow(entry, onRead, onToggleRead, onDownload, copy, Modifier.padding(horizontal = 20.dp))
             }
@@ -257,13 +263,10 @@ private fun SinglePaneDetail(
 private fun TwoPaneDetail(
     manga: Manga,
     chapters: List<ChapterUiState>,
-    match: SmartMatchResult?,
     matching: Boolean,
     saved: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit,
-    onMatch: () -> Unit,
-    onInstall: (String) -> Unit,
     onRead: (Chapter) -> Unit,
     onToggleRead: (Chapter) -> Unit,
     onDownload: (Chapter) -> Unit,
@@ -271,6 +274,7 @@ private fun TwoPaneDetail(
     onContinue: ((Chapter) -> Unit)?,
     related: List<RelatedSeries>,
     recommended: List<RecommendedSeries>,
+    adaptations: List<WatchableAdaptation>,
     connectionsLoading: Boolean,
     onOpenSeries: (String, String) -> Unit,
     copy: DetailCopy,
@@ -304,7 +308,7 @@ private fun TwoPaneDetail(
                 }
             }
             if (chapters.isEmpty()) {
-                CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
+                if (matching) ChaptersLoading(copy) else CatalogEmptyState(copy.chaptersEmptyTitle, copy.chaptersEmptyMessage)
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 20.dp)) {
                     items(sorted, key = { it.chapter.id }, contentType = { "chapter" }) { entry ->
@@ -333,13 +337,15 @@ private fun TwoPaneDetail(
                 }
             }
             item(key = "metadata", contentType = "metadata") { MetadataBlock(manga, copy) }
+            if (adaptations.isNotEmpty()) {
+                item(key = "adaptations", contentType = "adaptations") { AdaptationBadges(adaptations, copy) }
+            }
             item(key = "synopsis", contentType = "synopsis") {
                 Text(
                     manga.synopsis ?: copy.synopsisMissing,
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
-            item(key = "source-match", contentType = "source-match") { SmartMatchBanner(match, matching, onMatch, onInstall, copy) }
             item(key = "read", contentType = "read") { ReadNowButton(chapters, onContinue, onRead, copy) }
             item(key = "connections", contentType = "connections") {
                 FranchiseShowcases(
@@ -566,6 +572,41 @@ private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
     }
 }
 
+/** Informational only: watchable entries cannot be opened as readable manga. */
+@Composable
+private fun AdaptationBadges(adaptations: List<WatchableAdaptation>, copy: DetailCopy) {
+    if (adaptations.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        adaptations.forEach { adaptation ->
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                color = NeonViolet.copy(alpha = .16f),
+                border = BorderStroke(1.dp, NeonLavender.copy(alpha = .35f)),
+            ) {
+                Row(Modifier.padding(14.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Default.Tv, null, Modifier.size(24.dp), tint = NeonLavender)
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(copy.adaptationLabel(adaptation.kind), color = NeonLavender,
+                            style = MaterialTheme.typography.labelLarge)
+                        Text(adaptation.title, color = TextPrimary, style = MaterialTheme.typography.titleSmall,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            adaptation.format?.let { YomiraBadge(text = it) }
+                            adaptation.episodes?.let { YomiraBadge(text = String.format(copy.adaptationEpisodes, it)) }
+                            adaptation.releaseYear?.let { YomiraBadge(text = it.toString()) }
+                            adaptation.score?.let {
+                                YomiraBadge(text = "%.1f".format(it), icon = Icons.Default.Star,
+                                    accent = RatingGold, contentColor = RatingGold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /** Primary chapter action. Label follows the reader's actual position in the series. */
 @Composable
 private fun ReadNowButton(
@@ -586,7 +627,7 @@ private fun ReadNowButton(
     ) {
         Icon(Icons.AutoMirrored.Filled.MenuBook, null, Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
-        Text(if (started) copy.readContinue else copy.readStart, style = MaterialTheme.typography.labelLarge)
+        Text(if (started) copy.readContinue else copy.readNow, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -756,7 +797,7 @@ private fun FloatingReadAction(
                 )
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
-                        if (started) copy.readContinue else copy.readStart,
+                        if (started) copy.readContinue else copy.readNow,
                         style = MaterialTheme.typography.labelLarge,
                         color = TextPrimary,
                     )
@@ -887,44 +928,9 @@ private fun SeriesShowcaseRail(
 }
 
 @Composable
-fun SmartMatchBanner(result: SmartMatchResult?, loading: Boolean, onMatch: () -> Unit, onInstall: (String) -> Unit, copy: DetailCopy = DetailCopy()) {
-    YomiraCard(
-        shape = RoundedCornerShape(20.dp),
-        containerColor = NeonPurple.copy(alpha = .10f),
-        glow = result != null,
-    ) {
-        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Default.Translate, null, Modifier.size(16.dp), tint = NeonLavender)
-                Text(copy.matchTitle, style = MaterialTheme.typography.titleMedium)
-            }
-            when {
-                loading -> { LinearProgressIndicator(Modifier.fillMaxWidth().height(3.dp), color = NeonLavender); Text(copy.matchComparing, style = MaterialTheme.typography.bodyMedium, color = TextSecondary) }
-                result is SmartMatchResult.MissingExtension -> {
-                    Text(String.format(copy.matchMissingExtension, result.suggestedSource.source.name, result.chapterCount), style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                    Button(onClick = { onInstall(result.installUrl) }, shape = RoundedCornerShape(percent = 50)) { Text(copy.matchInstall) }
-                }
-                result is SmartMatchResult.Ready -> Text(String.format(copy.matchReady, result.selected.source.name, result.chapters.size), style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                result is SmartMatchResult.NoMatch -> Text(copy.matchNone, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                result is SmartMatchResult.Unavailable -> Text("${copy.matchUnavailable} ${result.failures.joinToString { it.reason }}", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                else -> Text(copy.matchIdle, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
-            }
-            if (!loading) {
-                Surface(
-                    onClick = onMatch,
-                    shape = RoundedCornerShape(percent = 50),
-                    color = NeonPurple.copy(alpha = .16f),
-                    border = BorderStroke(1.dp, NeonPurple.copy(alpha = .28f)),
-                    tonalElevation = 0.dp,
-                ) {
-                    Text(
-                        if (result == null) copy.matchFindBest else copy.matchRematch,
-                        Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = NeonLavender,
-                    )
-                }
-            }
-        }
+private fun ChaptersLoading(copy: DetailCopy) {
+    Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LinearProgressIndicator(Modifier.fillMaxWidth(), color = NeonLavender)
+        Text(copy.chaptersLoading, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
     }
 }

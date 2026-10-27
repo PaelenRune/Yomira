@@ -1,0 +1,816 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "name": "Yomira",
+    "description": "Free and open-source manga, manhwa, webtoon and comic reader with Android and Windows desktop surfaces.",
+    "currentVersion": "5.4.1-beta",
+    "targetVersion": "6.0.0-Beta",
+    "workspace": "D:\\Projeler\\Kişisel Projeler\\Yomira",
+    "orchestrationManual": "Industrial Engineering Orchestrator V11.0, Section 7"
+  },
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "status": "in-progress",
+  "totals": {
+    "phases": 6,
+    "workPackages": 18,
+    "tasks": 27,
+    "completedTasks": 2,
+    "remainingTasks": 25,
+    "estimatedRemainingHours": 136.0
+  },
+  "phases": [
+    {
+      "id": "PHASE-1",
+      "wbs": "1.0",
+      "name": "Orchestration Bootstrap & Discovery",
+      "status": "completed",
+      "objective": "Persistent orchestration state and an eligible-model registry that cannot select Gemini 3.8 Flash.",
+      "workPackages": [
+        {
+          "id": "1.0",
+          "name": "Orchestration Management Structure",
+          "status": "completed",
+          "tasks": [
+            {
+              "wbs": "1.0",
+              "taskId": "TASK_001",
+              "title": "Initialize .orchestrator management structure",
+              "summary": "Create the persistent model registry, project-management, execution, performance and handoff structure.",
+              "phase": "PHASE-1",
+              "status": "completed",
+              "agent": "AGENT-ORCHESTRATOR",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "openai/gpt-6.1-sol",
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [],
+              "estimateHours": 2.0,
+              "priority": "P0",
+              "outputs": [
+                ".orchestrator/model-registry/providers.json",
+                ".orchestrator/model-registry/endpoints.json",
+                ".orchestrator/model-registry/base-models.json",
+                ".orchestrator/model-registry/capabilities.json",
+                ".orchestrator/model-registry/benchmarks.json",
+                ".orchestrator/model-registry/pricing.json",
+                ".orchestrator/model-registry/sources.json",
+                ".orchestrator/project-management/project-charter.json",
+                ".orchestrator/project-management/wbs.json",
+                ".orchestrator/project-management/task-dependencies.json",
+                ".orchestrator/project-management/schedule.json",
+                ".orchestrator/project-management/critical-path.json",
+                ".orchestrator/project-management/resource-assignments.json",
+                ".orchestrator/project-management/risk-register.json",
+                ".orchestrator/execution/agent-assignments.json",
+                ".orchestrator/execution/active-tasks.json",
+                ".orchestrator/execution/completed-tasks.json",
+                ".orchestrator/execution/blockers.json",
+                ".orchestrator/performance/credits.json",
+                ".orchestrator/performance/context-usage.json",
+                ".orchestrator/performance/actual-performance.json",
+                ".orchestrator/handoffs/task-context/"
+              ],
+              "acceptanceCriteria": [
+                "Every required .orchestrator directory and JSON file exists.",
+                "All JSON parses and every collection has a schemaVersion.",
+                "Model registry retains 7 providers and 90 inventory endpoints with 89 eligible and 1 excluded.",
+                "The roadmap covers Smart Matcher, Vault cleanup/classifier, Watchable adaptations, Vault 2.0 and the 10-minute mobile test.",
+                "Risk register records model isolation, AniList rate limits and offline fallback controls.",
+                "No file outside .orchestrator is modified."
+              ],
+              "startedAt": "2026-10-27T14:50:00Z",
+              "completedAt": "2026-10-27T15:04:11Z",
+              "executionPhase": "PHASE_SETUP"
+            }
+          ]
+        },
+        {
+          "id": "1.1",
+          "name": "Environment Discovery",
+          "status": "completed",
+          "tasks": [
+            {
+              "wbs": "1.1.1",
+              "taskId": "TASK-01-INV",
+              "title": "Model inventory ingestion & exclusion policy",
+              "summary": "Ingest the 90-model desktop inventory, apply the Gemini 3.8 Flash exclusion and seed the registry.",
+              "phase": "PHASE-1",
+              "status": "completed",
+              "agent": "AGENT-DATA",
+              "assignedProvider": "evren2",
+              "assignedModel": "evren2/qwen3.8-flash-next",
+              "backupModels": [
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [],
+              "estimateHours": 1.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": [
+                "90 desktop inventory models ingested across 7 providers.",
+                "Gemini 3.8 Flash exclusion persisted in the registry policy."
+              ],
+              "completedAt": "2026-10-26T18:47:13+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-2",
+      "wbs": "2.0",
+      "name": "10x Smart Matcher",
+      "status": "not-started",
+      "objective": "A language-first matcher that narrows candidates by 10x at equal-or-better accuracy.",
+      "workPackages": [
+        {
+          "id": "2.1",
+          "name": "Matcher Core & Scoring",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "2.1.1",
+              "taskId": "SM-001",
+              "title": "Smart Matcher baseline measurement & scoring contract",
+              "summary": "Capture the v5.4.1-beta matcher baseline and freeze the score, tie-break and rejection contract.",
+              "phase": "PHASE-2",
+              "status": "pending",
+              "agent": "AGENT-ARCHITECT",
+              "assignedProvider": "evren3",
+              "assignedModel": "evren3/glm-5.3",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "TASK_001"
+              ],
+              "estimateHours": 8.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "2.1.2",
+              "taskId": "SM-002",
+              "title": "Language-first ranking & composite scoring",
+              "summary": "Implement language-first ranking, deterministic tie-breaks and mature-source filtering.",
+              "phase": "PHASE-2",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "SM-001"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Resolution & User Experience",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "2.2.1",
+              "taskId": "SM-003",
+              "title": "Extension availability & bridge resolution",
+              "summary": "Resolve installed/missing extensions and produce actionable install suggestions.",
+              "phase": "PHASE-2",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "SM-001"
+              ],
+              "estimateHours": 5.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "2.2.2",
+              "taskId": "SM-004",
+              "title": "Onboarding & settings matcher UX",
+              "summary": "Wire the selected reading language and matcher outcome into onboarding, settings and detail screens.",
+              "phase": "PHASE-2",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "SM-002",
+                "SM-003"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Verification",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "2.3.1",
+              "taskId": "SM-005",
+              "title": "10x verification: accuracy, latency and regression",
+              "summary": "Prove a 10x matched candidate reduction at equal-or-better accuracy with no regression in existing tests.",
+              "phase": "PHASE-2",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "SM-004"
+              ],
+              "estimateHours": 4.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-3",
+      "wbs": "3.0",
+      "name": "Vault Cleanup & Classifier",
+      "status": "not-started",
+      "objective": "A clean Vault and a deterministic SAFE/MATURE/EXPLICIT classifier with adversarial coverage.",
+      "workPackages": [
+        {
+          "id": "3.1",
+          "name": "Vault Audit & Classifier",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "3.1.1",
+              "taskId": "VC-001",
+              "title": "Vault catalog audit, dedupe and quarantine",
+              "summary": "Audit existing Vault rows, remove duplicates and quarantine ambiguous records for review.",
+              "phase": "PHASE-3",
+              "status": "pending",
+              "agent": "AGENT-DATA",
+              "assignedProvider": "evren2",
+              "assignedModel": "evren2/qwen3.8-flash-next",
+              "backupModels": [
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "TASK_001"
+              ],
+              "estimateHours": 4.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "3.1.2",
+              "taskId": "VC-002",
+              "title": "Classifier rule hardening",
+              "summary": "Harden SAFE/MATURE/EXPLICIT classification using titles, tags, publication type and external ratings.",
+              "phase": "PHASE-3",
+              "status": "pending",
+              "agent": "AGENT-DATA",
+              "assignedProvider": "evren2",
+              "assignedModel": "evren2/qwen3.8-flash-next",
+              "backupModels": [
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "VC-001"
+              ],
+              "estimateHours": 8.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Regression & Migration",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "3.2.1",
+              "taskId": "VC-003",
+              "title": "Adversarial classifier corpus & regression fixtures",
+              "summary": "Add false-positive and false-negative fixtures, including the MILF-party trap and compound tags.",
+              "phase": "PHASE-3",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "VC-002"
+              ],
+              "estimateHours": 5.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "3.2.2",
+              "taskId": "VC-004",
+              "title": "Vault cleanup migration & public-feed purge",
+              "summary": "Migrate corrected ratings and guarantee EXPLICIT records never surface outside the Vault.",
+              "phase": "PHASE-3",
+              "status": "pending",
+              "agent": "AGENT-SECURITY",
+              "assignedProvider": "google",
+              "assignedModel": "google/antigravity-claude-sonnet-5-5",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "VC-002",
+                "VC-003"
+              ],
+              "estimateHours": 7.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Acceptance",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "3.3.1",
+              "taskId": "VC-005",
+              "title": "Classifier & Vault isolation acceptance",
+              "summary": "Verify the corpus, locked-Vault emptiness, chip filtering and public-feed exclusion.",
+              "phase": "PHASE-3",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "VC-004"
+              ],
+              "estimateHours": 4.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-4",
+      "wbs": "4.0",
+      "name": "Watchable Adaptations",
+      "status": "not-started",
+      "objective": "Anime, Hentai and Kdrama adaptations with AniList rate-limit safety and offline fallbacks.",
+      "workPackages": [
+        {
+          "id": "4.1",
+          "name": "Adaptation Foundation",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "4.1.1",
+              "taskId": "WA-001",
+              "title": "Watchable adaptation domain model",
+              "summary": "Model Anime, Hentai and Kdrama adaptations without mixing them into the manga catalog.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-ARCHITECT",
+              "assignedProvider": "evren3",
+              "assignedModel": "evren3/glm-5.3",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "TASK_001"
+              ],
+              "estimateHours": 5.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "4.1.2",
+              "taskId": "WA-002",
+              "title": "AniList adapter: rate limit, retry and cache",
+              "summary": "Build a throttled AniList client with ETag/batch caching and exponential backoff on 429/5xx.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-DATA",
+              "assignedProvider": "evren2",
+              "assignedModel": "evren2/qwen3.8-flash-next",
+              "backupModels": [
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "WA-001"
+              ],
+              "estimateHours": 8.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Anime & Adult Gating",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "4.2.1",
+              "taskId": "WA-003",
+              "title": "Anime shelf & detail integration",
+              "summary": "Expose anime adaptations on detail and a dedicated shelf with empty/error states.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "WA-002"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "4.2.2",
+              "taskId": "WA-004",
+              "title": "Hentai adaptation gating to private realm",
+              "summary": "Route adult adaptations exclusively to the private realm and never preload them in the public realm.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-SECURITY",
+              "assignedProvider": "google",
+              "assignedModel": "google/antigravity-claude-sonnet-5-5",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "WA-002",
+                "VC-004"
+              ],
+              "estimateHours": 5.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "4.3",
+          "name": "Kdrama Adapter",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "4.3.1",
+              "taskId": "WA-005",
+              "title": "Kdrama metadata provider adapter",
+              "summary": "Add a pluggable Kdrama metadata adapter with attribution and graceful provider absence.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-DATA",
+              "assignedProvider": "evren2",
+              "assignedModel": "evren2/qwen3.8-flash-next",
+              "backupModels": [
+                "evren/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "WA-001"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "4.4",
+          "name": "Offline Resilience",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "4.4.1",
+              "taskId": "WA-006",
+              "title": "Offline adaptation snapshot & fallback UX",
+              "summary": "Serve last-known-good adaptation data offline and show a degraded-mode banner instead of failing.",
+              "phase": "PHASE-4",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "WA-002",
+                "WA-005"
+              ],
+              "estimateHours": 7.0,
+              "priority": "P1",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-5",
+      "wbs": "5.0",
+      "name": "Vault 2.0 Dual Realm",
+      "status": "not-started",
+      "objective": "Hard-separated public and private realms with migration, panic and screenshot protection.",
+      "workPackages": [
+        {
+          "id": "5.1",
+          "name": "Realm Model & Storage",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "5.1.1",
+              "taskId": "VR-001",
+              "title": "Vault 2.0 dual-realm data model",
+              "summary": "Define public and private realms with hard type and query boundaries.",
+              "phase": "PHASE-5",
+              "status": "pending",
+              "agent": "AGENT-ARCHITECT",
+              "assignedProvider": "evren3",
+              "assignedModel": "evren3/glm-5.3",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "VC-004",
+                "WA-004"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "5.1.2",
+              "taskId": "VR-002",
+              "title": "Separate storage, catalog and session per realm",
+              "summary": "Isolate DAOs, paging sources, caches and session state so private data is never hydrated publicly.",
+              "phase": "PHASE-5",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "VR-001"
+              ],
+              "estimateHours": 8.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "5.2",
+          "name": "Security & Migration",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "5.2.1",
+              "taskId": "VR-003",
+              "title": "Auth, panic and FLAG_SECURE hardening",
+              "summary": "Use system credential verification, clear private navigation on background and block screenshots.",
+              "phase": "PHASE-5",
+              "status": "pending",
+              "agent": "AGENT-SECURITY",
+              "assignedProvider": "google",
+              "assignedModel": "google/antigravity-claude-sonnet-5-5",
+              "backupModels": [
+                "openai/gpt-6.1-sol"
+              ],
+              "dependencies": [
+                "VR-002"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "5.2.2",
+              "taskId": "VR-004",
+              "title": "Vault 2.0 migration from 5.4.1-beta",
+              "summary": "Migrate existing Vault records losslessly and idempotently into the private realm.",
+              "phase": "PHASE-5",
+              "status": "pending",
+              "agent": "AGENT-KOTLIN",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren2/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "VR-001"
+              ],
+              "estimateHours": 6.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "5.3",
+          "name": "Verification",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "5.3.1",
+              "taskId": "VR-005",
+              "title": "Dual-realm security and isolation verification",
+              "summary": "Adversarial verification: locked realm empty, no cross-realm joins, no screenshot leakage.",
+              "phase": "PHASE-5",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "VR-003",
+                "VR-004"
+              ],
+              "estimateHours": 5.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-6",
+      "wbs": "6.0",
+      "name": "Release & 10-Minute Mobile Test",
+      "status": "not-started",
+      "objective": "A signed v6.0.0-Beta validated by a continuous 10-minute device test and an offline drill.",
+      "workPackages": [
+        {
+          "id": "6.1",
+          "name": "Release Build",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "6.1.1",
+              "taskId": "MT-001",
+              "title": "Build signed v6.0.0-Beta APK",
+              "summary": "Produce signed universal and ABI APKs from the release branch with reproducible checksums.",
+              "phase": "PHASE-6",
+              "status": "pending",
+              "agent": "AGENT-RELEASE",
+              "assignedProvider": "opencode",
+              "assignedModel": "opencode/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "SM-005",
+                "VC-005",
+                "VR-005",
+                "WA-006"
+              ],
+              "estimateHours": 3.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "6.2",
+          "name": "Mobile Verification",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "6.2.1",
+              "taskId": "MT-002",
+              "title": "Install & 10-minute continuous mobile test",
+              "summary": "Install over the existing build and run a 10-minute continuous foreground soak on the Mi 10T.",
+              "phase": "PHASE-6",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "MT-001"
+              ],
+              "estimateHours": 3.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            },
+            {
+              "wbs": "6.2.2",
+              "taskId": "MT-003",
+              "title": "Offline and fallback drill",
+              "summary": "Disable networking and verify cached catalog, adaptation and reader fallbacks with no crash or ANR.",
+              "phase": "PHASE-6",
+              "status": "pending",
+              "agent": "AGENT-QA",
+              "assignedProvider": "evren",
+              "assignedModel": "evren/qwen3.8-flash-next",
+              "backupModels": [
+                "evren3/qwen3.8-flash-next"
+              ],
+              "dependencies": [
+                "MT-001"
+              ],
+              "estimateHours": 2.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        },
+        {
+          "id": "6.3",
+          "name": "Release Closure",
+          "status": "not-started",
+          "tasks": [
+            {
+              "wbs": "6.3.1",
+              "taskId": "MT-004",
+              "title": "Release validation, notes and handoff",
+              "summary": "Publish validation evidence, release notes, checksums and the final orchestration handoff.",
+              "phase": "PHASE-6",
+              "status": "pending",
+              "agent": "AGENT-RELEASE",
+              "assignedProvider": "opencode",
+              "assignedModel": "opencode/deepseek-v4.1-flash",
+              "backupModels": [
+                "evren/deepseek-v4.1-flash"
+              ],
+              "dependencies": [
+                "MT-002",
+                "MT-003"
+              ],
+              "estimateHours": 3.0,
+              "priority": "P0",
+              "outputs": [],
+              "acceptanceCriteria": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

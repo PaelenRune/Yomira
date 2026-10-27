@@ -1,0 +1,462 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "registerId": "YOMIRA-RISK-V6",
+  "scoring": {
+    "probability": "1 rare - 5 almost certain",
+    "impact": "1 negligible - 5 critical",
+    "scoreFormula": "probability x impact",
+    "bands": {
+      "low": "1-4",
+      "medium": "5-9",
+      "high": "10-14",
+      "critical": "15-25"
+    }
+  },
+  "reviewCadence": "Reviewed at every phase gate and whenever a new provider, model or external API is introduced.",
+  "topRisks": [
+    "R-001",
+    "R-002",
+    "R-003",
+    "R-004",
+    "R-005"
+  ],
+  "risks": [
+    {
+      "id": "R-001",
+      "title": "Model isolation violation: Gemini 3.8 Flash reaches dispatch",
+      "category": "governance/model-policy",
+      "description": "google/antigravity-gemini-3.8-flash (and any gemini-3.8-flash alias) is prohibited from orchestrator, subagent and backup selection. A stale configuration, typo or alias could silently route work to it and invalidate the model-isolation guarantee.",
+      "probability": 2,
+      "impact": 5,
+      "score": 10,
+      "severity": "high",
+      "status": "mitigated",
+      "owner": "AGENT-ORCHESTRATOR",
+      "phase": "PHASE-1",
+      "triggers": [
+        "A provider config reintroduces the model under a new slug.",
+        "An agent assignment or fallback names a denied alias.",
+        "A new inventory snapshot lists a renamed Gemini 3.8 Flash endpoint."
+      ],
+      "mitigation": [
+        "exclusion-policy.json is the authoritative deny list and records the model as unavailable, not merely disfavored.",
+        "Every dispatch is validated against the case-insensitive regex gemini[-_. ]?3[._-]?8[-_. ]?flash before the provider call.",
+        "resource-assignments.json carries a per-task policyCheck and all assigned models come from the 89 eligible pairs.",
+        "The orchestrator itself runs on evren/deepseek-v4.1-flash, so no workflow depends on the excluded model."
+      ],
+      "contingency": "Hard-block the task, record a blocker in execution/blockers.json, reassign to an approved backup model and report the violation as a release blocker.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "model-registry/exclusion-policy.json",
+          "verification": "excludedModelIds contains google/antigravity-gemini-3.8-flash"
+        },
+        {
+          "type": "preventive",
+          "ref": "model-registry/subagent-selection-policy.json",
+          "verification": "denyModelIdRegex is case-insensitive and applied before selection"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/resource-assignments.json",
+          "verification": "No assignment matches the deny regex; eligibleInventoryModel is true for every task"
+        }
+      ],
+      "residualProbability": 1,
+      "residualImpact": 5,
+      "residualScore": 5,
+      "reviewDate": "2026-11-03"
+    },
+    {
+      "id": "R-002",
+      "title": "AniList rate limiting or outage degrades adaptation discovery",
+      "category": "external-api",
+      "description": "AniList enforces request budgets and returns 429/5xx under bursts. Unthrottled adaptation lookups would slow detail screens, exhaust the quota and leave anime shelves empty.",
+      "probability": 4,
+      "impact": 3,
+      "score": 12,
+      "severity": "high",
+      "status": "mitigated",
+      "owner": "AGENT-DATA",
+      "phase": "PHASE-4",
+      "triggers": [
+        "HTTP 429 or repeated 5xx from AniList.",
+        "Batch size or request rate above the configured budget.",
+        "Cold cache after install or data clear."
+      ],
+      "mitigation": [
+        "WA-002 builds a single throttled AniList client; no feature calls the API directly.",
+        "Requests use batching plus ETag/Last-Modified caching so unchanged titles cost no quota.",
+        "429 and 5xx responses use bounded exponential backoff with jitter and a circuit breaker.",
+        "Adaptation fetches are asynchronous and never block series detail or the reader.",
+        "The cache is persisted so repeated visits do not re-query."
+      ],
+      "contingency": "Serve last-known-good cached adaptations and show a non-blocking degraded notice; continue without adaptation data rather than failing the screen.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#WA-002",
+          "verification": "Acceptance requires throttle, ETag/batch cache and 429/5xx backoff"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/wbs.json#WA-006",
+          "verification": "Offline fallback test exercises cache miss and provider outage"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 3,
+      "residualScore": 6,
+      "reviewDate": "2026-11-10"
+    },
+    {
+      "id": "R-003",
+      "title": "Offline use breaks catalog, adaptations or reader entry",
+      "category": "resilience",
+      "description": "Mobile readers lose connectivity. A cold start without network, an unreachable AniList or an absent Kdrama provider must not crash, hang or show an empty library.",
+      "probability": 3,
+      "impact": 4,
+      "score": 12,
+      "severity": "high",
+      "status": "mitigated",
+      "owner": "AGENT-KOTLIN",
+      "phase": "PHASE-4",
+      "triggers": [
+        "Airplane mode or network loss during navigation.",
+        "Provider timeout while loading a shelf or detail screen.",
+        "Fresh install with no cached adaptation snapshot."
+      ],
+      "mitigation": [
+        "Local catalog remains the source of truth for library, history and downloads.",
+        "WA-006 persists a last-known-good adaptation snapshot and renders it with a degraded-mode banner.",
+        "WA-005 treats an absent Kdrama provider as a normal empty state, not an error.",
+        "MT-003 runs an explicit offline drill before release.",
+        "Empty, loading and error states are defined for every new shelf."
+      ],
+      "contingency": "Fall back to cached data, disable network-only actions with an explanation, and let the user retry without leaving the screen.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#WA-006",
+          "verification": "Offline snapshot and fallback UX are acceptance criteria"
+        },
+        {
+          "type": "verification",
+          "ref": "project-management/wbs.json#MT-003",
+          "verification": "Offline and fallback drill is a release gate"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 3,
+      "residualScore": 6,
+      "reviewDate": "2026-11-17"
+    },
+    {
+      "id": "R-004",
+      "title": "Content classifier false negative exposes EXPLICIT titles publicly",
+      "category": "content-safety",
+      "description": "A missed EXPLICIT classification, compound tag or misleading title (for example a party-themed title with adult tags) could surface adult content in the public feed or locked-Vault counts.",
+      "probability": 3,
+      "impact": 5,
+      "score": 15,
+      "severity": "critical",
+      "status": "mitigated",
+      "owner": "AGENT-DATA",
+      "phase": "PHASE-3",
+      "triggers": [
+        "New tag vocabulary or provider metadata shape.",
+        "Adversarial title that hides an adult tag.",
+        "Classifier rule change without corpus re-run."
+      ],
+      "mitigation": [
+        "VC-002 hardens deterministic rules across title, tags, publication type and external ratings.",
+        "VC-003 adds false-positive and false-negative fixtures, including the MILF-party trap and compound tags.",
+        "VC-004 guarantees EXPLICIT rows are excluded from public paging sources and migrated only into the private realm.",
+        "VC-005 verifies locked-Vault emptiness, chip filtering and public-feed exclusion."
+      ],
+      "contingency": "Quarantine ambiguous rows, block the release gate, and add the failing sample to the corpus before re-running migration.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#VC-002",
+          "verification": "Rule hardening is complete only with corpus evidence"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/wbs.json#VC-003",
+          "verification": "Adversarial corpus passes 100%"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/wbs.json#VC-005",
+          "verification": "Public-feed and locked-Vault isolation tests pass"
+        }
+      ],
+      "residualProbability": 1,
+      "residualImpact": 5,
+      "residualScore": 5,
+      "reviewDate": "2026-11-10"
+    },
+    {
+      "id": "R-005",
+      "title": "Private realm leakage through storage, cache or screenshots",
+      "category": "privacy/security",
+      "description": "Vault 2.0 splits public and private realms. A shared DAO, paging source, saved-state bundle or missing FLAG_SECURE could hydrate private titles into public UI or expose them in recents.",
+      "probability": 2,
+      "impact": 5,
+      "score": 10,
+      "severity": "high",
+      "status": "mitigated",
+      "owner": "AGENT-SECURITY",
+      "phase": "PHASE-5",
+      "triggers": [
+        "A public query joins a private table.",
+        "Private navigation state written to saved instance state.",
+        "Screenshot or recents preview captures private content."
+      ],
+      "mitigation": [
+        "VR-001 defines hard type and query boundaries between realms.",
+        "VR-002 separates DAOs, paging sources, caches and session state per realm.",
+        "VR-003 adds system credential verification, background lock, panic action and FLAG_SECURE.",
+        "VR-005 runs adversarial isolation tests including search, chips and cross-realm joins."
+      ],
+      "contingency": "Treat any leakage as a release blocker, purge affected caches and re-run the full isolation suite.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#VR-002",
+          "verification": "No shared pager or DAO between realms"
+        },
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#VR-003",
+          "verification": "FLAG_SECURE and panic behavior verified on device"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/wbs.json#VR-005",
+          "verification": "Dual-realm security and isolation verification passes"
+        }
+      ],
+      "residualProbability": 1,
+      "residualImpact": 5,
+      "residualScore": 5,
+      "reviewDate": "2026-11-17"
+    },
+    {
+      "id": "R-006",
+      "title": "Physical-device installation remains blocked",
+      "category": "environment",
+      "description": "The Mi 10T (M2007J3SY, Android 12 / API 31) rejects sideloading with INSTALL_FAILED_USER_RESTRICTED. The 10-minute mobile test cannot start until the owner approves installation on the phone.",
+      "probability": 4,
+      "impact": 2,
+      "score": 8,
+      "severity": "medium",
+      "status": "open-external",
+      "owner": "Project owner",
+      "phase": "PHASE-6",
+      "triggers": [
+        "Install prompt canceled on the device.",
+        "USB installation disabled in developer options."
+      ],
+      "mitigation": [
+        "Build and static verification proceed without the device.",
+        "Installation steps and evidence requirements are prepared in advance.",
+        "No security setting is bypassed or changed by automation."
+      ],
+      "contingency": "Run MT-002 and MT-003 immediately after the owner approves the install; delay the phase gate rather than claim an untested release.",
+      "controls": [
+        {
+          "type": "detective",
+          "ref": "project-management/inventory-device-report.json",
+          "verification": "Install exit code and post-install package query are recorded"
+        },
+        {
+          "type": "blocking",
+          "ref": "execution/blockers.json#BLK-001",
+          "verification": "Blocker closes only after launch is verified"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 2,
+      "residualScore": 4,
+      "reviewDate": "2026-11-17"
+    },
+    {
+      "id": "R-007",
+      "title": "Model availability or naming drifts from the dated inventory",
+      "category": "supply",
+      "description": "The 90-model inventory is dated 2026-10-20. Endpoints may be renamed, retired or newly gated, and a dispatched backup identifier may not exist in the current catalog.",
+      "probability": 3,
+      "impact": 3,
+      "score": 9,
+      "severity": "medium",
+      "status": "monitoring",
+      "owner": "AGENT-ORCHESTRATOR",
+      "phase": "PHASE-1",
+      "triggers": [
+        "HTTP 404/410 or model-not-found from a provider.",
+        "New catalog export differs from providers.json.",
+        "A backup model fails to resolve."
+      ],
+      "mitigation": [
+        "Every assignment carries 1-2 backup models from distinct providers.",
+        "Dispatch performs an allowlist check against the registry before calling the provider.",
+        "A failed provider triggers reassignment, never a switch to a prohibited model.",
+        "Inventory refresh is a repeatable script (model-registry/refresh-inventory.py)."
+      ],
+      "contingency": "Pause the task, record the drift in blockers.json, refresh the snapshot and re-plan affected assignments.",
+      "controls": [
+        {
+          "type": "detective",
+          "ref": "model-registry/inventory-snapshot-2026-10-27.json",
+          "verification": "Snapshot retains the source hash and report date"
+        },
+        {
+          "type": "preventive",
+          "ref": "execution/agent-assignments.json",
+          "verification": "Backups are eligible and provider-diverse"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 3,
+      "residualScore": 6,
+      "reviewDate": "2026-11-03"
+    },
+    {
+      "id": "R-008",
+      "title": "Cost or quota overrun because pricing is unknown",
+      "category": "cost",
+      "description": "No provider publishes rates in the inventory. Unmeasured spend could exhaust a plan or trigger paid overflow without approval.",
+      "probability": 3,
+      "impact": 2,
+      "score": 6,
+      "severity": "medium",
+      "status": "monitoring",
+      "owner": "AGENT-ORCHESTRATOR",
+      "phase": "PHASE-1",
+      "triggers": [
+        "A provider starts billing or changes plan terms.",
+        "A task exhausts context repeatedly.",
+        "Paid overflow is proposed."
+      ],
+      "mitigation": [
+        "pricing.json and credits.json store null instead of guessed values.",
+        "Each task records token usage when available; unknown cost stays null.",
+        "Paid overflow requires owner approval before dispatch.",
+        "Cheap or flat-rate eligible endpoints are preferred where quality is sufficient."
+      ],
+      "contingency": "Stop dispatch, report measured usage and request a budget decision from the owner.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "model-registry/pricing.json",
+          "verification": "No fabricated rate is present"
+        },
+        {
+          "type": "detective",
+          "ref": "performance/credits.json",
+          "verification": "Unmeasured tasks are counted explicitly"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 2,
+      "residualScore": 4,
+      "reviewDate": "2026-11-03"
+    },
+    {
+      "id": "R-009",
+      "title": "Kdrama metadata provider is unavailable or unstable",
+      "category": "external-api",
+      "description": "There is no single canonical Kdrama metadata source equivalent to AniList. A provider may be missing, change shape or require attribution that the UI does not yet show.",
+      "probability": 3,
+      "impact": 3,
+      "score": 9,
+      "severity": "medium",
+      "status": "mitigated",
+      "owner": "AGENT-DATA",
+      "phase": "PHASE-4",
+      "triggers": [
+        "Provider returns empty or schema-invalid payloads.",
+        "Attribution requirement changes.",
+        "Provider disappears from the configured list."
+      ],
+      "mitigation": [
+        "WA-005 defines a pluggable adapter boundary with attribution support.",
+        "Provider absence renders a graceful empty state rather than an error.",
+        "Cached metadata serves repeat visits."
+      ],
+      "contingency": "Disable the Kdrama shelf entry for the affected build and record the gap; do not block anime or manga features.",
+      "controls": [
+        {
+          "type": "preventive",
+          "ref": "project-management/wbs.json#WA-005",
+          "verification": "Adapter boundary and attribution are acceptance criteria"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 2,
+      "residualScore": 4,
+      "reviewDate": "2026-11-10"
+    },
+    {
+      "id": "R-010",
+      "title": "Schedule compression on the critical path",
+      "category": "schedule",
+      "description": "PHASE-2 through PHASE-6 total roughly 136 estimated hours, with the longest chain running through Vault cleanup, Vault 2.0 and release. A slip in VC-002 or VR-002 pushes the mobile test and release.",
+      "probability": 2,
+      "impact": 3,
+      "score": 6,
+      "severity": "medium",
+      "status": "monitoring",
+      "owner": "AGENT-ARCHITECT",
+      "phase": "PHASE-1",
+      "triggers": [
+        "A critical-path task exceeds its estimate.",
+        "New scope enters PHASE-3 or PHASE-5.",
+        "Device availability delays MT-002."
+      ],
+      "mitigation": [
+        "PHASE-2 runs in parallel with the Vault branch.",
+        "Dependencies and critical path are stored as data and re-computed after change.",
+        "Phase gates require evidence, preventing hidden rework."
+      ],
+      "contingency": "Re-plan dates, surface the trade-off to the owner and cut optional scope before cutting verification.",
+      "controls": [
+        {
+          "type": "detective",
+          "ref": "project-management/critical-path.json",
+          "verification": "Critical path recomputed from the DAG"
+        },
+        {
+          "type": "detective",
+          "ref": "project-management/schedule.json",
+          "verification": "Milestones and target dates updated after each gate"
+        }
+      ],
+      "residualProbability": 2,
+      "residualImpact": 2,
+      "residualScore": 4,
+      "reviewDate": "2026-11-03"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "openExternal": 1,
+    "monitoring": 3,
+    "mitigated": 6,
+    "closed": 0,
+    "critical": 1,
+    "high": 4,
+    "medium": 5,
+    "low": 0
+  },
+  "notes": [
+    "R-001 is a hard policy control, not an ordinary technical risk: a violation blocks release.",
+    "Residual scores assume the listed controls are implemented and verified; an unimplemented control leaves the original score in force.",
+    "No risk is closed until its verification evidence is linked from execution/completed-tasks.json."
+  ]
+}

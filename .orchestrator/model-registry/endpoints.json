@@ -1,0 +1,3057 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-26T18:47:13+00:00",
+  "source": {
+    "inventory": "C:\\Users\\paele\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf",
+    "runtimeConfig": "C:\\Users\\paele\\.config\\opencode\\opencode.json"
+  },
+  "endpointCount": 90,
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "endpointCountScope": "inventory model endpoints (provider/model pairs listed in the 2026-10-20 desktop inventory PDF)",
+  "providerEndpointCount": 7,
+  "activeModelEndpointCount": 89,
+  "excludedModelEndpointCount": 1,
+  "counts": {
+    "providerEndpoints": 7,
+    "modelEndpoints": 90,
+    "activeModelEndpoints": 89,
+    "excludedModelEndpoints": 1,
+    "providers": 7
+  },
+  "verification": "Inventory presence only; no authentication, quota or live availability probe was performed.",
+  "providerEndpoints": [
+    {
+      "endpointId": "google-primary",
+      "providerId": "google",
+      "providerName": "Google",
+      "transport": "antigravity-oauth",
+      "package": "@cortexkit/opencode-antigravity-auth",
+      "baseURL": null,
+      "apiKeyEnv": null,
+      "authRef": "opencode-plugin:@cortexkit/opencode-antigravity-auth",
+      "status": "active",
+      "modelCount": 6,
+      "models": [
+        "google/antigravity-gemini-4-argon",
+        "google/antigravity-gemini-3.5-flash",
+        "google/antigravity-gemini-3.1-flash-image",
+        "google/antigravity-claude-sonnet-5-5",
+        "google/antigravity-claude-opus-5-5",
+        "google/antigravity-gpt-oss-120b-medium"
+      ],
+      "notes": [
+        "Base URL is not published in the inventory PDF; resolved by OpenChamber runtime."
+      ]
+    },
+    {
+      "endpointId": "evren-primary",
+      "providerId": "evren",
+      "providerName": "Evren LLM API",
+      "transport": "openai-compatible",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "baseURL": "https://evren-llmapi.ssyz.org.tr/v1",
+      "apiKeyEnv": "EVREN_API_KEY",
+      "authRef": "env:EVREN_API_KEY",
+      "status": "active",
+      "modelCount": 8,
+      "models": [
+        "evren/auto",
+        "evren/deepseek-v4.1-flash",
+        "evren/deepseek-v4-flash",
+        "evren/gemma-4-31b",
+        "evren/glm-5.3",
+        "evren/mimo-v2.6-pro",
+        "evren/qwen3.8-flash-next",
+        "evren/qwen3-vl-30b"
+      ],
+      "notes": [
+        "Base URL verified against OpenCode provider configuration (2026-10-26)."
+      ]
+    },
+    {
+      "endpointId": "evren2-primary",
+      "providerId": "evren2",
+      "providerName": "Evren LLM API 2",
+      "transport": "openai-compatible",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "baseURL": "https://evren-llmapi.ssyz.org.tr/v1",
+      "apiKeyEnv": "EVREN2_API_KEY",
+      "authRef": "env:EVREN2_API_KEY",
+      "status": "active",
+      "modelCount": 8,
+      "models": [
+        "evren2/auto",
+        "evren2/deepseek-v4.1-flash",
+        "evren2/deepseek-v4-flash",
+        "evren2/gemma-4-31b",
+        "evren2/glm-5.3",
+        "evren2/mimo-v2.6-pro",
+        "evren2/qwen3.8-flash-next",
+        "evren2/qwen3-vl-30b"
+      ],
+      "notes": [
+        "Base URL verified against OpenCode provider configuration (2026-10-26)."
+      ]
+    },
+    {
+      "endpointId": "evren3-primary",
+      "providerId": "evren3",
+      "providerName": "Evren LLM API 3",
+      "transport": "openai-compatible",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "baseURL": "https://evren-llmapi.ssyz.org.tr/v1",
+      "apiKeyEnv": "EVREN3_API_KEY",
+      "authRef": "env:EVREN3_API_KEY",
+      "status": "active",
+      "modelCount": 8,
+      "models": [
+        "evren3/auto",
+        "evren3/deepseek-v4.1-flash",
+        "evren3/deepseek-v4-flash",
+        "evren3/gemma-4-31b",
+        "evren3/glm-5.3",
+        "evren3/mimo-v2.6-pro",
+        "evren3/qwen3.8-flash-next",
+        "evren3/qwen3-vl-30b"
+      ],
+      "notes": [
+        "Base URL verified against OpenCode provider configuration (2026-10-26)."
+      ]
+    },
+    {
+      "endpointId": "nvidia-primary",
+      "providerId": "nvidia",
+      "providerName": "Nvidia",
+      "transport": "provider-sdk",
+      "package": "@openchamber/opencode-search-providers",
+      "baseURL": null,
+      "apiKeyEnv": null,
+      "authRef": "opencode-managed",
+      "status": "active",
+      "modelCount": 9,
+      "models": [
+        "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+        "nvidia/stepfun-ai/step-5-preview",
+        "nvidia/z-ai/glm-5.3-flash",
+        "nvidia/z-ai/glm-5.3",
+        "nvidia/meta/muse-glimmer-30b",
+        "nvidia/google/gemma-4-31b-it",
+        "nvidia/openai/gpt-oss-20b",
+        "nvidia/meta/llama-3.2-11b-vision-instruct",
+        "nvidia/nvidia/nemotron-3-super-120b-a12b"
+      ],
+      "notes": [
+        "Base URL is not published in the inventory PDF; resolved by OpenChamber runtime."
+      ]
+    },
+    {
+      "endpointId": "openai-primary",
+      "providerId": "openai",
+      "providerName": "OpenAI",
+      "transport": "provider-sdk",
+      "package": "@opencode/ai/providers/openai",
+      "baseURL": null,
+      "apiKeyEnv": null,
+      "authRef": "opencode-managed",
+      "status": "active",
+      "modelCount": 14,
+      "models": [
+        "openai/gpt-6.1-sol",
+        "openai/gpt-6-luna",
+        "openai/gpt-6-astra",
+        "openai/gpt-daybreak-red-latest",
+        "openai/gpt-5.6-terra",
+        "openai/gpt-5.5-pro",
+        "openai/gpt-5.4-mini",
+        "openai/gpt-5.4-nano",
+        "openai/gpt-5.3-codex-spark",
+        "openai/gpt-5.3-codex",
+        "openai/chatgpt-image-latest",
+        "openai/o3-pro",
+        "openai/o3",
+        "openai/text-embedding-3-small"
+      ],
+      "notes": [
+        "Base URL is not published in the inventory PDF; resolved by OpenChamber runtime."
+      ]
+    },
+    {
+      "endpointId": "opencode-primary",
+      "providerId": "opencode",
+      "providerName": "Personal / OpenCode",
+      "transport": "provider-sdk",
+      "package": "@opencode/ai",
+      "baseURL": null,
+      "apiKeyEnv": null,
+      "authRef": "opencode-managed",
+      "status": "active",
+      "modelCount": 36,
+      "models": [
+        "opencode/minimax-m3.1-flash-free",
+        "opencode/nemotron-3.5-super-vl-free",
+        "opencode/gemini-4-argon",
+        "opencode/claude-haiku-5-5",
+        "opencode/mistral-large-4",
+        "opencode/beam-free",
+        "opencode/gpt-6.1-sol",
+        "opencode/claude-sonnet-5-5",
+        "opencode/longcat-2.5-preview-free",
+        "opencode/claude-opus-5-5",
+        "opencode/gpt-6-luna",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/grok-4.7",
+        "opencode/deepseek-v4.1-flash",
+        "opencode/gpt-6-astra",
+        "opencode/gemini-3.8-flash",
+        "opencode/muse-spark-1.3",
+        "opencode/claude-fable-5-1",
+        "opencode/glm-5.3-flash",
+        "opencode/qwen3.8-flash",
+        "opencode/glm-5.3",
+        "opencode/gemini-3.5-flash-lite",
+        "opencode/kimi-k3",
+        "opencode/gpt-5.6-terra",
+        "opencode/kimi-k2.7-code",
+        "opencode/deepseek-v4-pro",
+        "opencode/gpt-5.5-pro",
+        "opencode/gpt-5.5",
+        "opencode/grok-build-0.1",
+        "opencode/qwen3.6-plus",
+        "opencode/gpt-5.4-mini",
+        "opencode/gpt-5.4-nano",
+        "opencode/gpt-5.3-codex",
+        "opencode/gemini-3.1-pro",
+        "opencode/gpt-5.3-codex-spark",
+        "opencode/big-pickle"
+      ],
+      "notes": [
+        "Base URL is not published in the inventory PDF; resolved by OpenChamber runtime."
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "endpointId": "model-001",
+      "inventoryIndex": 1,
+      "modelId": "evren/auto",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": false,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 32768,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-002",
+      "inventoryIndex": 2,
+      "modelId": "evren/deepseek-v4-flash",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-003",
+      "inventoryIndex": 3,
+      "modelId": "evren/deepseek-v4.1-flash",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 65536
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-004",
+      "inventoryIndex": 4,
+      "modelId": "evren/gemma-4-31b",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-005",
+      "inventoryIndex": 5,
+      "modelId": "evren/glm-5.3",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 524288,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-006",
+      "inventoryIndex": 6,
+      "modelId": "evren/mimo-v2.6-pro",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-007",
+      "inventoryIndex": 7,
+      "modelId": "evren/qwen3-vl-30b",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-008",
+      "inventoryIndex": 8,
+      "modelId": "evren/qwen3.8-flash-next",
+      "providerId": "evren",
+      "providerEndpointId": "evren-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-009",
+      "inventoryIndex": 9,
+      "modelId": "evren2/auto",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": false,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 32768,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-010",
+      "inventoryIndex": 10,
+      "modelId": "evren2/deepseek-v4-flash",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-011",
+      "inventoryIndex": 11,
+      "modelId": "evren2/deepseek-v4.1-flash",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 65536
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-012",
+      "inventoryIndex": 12,
+      "modelId": "evren2/gemma-4-31b",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-013",
+      "inventoryIndex": 13,
+      "modelId": "evren2/glm-5.3",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 524288,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-014",
+      "inventoryIndex": 14,
+      "modelId": "evren2/mimo-v2.6-pro",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-015",
+      "inventoryIndex": 15,
+      "modelId": "evren2/qwen3-vl-30b",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-016",
+      "inventoryIndex": 16,
+      "modelId": "evren2/qwen3.8-flash-next",
+      "providerId": "evren2",
+      "providerEndpointId": "evren2-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-017",
+      "inventoryIndex": 17,
+      "modelId": "evren3/auto",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": false,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 32768,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-018",
+      "inventoryIndex": 18,
+      "modelId": "evren3/deepseek-v4-flash",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-019",
+      "inventoryIndex": 19,
+      "modelId": "evren3/deepseek-v4.1-flash",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 65536
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-020",
+      "inventoryIndex": 20,
+      "modelId": "evren3/gemma-4-31b",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-021",
+      "inventoryIndex": 21,
+      "modelId": "evren3/glm-5.3",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 524288,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-022",
+      "inventoryIndex": 22,
+      "modelId": "evren3/mimo-v2.6-pro",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 1048576,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-023",
+      "inventoryIndex": 23,
+      "modelId": "evren3/qwen3-vl-30b",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": false
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-024",
+      "inventoryIndex": 24,
+      "modelId": "evren3/qwen3.8-flash-next",
+      "providerId": "evren3",
+      "providerEndpointId": "evren3-primary",
+      "transport": "openai-compatible",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": true,
+        "reasoning": true
+      },
+      "limits": {
+        "context": 262144,
+        "output": 16384
+      },
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-025",
+      "inventoryIndex": 25,
+      "modelId": "google/antigravity-claude-opus-5-5",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-026",
+      "inventoryIndex": 26,
+      "modelId": "google/antigravity-claude-sonnet-5-5",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-027",
+      "inventoryIndex": 27,
+      "modelId": "google/antigravity-gemini-3.1-flash-image",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-028",
+      "inventoryIndex": 28,
+      "modelId": "google/antigravity-gemini-3.5-flash",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-029",
+      "inventoryIndex": 29,
+      "modelId": "google/antigravity-gemini-3.8-flash",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "excluded-by-policy",
+      "eligible": false,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": "model-registry/exclusion-policy.json"
+    },
+    {
+      "endpointId": "model-030",
+      "inventoryIndex": 30,
+      "modelId": "google/antigravity-gemini-4-argon",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-031",
+      "inventoryIndex": 31,
+      "modelId": "google/antigravity-gpt-oss-120b-medium",
+      "providerId": "google",
+      "providerEndpointId": "google-primary",
+      "transport": "antigravity-oauth",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-032",
+      "inventoryIndex": 32,
+      "modelId": "nvidia/google/gemma-4-31b-it",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "thinking"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-033",
+      "inventoryIndex": 33,
+      "modelId": "nvidia/meta/llama-3.2-11b-vision-instruct",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-034",
+      "inventoryIndex": 34,
+      "modelId": "nvidia/meta/muse-glimmer-30b",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-035",
+      "inventoryIndex": 35,
+      "modelId": "nvidia/nvidia/nemotron-3-super-120b-a12b",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "thinking"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-036",
+      "inventoryIndex": 36,
+      "modelId": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "thinking"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-037",
+      "inventoryIndex": 37,
+      "modelId": "nvidia/openai/gpt-oss-20b",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-038",
+      "inventoryIndex": 38,
+      "modelId": "nvidia/stepfun-ai/step-5-preview",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-039",
+      "inventoryIndex": 39,
+      "modelId": "nvidia/z-ai/glm-5.3",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "thinking"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-040",
+      "inventoryIndex": 40,
+      "modelId": "nvidia/z-ai/glm-5.3-flash",
+      "providerId": "nvidia",
+      "providerEndpointId": "nvidia-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "thinking"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-041",
+      "inventoryIndex": 41,
+      "modelId": "openai/chatgpt-image-latest",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "image",
+      "variants": [
+        "Görsel"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text",
+          "image"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-042",
+      "inventoryIndex": 42,
+      "modelId": "openai/gpt-5.3-codex",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-043",
+      "inventoryIndex": 43,
+      "modelId": "openai/gpt-5.3-codex-spark",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-044",
+      "inventoryIndex": 44,
+      "modelId": "openai/gpt-5.4-mini",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-045",
+      "inventoryIndex": 45,
+      "modelId": "openai/gpt-5.4-nano",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-046",
+      "inventoryIndex": 46,
+      "modelId": "openai/gpt-5.5-pro",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-047",
+      "inventoryIndex": 47,
+      "modelId": "openai/gpt-5.6-terra",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-048",
+      "inventoryIndex": 48,
+      "modelId": "openai/gpt-6-astra",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-049",
+      "inventoryIndex": 49,
+      "modelId": "openai/gpt-6-luna",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-050",
+      "inventoryIndex": 50,
+      "modelId": "openai/gpt-6.1-sol",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-051",
+      "inventoryIndex": 51,
+      "modelId": "openai/gpt-daybreak-red-latest",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-052",
+      "inventoryIndex": 52,
+      "modelId": "openai/o3",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-053",
+      "inventoryIndex": 53,
+      "modelId": "openai/o3-pro",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-054",
+      "inventoryIndex": 54,
+      "modelId": "openai/text-embedding-3-small",
+      "providerId": "openai",
+      "providerEndpointId": "openai-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "embedding",
+      "variants": [
+        "Embedding"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "embedding"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-055",
+      "inventoryIndex": 55,
+      "modelId": "opencode/beam-free",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-056",
+      "inventoryIndex": 56,
+      "modelId": "opencode/big-pickle",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-057",
+      "inventoryIndex": 57,
+      "modelId": "opencode/claude-fable-5-1",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-058",
+      "inventoryIndex": 58,
+      "modelId": "opencode/claude-haiku-5-5",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-059",
+      "inventoryIndex": 59,
+      "modelId": "opencode/claude-opus-5-5",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-060",
+      "inventoryIndex": 60,
+      "modelId": "opencode/claude-sonnet-5-5",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-061",
+      "inventoryIndex": 61,
+      "modelId": "opencode/deepseek-v4-pro",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-062",
+      "inventoryIndex": 62,
+      "modelId": "opencode/deepseek-v4.1-flash",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-063",
+      "inventoryIndex": 63,
+      "modelId": "opencode/gemini-3.1-pro",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-064",
+      "inventoryIndex": 64,
+      "modelId": "opencode/gemini-3.5-flash-lite",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "minimal",
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-065",
+      "inventoryIndex": 65,
+      "modelId": "opencode/gemini-3.8-flash",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-066",
+      "inventoryIndex": 66,
+      "modelId": "opencode/gemini-4-argon",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-067",
+      "inventoryIndex": 67,
+      "modelId": "opencode/glm-5.3",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-068",
+      "inventoryIndex": 68,
+      "modelId": "opencode/glm-5.3-flash",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-069",
+      "inventoryIndex": 69,
+      "modelId": "opencode/gpt-5.3-codex",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-070",
+      "inventoryIndex": 70,
+      "modelId": "opencode/gpt-5.3-codex-spark",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-071",
+      "inventoryIndex": 71,
+      "modelId": "opencode/gpt-5.4-mini",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-072",
+      "inventoryIndex": 72,
+      "modelId": "opencode/gpt-5.4-nano",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-073",
+      "inventoryIndex": 73,
+      "modelId": "opencode/gpt-5.5",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-074",
+      "inventoryIndex": 74,
+      "modelId": "opencode/gpt-5.5-pro",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-075",
+      "inventoryIndex": 75,
+      "modelId": "opencode/gpt-5.6-terra",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-076",
+      "inventoryIndex": 76,
+      "modelId": "opencode/gpt-6-astra",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-077",
+      "inventoryIndex": 77,
+      "modelId": "opencode/gpt-6-luna",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-078",
+      "inventoryIndex": 78,
+      "modelId": "opencode/gpt-6.1-sol",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-079",
+      "inventoryIndex": 79,
+      "modelId": "opencode/grok-4.7",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-080",
+      "inventoryIndex": 80,
+      "modelId": "opencode/grok-build-0.1",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-081",
+      "inventoryIndex": 81,
+      "modelId": "opencode/kimi-k2.7-code",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-082",
+      "inventoryIndex": 82,
+      "modelId": "opencode/kimi-k3",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-083",
+      "inventoryIndex": 83,
+      "modelId": "opencode/longcat-2.5-preview-free",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-084",
+      "inventoryIndex": 84,
+      "modelId": "opencode/mimo-v2.6-flash-free",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "standard",
+      "variants": [
+        "Standart"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": false
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-085",
+      "inventoryIndex": 85,
+      "modelId": "opencode/minimax-m3.1-flash-free",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-086",
+      "inventoryIndex": 86,
+      "modelId": "opencode/mistral-large-4",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "high"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-087",
+      "inventoryIndex": 87,
+      "modelId": "opencode/muse-spark-1.3",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-088",
+      "inventoryIndex": 88,
+      "modelId": "opencode/nemotron-3.5-super-vl-free",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text",
+          "image"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-089",
+      "inventoryIndex": 89,
+      "modelId": "opencode/qwen3.6-plus",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "high",
+        "max"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    },
+    {
+      "endpointId": "model-090",
+      "inventoryIndex": 90,
+      "modelId": "opencode/qwen3.8-flash",
+      "providerId": "opencode",
+      "providerEndpointId": "opencode-primary",
+      "transport": "provider-sdk",
+      "status": "active",
+      "eligible": true,
+      "availability": "listed-in-desktop-inventory",
+      "variantMode": "reasoning",
+      "variants": [
+        "none",
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "capabilities": {
+        "input": [
+          "text"
+        ],
+        "output": [
+          "text"
+        ],
+        "toolCall": null,
+        "reasoning": true
+      },
+      "limits": null,
+      "sourceRef": "SRC-001",
+      "policyRef": null
+    }
+  ],
+  "inventoryReportedActiveEndpointCount": 90,
+  "dispatchEligibleEndpointCount": 89,
+  "policyExcludedEndpointCount": 1
+}

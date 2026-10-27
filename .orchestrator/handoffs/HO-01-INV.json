@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0.0",
+  "handoffId": "HO-01-INV",
+  "from": {
+    "taskId": "TASK-01-INV",
+    "wbs": "1.1.1",
+    "phase": "PHASE-1",
+    "provider": "evren3",
+    "model": "evren3/deepseek-v4.1-flash"
+  },
+  "to": {
+    "taskId": null,
+    "note": "Orchestrator — next PHASE-1 work package"
+  },
+  "createdAt": "2026-10-26T18:48:10+00:00",
+  "status": "ready",
+  "supersededBy": "HO-TASK-001",
+  "corrections": [
+    "Snapshot counts in this record predate the exclusion correction: the current registry has 6 Google models and 60 base models, with google/antigravity-gemini-3.8-flash excluded.",
+    "Artifact byte counts and hashes in this record describe the files as of 2026-10-26 and are historical; see HO-TASK-001 for the current state."
+  ],
+  "summary": {
+    "providers": 7,
+    "models": 90,
+    "baseModels": 61,
+    "source": "C:\\Users\\paele\\Desktop\\OpenChamber_Aktif_Modeller_Listesi.pdf",
+    "sourcePages": 4,
+    "registryFiles": [
+      ".orchestrator/model-registry/providers.json",
+      ".orchestrator/model-registry/endpoints.json",
+      ".orchestrator/model-registry/base-models.json",
+      ".orchestrator/project-management/wbs.json",
+      ".orchestrator/project-management/task-dependencies.json",
+      ".orchestrator/project-management/schedule.json",
+      ".orchestrator/execution/active-tasks.json",
+      ".orchestrator/execution/completed-tasks.json"
+    ]
+  },
+  "providerBreakdown": [
+    {
+      "id": "google",
+      "models": 7
+    },
+    {
+      "id": "evren",
+      "models": 8
+    },
+    {
+      "id": "evren2",
+      "models": 8
+    },
+    {
+      "id": "evren3",
+      "models": 8
+    },
+    {
+      "id": "nvidia",
+      "models": 9
+    },
+    {
+      "id": "openai",
+      "models": 14
+    },
+    {
+      "id": "opencode",
+      "models": 36
+    }
+  ],
+  "validations": [
+    "90 model entries parsed, indices 1..90 contiguous",
+    "Per-provider counts match the inventory summary (7/8/8/8/9/14/36 = 90)",
+    "All 90 entries report status 'active'",
+    "No model name or identifier is empty"
+  ],
+  "openItems": [
+    "Base URLs for google, nvidia, openai and opencode are not published in the inventory; resolved by the OpenChamber runtime.",
+    "PHASE-1 work packages after 1.1.1 are not yet planned."
+  ],
+  "artifacts": [
+    {
+      "path": ".orchestrator/model-registry/providers.json",
+      "bytes": 62547,
+      "sha256": "24db74e80a7f627dca1a7555504404e2cd539f618f07129ebe0817b3a8621b5a"
+    },
+    {
+      "path": ".orchestrator/model-registry/endpoints.json",
+      "bytes": 7055,
+      "sha256": "5ac75fd7f7ba4649cbc3b45e797e3a5d9ffb2182ab8aa13dfc41339e8a7db547"
+    },
+    {
+      "path": ".orchestrator/model-registry/base-models.json",
+      "bytes": 19264,
+      "sha256": "263cc2f2e93c6d753c5d781765b66ccd6bec49f03c7698334ea687b7c9d4f57e"
+    },
+    {
+      "path": ".orchestrator/project-management/wbs.json",
+      "bytes": 2486,
+      "sha256": "f16d23704ef4c09089a7488f6c76c5e1316ed4bf7c587da422e7ee1f6b8a3996"
+    },
+    {
+      "path": ".orchestrator/project-management/task-dependencies.json",
+      "bytes": 345,
+      "sha256": "dcdc516c0008d503bd33e5531394e579f189a24e9b85a768d7ba5f637648cbdf"
+    },
+    {
+      "path": ".orchestrator/project-management/schedule.json",
+      "bytes": 780,
+      "sha256": "fb540aad8d8d42c19cc3377aefb9c863cc3b114dc93a52b7ef30d2624e6400bf"
+    },
+    {
+      "path": ".orchestrator/execution/active-tasks.json",
+      "bytes": 96,
+      "sha256": "5eaf76258f30ee9f4a9bde5247b03bf78c98842fd083cfb684c352c01f76a16a"
+    },
+    {
+      "path": ".orchestrator/execution/completed-tasks.json",
+      "bytes": 656,
+      "sha256": "716d98e3ec052ac93ffa421d0f279ba41ce0b194202b9614c7403f8b6d90ee4c"
+    }
+  ]
+}

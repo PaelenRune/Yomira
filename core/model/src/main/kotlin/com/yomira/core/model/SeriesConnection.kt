@@ -65,8 +65,30 @@ data class RecommendedSeries(
     }
 }
 
-/** Both detail-page showcases of one series, fetched lazily from the relations graph. */
+enum class AdaptationKind {
+    ANIME,
+    HENTAI_OVA,
+    LIVE_ACTION,
+    DONGHUA,
+    SPECIAL,
+}
+
+/** Watchable metadata only; these entries must not open the manga reader. */
+data class WatchableAdaptation(
+    val id: String,
+    val title: String,
+    val kind: AdaptationKind,
+    val format: String? = null,
+    val episodes: Int? = null,
+    val releaseYear: Int? = null,
+    val score: Double? = null,
+    val coverUrl: String? = null,
+    val bannerUrl: String? = null,
+)
+
+/** Detail-page connections, fetched lazily from the relations graph. */
 data class SeriesConnections(
     val related: List<RelatedSeries> = emptyList(),
     val recommended: List<RecommendedSeries> = emptyList(),
+    val adaptations: List<WatchableAdaptation> = emptyList(),
 )

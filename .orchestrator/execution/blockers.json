@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "description": "Open blockers and watched conditions that can stop or delay orchestrated work.",
+  "summary": {
+    "open": 1,
+    "blockingNow": 0,
+    "resolved": 0,
+    "watchItems": 3
+  },
+  "blockers": [
+    {
+      "id": "BLK-001",
+      "title": "Physical-device installation is not approved",
+      "status": "open-external",
+      "severity": "medium",
+      "blocks": [
+        "MT-002",
+        "MT-003"
+      ],
+      "blockingNow": false,
+      "raisedAt": "2026-10-27T08:55:55Z",
+      "raisedBy": "TASK-01-INV",
+      "owner": "Project owner",
+      "detail": "adb install of release/yomira-v5.1.0-beta.apk on M2007J3SY (serial b4bc1593) failed with INSTALL_FAILED_USER_RESTRICTED: Install canceled by user. Package com.yomira.app was absent before and after the attempt; launch is unverified.",
+      "evidenceRef": "project-management/inventory-device-report.json",
+      "workaround": "Proceed with build, static verification and test authoring. The 10-minute test and offline drill start only after the owner enables USB installation and approves the prompt.",
+      "exitCriteria": [
+        "adb install -r returns success",
+        "pm list packages confirms com.yomira.app",
+        "Launch resolves an activity and the app reaches the library screen"
+      ],
+      "nextCheck": "Before the PHASE-6 gate",
+      "reportedAt": "2026-10-27T08:55:55Z",
+      "resolvedAt": null
+    }
+  ],
+  "resolvedBlockers": [],
+  "watchItems": [
+    {
+      "id": "W-001",
+      "title": "Dated model inventory may drift from live availability",
+      "status": "watching",
+      "impact": "Dispatch may target a retired or renamed endpoint.",
+      "trigger": "Model-not-found, 404/410, or a catalog export that differs from providers.json.",
+      "response": "Pause, record a blocker, refresh the inventory snapshot, re-plan affected assignments.",
+      "owner": "AGENT-ORCHESTRATOR",
+      "ref": "project-management/risk-register.json#R-007"
+    },
+    {
+      "id": "W-002",
+      "title": "AniList quota and 5xx behavior is unmeasured",
+      "status": "watching",
+      "impact": "Adaptation shelves could be empty or slow during PHASE-4.",
+      "trigger": "First poll of AniList rate headers or a 429 in integration testing.",
+      "response": "Tune the throttle budget, verify backoff and cache behavior, record measured limits in benchmarks.json if a suite applies.",
+      "owner": "AGENT-DATA",
+      "ref": "project-management/risk-register.json#R-002"
+    },
+    {
+      "id": "W-003",
+      "title": "Provider pricing and plan terms are unknown",
+      "status": "watching",
+      "impact": "Spend cannot be reported and paid overflow cannot be justified.",
+      "trigger": "A provider invoice, plan change or proposed paid overflow.",
+      "response": "Ask the owner for a dated price sheet; keep cost null until supplied.",
+      "owner": "AGENT-ORCHESTRATOR",
+      "ref": "project-management/risk-register.json#R-008"
+    }
+  ],
+  "notes": [
+    "No blocker currently prevents PHASE-2 or PHASE-3 work from starting after their dependencies complete.",
+    "A blocker closes only when its exit criteria are met and the evidence is linked."
+  ]
+}

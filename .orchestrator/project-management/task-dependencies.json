@@ -1,0 +1,520 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "graphType": "DAG",
+  "nodes": [
+    {
+      "taskId": "TASK_001",
+      "wbs": "1.0",
+      "phase": "PHASE-1",
+      "title": "Initialize .orchestrator management structure",
+      "status": "completed",
+      "dependsOn": [],
+      "estimateHours": 2.0,
+      "agent": "AGENT-ORCHESTRATOR"
+    },
+    {
+      "taskId": "TASK-01-INV",
+      "wbs": "1.1.1",
+      "phase": "PHASE-1",
+      "title": "Model inventory ingestion & exclusion policy",
+      "status": "completed",
+      "dependsOn": [],
+      "estimateHours": 1.0,
+      "agent": "AGENT-DATA"
+    },
+    {
+      "taskId": "SM-001",
+      "wbs": "2.1.1",
+      "phase": "PHASE-2",
+      "title": "Smart Matcher baseline measurement & scoring contract",
+      "status": "pending",
+      "dependsOn": [
+        "TASK_001"
+      ],
+      "estimateHours": 8.0,
+      "agent": "AGENT-ARCHITECT"
+    },
+    {
+      "taskId": "SM-002",
+      "wbs": "2.1.2",
+      "phase": "PHASE-2",
+      "title": "Language-first ranking & composite scoring",
+      "status": "pending",
+      "dependsOn": [
+        "SM-001"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "SM-003",
+      "wbs": "2.2.1",
+      "phase": "PHASE-2",
+      "title": "Extension availability & bridge resolution",
+      "status": "pending",
+      "dependsOn": [
+        "SM-001"
+      ],
+      "estimateHours": 5.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "SM-004",
+      "wbs": "2.2.2",
+      "phase": "PHASE-2",
+      "title": "Onboarding & settings matcher UX",
+      "status": "pending",
+      "dependsOn": [
+        "SM-002",
+        "SM-003"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "SM-005",
+      "wbs": "2.3.1",
+      "phase": "PHASE-2",
+      "title": "10x verification: accuracy, latency and regression",
+      "status": "pending",
+      "dependsOn": [
+        "SM-004"
+      ],
+      "estimateHours": 4.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "VC-001",
+      "wbs": "3.1.1",
+      "phase": "PHASE-3",
+      "title": "Vault catalog audit, dedupe and quarantine",
+      "status": "pending",
+      "dependsOn": [
+        "TASK_001"
+      ],
+      "estimateHours": 4.0,
+      "agent": "AGENT-DATA"
+    },
+    {
+      "taskId": "VC-002",
+      "wbs": "3.1.2",
+      "phase": "PHASE-3",
+      "title": "Classifier rule hardening",
+      "status": "pending",
+      "dependsOn": [
+        "VC-001"
+      ],
+      "estimateHours": 8.0,
+      "agent": "AGENT-DATA"
+    },
+    {
+      "taskId": "VC-003",
+      "wbs": "3.2.1",
+      "phase": "PHASE-3",
+      "title": "Adversarial classifier corpus & regression fixtures",
+      "status": "pending",
+      "dependsOn": [
+        "VC-002"
+      ],
+      "estimateHours": 5.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "VC-004",
+      "wbs": "3.2.2",
+      "phase": "PHASE-3",
+      "title": "Vault cleanup migration & public-feed purge",
+      "status": "pending",
+      "dependsOn": [
+        "VC-002",
+        "VC-003"
+      ],
+      "estimateHours": 7.0,
+      "agent": "AGENT-SECURITY"
+    },
+    {
+      "taskId": "VC-005",
+      "wbs": "3.3.1",
+      "phase": "PHASE-3",
+      "title": "Classifier & Vault isolation acceptance",
+      "status": "pending",
+      "dependsOn": [
+        "VC-004"
+      ],
+      "estimateHours": 4.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "WA-001",
+      "wbs": "4.1.1",
+      "phase": "PHASE-4",
+      "title": "Watchable adaptation domain model",
+      "status": "pending",
+      "dependsOn": [
+        "TASK_001"
+      ],
+      "estimateHours": 5.0,
+      "agent": "AGENT-ARCHITECT"
+    },
+    {
+      "taskId": "WA-002",
+      "wbs": "4.1.2",
+      "phase": "PHASE-4",
+      "title": "AniList adapter: rate limit, retry and cache",
+      "status": "pending",
+      "dependsOn": [
+        "WA-001"
+      ],
+      "estimateHours": 8.0,
+      "agent": "AGENT-DATA"
+    },
+    {
+      "taskId": "WA-003",
+      "wbs": "4.2.1",
+      "phase": "PHASE-4",
+      "title": "Anime shelf & detail integration",
+      "status": "pending",
+      "dependsOn": [
+        "WA-002"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "WA-004",
+      "wbs": "4.2.2",
+      "phase": "PHASE-4",
+      "title": "Hentai adaptation gating to private realm",
+      "status": "pending",
+      "dependsOn": [
+        "WA-002",
+        "VC-004"
+      ],
+      "estimateHours": 5.0,
+      "agent": "AGENT-SECURITY"
+    },
+    {
+      "taskId": "WA-005",
+      "wbs": "4.3.1",
+      "phase": "PHASE-4",
+      "title": "Kdrama metadata provider adapter",
+      "status": "pending",
+      "dependsOn": [
+        "WA-001"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-DATA"
+    },
+    {
+      "taskId": "WA-006",
+      "wbs": "4.4.1",
+      "phase": "PHASE-4",
+      "title": "Offline adaptation snapshot & fallback UX",
+      "status": "pending",
+      "dependsOn": [
+        "WA-002",
+        "WA-005"
+      ],
+      "estimateHours": 7.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "VR-001",
+      "wbs": "5.1.1",
+      "phase": "PHASE-5",
+      "title": "Vault 2.0 dual-realm data model",
+      "status": "pending",
+      "dependsOn": [
+        "VC-004",
+        "WA-004"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-ARCHITECT"
+    },
+    {
+      "taskId": "VR-002",
+      "wbs": "5.1.2",
+      "phase": "PHASE-5",
+      "title": "Separate storage, catalog and session per realm",
+      "status": "pending",
+      "dependsOn": [
+        "VR-001"
+      ],
+      "estimateHours": 8.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "VR-003",
+      "wbs": "5.2.1",
+      "phase": "PHASE-5",
+      "title": "Auth, panic and FLAG_SECURE hardening",
+      "status": "pending",
+      "dependsOn": [
+        "VR-002"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-SECURITY"
+    },
+    {
+      "taskId": "VR-004",
+      "wbs": "5.2.2",
+      "phase": "PHASE-5",
+      "title": "Vault 2.0 migration from 5.4.1-beta",
+      "status": "pending",
+      "dependsOn": [
+        "VR-001"
+      ],
+      "estimateHours": 6.0,
+      "agent": "AGENT-KOTLIN"
+    },
+    {
+      "taskId": "VR-005",
+      "wbs": "5.3.1",
+      "phase": "PHASE-5",
+      "title": "Dual-realm security and isolation verification",
+      "status": "pending",
+      "dependsOn": [
+        "VR-003",
+        "VR-004"
+      ],
+      "estimateHours": 5.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "MT-001",
+      "wbs": "6.1.1",
+      "phase": "PHASE-6",
+      "title": "Build signed v6.0.0-Beta APK",
+      "status": "pending",
+      "dependsOn": [
+        "SM-005",
+        "VC-005",
+        "VR-005",
+        "WA-006"
+      ],
+      "estimateHours": 3.0,
+      "agent": "AGENT-RELEASE"
+    },
+    {
+      "taskId": "MT-002",
+      "wbs": "6.2.1",
+      "phase": "PHASE-6",
+      "title": "Install & 10-minute continuous mobile test",
+      "status": "pending",
+      "dependsOn": [
+        "MT-001"
+      ],
+      "estimateHours": 3.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "MT-003",
+      "wbs": "6.2.2",
+      "phase": "PHASE-6",
+      "title": "Offline and fallback drill",
+      "status": "pending",
+      "dependsOn": [
+        "MT-001"
+      ],
+      "estimateHours": 2.0,
+      "agent": "AGENT-QA"
+    },
+    {
+      "taskId": "MT-004",
+      "wbs": "6.3.1",
+      "phase": "PHASE-6",
+      "title": "Release validation, notes and handoff",
+      "status": "pending",
+      "dependsOn": [
+        "MT-002",
+        "MT-003"
+      ],
+      "estimateHours": 3.0,
+      "agent": "AGENT-RELEASE"
+    }
+  ],
+  "edges": [
+    {
+      "from": "TASK_001",
+      "to": "SM-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-001",
+      "to": "SM-002",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-001",
+      "to": "SM-003",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-002",
+      "to": "SM-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-003",
+      "to": "SM-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-004",
+      "to": "SM-005",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "TASK_001",
+      "to": "VC-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-001",
+      "to": "VC-002",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-002",
+      "to": "VC-003",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-002",
+      "to": "VC-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-003",
+      "to": "VC-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-004",
+      "to": "VC-005",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "TASK_001",
+      "to": "WA-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-001",
+      "to": "WA-002",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-002",
+      "to": "WA-003",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-002",
+      "to": "WA-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-004",
+      "to": "WA-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-001",
+      "to": "WA-005",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-002",
+      "to": "WA-006",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-005",
+      "to": "WA-006",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-004",
+      "to": "VR-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-004",
+      "to": "VR-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-001",
+      "to": "VR-002",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-002",
+      "to": "VR-003",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-001",
+      "to": "VR-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-003",
+      "to": "VR-005",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-004",
+      "to": "VR-005",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "SM-005",
+      "to": "MT-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VC-005",
+      "to": "MT-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "VR-005",
+      "to": "MT-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "WA-006",
+      "to": "MT-001",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "MT-001",
+      "to": "MT-002",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "MT-001",
+      "to": "MT-003",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "MT-002",
+      "to": "MT-004",
+      "type": "finish-to-start"
+    },
+    {
+      "from": "MT-003",
+      "to": "MT-004",
+      "type": "finish-to-start"
+    }
+  ],
+  "totals": {
+    "nodes": 27,
+    "edges": 35
+  },
+  "notes": "TASK_001 and TASK-01-INV are complete roots. PHASE-2 and PHASE-3 may execute in parallel after the roots; PHASE-5 joins both PHASE-3 and the adult-adaptation gate."
+}

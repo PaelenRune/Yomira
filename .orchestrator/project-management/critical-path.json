@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "method": "Longest finish-to-start path over the task DAG using estimateHours.",
+  "terminalTask": "MT-004",
+  "totalHours": 65.0,
+  "totalWorkdays": 8.12,
+  "projectedFinish": "2026-11-12",
+  "criticalPath": [
+    "TASK_001",
+    "VC-001",
+    "VC-002",
+    "VC-003",
+    "VC-004",
+    "WA-004",
+    "VR-001",
+    "VR-002",
+    "VR-003",
+    "VR-005",
+    "MT-001",
+    "MT-002",
+    "MT-004"
+  ],
+  "criticalTasks": [
+    {
+      "taskId": "TASK_001",
+      "title": "Initialize .orchestrator management structure",
+      "hours": 2.0,
+      "phase": "PHASE-1"
+    },
+    {
+      "taskId": "VC-001",
+      "title": "Vault catalog audit, dedupe and quarantine",
+      "hours": 4.0,
+      "phase": "PHASE-3"
+    },
+    {
+      "taskId": "VC-002",
+      "title": "Classifier rule hardening",
+      "hours": 8.0,
+      "phase": "PHASE-3"
+    },
+    {
+      "taskId": "VC-003",
+      "title": "Adversarial classifier corpus & regression fixtures",
+      "hours": 5.0,
+      "phase": "PHASE-3"
+    },
+    {
+      "taskId": "VC-004",
+      "title": "Vault cleanup migration & public-feed purge",
+      "hours": 7.0,
+      "phase": "PHASE-3"
+    },
+    {
+      "taskId": "WA-004",
+      "title": "Hentai adaptation gating to private realm",
+      "hours": 5.0,
+      "phase": "PHASE-4"
+    },
+    {
+      "taskId": "VR-001",
+      "title": "Vault 2.0 dual-realm data model",
+      "hours": 6.0,
+      "phase": "PHASE-5"
+    },
+    {
+      "taskId": "VR-002",
+      "title": "Separate storage, catalog and session per realm",
+      "hours": 8.0,
+      "phase": "PHASE-5"
+    },
+    {
+      "taskId": "VR-003",
+      "title": "Auth, panic and FLAG_SECURE hardening",
+      "hours": 6.0,
+      "phase": "PHASE-5"
+    },
+    {
+      "taskId": "VR-005",
+      "title": "Dual-realm security and isolation verification",
+      "hours": 5.0,
+      "phase": "PHASE-5"
+    },
+    {
+      "taskId": "MT-001",
+      "title": "Build signed v6.0.0-Beta APK",
+      "hours": 3.0,
+      "phase": "PHASE-6"
+    },
+    {
+      "taskId": "MT-002",
+      "title": "Install & 10-minute continuous mobile test",
+      "hours": 3.0,
+      "phase": "PHASE-6"
+    },
+    {
+      "taskId": "MT-004",
+      "title": "Release validation, notes and handoff",
+      "hours": 3.0,
+      "phase": "PHASE-6"
+    }
+  ],
+  "nearCritical": [
+    {
+      "taskId": "SM-005",
+      "chainHours": 26.0,
+      "floatVsCriticalHours": 39.0
+    },
+    {
+      "taskId": "WA-006",
+      "chainHours": 22.0,
+      "floatVsCriticalHours": 43.0
+    }
+  ],
+  "notes": [
+    "PHASE-2 (Smart Matcher) runs in parallel with the Vault/classifier branch.",
+    "PHASE-4 (Watchable) joins PHASE-5 through the Hentai gating task WA-004.",
+    "MT-002 remains blocked until device installation is approved, independently of the critical path."
+  ]
+}

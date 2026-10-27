@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedBy": "TASK_001",
+  "status": "not-measured",
+  "description": "Benchmark evidence ledger for the eligible Yomira model pool. The registry records only measured, reproducible results; no score is inferred from marketing material or model names.",
+  "sourceRefs": [
+    "SRC-001",
+    "SRC-008"
+  ],
+  "policy": {
+    "fabricationProhibited": true,
+    "rule": "A result is stored only when the suite version, runtime, hardware, command and raw output are known. Anything else remains null.",
+    "selectionUse": "Assignment is driven by declared capabilities and task fit. Unmeasured models are not ranked by reputation.",
+    "refreshRule": "Re-measure after a provider model update, a failed acceptance run, or a phase gate that depends on the metric."
+  },
+  "suites": [
+    {
+      "id": "BENCH-MATCHER",
+      "name": "Smart Matcher baseline and 10x verification",
+      "phase": "PHASE-2",
+      "taskId": "SM-001",
+      "metrics": [
+        "candidate evaluations per match",
+        "median match latency (ms)",
+        "top-1 accuracy"
+      ],
+      "status": "not-run",
+      "results": null,
+      "notes": "Baseline must be captured from v5.4.1-beta before SM-002 changes ranking."
+    },
+    {
+      "id": "BENCH-CODE",
+      "name": "Kotlin Multiplatform implementation suite",
+      "phase": "PHASE-2",
+      "taskId": null,
+      "metrics": [
+        "task pass rate",
+        "first-build success rate",
+        "regression rate"
+      ],
+      "status": "not-run",
+      "results": null
+    },
+    {
+      "id": "BENCH-REASONING",
+      "name": "Planning and architecture reasoning suite",
+      "phase": "PHASE-2",
+      "taskId": null,
+      "metrics": [
+        "plan correctness",
+        "constraint retention",
+        "dependency-graph validity"
+      ],
+      "status": "not-run",
+      "results": null
+    },
+    {
+      "id": "BENCH-VISION",
+      "name": "Cover and screenshot understanding suite",
+      "phase": "PHASE-4",
+      "taskId": null,
+      "metrics": [
+        "label accuracy",
+        "adult-content flag precision"
+      ],
+      "status": "not-run",
+      "results": null
+    },
+    {
+      "id": "BENCH-TOOLS",
+      "name": "Tool-calling reliability suite",
+      "phase": "PHASE-2",
+      "taskId": null,
+      "metrics": [
+        "valid tool-call rate",
+        "argument-schema validity",
+        "recovery after a failed call"
+      ],
+      "status": "not-run",
+      "results": null
+    }
+  ],
+  "coverage": {
+    "eligibleModels": 89,
+    "measuredModels": 0,
+    "partiallyMeasuredModels": 0,
+    "unmeasuredModels": 89,
+    "eligibleProviders": 7
+  },
+  "measurements": [],
+  "recordSchema": {
+    "measurementId": "string",
+    "suiteId": "string",
+    "modelId": "string",
+    "providerId": "string",
+    "variant": "string|null",
+    "measuredAt": "ISO-8601",
+    "runtime": "string",
+    "hardware": "string",
+    "command": "string",
+    "metrics": "object",
+    "rawOutputRef": "string",
+    "outcome": "pass|fail|invalid"
+  },
+  "notes": [
+    "The dated inventory lists model names and capabilities only; it contains no benchmark scores.",
+    "BENCH-MATCHER results belong to the repository under test, not to a model, and are recorded separately in the PHASE-2 evidence pack."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-10-27T08:55:55Z",
+  "scope": "orchestrator-model-selection",
+  "excludedModelIds": [
+    "google/antigravity-gemini-3.8-flash"
+  ],
+  "reason": "Explicit user prohibition; excluded from providers, endpoints and base-model lists.",
+  "sourceInventoryModelCount": 90,
+  "eligibleModelCount": 89,
+  "notes": [
+    "This policy records the prohibition; its entry is not an available model.",
+    "PDF inventory is historical evidence, not a live provider availability test.",
+    "Provider share fields are recalculated over the 89 eligible models; see report for eligible counts."
+  ]
+}

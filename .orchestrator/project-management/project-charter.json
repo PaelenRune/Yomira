@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "1.0.0",
+  "charterId": "YOMIRA-PC-V6",
+  "project": {
+    "name": "Yomira",
+    "package": "com.yomira.app",
+    "currentVersion": "5.4.1-beta",
+    "targetVersion": "6.0.0-Beta",
+    "platforms": [
+      "Android 8.0+ (API 26)",
+      "Windows desktop (Kotlin Multiplatform)"
+    ],
+    "workspace": "D:\\Projeler\\Kişisel Projeler\\Yomira",
+    "repository": "https://github.com/PaelenRune/Yomira"
+  },
+  "status": "approved",
+  "effectiveDate": "2026-10-27",
+  "approvedBy": "Project owner (PaelenRune)",
+  "orchestration": {
+    "manual": "Industrial Engineering Orchestrator V11.0",
+    "section": "Section 7 - Persistent Management Structure",
+    "stateRoot": ".orchestrator",
+    "singleSourceOfTruth": [
+      "model-registry/providers.json",
+      "model-registry/endpoints.json",
+      "project-management/wbs.json",
+      "project-management/task-dependencies.json",
+      "project-management/schedule.json",
+      "execution/completed-tasks.json"
+    ],
+    "refreshRule": "State is updated after every dispatched task and before every phase gate.",
+    "handoffRule": "No task is dispatched without a task-context handoff naming inputs, outputs, dependencies and model policy."
+  },
+  "purpose": "Deliver Yomira v6.0.0-Beta as a trustworthy manga/comic reader whose source matching, content classification, adaptation discovery and private-realm isolation are demonstrably safe, fast and offline-tolerant.",
+  "vision": "One library, one OLED Plum design language, and one hard privacy boundary: public discovery stays public, private content stays private, and every source or adaptation is matched in the user's chosen language first.",
+  "objectives": [
+    {
+      "id": "OBJ-1",
+      "name": "10x Smart Matcher",
+      "phase": "PHASE-2",
+      "statement": "Make language-aware source matching at least 10x more efficient than the frozen v5.4.1-beta baseline while preserving or improving top-1 match accuracy.",
+      "successMeasures": [
+        "Primary metric is fixed in SM-001 against a recorded v5.4.1-beta baseline; no baseline is invented.",
+        "10x improvement in the agreed primary metric (median match latency or candidate evaluations).",
+        "Top-1 accuracy and MissingExtension/NoMatch outcomes are non-inferior to baseline.",
+        "All existing SmartSourceMatcher tests remain green."
+      ],
+      "owner": "AGENT-ARCHITECT"
+    },
+    {
+      "id": "OBJ-2",
+      "name": "Vault cleanup and classifier hardening",
+      "phase": "PHASE-3",
+      "statement": "Remove duplicate or misclassified Vault records and make SAFE/MATURE/EXPLICIT classification deterministic and adversarially tested.",
+      "successMeasures": [
+        "Zero EXPLICIT records in the public feed or public paging sources.",
+        "Locked Vault exposes zero records, including through search and genre chips.",
+        "Adversarial corpus passes 100%, including compound tags and the MILF-party false-positive trap.",
+        "Vault duplicate count is zero after migration and re-running migration is idempotent."
+      ],
+      "owner": "AGENT-DATA"
+    },
+    {
+      "id": "OBJ-3",
+      "name": "Watchable adaptations (Anime / Hentai / Kdrama)",
+      "phase": "PHASE-4",
+      "statement": "Surface anime, adult and Kdrama adaptations as first-class watchable links without mixing adult adaptations into the public catalog.",
+      "successMeasures": [
+        "Anime and Kdrama adaptations are discoverable from series detail and their own shelves.",
+        "Hentai adaptations are reachable only through the private realm.",
+        "AniList traffic respects the configured rate budget and survives 429/5xx with backoff and cache.",
+        "Last-known-good adaptation data renders offline with an explicit degraded-mode notice."
+      ],
+      "owner": "AGENT-DATA"
+    },
+    {
+      "id": "OBJ-4",
+      "name": "Vault 2.0 dual realm",
+      "phase": "PHASE-5",
+      "statement": "Replace the single Vault feature boundary with two hard-separated realms: public and private, each with its own storage, catalog, session and navigation rules.",
+      "successMeasures": [
+        "Private data is never hydrated by a public query, pager or cache.",
+        "Locked private realm exposes no titles, counts, covers or suggestions.",
+        "Existing Vault content migrates losslessly and idempotently.",
+        "Panic, background lock, FLAG_SECURE and system credential verification pass security review."
+      ],
+      "owner": "AGENT-SECURITY"
+    },
+    {
+      "id": "OBJ-5",
+      "name": "10-minute mobile test and release",
+      "phase": "PHASE-6",
+      "statement": "Prove v6.0.0-Beta on a physical Android device with a continuous 10-minute foreground session and an offline drill before release.",
+      "successMeasures": [
+        "Signed APK installs over the existing installation without signature errors.",
+        "Ten continuous minutes of foreground use produce no crash and no ANR.",
+        "Cold start, navigation, reader entry and Vault lock/unlock complete within the session.",
+        "Offline mode degrades gracefully and recovers when connectivity returns."
+      ],
+      "owner": "AGENT-RELEASE"
+    }
+  ],
+  "scope": {
+    "inScope": [
+      "SmartSourceMatcher ranking, scoring, extension resolution and settings/onboarding wiring.",
+      "ContentRatingClassifier rules, adversarial fixtures, Vault deduplication and migration.",
+      "Watchable adaptation domain model, AniList adapter, Kdrama adapter and offline cache.",
+      "Vault 2.0 public/private realm split, storage isolation, auth hardening and migration.",
+      "Signed v6.0.0-Beta build, 10-minute device test, offline drill and release evidence.",
+      "Orchestration state, model registry, risk, credit, context and performance ledgers."
+    ],
+    "outOfScope": [
+      "Redesigning the OLED Plum visual language or shipping a new brand identity.",
+      "Adding new content-hosting or piracy capabilities; Yomira does not host or distribute content.",
+      "Automatic or silent APK installation from third-party sources.",
+      "Guaranteeing provider model availability beyond the dated inventory snapshot.",
+      "Fabricating benchmark scores, prices, quotas or live API verification results."
+    ]
+  },
+  "deliverables": [
+    {
+      "id": "DEL-1",
+      "name": "v6.0.0-Beta signed APK",
+      "acceptance": "Universal and ABI APKs signed with the persistent Yomira Release key plus SHA256SUMS.txt.",
+      "phase": "PHASE-6"
+    },
+    {
+      "id": "DEL-2",
+      "name": "10-minute mobile validation report",
+      "acceptance": "Device, build hash, session timeline, crash/ANR evidence and offline drill result recorded.",
+      "phase": "PHASE-6"
+    },
+    {
+      "id": "DEL-3",
+      "name": "Matcher 10x evidence pack",
+      "acceptance": "Frozen baseline, measurement method, before/after results and regression report.",
+      "phase": "PHASE-2"
+    },
+    {
+      "id": "DEL-4",
+      "name": "Classifier and Vault acceptance pack",
+      "acceptance": "Corpus results, dedupe report, public-feed purge proof and isolation tests.",
+      "phase": "PHASE-3"
+    },
+    {
+      "id": "DEL-5",
+      "name": "Dual-realm security review",
+      "acceptance": "Threat model, query/isolation tests, panic and screenshot-protection evidence.",
+      "phase": "PHASE-5"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "CON-1",
+      "type": "model-policy",
+      "statement": "google/antigravity-gemini-3.8-flash is excluded from orchestrator and subagent selection by explicit user policy. Aliases matching gemini-3.8-flash are denied before dispatch."
+    },
+    {
+      "id": "CON-2",
+      "type": "scope",
+      "statement": "TASK_001 may create or modify files only under .orchestrator/."
+    },
+    {
+      "id": "CON-3",
+      "type": "platform",
+      "statement": "Android 8.0+ (API 26), target/compile SDK 35, JDK 17 and the existing Gradle wrapper."
+    },
+    {
+      "id": "CON-4",
+      "type": "external-api",
+      "statement": "AniList and Kdrama metadata calls must respect provider rate limits, use caching and never block the UI."
+    },
+    {
+      "id": "CON-5",
+      "type": "privacy",
+      "statement": "Private-realm state is never written to saved instance state, public caches or analytics."
+    },
+    {
+      "id": "CON-6",
+      "type": "evidence",
+      "statement": "Benchmarks, prices, quotas and live availability are recorded as unknown until measured; they are never estimated as facts."
+    }
+  ],
+  "assumptions": [
+    "The 2026-10-20 desktop inventory remains the dated model baseline; live availability is not implied.",
+    "The persistent Yomira Release signing key remains available and unchanged.",
+    "A physical Xiaomi M2007J3SY (Mi 10T, Android 12 / API 31) is available for the 10-minute test once USB installation is approved.",
+    "AniList remains the primary anime adaptation metadata source, with a pluggable adapter boundary.",
+    "The user approves phase gates and any expansion of scope."
+  ],
+  "governance": {
+    "phaseGates": [
+      "A phase closes only when every task is completed and its acceptance evidence is linked.",
+      "Critical-path tasks cannot be reordered without updating task-dependencies.json and critical-path.json.",
+      "Model-policy violations are release blockers, not warnings."
+    ],
+    "changeControl": "Scope, schedule, model assignment and risk changes are recorded in .orchestrator with task ID, timestamp and rationale.",
+    "evidenceStandard": "Claims require a command, test run, device observation or source reference. Unmeasured values stay null.",
+    "stateOwnership": {
+      "model-registry": "AGENT-ORCHESTRATOR",
+      "project-management": "AGENT-ARCHITECT",
+      "execution": "AGENT-ORCHESTRATOR",
+      "performance": "AGENT-ORCHESTRATOR",
+      "handoffs": "Dispatching agent"
+    }
+  },
+  "stakeholders": [
+    {"name": "PaelenRune", "role": "Project owner and release approver", "interest": "Safe, polished, shippable Yomira release"},
+    {"name": "Orchestrator", "role": "State integrity and model policy enforcement", "interest": "Deterministic, auditable task flow"},
+    {"name": "Subagent pool", "role": "Implementation and verification", "interest": "Clear task context and eligible model assignment"},
+    {"name": "Yomira users", "role": "Readers", "interest": "Fast matching, accurate content labels and private Vault"}
+  ],
+  "budget": {
+    "currency": "USD",
+    "committedBudgetUsd": null,
+    "spentUsd": 0,
+    "creditPolicy": "Track per-task credits in performance/credits.json; unknown provider quotas remain null.",
+    "guardrails": [
+      "No paid overflow without owner approval.",
+      "Prefer eligible flat-rate or free endpoints where quality is sufficient.",
+      "Escalate on repeated provider failure rather than silently switching to a prohibited model."
+    ]
+  },
+  "communication": {
+    "cadence": "Per-task handoff, per-phase gate report, release summary.",
+    "artifacts": ["handoffs/task-context/", "execution/completed-tasks.json", "performance/actual-performance.json"]
+  },
+  "topRisks": ["R-001", "R-002", "R-003", "R-004", "R-005"],
+  "riskRegister": "project-management/risk-register.json",
+  "workBreakdown": "project-management/wbs.json"
+}

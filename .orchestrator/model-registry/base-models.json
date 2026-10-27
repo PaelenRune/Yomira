@@ -1,0 +1,909 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-26T18:47:13+00:00",
+  "description": "Canonical model families derived from 89 eligible provider/model pairs after applying exclusion-policy.json to the 90-model PDF inventory.",
+  "totals": {
+    "providerModelPairs": 89,
+    "baseModels": 60
+  },
+  "baseModels": [
+    {
+      "baseModelId": "glm-5.3",
+      "displayName": "GLM 5.3",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3",
+        "nvidia",
+        "opencode"
+      ],
+      "modelIds": [
+        "evren/glm-5.3",
+        "evren2/glm-5.3",
+        "evren3/glm-5.3",
+        "nvidia/z-ai/glm-5.3",
+        "opencode/glm-5.3"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 5
+    },
+    {
+      "baseModelId": "deepseek-v4.1-flash",
+      "displayName": "DeepSeek V4.1 Flash",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3",
+        "opencode"
+      ],
+      "modelIds": [
+        "evren/deepseek-v4.1-flash",
+        "evren2/deepseek-v4.1-flash",
+        "evren3/deepseek-v4.1-flash",
+        "opencode/deepseek-v4.1-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 4
+    },
+    {
+      "baseModelId": "auto",
+      "displayName": "Evren Auto (Router)",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/auto",
+        "evren2/auto",
+        "evren3/auto"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "deepseek-v4-flash",
+      "displayName": "DeepSeek V4 Flash",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/deepseek-v4-flash",
+        "evren2/deepseek-v4-flash",
+        "evren3/deepseek-v4-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "gemma-4-31b",
+      "displayName": "Gemma 4 31B",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/gemma-4-31b",
+        "evren2/gemma-4-31b",
+        "evren3/gemma-4-31b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "mimo-v2.6-pro",
+      "displayName": "MiMo V2.6 Pro",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/mimo-v2.6-pro",
+        "evren2/mimo-v2.6-pro",
+        "evren3/mimo-v2.6-pro"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "qwen3-vl-30b",
+      "displayName": "Qwen3 VL 30B",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/qwen3-vl-30b",
+        "evren2/qwen3-vl-30b",
+        "evren3/qwen3-vl-30b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "qwen3.8-flash-next",
+      "displayName": "Qwen3.8 Flash Next",
+      "providers": [
+        "evren",
+        "evren2",
+        "evren3"
+      ],
+      "modelIds": [
+        "evren/qwen3.8-flash-next",
+        "evren2/qwen3.8-flash-next",
+        "evren3/qwen3.8-flash-next"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 3
+    },
+    {
+      "baseModelId": "glm-5.3-flash",
+      "displayName": "GLM 5.3 Flash",
+      "providers": [
+        "nvidia",
+        "opencode"
+      ],
+      "modelIds": [
+        "nvidia/z-ai/glm-5.3-flash",
+        "opencode/glm-5.3-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.3-codex",
+      "displayName": "GPT-5.3 Codex",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.3-codex",
+        "opencode/gpt-5.3-codex"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.3-codex-spark",
+      "displayName": "GPT-5.3 Codex Spark",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.3-codex-spark",
+        "opencode/gpt-5.3-codex-spark"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.4-mini",
+      "displayName": "GPT-5.4 mini",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.4-mini",
+        "opencode/gpt-5.4-mini"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.4-nano",
+      "displayName": "GPT-5.4 nano",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.4-nano",
+        "opencode/gpt-5.4-nano"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.5-pro",
+      "displayName": "GPT-5.5 Pro",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.5-pro",
+        "opencode/gpt-5.5-pro"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-5.6-terra",
+      "displayName": "GPT-5.6 Terra",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-5.6-terra",
+        "opencode/gpt-5.6-terra"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-6-astra",
+      "displayName": "GPT-6 Astra",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-6-astra",
+        "opencode/gpt-6-astra"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-6-luna",
+      "displayName": "GPT-6 Luna",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-6-luna",
+        "opencode/gpt-6-luna"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "gpt-6.1-sol",
+      "displayName": "GPT-6.1 Sol",
+      "providers": [
+        "openai",
+        "opencode"
+      ],
+      "modelIds": [
+        "openai/gpt-6.1-sol",
+        "opencode/gpt-6.1-sol"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 2
+    },
+    {
+      "baseModelId": "antigravity-claude-opus-5-5",
+      "displayName": "Claude Opus 5.5 (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-claude-opus-5-5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "antigravity-claude-sonnet-5-5",
+      "displayName": "Claude Sonnet 5.5 (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-claude-sonnet-5-5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "antigravity-gemini-3.1-flash-image",
+      "displayName": "Gemini 3.1 Flash Image (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-gemini-3.1-flash-image"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "antigravity-gemini-3.5-flash",
+      "displayName": "Gemini 3.5 Flash (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-gemini-3.5-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "antigravity-gemini-4-argon",
+      "displayName": "Gemini 4 Argon (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-gemini-4-argon"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "antigravity-gpt-oss-120b-medium",
+      "displayName": "GPT-OSS 120B Medium (Antigravity)",
+      "providers": [
+        "google"
+      ],
+      "modelIds": [
+        "google/antigravity-gpt-oss-120b-medium"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "beam-free",
+      "displayName": "Beam Free",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/beam-free"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "big-pickle",
+      "displayName": "Big Pickle",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/big-pickle"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "chatgpt-image-latest",
+      "displayName": "chatgpt-image-latest",
+      "providers": [
+        "openai"
+      ],
+      "modelIds": [
+        "openai/chatgpt-image-latest"
+      ],
+      "variantModes": [
+        "image"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "claude-fable-5-1",
+      "displayName": "Claude Fable 5.1",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/claude-fable-5-1"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "claude-haiku-5-5",
+      "displayName": "Claude Haiku 5.5",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/claude-haiku-5-5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "claude-opus-5-5",
+      "displayName": "Claude Opus 5.5",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/claude-opus-5-5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "claude-sonnet-5-5",
+      "displayName": "Claude Sonnet 5.5",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/claude-sonnet-5-5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "deepseek-v4-pro",
+      "displayName": "DeepSeek V4 Pro",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/deepseek-v4-pro"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gemini-3.1-pro",
+      "displayName": "Gemini 3.1 Pro Preview",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/gemini-3.1-pro"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gemini-3.5-flash-lite",
+      "displayName": "Gemini 3.5 Flash Lite",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/gemini-3.5-flash-lite"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gemini-3.8-flash",
+      "displayName": "Gemini 3.8 Flash",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/gemini-3.8-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gemini-4-argon",
+      "displayName": "Gemini 4 Argon",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/gemini-4-argon"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gemma-4-31b-it",
+      "displayName": "Gemma 4 31B Instruct",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/google/gemma-4-31b-it"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gpt-5.5",
+      "displayName": "GPT-5.5",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/gpt-5.5"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gpt-daybreak-red-latest",
+      "displayName": "Daybreak Red",
+      "providers": [
+        "openai"
+      ],
+      "modelIds": [
+        "openai/gpt-daybreak-red-latest"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "gpt-oss-20b",
+      "displayName": "GPT-OSS 20B",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/openai/gpt-oss-20b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "grok-4.7",
+      "displayName": "Grok 4.7",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/grok-4.7"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "grok-build-0.1",
+      "displayName": "Grok Build 0.1",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/grok-build-0.1"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "kimi-k2.7-code",
+      "displayName": "Kimi K2.7 Code",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/kimi-k2.7-code"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "kimi-k3",
+      "displayName": "Kimi K3",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/kimi-k3"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "llama-3.2-11b-vision-instruct",
+      "displayName": "Llama 3.2 11B Vision Instruct",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/meta/llama-3.2-11b-vision-instruct"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "longcat-2.5-preview-free",
+      "displayName": "LongCat 2.5 Preview Free",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/longcat-2.5-preview-free"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "mimo-v2.6-flash-free",
+      "displayName": "MiMo-V2.6-Flash Free",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/mimo-v2.6-flash-free"
+      ],
+      "variantModes": [
+        "standard"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "minimax-m3.1-flash-free",
+      "displayName": "MiniMax M3.1 Flash Free",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/minimax-m3.1-flash-free"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "mistral-large-4",
+      "displayName": "Mistral Large 4",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/mistral-large-4"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "muse-glimmer-30b",
+      "displayName": "Muse Glimmer 30B",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/meta/muse-glimmer-30b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "muse-spark-1.3",
+      "displayName": "Muse Spark 1.3",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/muse-spark-1.3"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "nemotron-3-super-120b-a12b",
+      "displayName": "Nemotron 3 Super 120B A12B",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/nvidia/nemotron-3-super-120b-a12b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "nemotron-3.5-super-vl-120b-a12b",
+      "displayName": "Nemotron 3.5 Super VL 120B A12B",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "nemotron-3.5-super-vl-free",
+      "displayName": "Nemotron 3.5 Super VL Free",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/nemotron-3.5-super-vl-free"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "o3",
+      "displayName": "o3",
+      "providers": [
+        "openai"
+      ],
+      "modelIds": [
+        "openai/o3"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "o3-pro",
+      "displayName": "o3-pro",
+      "providers": [
+        "openai"
+      ],
+      "modelIds": [
+        "openai/o3-pro"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "qwen3.6-plus",
+      "displayName": "Qwen3.6 Plus",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/qwen3.6-plus"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "qwen3.8-flash",
+      "displayName": "Qwen3.8 Flash",
+      "providers": [
+        "opencode"
+      ],
+      "modelIds": [
+        "opencode/qwen3.8-flash"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "step-5-preview",
+      "displayName": "Step 5 Preview",
+      "providers": [
+        "nvidia"
+      ],
+      "modelIds": [
+        "nvidia/stepfun-ai/step-5-preview"
+      ],
+      "variantModes": [
+        "reasoning"
+      ],
+      "exposureCount": 1
+    },
+    {
+      "baseModelId": "text-embedding-3-small",
+      "displayName": "text-embedding-3-small",
+      "providers": [
+        "openai"
+      ],
+      "modelIds": [
+        "openai/text-embedding-3-small"
+      ],
+      "variantModes": [
+        "embedding"
+      ],
+      "exposureCount": 1
+    }
+  ]
+}

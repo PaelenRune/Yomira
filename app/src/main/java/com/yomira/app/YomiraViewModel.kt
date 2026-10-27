@@ -23,6 +23,7 @@ import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.RecommendedSeries
 import com.yomira.core.model.RelatedSeries
+import com.yomira.core.model.WatchableAdaptation
 import com.yomira.data.metadata.SeriesConnectionRepository
 import com.yomira.data.metadata.WaterfallMetadataAggregator
 import com.yomira.domain.extension.*
@@ -75,6 +76,7 @@ data class SeriesConnectionState(
     val related: List<RelatedSeries> = emptyList(),
     val recommended: List<RecommendedSeries> = emptyList(),
     val failed: Boolean = false,
+    val adaptations: List<WatchableAdaptation> = emptyList(),
 )
 
 @HiltViewModel
@@ -401,6 +403,13 @@ class YomiraViewModel @Inject constructor(
 
     fun lock() { unlocked.value = false; clearMatch() }
 
+    /** Query Room, not Compose's initial empty value, before starting automatic matching. */
+    suspend fun ensureSource(manga: Manga) {
+        if (manga.contentRating == ContentRating.EXPLICIT && !unlocked.value) return
+        val empty = withContext(Dispatchers.IO) { chapterDao.getByMangaId(manga.id).isEmpty() }
+        if (empty) findSource(manga)
+    }
+
     fun findSource(manga: Manga) {
         if (manga.contentRating == ContentRating.EXPLICIT && !unlocked.value) return
         clearMatch()
@@ -417,8 +426,14 @@ class YomiraViewModel @Inject constructor(
                     val settings = stored?.copy(language = language) ?: ReaderPreferences(language)
                     val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
                         settings.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
-                    if (result is SmartMatchResult.Ready) SourceMatchActivator(chapterDao).activate(manga.id, result)
-                    result
+                    if (result is SmartMatchResult.Ready) {
+                        // Activate before publishing: opening a series never asks the reader
+                        // to choose a match or switch away from the onboarding language.
+                        SourceMatchActivator(chapterDao).activate(manga.id, result)
+                        result.copy(alternatives = emptyList())
+                    } else if (result is SmartMatchResult.MissingExtension) {
+                        result.copy(alternatives = emptyList())
+                    } else result
                 } else SmartMatchResult.Unavailable(listOf(SourceFailure("runtime", context.getString(R.string.match_engine_missing))))
             } catch (cancelled: CancellationException) { throw cancelled
             } catch (error: Exception) {
@@ -449,7 +464,7 @@ class YomiraViewModel @Inject constructor(
             connections.value = SeriesConnectionState(loading = true)
             connections.value = try {
                 val found = withContext(Dispatchers.IO) { seriesConnections.connectionsFor(manga) }
-                SeriesConnectionState(related = found.related, recommended = found.recommended)
+                SeriesConnectionState(related = found.related, recommended = found.recommended, adaptations = found.adaptations)
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

@@ -1,0 +1,573 @@
+OpenChamber & OpenCode Aktif Modeller
+Sistemde yapılandırılmış ve kullanıma hazır tüm yapay zeka modellerinin resmi envanter listesi.
+Toplam Sağlayıcı:
+ 7
+Toplam Aktif Model:
+ 90
+Rapor Tarihi:
+ 20.10.2026
+Sağlayıcı Adı
+Sağlayıcı ID
+Aktif Model Sayısı
+Oran
+Google
+google
+ 7
+ %7.8
+Evren LLM API
+evren
+ 8
+ %8.9
+Evren LLM API 2
+evren2
+ 8
+ %8.9
+Evren LLM API 3
+evren3
+ 8
+ %8.9
+Nvidia
+nvidia
+ 9
+ %10.0
+OpenAI
+openai
+ 14
+ %15.6
+Personal / OpenCode
+opencode
+ 36
+ %40.0
+Google (ID: google — 7 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 1
+Gemini 4 Argon (Antigravity)
+google/antigravity-gemini-4-argon
+low, medium, high
+ ● Aktif
+ 2
+Gemini 3.8 Flash (Antigravity)
+google/antigravity-gemini-3.8-flash
+low, medium, high
+ ● Aktif
+ 3
+Gemini 3.5 Flash (Antigravity)
+google/antigravity-gemini-3.5-flash
+low, medium, high
+ ● Aktif
+ 4
+Gemini 3.1 Flash Image
+(Antigravity)
+google/antigravity-gemini-3.1-flash-image
+Standart
+ ● Aktif
+ 5
+Claude Sonnet 5.5 (Antigravity)
+google/antigravity-claude-sonnet-5-5
+low, medium, high
+ ● Aktif
+ 6
+Claude Opus 5.5 (Antigravity)
+google/antigravity-claude-opus-5-5
+low, medium, high
+ ● Aktif
+ 7
+GPT-OSS 120B Medium
+(Antigravity)
+google/antigravity-gpt-oss-120b-medium
+Standart
+ ● Aktif
+Evren LLM API (ID: evren — 8 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 8
+Evren Auto (Router)
+evren/auto
+low, medium, high
+ ● Aktif
+ 9
+DeepSeek V4.1 Flash
+evren/deepseek-v4.1-flash
+low, medium, high
+ ● Aktif
+ 10
+DeepSeek V4 Flash
+evren/deepseek-v4-flash
+low, medium, high
+ ● Aktif
+ 11
+Gemma 4 31B
+evren/gemma-4-31b
+low, medium, high
+ ● Aktif
+ 12
+GLM 5.3
+evren/glm-5.3
+low, medium, high
+ ● Aktif
+ 13
+MiMo V2.6 Pro
+evren/mimo-v2.6-pro
+low, medium, high
+ ● Aktif
+ 14
+Qwen3.8 Flash Next
+evren/qwen3.8-flash-next
+low, medium, high
+ ● Aktif
+ 15
+Qwen3 VL 30B
+evren/qwen3-vl-30b
+low, medium, high
+ ● Aktif
+Evren LLM API 2 (ID: evren2 — 8 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 16
+Evren Auto (Router)
+evren2/auto
+low, medium, high
+ ● Aktif
+ 17
+DeepSeek V4.1 Flash
+evren2/deepseek-v4.1-flash
+low, medium, high
+ ● Aktif
+Oluşturulma Tarihi: 20.10.2026 07:40
+Sayfa 1 / 4
+
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 18
+DeepSeek V4 Flash
+evren2/deepseek-v4-flash
+low, medium, high
+ ● Aktif
+ 19
+Gemma 4 31B
+evren2/gemma-4-31b
+low, medium, high
+ ● Aktif
+ 20
+GLM 5.3
+evren2/glm-5.3
+low, medium, high
+ ● Aktif
+ 21
+MiMo V2.6 Pro
+evren2/mimo-v2.6-pro
+low, medium, high
+ ● Aktif
+ 22
+Qwen3.8 Flash Next
+evren2/qwen3.8-flash-next
+low, medium, high
+ ● Aktif
+ 23
+Qwen3 VL 30B
+evren2/qwen3-vl-30b
+low, medium, high
+ ● Aktif
+Evren LLM API 3 (ID: evren3 — 8 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 24
+Evren Auto (Router)
+evren3/auto
+low, medium, high
+ ● Aktif
+ 25
+DeepSeek V4.1 Flash
+evren3/deepseek-v4.1-flash
+low, medium, high
+ ● Aktif
+ 26
+DeepSeek V4 Flash
+evren3/deepseek-v4-flash
+low, medium, high
+ ● Aktif
+ 27
+Gemma 4 31B
+evren3/gemma-4-31b
+low, medium, high
+ ● Aktif
+ 28
+GLM 5.3
+evren3/glm-5.3
+low, medium, high
+ ● Aktif
+ 29
+MiMo V2.6 Pro
+evren3/mimo-v2.6-pro
+low, medium, high
+ ● Aktif
+ 30
+Qwen3.8 Flash Next
+evren3/qwen3.8-flash-next
+low, medium, high
+ ● Aktif
+ 31
+Qwen3 VL 30B
+evren3/qwen3-vl-30b
+low, medium, high
+ ● Aktif
+Nvidia (ID: nvidia — 9 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 32
+Nemotron 3.5 Super VL 120B A12B
+nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b
+none, thinking
+ ● Aktif
+ 33
+Step 5 Preview
+nvidia/stepfun-ai/step-5-preview
+none, minimal, low, medium,
+high, xhigh, max
+ ● Aktif
+ 34
+GLM 5.3 Flash
+nvidia/z-ai/glm-5.3-flash
+none, thinking
+ ● Aktif
+ 35
+GLM 5.3
+nvidia/z-ai/glm-5.3
+none, thinking
+ ● Aktif
+ 36
+Muse Glimmer 30B
+nvidia/meta/muse-glimmer-30b
+none, minimal, low, medium,
+high, max
+ ● Aktif
+ 37
+Gemma 4 31B Instruct
+nvidia/google/gemma-4-31b-it
+none, thinking
+ ● Aktif
+ 38
+GPT-OSS 20B
+nvidia/openai/gpt-oss-20b
+low, medium, high
+ ● Aktif
+ 39
+Llama 3.2 11B Vision Instruct
+nvidia/meta/llama-3.2-11b-vision-instruct
+Standart
+ ● Aktif
+ 40
+Nemotron 3 Super 120B A12B
+nvidia/nvidia/nemotron-3-super-120b-a12b
+none, thinking
+ ● Aktif
+OpenAI (ID: openai — 14 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 41
+GPT-6.1 Sol
+openai/gpt-6.1-sol
+low, medium, high, xhigh, max
+ ● Aktif
+ 42
+GPT-6 Luna
+openai/gpt-6-luna
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 43
+GPT-6 Astra
+openai/gpt-6-astra
+low, medium, high, xhigh, max
+ ● Aktif
+ 44
+Daybreak Red
+openai/gpt-daybreak-red-latest
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 45
+GPT-5.6 Terra
+openai/gpt-5.6-terra
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 46
+GPT-5.5 Pro
+openai/gpt-5.5-pro
+medium, high, xhigh
+ ● Aktif
+OpenChamber & OpenCode — Aktif Kullanılabilir Modeller Kataloğu
+Oluşturulma Tarihi: 20.10.2026 07:40
+Sayfa 2 / 4
+
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 47
+GPT-5.4 mini
+openai/gpt-5.4-mini
+none, low, medium, high, xhigh
+ ● Aktif
+ 48
+GPT-5.4 nano
+openai/gpt-5.4-nano
+none, low, medium, high, xhigh
+ ● Aktif
+ 49
+GPT-5.3 Codex Spark
+openai/gpt-5.3-codex-spark
+none, low, medium, high, xhigh
+ ● Aktif
+ 50
+GPT-5.3 Codex
+openai/gpt-5.3-codex
+none, low, medium, high, xhigh
+ ● Aktif
+ 51
+chatgpt-image-latest
+openai/chatgpt-image-latest
+Görsel
+ ● Aktif
+ 52
+o3-pro
+openai/o3-pro
+low, medium, high
+ ● Aktif
+ 53
+o3
+openai/o3
+low, medium, high
+ ● Aktif
+ 54
+text-embedding-3-small
+openai/text-embedding-3-small
+Embedding
+ ● Aktif
+Personal / OpenCode (ID: opencode — 36 Model)
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 55
+MiniMax M3.1 Flash Free
+opencode/minimax-m3.1-flash-free
+low, medium, high, xhigh, max
+ ● Aktif
+ 56
+Nemotron 3.5 Super VL Free
+opencode/nemotron-3.5-super-vl-free
+none, minimal, low, medium,
+high, xhigh
+ ● Aktif
+ 57
+Gemini 4 Argon
+opencode/gemini-4-argon
+low, medium, high
+ ● Aktif
+ 58
+Claude Haiku 5.5
+opencode/claude-haiku-5-5
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 59
+Mistral Large 4
+opencode/mistral-large-4
+none, high
+ ● Aktif
+ 60
+Beam Free
+opencode/beam-free
+low, medium, high, xhigh, max
+ ● Aktif
+ 61
+GPT-6.1 Sol
+opencode/gpt-6.1-sol
+low, medium, high, xhigh, max
+ ● Aktif
+ 62
+Claude Sonnet 5.5
+opencode/claude-sonnet-5-5
+low, medium, high, xhigh, max
+ ● Aktif
+ 63
+LongCat 2.5 Preview Free
+opencode/longcat-2.5-preview-free
+Standart
+ ● Aktif
+ 64
+Claude Opus 5.5
+opencode/claude-opus-5-5
+low, medium, high, xhigh, max
+ ● Aktif
+ 65
+GPT-6 Luna
+opencode/gpt-6-luna
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 66
+MiMo-V2.6-Flash Free
+opencode/mimo-v2.6-flash-free
+Standart
+ ● Aktif
+ 67
+Grok 4.7
+opencode/grok-4.7
+low, medium, high, xhigh
+ ● Aktif
+ 68
+DeepSeek V4.1 Flash
+opencode/deepseek-v4.1-flash
+low, high, max
+ ● Aktif
+ 69
+GPT-6 Astra
+opencode/gpt-6-astra
+low, medium, high, xhigh, max
+ ● Aktif
+ 70
+Gemini 3.8 Flash
+opencode/gemini-3.8-flash
+low, medium, high
+ ● Aktif
+ 71
+Muse Spark 1.3
+opencode/muse-spark-1.3
+minimal, low, medium, high,
+xhigh
+ ● Aktif
+ 72
+Claude Fable 5.1
+opencode/claude-fable-5-1
+low, medium, high, xhigh, max
+ ● Aktif
+ 73
+GLM-5.3-Flash
+opencode/glm-5.3-flash
+low, high, max
+ ● Aktif
+ 74
+Qwen3.8 Flash
+opencode/qwen3.8-flash
+none, low, medium, xhigh
+ ● Aktif
+ 75
+GLM-5.3
+opencode/glm-5.3
+low, high, max
+ ● Aktif
+ 76
+Gemini 3.5 Flash Lite
+opencode/gemini-3.5-flash-lite
+minimal, low, medium, high
+ ● Aktif
+ 77
+Kimi K3
+opencode/kimi-k3
+max
+ ● Aktif
+ 78
+GPT-5.6 Terra
+opencode/gpt-5.6-terra
+none, low, medium, high, xhigh,
+max
+ ● Aktif
+ 79
+Kimi K2.7 Code
+opencode/kimi-k2.7-code
+Standart
+ ● Aktif
+ 80
+DeepSeek V4 Pro
+opencode/deepseek-v4-pro
+high, max
+ ● Aktif
+OpenChamber & OpenCode — Aktif Kullanılabilir Modeller Kataloğu
+Oluşturulma Tarihi: 20.10.2026 07:40
+Sayfa 3 / 4
+
+#
+Model Adı
+Model ID (Sistem Referansı)
+Düşünme / Varyantlar
+Durum
+ 81
+GPT-5.5 Pro
+opencode/gpt-5.5-pro
+medium, high, xhigh
+ ● Aktif
+ 82
+GPT-5.5
+opencode/gpt-5.5
+none, low, medium, high, xhigh
+ ● Aktif
+ 83
+Grok Build 0.1
+opencode/grok-build-0.1
+Standart
+ ● Aktif
+ 84
+Qwen3.6 Plus
+opencode/qwen3.6-plus
+none, high, max
+ ● Aktif
+ 85
+GPT-5.4 Mini
+opencode/gpt-5.4-mini
+none, low, medium, high, xhigh
+ ● Aktif
+ 86
+GPT-5.4 Nano
+opencode/gpt-5.4-nano
+none, low, medium, high, xhigh
+ ● Aktif
+ 87
+GPT-5.3 Codex
+opencode/gpt-5.3-codex
+none, low, medium, high, xhigh
+ ● Aktif
+ 88
+Gemini 3.1 Pro Preview
+opencode/gemini-3.1-pro
+low, medium, high
+ ● Aktif
+ 89
+GPT-5.3 Codex Spark
+opencode/gpt-5.3-codex-spark
+low, medium, high, xhigh
+ ● Aktif
+ 90
+Big Pickle
+opencode/big-pickle
+Standart
+ ● Aktif
+OpenChamber & OpenCode — Aktif Kullanılabilir Modeller Kataloğu
+Oluşturulma Tarihi: 20.10.2026 07:40
+Sayfa 4 / 4
