@@ -24,20 +24,38 @@ class ExtensionsViewModelTest {
     @Before fun setup() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun cleanup() { Dispatchers.resetMain() }
 
-    @Test fun `filters search source names installed updates and languages`() {
-        val state = ExtensionsUiState(available = listOf(entry, entry.copy(packageName = "english", language = "en", sources = emptyList())),
-            installed = listOf(InstalledExtension("example", 1, true, entry.copy(versionCode = 1))))
-        assertEquals(2, state.rows.size)
-        assertEquals(1, state.copy(query = "ALIAS").rows.size)
-        assertEquals(1, state.copy(filter = ExtensionFilter.INSTALLED).rows.size)
-        assertEquals(ExtensionAction.UPDATE, state.copy(filter = ExtensionFilter.UPDATES).rows.single().action)
-        assertEquals("english", state.copy(language = "en").rows.single().descriptor.packageName)
-        assertTrue(state.copy(query = "missing").rows.isEmpty())
+    @Test fun `filters search source names installed updates and languages`() = runBlocking<Unit> {
+        val repo = FakeRepository().apply {
+            urls = listOf(url)
+            entries = listOf(entry, entry.copy(packageName = "english", language = "en", sources = emptyList()))
+            installs = listOf(InstalledExtension("example", 1, true, entry.copy(versionCode = 1)))
+        }
+        val model = ExtensionsViewModel(repo, noOperations)
+        model.load()
+        model.await { it.rows.size == 2 }
+        model.setQuery("ALIAS")
+        model.await { it.rows.size == 1 && it.rows.single().descriptor == entry }
+        model.setQuery("")
+        model.setFilter(ExtensionFilter.INSTALLED)
+        model.await { it.filter == ExtensionFilter.INSTALLED && it.rows.size == 1 }
+        model.setFilter(ExtensionFilter.UPDATES)
+        assertEquals(ExtensionAction.UPDATE, model.await { it.rows.size == 1 }.rows.single().action)
+        model.setFilter(ExtensionFilter.ALL)
+        model.setLanguage("en")
+        model.await { it.rows.singleOrNull()?.descriptor?.packageName == "english" }
+        model.setQuery("missing")
+        model.await { it.rows.isEmpty() }
     }
 
-    @Test fun `orphaned installations stay removable and native adapter is protected`() {
-        val state = ExtensionsUiState(installed = listOf(InstalledExtension("example", 2, true, entry)),
-            available = listOf(NativeSourceRepository.mangaDex))
+    @Test fun `orphaned installations stay removable and native adapter is protected`() = runBlocking {
+        val repo = FakeRepository().apply {
+            urls = listOf(url)
+            installs = listOf(InstalledExtension("example", 2, true, entry))
+            entries = listOf(NativeSourceRepository.mangaDex)
+        }
+        val model = ExtensionsViewModel(repo, noOperations)
+        model.load()
+        val state = model.await { it.rows.size == 2 }
         assertEquals(ExtensionAction.UNINSTALL, state.rows.first { it.descriptor == entry }.action)
         assertEquals(ExtensionAction.BUILT_IN, state.rows.first { it.descriptor == NativeSourceRepository.mangaDex }.action)
     }
@@ -53,18 +71,18 @@ class ExtensionsViewModelTest {
         }
         val model = ExtensionsViewModel(repo, operations)
         model.addRepository(" $url ")
-        model.await { !it.loading && url in it.repositories }
+        model.await { !it.loading && url in it.repositories && it.rows.size == 1 }
         model.act("example")
-        assertEquals(ExtensionAction.UNINSTALL, model.await { it.busyPackage == null && it.installed.isNotEmpty() }.rows.single().action)
+        assertEquals(ExtensionAction.UNINSTALL, model.await { it.busyPackage == null && it.rows.singleOrNull()?.action == ExtensionAction.UNINSTALL }.rows.single().action)
         repo.entries = listOf(entry.copy(versionCode = 3, versionName = "3"))
         model.refresh()
-        assertEquals(ExtensionAction.UPDATE, model.await { !it.loading && it.available.singleOrNull()?.versionCode == 3L }.rows.single().action)
+        assertEquals(ExtensionAction.UPDATE, model.await { !it.loading && it.rows.singleOrNull()?.descriptor?.versionCode == 3L }.rows.single().action)
         model.act("example")
-        model.await { it.busyPackage == null && it.installed.singleOrNull()?.versionCode == 3L }
+        model.await { it.busyPackage == null && it.rows.singleOrNull()?.installedVersion == 3L }
         model.removeRepository(url)
         assertEquals(ExtensionAction.UNINSTALL, model.await { !it.loading && it.repositories.isEmpty() }.rows.single().action)
         model.act("example")
-        assertTrue(model.await { it.busyPackage == null && it.installed.isEmpty() }.rows.isEmpty())
+        assertTrue(model.await { it.busyPackage == null && it.installed.isEmpty() && it.rows.isEmpty() }.rows.isEmpty())
     }
 
     @Test fun `network and install failures retain truthful state and allow retry`() = runBlocking {
@@ -77,7 +95,7 @@ class ExtensionsViewModelTest {
         assertEquals(1L, model.await { it.error && !it.loading }.installed.single().versionCode)
         repo.fail = false
         model.refresh()
-        model.await { !it.error && !it.loading }
+        model.await { !it.error && !it.loading && it.rows.singleOrNull()?.action == ExtensionAction.UPDATE }
         model.act("example")
         assertEquals(1L, model.await { it.error && it.busyPackage == null }.installed.single().versionCode)
     }
@@ -92,7 +110,7 @@ class ExtensionsViewModelTest {
         model.addRepository("http://example.org/index.json")
         assertTrue(model.await { it.error && !it.loading }.repositories.isEmpty())
         model.addRepository(url)
-        model.await { !it.loading && !it.error }
+        model.await { !it.loading && !it.error && it.rows.size == 1 }
         repo.urls = emptyList() // Consent revoked by another surface after the list was rendered.
         model.act("example")
         model.await { it.error && it.busyPackage == null }
@@ -101,16 +119,54 @@ class ExtensionsViewModelTest {
 
     private suspend fun ExtensionsViewModel.await(predicate: (ExtensionsUiState) -> Boolean) = withTimeout(5_000) { state.first(predicate) }
 
+    private val noOperations = object : ExtensionOperations {
+        override suspend fun install(descriptor: ExtensionDescriptor, repositoryUrl: String) = Unit
+        override suspend fun uninstall(packageName: String) = Unit
+    }
+
+    @Test fun `load uses cache without refreshing and row reads do not rebuild the catalog`() = runBlocking<Unit> {
+        val caller = Thread.currentThread()
+        val accessThreads = java.util.concurrent.CopyOnWriteArrayList<Thread>()
+        val repo = FakeRepository().apply {
+            urls = listOf(url)
+            fail = true // A network refresh would fail; cached loading must succeed offline.
+            entries = object : AbstractList<ExtensionDescriptor>() {
+                override val size = 10_000
+                override fun get(index: Int): ExtensionDescriptor {
+                    accessThreads.add(Thread.currentThread())
+                    return entry.copy(packageName = "extension-$index")
+                }
+            }
+        }
+        val model = ExtensionsViewModel(repo, noOperations)
+        model.load()
+        val state = model.await { !it.loading && it.rows.size == 10_000 }
+        assertFalse(state.error)
+        assertEquals(0, repo.refreshCalls)
+        assertTrue(accessThreads.isNotEmpty())
+        assertTrue(accessThreads.none { it === caller })
+        val accesses = accessThreads.size
+        repeat(100) { assertSame(state.rows, state.rows) }
+        assertEquals(accesses, accessThreads.size)
+        model.setQuery("missing")
+        model.setQuery("ALIAS")
+        model.setLanguage("en")
+        model.await { it.rows.isEmpty() }
+        model.setLanguage("tr")
+        model.await { it.rows.size == 10_000 }
+    }
+
     private inner class FakeRepository : ExtensionRepository {
         var urls = emptyList<String>()
         var entries = listOf(entry)
         var installs = emptyList<InstalledExtension>()
         var fail = false
+        var refreshCalls = 0
         override suspend fun addRepository(indexUrl: String) { requireHttps(indexUrl); urls = (urls + indexUrl).distinct() }
         override suspend fun removeRepository(indexUrl: String) { urls = urls - indexUrl }
         override suspend fun repositories() = urls
         override suspend fun available() = if (urls.isEmpty()) emptyList() else entries
-        override suspend fun refresh(): List<ExtensionDescriptor> { if (fail) throw IOException("offline"); return available() }
+        override suspend fun refresh(): List<ExtensionDescriptor> { refreshCalls++; if (fail) throw IOException("offline"); return available() }
         override suspend fun installed() = installs
         override suspend fun repositoryUrl(packageName: String) = urls.firstOrNull()
     }

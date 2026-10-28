@@ -13,6 +13,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,8 +41,19 @@ data class ExtensionsUiState(
     val filter: ExtensionFilter = ExtensionFilter.ALL,
     val language: String = "all",
     val error: Boolean = false,
+    val rows: List<ExtensionRow> = emptyList(),
+)
+
+private data class ExtensionRowInputs(
+    val available: List<ExtensionDescriptor>,
+    val installed: List<InstalledExtension>,
+    val query: String,
+    val filter: ExtensionFilter,
+    val language: String,
 ) {
-    val rows: List<ExtensionRow> get() {
+    constructor(state: ExtensionsUiState) : this(state.available, state.installed, state.query, state.filter, state.language)
+
+    fun buildRows(): List<ExtensionRow> {
         val installedByPackage = installed.associateBy { it.packageName }
         return (available + installed.mapNotNull { it.descriptor }).distinctBy { it.packageName }
             .map { ExtensionRow(it, installedByPackage[it.packageName]?.versionCode) }
@@ -80,19 +93,32 @@ class ExtensionsViewModel @Inject constructor(
     private val mutableState = MutableStateFlow(ExtensionsUiState())
     val state = mutableState.asStateFlow()
 
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            mutableState.map { ExtensionRowInputs(it) }.distinctUntilChanged().collect { inputs ->
+                val rows = inputs.buildRows()
+                mutableState.update { current ->
+                    // Never publish rows for inputs replaced while calculation was running.
+                    if (ExtensionRowInputs(current) == inputs) current.copy(rows = rows) else current
+                }
+            }
+        }
+    }
+
     fun setQuery(value: String) { mutableState.update { it.copy(query = value) } }
     fun setFilter(value: ExtensionFilter) { mutableState.update { it.copy(filter = value) } }
     fun setLanguage(value: String) { mutableState.update { it.copy(language = value) } }
 
-    fun refresh() = change { load(); mutableState.update { it.copy(available = repository.refresh()) } }
+    fun load() = change { loadCached() }
+    fun refresh() = change { loadCached(); mutableState.update { it.copy(available = repository.refresh()) } }
     fun addRepository(url: String) = change {
         repository.addRepository(url.trim())
-        load()
+        loadCached()
         mutableState.update { it.copy(available = repository.refresh()) }
     }
     fun removeRepository(url: String) = change {
         repository.removeRepository(url)
-        load()
+        loadCached()
         mutableState.update { it.copy(available = repository.refresh()) }
     }
 
@@ -106,11 +132,11 @@ class ExtensionsViewModel @Inject constructor(
                 require(origin in repository.repositories()) { "Repository consent revoked" }
                 operations.install(row.descriptor, origin)
             }
-            load()
+            loadCached()
         }
     }
 
-    private suspend fun load() {
+    private suspend fun loadCached() {
         val repos = repository.repositories()
         val installed = repository.installed()
         val available = repository.available()

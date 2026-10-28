@@ -2,6 +2,7 @@ package com.yomira.core.network
 
 import java.io.IOException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.Interceptor
@@ -25,7 +26,12 @@ class CloudflareInterceptor(
     private val handler: CloudflareChallengeHandler,
     private val cookieJar: CookieJar = CookieJar.NO_COOKIES,
     private val userAgent: String = NetworkConfiguration().userAgent,
+    private val challengeTimeoutMillis: Long = 60_000L,
 ) : Interceptor {
+    init {
+        require(challengeTimeoutMillis > 0) { "Challenge timeout must be positive" }
+    }
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
         if (!isChallenge(response)) return response
@@ -33,10 +39,18 @@ class CloudflareInterceptor(
         // Use the final URL after redirects, never send clearance to the original host.
         val request = response.request
         if (request.body?.isOneShot() == true || request.body?.isDuplex() == true) return response
+        // Release the network body before waiting for UI. Keep only a bounded,
+        // readable preview for callers when verification is dismissed.
+        val challengeBody = response.use { it.peekBody(64 * 1024) }
         val result = try {
-            runBlocking { handler.solve(request.url.toString(), request.header("User-Agent") ?: userAgent) }
+            runBlocking {
+                withTimeout(challengeTimeoutMillis) {
+                    handler.solve(request.url.toString(), request.header("User-Agent") ?: userAgent)
+                }
+            }
         } catch (error: Exception) {
-            response.close()
+            challengeBody.close()
+            if (error is InterruptedException) Thread.currentThread().interrupt()
             throw IOException("Cloudflare verification failed for ${request.url.host}", error)
         }
         val cookies = result.cookies.mapNotNull { (name, value) ->
@@ -47,9 +61,11 @@ class CloudflareInterceptor(
                 null
             }
         }
-        if (cookies.isEmpty()) return response
+        if (cookies.isEmpty()) return response.newBuilder()
+            .header("Content-Length", challengeBody.contentLength().toString())
+            .body(challengeBody).build()
 
-        response.close()
+        challengeBody.close()
         cookieJar.saveFromResponse(request.url, cookies)
         val merged = linkedMapOf<String, String>()
         cookieJar.loadForRequest(request.url).forEach { merged[it.name] = it.value }

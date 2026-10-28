@@ -56,6 +56,17 @@ class InMemoryMetadataCacheTest {
     }
 
     @Test
+    fun `explicit pruning reclaims unread expired keys and retains fresh entries`() = runTest {
+        val cache = InMemoryMetadataCache()
+        cache.write("expired", "old", 0L, 100L)
+        cache.write("fresh", "new", 0L, 200L)
+        cache.pruneExpired(100L)
+        // A pre-expiry read proves the row was removed, not just hidden by TTL filtering.
+        assertNull(cache.read("expired", 99L))
+        assertEquals("new", cache.read("fresh", 100L))
+    }
+
+    @Test
     fun `default ttl window remains cacheable`() = runTest {
         // Mirrors WaterfallMetadataAggregator's 24h TTL contract.
         val ttl = Duration.ofHours(24).toMillis()

@@ -43,6 +43,26 @@ class HomeRailsTest {
         assertTrue(rails.last().items.isEmpty())
     }
 
+    @Test fun `popular and personal fallback rails use global consensus rather than freshness or rotation`() {
+        val hit = manga("global-hit").copy(popularity = 500_000, score = 8.0)
+        val niche = manga("fresh-niche").copy(popularity = 5, score = 10.0)
+        fun rails(seed: Int) = buildHomeRails(
+            listOf(niche), listOf(niche), listOf(hit),
+            listOf(HomeShelf.POPULAR, HomeShelf.PERSONAL), setOf(hit.id, niche.id), emptySet(), seed,
+        )
+        assertTrue(rails(1).all { it.items == listOf(hit, niche) })
+        assertEquals(rails(1), rails(999))
+    }
+
+    @Test fun `mature commercial titles remain visible in public rails`() {
+        val titles = listOf("Tsugumomo", "Reincarnated Carrier's Strategy", "Yabadere Gyaru")
+            .map { manga(it).copy(contentRating = ContentRating.MATURE) }
+        val rail = buildHomeRails(
+            titles, emptyList(), emptyList(), listOf(HomeShelf.POPULAR), emptySet(), emptySet(), 1,
+        ).single()
+        assertEquals(titles.toSet(), rail.items.toSet())
+    }
+
     @Test fun `selection and card order stay stable across identical snapshots`() {
         val catalog = (1..50).map { manga("series-$it") }
         val selection = HomeShelf.select(Random(7))

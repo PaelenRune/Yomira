@@ -36,7 +36,7 @@ import com.yomira.domain.journey.AchievementUnlockEvent
 
 /** Presentation only; the root host owns the timeout and serializes simultaneous unlocks. */
 @Composable
-fun SteamAchievementBanner(
+fun YomiraAchievementBanner(
     event: AchievementUnlockEvent?,
     visible: Boolean,
     onDismiss: () -> Unit,

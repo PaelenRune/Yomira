@@ -50,16 +50,17 @@ internal fun ReaderPage(
     var retry by remember(page.imageUrl) { mutableIntStateOf(0) }
     var panelIndex by remember(page.imageUrl) { mutableIntStateOf(0) }
     var panels by remember(page.imageUrl, mode) { mutableStateOf(emptyList<PanelBoundingBox>()) }
-    var decoded by remember(page.imageUrl, retry) { mutableStateOf<android.graphics.Bitmap?>(null) }
+    // Only Guided View needs a strong bitmap reference; changing modes drops it immediately.
+    var decoded by remember(page.imageUrl, retry, guided) { mutableStateOf<android.graphics.Bitmap?>(null) }
 
     // Panel detection is deterministic per page and runs off the UI thread;
     // the memoised result is reused on every recomposition and revisit.
     LaunchedEffect(decoded, mode, guided) {
-        val bitmap = decoded ?: return@LaunchedEffect
         if (!guided) {
             panels = emptyList()
             return@LaunchedEffect
         }
+        val bitmap = decoded ?: return@LaunchedEffect
         panels = withContext(Dispatchers.Default) {
             PanelAnalyzer.analyze(bitmap, mode, cacheKey = page.imageUrl)
         }
@@ -93,7 +94,7 @@ internal fun ReaderPage(
                     if (drawable.intrinsicWidth > 0 && drawable.intrinsicHeight > 0) {
                         aspect = drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight
                         onGeometry(drawable.intrinsicWidth, drawable.intrinsicHeight)
-                        decoded = (drawable as? BitmapDrawable)?.bitmap
+                        decoded = if (guided) (drawable as? BitmapDrawable)?.bitmap else null
                     }
                 },
                 loading = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(28.dp)) } },

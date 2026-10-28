@@ -29,4 +29,17 @@ class RoomMetadataCacheTest {
         assertNull(cache.read("one piece", 2000))
         assertNull(cache.read("other title", 1500))
     }
+
+    @Test fun pruningDeletesExpiredRowsAtBoundaryAndPreservesValidRows() = runTest {
+        val dao = Dao()
+        val cache = RoomMetadataCache(dao)
+        cache.write("never read again", "old", 1000, 2000)
+        cache.pruneExpired(1999)
+        assertNotNull(dao.stored)
+        cache.pruneExpired(2000)
+        assertNull(dao.stored)
+        cache.write("fresh", "new", 2000, 3000)
+        cache.pruneExpired(2000)
+        assertEquals("new", cache.read("fresh", 2000))
+    }
 }

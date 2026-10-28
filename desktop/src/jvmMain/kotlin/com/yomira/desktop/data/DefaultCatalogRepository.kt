@@ -258,8 +258,12 @@ class InMemoryMetadataCache(
         entries[key] = Entry(payload, expiresAtMillis)
     }
 
-    private fun evict(nowMillis: Long) {
+    override suspend fun pruneExpired(nowMillis: Long) {
         entries.entries.removeIf { it.value.expiresAtMillis <= nowMillis }
+    }
+
+    private suspend fun evict(nowMillis: Long) {
+        pruneExpired(nowMillis)
         if (entries.size < maxEntries) return
         entries.entries
             .sortedBy { it.value.expiresAtMillis }

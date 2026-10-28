@@ -89,7 +89,7 @@ object CuratedRepositories {
     val UNIVERSAL = CuratedRepository(
         id = "keiyoushi",
         title = "Keiyoushi Universal Deposu",
-        subtitle = "Tüm dillerde 1000+ topluluk kaynağı; Mihon uyumlu resmî indeks.",
+        subtitle = "Tüm dillerde 1000+ topluluk kaynağı; evrensel açık kaynak indeks.",
         indexUrl = OnboardingWizardManager.KEIYOUSHI_INDEX,
     )
 

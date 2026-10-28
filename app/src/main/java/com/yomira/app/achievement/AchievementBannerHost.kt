@@ -20,7 +20,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.yomira.app.i18n.LocaleManagerCompat
 import com.yomira.domain.journey.AchievementUnlockEvent
-import com.yomira.feature.journey.SteamAchievementBanner
+import com.yomira.feature.journey.YomiraAchievementBanner
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -65,7 +65,7 @@ fun AchievementBannerHost(events: SharedFlow<AchievementUnlockEvent>) {
         }
     }
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        SteamAchievementBanner(
+        YomiraAchievementBanner(
             event = current,
             visible = visible,
             onDismiss = { dismissal?.complete(Unit) },

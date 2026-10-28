@@ -19,6 +19,7 @@ import kotlinx.serialization.json.Json
 interface MetadataCache {
     suspend fun read(key: String, nowMillis: Long): String?
     suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long)
+    suspend fun pruneExpired(nowMillis: Long)
 }
 
 /**
@@ -72,6 +73,9 @@ class WaterfallMetadataAggregator(
             }
         }
         if (records.isEmpty()) return null
+        // Sweep all keys on writes so expired, never-read-again queries cannot accumulate.
+        // Keep cleanup isolated: a failed sweep must not prevent caching fresh metadata.
+        guarded("metadata-cache") { cache.pruneExpired(now) }
         guarded("metadata-cache") { cache.write(key, json.encodeToString(records), now, Math.addExact(now, ttl.toMillis())) }
         return merge(distinctRecords(records))
     }

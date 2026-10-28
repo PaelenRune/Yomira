@@ -55,6 +55,17 @@ class VaultRailsTest {
         }
     }
 
+    @Test fun `mature commercial manga never enter any vault surface even with hentai scraper labels`() {
+        val titles = listOf("Tsugumomo", "Reincarnated Carrier's Strategy", "Yabadere Gyaru")
+            .map { manga(it, "Hentai Manga", rating = ContentRating.MATURE) }
+        (listOf<String?>(null) + vaultGenreChips).forEach { style ->
+            val home = buildVaultHome(titles, titles, true, style)
+            assertTrue(home.collection.isEmpty())
+            assertTrue(home.hero.isEmpty())
+            assertTrue(home.rails.all { it.items.isEmpty() })
+        }
+    }
+
     @Test fun `western imports without tags are included by source identity`() {
         val imported = manga("imported", "").copy(sourceId = "en.allporncomic")
         val home = buildVaultHome(catalog, listOf(imported), true, "Western / 3D")

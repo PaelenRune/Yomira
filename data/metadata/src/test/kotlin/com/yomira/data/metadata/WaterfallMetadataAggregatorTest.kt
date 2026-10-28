@@ -17,9 +17,14 @@ class WaterfallMetadataAggregatorTest {
     private class Cache : MetadataCache {
         var payload: String? = null
         var expiry = 0L
+        val prunedAt = mutableListOf<Long>()
         override suspend fun read(key: String, nowMillis: Long) = payload?.takeIf { nowMillis < expiry }
         override suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long) {
             this.payload = payload; expiry = expiresAtMillis
+        }
+        override suspend fun pruneExpired(nowMillis: Long) {
+            prunedAt += nowMillis
+            if (expiry <= nowMillis) payload = null
         }
     }
 
@@ -81,8 +86,66 @@ class WaterfallMetadataAggregatorTest {
         assertEquals(ContentRating.EXPLICIT, WaterfallMetadataAggregator(providers, cache).aggregate("One Piece")!!.contentRating)
     }
 
+    @Test fun everyNetworkWritePrunesExpiredUnrelatedKeysIncludingForceRefresh() = runTest {
+        val expired = clock.millis()
+        val entries = mutableMapOf("abandoned query" to expired, "valid query" to expired + 1000)
+        val cache = object : MetadataCache {
+            override suspend fun read(key: String, nowMillis: Long): String? = null
+            override suspend fun pruneExpired(nowMillis: Long) {
+                assertEquals(expired, nowMillis)
+                entries.entries.removeIf { it.value <= nowMillis }
+            }
+            override suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long) {
+                assertFalse(entries.containsKey("abandoned query"))
+                assertTrue(entries.containsKey("valid query"))
+                entries[key] = expiresAtMillis
+            }
+        }
+        val aggregator = WaterfallMetadataAggregator(
+            listOf(provider(MetadataSources.KITSU) { listOf(record(MetadataSources.KITSU)) }), cache, clock = clock,
+        )
+        assertNotNull(aggregator.aggregate("One Piece"))
+        entries["abandoned query"] = expired
+        assertNotNull(aggregator.aggregate("One Piece", forceRefresh = true))
+        assertFalse(entries.containsKey("abandoned query"))
+    }
+
+    @Test fun pruningFailureStillWritesFreshMetadataAndReportsFailure() = runTest {
+        var written = false
+        val failures = mutableListOf<String>()
+        val cache = object : MetadataCache {
+            override suspend fun read(key: String, nowMillis: Long): String? = null
+            override suspend fun pruneExpired(nowMillis: Long): Unit = error("disk")
+            override suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long) {
+                written = true
+            }
+        }
+        val aggregator = WaterfallMetadataAggregator(
+            listOf(provider(MetadataSources.KITSU) { listOf(record(MetadataSources.KITSU)) }), cache,
+            onFailure = { failures += it.sourceId },
+        )
+        assertNotNull(aggregator.aggregate("One Piece"))
+        assertTrue(written)
+        assertEquals(listOf("metadata-cache"), failures)
+    }
+
+    @Test fun pruningCancellationPropagatesWithoutWriting() = runTest {
+        val cache = object : MetadataCache {
+            override suspend fun read(key: String, nowMillis: Long): String? = null
+            override suspend fun pruneExpired(nowMillis: Long): Unit = throw CancellationException("stop")
+            override suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long) {
+                fail("Cancelled cleanup must not continue to a write")
+            }
+        }
+        val aggregator = WaterfallMetadataAggregator(
+            listOf(provider(MetadataSources.KITSU) { listOf(record(MetadataSources.KITSU)) }), cache,
+        )
+        try { aggregator.aggregate("One Piece"); fail("Cancellation expected") } catch (_: CancellationException) { }
+    }
+
     @Test fun failedCacheDoesNotDiscardNetworkResult() = runTest {
         val cache = object : MetadataCache {
+            override suspend fun pruneExpired(nowMillis: Long): Unit = error("disk")
             override suspend fun read(key: String, nowMillis: Long): String? = error("disk")
             override suspend fun write(key: String, payload: String, nowMillis: Long, expiresAtMillis: Long): Unit = error("disk")
         }

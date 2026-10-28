@@ -9,9 +9,12 @@ val blacklistTags = linkedMapOf(
     "ntr" to "Netorare (NTR)", "gore" to "Gore / Aşırı Şiddet", "harem" to "Harem",
 )
 
-private fun normalizedTag(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFKD)
-    .replace(Regex("\\p{M}+"), "").lowercase(Locale.ROOT).replace('ı', 'i')
-    .replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
+private val COMBINING_MARKS_REGEX = Regex("\\p{M}+")
+private val NON_ALPHANUM_REGEX = Regex("[^\\p{L}\\p{N}]+")
+
+fun normalizedTag(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFKD)
+    .replace(COMBINING_MARKS_REGEX, "").lowercase(Locale.ROOT).replace('ı', 'i')
+    .replace(NON_ALPHANUM_REGEX, " ").trim()
 
 private val tagAliases = mapOf(
     "yaoi" to setOf("yaoi", "bl", "boys love", "boy love", "shounen ai", "shonen ai"),
@@ -22,12 +25,28 @@ private val tagAliases = mapOf(
     "harem" to setOf("harem", "reverse harem"),
 )
 
-fun Manga.hasExcludedTags(excludedTags: Set<String>): Boolean = excludedTags.any { excluded ->
-    val key = normalizedTag(excluded)
-    val aliases = tagAliases.entries.firstOrNull { (id, values) ->
-        key == id || key in values || normalizedTag(blacklistTags[id].orEmpty()) == key
-    }?.value ?: setOf(key)
-    genres.any { genre -> aliases.any { alias -> " $alias " in " ${normalizedTag(genre)} " } }
+private val TAG_ALIAS_LOOKUP: Map<String, Set<String>> = buildMap {
+    tagAliases.forEach { (id, aliases) ->
+        val normId = normalizedTag(id)
+        val normAliases = (aliases + id).map { normalizedTag(it) }.toSet()
+        put(normId, normAliases)
+        blacklistTags[id]?.let { put(normalizedTag(it), normAliases) }
+        normAliases.forEach { put(it, normAliases) }
+    }
+}
+
+fun Manga.hasExcludedTags(excludedTags: Set<String>): Boolean {
+    if (excludedTags.isEmpty() || genres.isEmpty()) return false
+    val expanded = excludedTags.flatMap { excluded ->
+        val key = normalizedTag(excluded)
+        TAG_ALIAS_LOOKUP[key] ?: setOf(key)
+    }
+    if (expanded.isEmpty()) return false
+    val normGenres = genres.map { " ${normalizedTag(it)} " }
+    return expanded.any { alias ->
+        val target = " $alias "
+        normGenres.any { target in it }
+    }
 }
 
 /** Unknown age is safe by default. Adult eligibility and explicit-content consent are separate. */

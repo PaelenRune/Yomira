@@ -2,6 +2,10 @@ package com.yomira.core.network
 
 import java.io.IOException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.TimeoutCancellationException
+import okhttp3.EventListener
+import okhttp3.Call
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -17,6 +21,54 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CloudflareInterceptorTest {
+    @Test
+    fun `challenge body is released before solving`() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(403).setHeader("Server", "cloudflare").setBody("challenge"))
+            var bodyReleased = false
+            val client = OkHttpClient.Builder()
+                .eventListener(object : EventListener() {
+                    override fun responseBodyEnd(call: Call, byteCount: Long) { bodyReleased = true }
+                })
+                .addInterceptor(CloudflareInterceptor(CloudflareChallengeHandler { _, _ ->
+                    assertTrue("Release challenge socket before waiting for UI", bodyReleased)
+                    CloudflareResult(emptyMap(), null)
+                })).build()
+            client.newCall(Request.Builder().url(server.url("/")).build()).execute().use {
+                assertEquals("challenge", it.body!!.string())
+            }
+        }
+    }
+
+    @Test(timeout = 5000)
+    fun `challenge timeout cancels handler and releases body without retry`() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(403).setHeader("Server", "cloudflare").setBody("challenge"))
+            var cancelled = false
+            var bodyReleased = false
+            val client = OkHttpClient.Builder()
+                .eventListener(object : EventListener() {
+                    override fun responseBodyEnd(call: Call, byteCount: Long) { bodyReleased = true }
+                })
+                .addInterceptor(CloudflareInterceptor(CloudflareChallengeHandler { _, _ ->
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        cancelled = true
+                    }
+                }, challengeTimeoutMillis = 50L)).build()
+            try {
+                client.newCall(Request.Builder().url(server.url("/")).build()).execute().use { }
+                throw AssertionError("Expected timeout")
+            } catch (error: IOException) {
+                assertTrue(error.cause is TimeoutCancellationException)
+            }
+            assertTrue(cancelled)
+            assertTrue(bodyReleased)
+            assertEquals(1, server.requestCount)
+        }
+    }
+
     @Test
     fun `detects challenge markers without consuming response body`() {
         for (code in listOf(403, 503)) {

@@ -18,5 +18,9 @@ class RoomMetadataCache(private val dao: MetadataCacheDao) : MetadataCache {
         dao.upsert(MetadataCacheEntity(SOURCE, key, payload, Date(nowMillis), Date(expiresAtMillis)))
     }
 
+    override suspend fun pruneExpired(nowMillis: Long) {
+        dao.deleteExpired(Date(nowMillis))
+    }
+
     companion object { const val SOURCE = "waterfall-v1" }
 }

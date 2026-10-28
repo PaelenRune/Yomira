@@ -223,15 +223,21 @@ private fun YomiraNavigation(
     fun allowed(manga: Manga) = maintenanceState.readerPreferences != null && manga.isVisibleForReader(preferences.excludedTags, preferences.isAdult, preferences.allowAdultContent)
     val vaultEnabled = settings.vaultVisible && preferences.isAdult && preferences.allowAdultContent
     val rawCatalog by model.catalog.collectAsStateWithLifecycle()
-    val catalog = rawCatalog.copy(manga = rawCatalog.manga.filter(::allowed), updated = rawCatalog.updated.filter(::allowed))
+    val catalog = remember(rawCatalog, preferences, maintenanceState.readerPreferences != null) {
+        rawCatalog.copy(manga = rawCatalog.manga.filter(::allowed), updated = rawCatalog.updated.filter(::allowed))
+    }
     val rawHomeRails by model.homeRails.collectAsStateWithLifecycle()
-    val homeRails = rawHomeRails.map { it.copy(items = it.items.filter(::allowed)) }
+    val homeRails = remember(rawHomeRails, preferences, maintenanceState.readerPreferences != null) {
+        rawHomeRails.map { it.copy(items = it.items.filter(::allowed)) }
+    }
     val columns by model.columns.collectAsStateWithLifecycle()
     val vaultColumns by model.vaultColumns.collectAsStateWithLifecycle()
     val unlocked by model.unlocked.collectAsStateWithLifecycle()
     val saved by model.saved.collectAsStateWithLifecycle()
     val rawLibraryUpdates by model.libraryUpdates.collectAsStateWithLifecycle()
-    val libraryUpdates = rawLibraryUpdates.filter { allowed(it.manga) && it.manga.contentRating != ContentRating.EXPLICIT }
+    val libraryUpdates = remember(rawLibraryUpdates, preferences, maintenanceState.readerPreferences != null) {
+        rawLibraryUpdates.filter { allowed(it.manga) && it.manga.contentRating != ContentRating.EXPLICIT }
+    }
     val libraryRefreshing by model.libraryRefreshing.collectAsStateWithLifecycle()
     val libraryRefreshError by model.libraryRefreshError.collectAsStateWithLifecycle()
     val adaptationBadges by model.adaptationBadges.collectAsStateWithLifecycle()
@@ -240,9 +246,13 @@ private fun YomiraNavigation(
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
     val selectedTags by model.selectedTags.collectAsStateWithLifecycle()
     val rawDiscovery by model.discovery.collectAsStateWithLifecycle()
-    val discovery = rawDiscovery.copy(items = rawDiscovery.items.filter(::allowed))
+    val discovery = remember(rawDiscovery, preferences, maintenanceState.readerPreferences != null) {
+        rawDiscovery.copy(items = rawDiscovery.items.filter(::allowed))
+    }
     val rawVaultDiscovery by model.vaultDiscovery.collectAsStateWithLifecycle()
-    val vaultDiscovery = rawVaultDiscovery.copy(items = rawVaultDiscovery.items.filter(::allowed))
+    val vaultDiscovery = remember(rawVaultDiscovery, preferences, maintenanceState.readerPreferences != null) {
+        rawVaultDiscovery.copy(items = rawVaultDiscovery.items.filter(::allowed))
+    }
     val pendingUpdate by model.update.collectAsStateWithLifecycle()
     val settingsState by settingsModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
@@ -587,7 +597,7 @@ private fun YomiraNavigation(
             }
             composable("extensions") {
                 val extensionState by extensionsModel.state.collectAsStateWithLifecycle()
-                LaunchedEffect(Unit) { extensionsModel.refresh() }
+                LaunchedEffect(Unit) { extensionsModel.load() }
                 ExtensionsScreen(
                     state = extensionState, onBack = { nav.popBackStack() }, onRefresh = extensionsModel::refresh,
                     onQuery = extensionsModel::setQuery, onFilter = extensionsModel::setFilter,
