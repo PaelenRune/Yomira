@@ -10,7 +10,7 @@ Yomira artık Google Play yolculuğundan bağımsız, doğrudan GitHub üzerinde
 - **Üç küratörlü indeks APK ile birlikte gelir:** Keiyoushi evrensel deposu (bu sürüm anlık görüntüsünde 1.435 eklenti), Türkçe depolar (93) ve Batı çizgi romanı depoları (20).
 - **İlk açılışta hazır:** Temiz kurulumda evrensel depo otomatik kayıtlıdır; eklenti listesi indirme beklenmeden, internetsiz de listelenir. Depo çevrimiçi ulaşılamazsa uygulamanın içindeki anlık görüntü kullanılır — liste boş kalmaz, hata vermez.
 - **Türkçe ve Batı depoları isteğe bağlı anahtardır:** Bu kaynaklar zaten evrensel deponun içindedir. Tam listeyi yalnızca Türkçe ya da yalnızca Batı kaynaklarına daraltmak istersen Ayarlar'daki anahtarlarla evrensel depoyu kapatıp dilimi açabilirsin; birlikte açıkken çift kayıt oluşmaz.
-- **Kontrol yine sende:** Gömülü depoları anahtarlarla kapatabilir, kendi HTTPS depo adresini ekleyebilirsin. senin yönettiğin depo listesi hiçbir yükseltmede otomatik değiştirilmez; v8.1.x'ten yükseltirken senin seçtiğin kaynaklar aynen kalır.
+- **Kontrol yine sende:** Gömülü depoları anahtarlarla kapatabilir, kendi HTTPS depo adresini ekleyebilirsin. Senin yönettiğin depo listesi hiçbir yükseltmede otomatik değiştirilmez; v8.1.x'ten yükseltirken seçtiğin kaynaklar aynen kalır.
 - **Anlık görüntüler repoda yaşar:** `scripts/update-curated-repositories.ps1` ile yenilenebilir; `repositories/turkish/index.min.json` ve `repositories/western/index.min.json` barındırılan kopyaları da bu sürümde yeniden üretildi.
 
 #### 🎛️ 2. Ayarlar ve Eklentiler Düzenlendi
@@ -29,11 +29,10 @@ Yomira artık Google Play yolculuğundan bağımsız, doğrudan GitHub üzerinde
 
 | Bilgi | Değer |
 | --- | --- |
-| Sürüm | `8.1.2` |
-| Sürüm Kodu (versionCode) | `22` |
-| Birim test sonucu | 1.113 test, 0 hata (tüm modüllerin `testDebugUnitTest` + JVM test paketi, 195 test sınıfı — sürüm kaynağında yeşil) |
-| Release APK | `release/yomira-v8.1.2.apk` |
-| APK boyutu | `BOYUT` |
-| SHA-256 | `SHA256` |
+| Sürüm | `8.1.2` (versionCode `22`) |
+| Sürüm commit'i | `e8985cb` (tag `v8.1.2`) |
+| Testler | 1.113 birim testi, 0 hata (sürüm kaynağında yeşil) |
+| Ekli APK | `yomira-v8.1.2.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
+| Temiz kaynak kanıtı | Depodaki `release/yomira-v8.1.2.apk` — 22.813.533 bayt, SHA-256 `694532a63331eedad2386ed0116a3172c5ff1f153a50c5c97a861096f17c9b21` |
 
-APK, sürüm commit'i (`SURUMCOMMIT`) üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası önceki sürümlerle birebir aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Depo dizinleri yalnızca metadata taşır; bölüm içeriği veya eklenti APK'sı uygulama içinde barındırılmaz — kurulumlar sandbox'a senin onayınla indirilir.
+APK, sürüm commit'i üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası önceki sürümlerle birebir aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Depo dizinleri yalnızca metadata taşır; bölüm içeriği veya eklenti APK'sı uygulama içinde barındırılmaz — kurulumlar sandbox'a senin onayınla indirilir.
