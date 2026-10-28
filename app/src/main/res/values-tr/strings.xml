@@ -128,7 +128,7 @@
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
     <string name="onboarding_step_description">Kurulum adımı %1$d / %2$d</string>
     <string name="onboarding_language_title">Hangi dillerdeki serileri okumak istersiniz?</string>
-    <string name="onboarding_language_description">Kaynakları ve önerileri okuma diline göre hazırlayalım.</string>
+    <string name="onboarding_language_description">Gerçekten okuduğun dillerde kaynak ve öneri seçebilmemiz için soruyoruz. Ana sayfayı, keşfi ve aramayı bu seçim şekillendirir.</string>
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
     <string name="onboarding_language_both">Her İkisi (Both)</string>
@@ -169,6 +169,14 @@
     <string name="vault_auth_incomplete">Doğrulama tamamlanmadı. Yeniden deneyebilirsin.</string>
     <string name="vault_no_screen_lock">Önce Android ayarlarından güvenli bir ekran kilidi (PIN, desen veya şifre) oluştur.</string>
     <string name="vault_adult_disabled">Yetişkin içerik izni kapalı. Vault kullanılamaz.</string>
+
+    <!-- v8.2.0: Vault ilk açılışında, biyometrik/PIN doğrulamasından sonra sorulan tek seferlik onay. -->
+    <string name="vault_consent_title">Vault’ta yetişkin içerik</string>
+    <string name="vault_consent_body">Bu kasa yetişkin (18+) içerik içeriyor. Görmek istiyor musun? Seçimin bu cihaza kaydedilir ve daha sonra Ayarlar’dan değiştirilebilir.</string>
+    <string name="vault_consent_show">Evet, göster</string>
+    <string name="vault_consent_hide">Hayır, gizli kalsın</string>
+    <string name="vault_hidden_title">Yetişkin içerik gizli</string>
+    <string name="vault_hidden_body">Bu kasa yetişkin içerik içeriyor ve gizli tutmayı seçtiğin için raflar boş kalıyor. Kararı Ayarlar’dan değiştirebilirsin; giriş her zamanki gibi kilitli kalır.</string>
 
     <!-- Detay -->
     <string name="action_back">Geri dön</string>
@@ -287,6 +295,8 @@
     <string name="settings_privacy_section">Gizlilik ve Kasa</string>
     <string name="settings_vault_title">+18 Vault</string>
     <string name="settings_vault_body">Kapatınca alt çubuktaki 🔒 +18 Kasa sekmesi tamamen kaybolur; telefonda yetişkin içerik olduğuna dair hiçbir iz kalmaz. Yeniden açmak için cihaz kilidi doğrulanır.</string>
+    <string name="settings_vault_nsfw_title">Vault’ta yetişkin içeriği göster</string>
+    <string name="settings_vault_nsfw_body">Vault ilk açıldığında çıkan tek seferlik sorunun kararı. Kapatınca kasa yine açılır ama rafları boş kalır; içerik gizlenir ve giriş kilitli kalır.</string>
     <string name="settings_vault_hidden_badge">GİZLİ</string>
     <string name="settings_reveal_denied">Cihaz kilidi doğrulanamadı; +18 Vault gizli kalmaya devam ediyor.</string>
     <string name="settings_device_lock_title">Cihaz Kilidi ile Koru</string>
@@ -330,11 +340,11 @@
     <string name="settings_stealth_shield_title">Gizlilik &amp; Sansür Kalkanı</string>
     <string name="settings_stealth_shield_body">Harici VPN gerekmeden İSS engellerini ve DNS takibini aşar. Her ağda çalışmayabilir; anonimlik sağlamaz.</string>
     <string name="onboarding_age_title">Yaşına uygun bir başlangıç</string>
-    <string name="onboarding_age_description">Güvenli mod yetişkin içeriklerini gizler. Tercihini ayarlardan değiştirebilirsin.</string>
+    <string name="onboarding_age_description">Güvenli mod yalnız her yaşa uygun serileri gösterir. 18+ seçersen ana sayfa, keşif ve aramada yetişkin temalı (16+) seriler de görünür; açık içerik ise kilitli +18 Vault’ta kalır.</string>
     <string name="onboarding_exclusions_title">Neleri görmek istemezsin?</string>
-    <string name="onboarding_exclusions_description">Seçtiğin etiketlerdeki seriler arama, raflar ve Vault dahil hiçbir yerde gösterilmez.</string>
+    <string name="onboarding_exclusions_description">Bu temalar akışlarına hiç gelmesin diye soruyoruz. Seçtiğin etiketlerdeki seriler arama, raflar ve Vault dahil hiçbir yerde gösterilmez.</string>
     <string name="onboarding_genres_title">En sevdiğin 5 seriyi seç</string>
-    <string name="onboarding_genres_description">Önerilerini şekillendirmek için en fazla 5 favori seri seç. Bir seçimle devam edebilir veya atlayabilirsin.</string>
+    <string name="onboarding_genres_description">Ana sayfa raflarını ve önerilerini bu seçimler şekillendirir. En fazla 5 favori seri seç veya şimdilik atla.</string>
     <string name="onboarding_series_search">Seri ara</string>
     <string name="onboarding_series_empty">Seri bulunamadı. Başka bir ad dene veya şimdilik atla.</string>
     <string name="onboarding_series_remove">Kaldır</string>

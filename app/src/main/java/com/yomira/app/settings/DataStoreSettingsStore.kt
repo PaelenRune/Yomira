@@ -29,6 +29,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
 
     private fun Preferences.toSettings() = AppSettings(
         vaultVisible = this[vaultVisible] ?: false,
+        vaultNsfwConsent = this[vaultNsfwConsent],
         requireDeviceLock = this[deviceLock] ?: true,
         lockOnBackground = this[lockBackground] ?: true,
         readingMode = readingModes[this[readingMode]] ?: ReadingMode.MANGA_RTL,
@@ -41,6 +42,8 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
 
     private fun MutablePreferences.write(settings: AppSettings) {
         set(vaultVisible, settings.vaultVisible)
+        // Absent key = the first-use Vault prompt has not been answered yet.
+        settings.vaultNsfwConsent?.let { values -> set(vaultNsfwConsent, values) } ?: remove(vaultNsfwConsent)
         set(deviceLock, settings.requireDeviceLock)
         set(lockBackground, settings.lockOnBackground)
         set(readingMode, settings.readingMode.name)
@@ -53,6 +56,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
 
     private companion object {
         val vaultVisible = booleanPreferencesKey("vaultVisible")
+        val vaultNsfwConsent = booleanPreferencesKey("vaultNsfwConsent")
         val deviceLock = booleanPreferencesKey("requireDeviceLock")
         val lockBackground = booleanPreferencesKey("lockOnBackground")
         val readingMode = stringPreferencesKey("readingMode")

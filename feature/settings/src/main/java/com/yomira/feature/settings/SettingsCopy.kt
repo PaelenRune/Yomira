@@ -52,6 +52,8 @@ data class SettingsCopy(
     val stealthShieldBody: String = "Harici VPN gerekmeden İSS engellerini ve DNS takibini aşar. Her ağda çalışmayabilir; anonimlik sağlamaz.",
     val vaultTitle: String = "+18 Vault",
     val vaultBody: String = "Kapatınca alt çubuktaki \uD83D\uDD12 +18 Kasa sekmesi tamamen kaybolur; telefonda yetişkin içerik olduğuna dair hiçbir iz kalmaz. Yeniden açmak için cihaz kilidi doğrulanır.",
+    val vaultNsfwTitle: String = "Vault’ta Yetişkin İçeriği Göster",
+    val vaultNsfwBody: String = "İlk açılıştaki tek seferlik onayın kararı. Kapatınca kasa yine açılır ama raflar boş kalır; içerik gizlenir ve giriş kilitli kalır.",
     val vaultHiddenBadge: String = "GİZLİ",
     val revealDenied: String = "Cihaz kilidi doğrulanamadı; +18 Vault gizli kalmaya devam ediyor.",
     val deviceLockTitle: String = "Cihaz Kilidi ile Koru",

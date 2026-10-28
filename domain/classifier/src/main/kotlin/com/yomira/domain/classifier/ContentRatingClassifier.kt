@@ -24,6 +24,11 @@ data class ClassificationInput(
 /**
  * Evidence-based routing, not age verification. Erotica and age labels are not proof of pornography.
  *
+ * Provider signals first collapse into a tier through
+ * [ExternalRating.tier][com.yomira.core.model.ExternalRating.tier] (single
+ * mapping layer, cautious-upper-wins on conflicts), then this classifier applies
+ * publication context on top.
+ *
  * EXPLICIT covers standalone hentai, pornhwa tags, hardcore or genitalia
  * evidence, explicit doujinshi and sources that only ever host adult comics
  * (`allporncomic`, `porncomix`, 3D porn sites). Everything soft — ecchi, fanservice,
@@ -56,17 +61,19 @@ class ContentRatingClassifier {
             .any { normalize(it) in serializedEroticaTitles }
         val fictionContext = input.isOfficialPublication == true ||
             labels.containsAny(serializedFictionLabels) || knownSerializedErotica
-        val providerPornographic = ExternalRating.PORNOGRAPHIC in input.externalRatings
+        // All provider signals resolve through the shared tier mapping; the cautious
+        // upper tier wins, so one pornographic catalogue outranks a safe one.
+        val evidenceTier = ExternalRating.strongestTier(input.externalRatings)
+        val providerPornographic = evidenceTier == ContentRating.EXPLICIT
         if (fictionContext && (hentai || providerPornographic || knownSerializedErotica)) {
             return ContentRating.MATURE
         }
         if (providerPornographic) return ContentRating.EXPLICIT
         // Verified non-pornographic ratings cannot be escalated by an unverified
         // hentai label. SAFE does not erase softer sexual evidence, however.
-        if (input.externalRatings.any { it in nonPornographicRatings }) {
-            return if (labels.containsAny(matureLabels) ||
-                input.externalRatings.any { it == ExternalRating.SUGGESTIVE || it == ExternalRating.EROTICA }
-            ) ContentRating.MATURE else ContentRating.SAFE
+        if (evidenceTier != null) {
+            return if (labels.containsAny(matureLabels) || evidenceTier >= ContentRating.MATURE)
+                ContentRating.MATURE else ContentRating.SAFE
         }
         // Without contradictory publication/provider evidence, Hentai is explicit.
         if (hentai) return ContentRating.EXPLICIT
@@ -100,9 +107,6 @@ class ContentRatingClassifier {
     private val adultSourceTokens = setOf(
         "hentai", "porn", "pornhwa", "allporncomic", "porncomix", "porcomix", "porcat",
         "nhentai", "hentai2read", "hentaifox", "asmhentai", "rule34", "manhwa18",
-    )
-    private val nonPornographicRatings = setOf(
-        ExternalRating.SAFE, ExternalRating.SUGGESTIVE, ExternalRating.EROTICA,
     )
     private val serializedFictionLabels = setOf(
         "isekai", "action", "adventure", "comedy", "school life", "gyaru", "romance",

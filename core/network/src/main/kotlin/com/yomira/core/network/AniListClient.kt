@@ -2,6 +2,7 @@ package com.yomira.core.network
 
 import com.yomira.core.model.MangaStatus
 import com.yomira.core.model.AdaptationKind
+import com.yomira.core.model.ExternalRating
 import com.yomira.core.model.WatchableAdaptation
 import com.yomira.core.model.RecommendedSeries
 import com.yomira.core.model.RelatedSeries
@@ -24,6 +25,22 @@ data class AniListPage(
     val page: Int,
     val hasNextPage: Boolean,
 )
+
+/** AniList tag names that carry mature-theme evidence (ecchi, nudity, sexual themes). */
+private val ANILIST_MATURE_THEME_TAGS = setOf("ecchi", "nudity", "sexual themes", "sexual content")
+
+/**
+ * AniList adult signals → tier-evidence mapping (v8.2.0 tier model).
+ *
+ * The media-level `isAdult` flag marks pornographic records, so it is explicit
+ * evidence. The softer ecchi/nudity/sexual-theme tags only push the tier to
+ * MATURE — serialized 18+ stories stay on the public 18+ rails.
+ */
+fun aniListContentRating(isAdult: Boolean, hasMatureThemeTag: Boolean): ExternalRating? = when {
+    isAdult -> ExternalRating.PORNOGRAPHIC
+    hasMatureThemeTag -> ExternalRating.SUGGESTIVE
+    else -> null
+}
 
 /**
  * AniList GraphQL client.
@@ -237,6 +254,15 @@ class AniListClient(
             status = parseStatus(status),
             genres = genres.map { it.trim() }.filter { it.isNotEmpty() }.distinct(),
             tags = genres.map { it.trim() }.filter { it.isNotEmpty() }.distinct(),
+            // v8.2.0 tier model: the media-level adult flag and the mature-theme
+            // tags are provider signals; they map to tier evidence here instead of
+            // pouring raw tag names into the shared genre chips.
+            contentRating = aniListContentRating(
+                isAdult = isAdult,
+                hasMatureThemeTag = tags.any { tag ->
+                    tag.name?.trim()?.lowercase() in ANILIST_MATURE_THEME_TAGS
+                },
+            ),
             publicationType = publicationType(format, countryOfOrigin),
             year = startDate?.year,
             sourceUrl = "https://anilist.co/manga/$id",
@@ -357,6 +383,8 @@ class AniListClient(
                   popularity
                   status
                   genres
+                  isAdult
+                  tags { name }
                   format
                   countryOfOrigin
                   startDate { year }
@@ -382,6 +410,8 @@ class AniListClient(
                   popularity
                   status
                   genres
+                  isAdult
+                  tags { name }
                   format
                   countryOfOrigin
                   startDate { year }
@@ -445,6 +475,8 @@ class AniListClient(
                 popularity
                 status
                 genres
+                isAdult
+                tags { name }
                 format
                 countryOfOrigin
                 startDate { year }

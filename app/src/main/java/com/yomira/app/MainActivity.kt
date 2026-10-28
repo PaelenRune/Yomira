@@ -205,6 +205,7 @@ class MainActivity : AppCompatActivity() {
                                 getString(R.string.settings_reveal_prompt_body),
                             ) { verified -> settingsModel.onVaultRevealResult(verified) }
                         },
+                        onVaultNsfwConsent = settingsModel::setVaultNsfwConsent,
                         ::openReference, navigateExtensions, { navigateExtensions = false },
                     )
                 }
@@ -304,6 +305,7 @@ private fun YomiraNavigation(
     authError: String?,
     onUnlockVault: () -> Unit,
     onRevealVault: () -> Unit,
+    onVaultNsfwConsent: (Boolean) -> Unit,
     openReference: (String) -> Boolean,
     navigateExtensions: Boolean,
     onExtensionsNavigated: () -> Unit,
@@ -456,20 +458,22 @@ private fun YomiraNavigation(
                 composable(route) {
                     var query by rememberSaveable { mutableStateOf("") }
                     val paging = if (route == "library") DiscoveryState(hasMore = false) else discovery
-                    // v8.1.4: public surfaces are strictly SAFE. The library shows what the
+                    // v8.2.0 placement matrix: safe mode keeps the public grid SAFE-only;
+                    // adults additionally see MATURE series. EXPLICIT never leaks here
+                    // (the v8.1.4 public-surface guarantee). The library shows what the
                     // user deliberately saved; only the blacklist still filters it there.
                     val items = if (route == "library") catalog.manga.filter { it.id in saved && !it.hasExcludedTags(preferences.excludedTags) }
-                        else publicCatalog(catalog.manga, preferences.excludedTags)
+                        else publicCatalog(catalog.manga, preferences.excludedTags, preferences.isAdult)
                     val resume by model.continueReading.collectAsStateWithLifecycle()
                     val resumeItem = resume?.takeIf { entry ->
-                        catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating == ContentRating.SAFE } == true
+                        catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating != ContentRating.EXPLICIT } == true
                     }
                     val seriesContent: @Composable () -> Unit = { HomeScreen(
                         HomeUiState(
                             manga = items,
                             trending = items.sortedByDescending { it.score },
                             updated = if (route == "library") catalog.updated.filter { it.id in saved && !it.hasExcludedTags(preferences.excludedTags) }
-                                else publicCatalog(catalog.updated, preferences.excludedTags),
+                                else publicCatalog(catalog.updated, preferences.excludedTags, preferences.isAdult),
                             columns = columns,
                             query = query,
                             loading = catalog.loading,
@@ -531,31 +535,52 @@ private fun YomiraNavigation(
                 if (!vaultEnabled) {
                     // The tab is gone; a stale back-stack entry must not reveal the Vault.
                     LaunchedEffect(Unit) { home() }
-                } else VaultScreen(
-                    unlocked = unlocked,
-                    manga = if (unlocked) catalog.manga else emptyList(),
-                    columns = vaultColumns,
-                    onColumns = { model.setColumns(it, true) },
-                    onUnlock = onUnlockVault,
-                    onPanic = ::panic,
-                    onManga = ::details,
-                    onMangaLongClick = { actionManga = it },
-                    authError = authError,
-                    loading = catalog.loading,
-                    error = catalog.error,
-                    onRetry = model::refresh,
-                    discovered = vaultDiscovery.items,
-                    loadingMore = vaultDiscovery.loading,
-                    hasMore = vaultDiscovery.hasMore,
-                    pagingError = vaultDiscovery.error,
-                    onLoadMore = { if (unlocked) model.loadNextPage(adult = true) },
-                    copy = vaultCopy(catalogCopy),
-                    excludedTags = preferences.excludedTags,
-                    isAdult = preferences.isAdult,
-                    allowAdultContent = preferences.allowAdultContent,
-                    adaptationBadges = if (unlocked) adaptationBadges else emptyMap(),
-                    onPosterVisible = { if (unlocked && settings.vaultVisible) model.loadPosterAdaptations(listOf(it)) },
-                )
+                } else {
+                    // v8.2.0 first-use NSFW consent: a separate, one-time gate that
+                    // follows the biometric/PIN unlock. Until it is answered the Vault
+                    // stays unlocked-but-empty; either button persists the decision.
+                    val vaultNsfwConsent = settings.vaultNsfwConsent
+                    if (unlocked && vaultNsfwConsent == null) {
+                        AlertDialog(
+                            onDismissRequest = { },
+                            title = { Text(stringResource(R.string.vault_consent_title)) },
+                            text = { Text(stringResource(R.string.vault_consent_body)) },
+                            confirmButton = { TextButton(onClick = { onVaultNsfwConsent(true) }) {
+                                Text(stringResource(R.string.vault_consent_show))
+                            } },
+                            dismissButton = { TextButton(onClick = { onVaultNsfwConsent(false) }) {
+                                Text(stringResource(R.string.vault_consent_hide))
+                            } },
+                        )
+                    }
+                    val adultContentVisible = vaultNsfwConsent == true
+                    VaultScreen(
+                        unlocked = unlocked,
+                        manga = if (unlocked && adultContentVisible) catalog.manga else emptyList(),
+                        columns = vaultColumns,
+                        onColumns = { model.setColumns(it, true) },
+                        onUnlock = onUnlockVault,
+                        onPanic = ::panic,
+                        onManga = ::details,
+                        onMangaLongClick = { actionManga = it },
+                        authError = authError,
+                        loading = catalog.loading,
+                        error = catalog.error,
+                        onRetry = model::refresh,
+                        discovered = if (adultContentVisible) vaultDiscovery.items else emptyList(),
+                        loadingMore = vaultDiscovery.loading,
+                        hasMore = vaultDiscovery.hasMore,
+                        pagingError = vaultDiscovery.error,
+                        onLoadMore = { if (unlocked && adultContentVisible) model.loadNextPage(adult = true) },
+                        copy = vaultCopy(catalogCopy),
+                        excludedTags = preferences.excludedTags,
+                        isAdult = preferences.isAdult,
+                        allowAdultContent = preferences.allowAdultContent,
+                        showAdultContent = adultContentVisible,
+                        adaptationBadges = if (unlocked) adaptationBadges else emptyMap(),
+                        onPosterVisible = { if (unlocked && settings.vaultVisible) model.loadPosterAdaptations(listOf(it)) },
+                    )
+                }
             }
             composable("profile") {
                 val profile by journeyModel.profileState.collectAsStateWithLifecycle()
@@ -677,6 +702,7 @@ private fun YomiraNavigation(
                     onBack = { nav.popBackStack() },
                     // Hiding is instant; revealing must pass the device-credential gate first.
                     onVaultVisibilityChange = { visible -> if (visible) onRevealVault() else settingsModel.setVaultVisible(false) },
+                    onVaultNsfwConsentChange = settingsModel::setVaultNsfwConsent,
                     onRequireDeviceLockChange = settingsModel::setRequireDeviceLock,
                     onStealthShieldChange = settingsModel::setStealthShield,
                     onLockOnBackgroundChange = settingsModel::setLockOnBackground,
@@ -808,6 +834,8 @@ private fun settingsCopy() = SettingsCopy(
     stealthShieldBody = stringResource(R.string.settings_stealth_shield_body),
     vaultTitle = stringResource(R.string.settings_vault_title),
     vaultBody = stringResource(R.string.settings_vault_body),
+    vaultNsfwTitle = stringResource(R.string.settings_vault_nsfw_title),
+    vaultNsfwBody = stringResource(R.string.settings_vault_nsfw_body),
     vaultHiddenBadge = stringResource(R.string.settings_vault_hidden_badge),
     revealDenied = stringResource(R.string.settings_reveal_denied),
     deviceLockTitle = stringResource(R.string.settings_device_lock_title),
@@ -929,6 +957,8 @@ private fun vaultCopy(catalog: CatalogCopy) = VaultCopy(
     collectionTitle = stringResource(R.string.vault_collection_title),
     emptyTitle = stringResource(R.string.vault_empty_title),
     emptyMessage = stringResource(R.string.vault_empty_message),
+    hiddenTitle = stringResource(R.string.vault_hidden_title),
+    hiddenMessage = stringResource(R.string.vault_hidden_body),
     pagingLoading = stringResource(R.string.vault_paging_loading),
     pagingEnd = stringResource(R.string.vault_paging_end),
     railTrendingWebtoons = stringResource(R.string.vault_rail_trending_webtoons),

@@ -54,16 +54,20 @@ class HomeRailsTest {
         assertEquals(rails(1), rails(999))
     }
 
-    @Test fun `plus18 commercial titles never reach public rails`() {
-        // v8.1.4: MATURE records are hidden from the public grid regardless of age;
-        // the library still keeps them once the user saved them.
+    @Test fun `mature titles follow the reader tier on public rails`() {
+        // v8.2.0 placement matrix: MATURE records ride the public rails for
+        // adults; safe mode keeps them out. EXPLICIT never reaches them.
         val titles = listOf("Tsugumomo", "Reincarnated Carrier's Strategy", "Yabadere Gyaru")
             .map { manga(it).copy(contentRating = ContentRating.MATURE) }
         val safe = manga("safe-anchor")
-        val rail = buildHomeRails(
-            titles + safe, emptyList(), emptyList(), listOf(HomeShelf.POPULAR), emptySet(), emptySet(), 1,
+        fun rail(isAdult: Boolean) = buildHomeRails(
+            titles + safe, emptyList(), emptyList(), listOf(HomeShelf.POPULAR), emptySet(), emptySet(), 1, isAdult = isAdult,
         ).single()
-        assertEquals(listOf("safe-anchor"), rail.items.map { it.id })
+        assertEquals(listOf("safe-anchor"), rail(isAdult = false).items.map { it.id })
+        assertEquals(
+            (listOf("safe-anchor") + titles.map { it.id }).sorted(),
+            rail(isAdult = true).items.map { it.id }.sorted(),
+        )
     }
 
     @Test fun `selection and card order stay stable across identical snapshots`() {

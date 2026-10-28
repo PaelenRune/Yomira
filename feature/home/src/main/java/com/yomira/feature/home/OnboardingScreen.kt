@@ -33,7 +33,7 @@ private val OnboardingMuted = Color(0xFFB5B5C5)
 @Immutable
 data class OnboardingCopy(
     val languageTitle: String = "Select your reading language",
-    val languageDescription: String = "We’ll tailor sources and suggestions to the languages you read.",
+    val languageDescription: String = "We ask so Yomira can pick sources and suggestions in the languages you actually read. It shapes Home, Discover and search.",
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
     val languageBoth: String = "Both (Türkçe + English)",
@@ -41,11 +41,11 @@ data class OnboardingCopy(
     val saving: String = "Saving setup…",
     val connectAndStart: String = "Start Exploring",
     val ageTitle: String = "An age-appropriate start",
-    val ageDescription: String = "Safe mode hides adult content. You can change your preference in Settings.",
+    val ageDescription: String = "Safe mode shows all-ages series only. Choosing 18+ also adds mature-themed (16+) titles to Home, Discover and search; explicit series stay locked inside the +18 Vault.",
     val exclusionsTitle: String = "What would you rather not see?",
-    val exclusionsDescription: String = "Series with these tags are hidden everywhere, including search, shelves and the Vault.",
+    val exclusionsDescription: String = "We ask so these themes never reach your feeds. Series with these tags are hidden everywhere, including search, shelves and the Vault.",
     val genresTitle: String = "Choose your 5 favorite series",
-    val genresDescription: String = "Pick up to 5 beloved series to shape your recommendations. You can continue with one or skip.",
+    val genresDescription: String = "These shape your Home shelves and recommendations. Pick up to 5 beloved series, or skip for now.",
     val seriesSearch: String = "Search series",
     val seriesEmpty: String = "No series found. Try another title or skip for now.",
     val removeFavorite: String = "Remove",
@@ -143,7 +143,7 @@ fun OnboardingScreen(
                         }
                     }
                     if (step == 3) FavoriteSeriesPicker(
-                        publicCatalog(catalog, excluded.toSet()), favorites, !saving, copy,
+                        publicCatalog(catalog, excluded.toSet(), isAdult == true), favorites, !saving, copy,
                     ) { favorites = it }
                     Spacer(Modifier.height(20.dp))
                     if (step != 4) Text(copy.languageNote, style = MaterialTheme.typography.bodyMedium, color = OnboardingMuted)

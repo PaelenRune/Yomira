@@ -10,8 +10,9 @@ class PosterAgeLabelTest {
         assertNull(posterAgeLabel(ContentRating.SAFE))
     }
 
-    @Test fun `adult artwork only gets a compact age label`() {
-        assertEquals("+18", posterAgeLabel(ContentRating.MATURE))
-        assertEquals("+18", posterAgeLabel(ContentRating.EXPLICIT))
+    @Test fun `each adult tier gets its own compact age label`() {
+        // v8.2.0 tier model: MATURE is the 16+ themed tier, EXPLICIT the 18+ one.
+        assertEquals("16+", posterAgeLabel(ContentRating.MATURE))
+        assertEquals("18+", posterAgeLabel(ContentRating.EXPLICIT))
     }
 }

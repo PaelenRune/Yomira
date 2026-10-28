@@ -143,6 +143,8 @@ class YomiraViewModel @Inject constructor(
             seed = session.first.first,
             favoriteSeries = session.second?.favoriteSeries.orEmpty(),
             legacyFavoriteGenres = session.second?.favoriteGenres.orEmpty(),
+            // v8.2.0 placement matrix: adults see SAFE+MATURE on public rails.
+            isAdult = session.second?.isAdult ?: false,
         )
     }.distinctUntilChanged()
         .flowOn(Dispatchers.Default)

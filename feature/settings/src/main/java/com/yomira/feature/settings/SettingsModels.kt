@@ -25,6 +25,13 @@ enum class AppLanguage(val tag: String) {
 data class AppSettings(
     /** When false the +18 Vault tab is removed from the UI entirely, leaving no trace. */
     val vaultVisible: Boolean = false,
+    /**
+     * The one-time Vault adult-content consent (v8.2.0): `null` means the
+     * first-use prompt has not been answered yet. `false` keeps the Vault
+     * shelves empty — content stays hidden behind the entry lock — while the
+     * decision itself is changeable from Settings at any time.
+     */
+    val vaultNsfwConsent: Boolean? = null,
     /** When true entering the Vault requires the device credential (PIN/pattern/biometric). */
     val requireDeviceLock: Boolean = true,
     /** When true the Vault re-locks as soon as the app is backgrounded. */

@@ -12,6 +12,22 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 /**
+ * Kitsu `ageRating` → tier-evidence mapping (v8.2.0 tier model).
+ *
+ * Kitsu's "R" rating means R17+: mature themes, so it is only MATURE evidence.
+ * It escalates to pornographic evidence when the record also carries Kitsu's
+ * `nsfw` flag; "R18" is Kitsu's adult-only marker and is pornographic by itself.
+ * Unknown or blank values are absent evidence, never guessed as safe.
+ */
+fun kitsuContentRating(ageRating: String?, nsfw: Boolean? = null): ExternalRating? =
+    when (ageRating?.trim()?.uppercase()) {
+        "R18" -> ExternalRating.PORNOGRAPHIC
+        "R" -> if (nsfw == true) ExternalRating.PORNOGRAPHIC else ExternalRating.SUGGESTIVE
+        "G", "PG" -> ExternalRating.SAFE
+        else -> null
+    }
+
+/**
  * Kitsu REST client.
  *
  * Fills remaining metadata after AniList and MangaDex. Included category
@@ -105,12 +121,7 @@ class KitsuClient(
             genres = categories,
             tags = categories,
             primaryGenre = categories.firstOrNull(),
-            contentRating = when (attributes.ageRating?.uppercase()) {
-                "R18" -> ExternalRating.PORNOGRAPHIC
-                "R" -> ExternalRating.SUGGESTIVE
-                "G", "PG" -> ExternalRating.SAFE
-                else -> null
-            },
+            contentRating = kitsuContentRating(attributes.ageRating, attributes.nsfw),
             publicationType = parseSubtype(attributes.subtype),
             year = attributes.startDate?.substringBefore("-")?.toIntOrNull()?.takeIf { it in 1800..2200 },
             sourceUrl = "https://kitsu.io/manga/$remoteId",
@@ -165,6 +176,8 @@ class KitsuClient(
     private data class KitsuAttributes(
         val title: String? = null,
         val ageRating: String? = null,
+        /** Kitsu's own adult flag; only meaningful next to an age rating. */
+        val nsfw: Boolean? = null,
         @SerialName("canonicalTitle") val canonicalTitle: String? = null,
         val titles: KitsuTitles? = null,
         val synopsis: String? = null,

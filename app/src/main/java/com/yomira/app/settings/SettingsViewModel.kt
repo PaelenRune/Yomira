@@ -91,6 +91,15 @@ class SettingsViewModel @Inject constructor(
         updateSettings { it.copy(vaultVisible = false) }
     }
 
+    /**
+     * Persists the one-time Vault adult-content consent (v8.2.0). The decision
+     * is deliberately a plain setter — it only changes what the already locked
+     * Vault displays, never whether the Vault exists or is locked.
+     */
+    fun setVaultNsfwConsent(showAdultContent: Boolean) {
+        updateSettings { it.copy(vaultNsfwConsent = showAdultContent) }
+    }
+
     /** Applies the verdict of the device-credential flow that guards revealing the Vault. */
     fun onVaultRevealResult(verified: Boolean) {
         if (verified) {

@@ -16,6 +16,7 @@ data class CatalogCopy(
     val readNow: String = "Hemen oku",
     val matureBadgeLong: String = "16+ / Mature",
     val matureBadgeShort: String = "16+",
+    val explicitBadgeShort: String = "18+",
     val noCoverArtwork: String = "Kapak görseli yok",
     val scoreDescription: String = "Puan",
     val formatManga: String = "Manga",

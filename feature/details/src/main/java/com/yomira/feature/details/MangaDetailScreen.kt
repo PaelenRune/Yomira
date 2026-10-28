@@ -570,6 +570,8 @@ private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
             )
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            // v8.2.0 tier model: the content tier leads the badge row (16+ / 18+).
+            TierRatingBadge(manga.contentRating, copy.catalog)
             manga.score?.let { score ->
                 YomiraBadge(
                     text = "%.1f".format(score),

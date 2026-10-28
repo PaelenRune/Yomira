@@ -297,10 +297,14 @@ fun MangaCard(manga: Manga, columns: Int, onClick: () -> Unit, modifier: Modifie
     }
 }
 
-/** The current model distinguishes adult content, but does not provide a 16+ tier. */
+/**
+ * The tier signal printed on posters and detail chips (v8.2.0 tier model):
+ * MATURE is the 16+ themed tier, EXPLICIT the pornographic 18+ tier.
+ */
 internal fun posterAgeLabel(rating: ContentRating): String? = when (rating) {
     ContentRating.SAFE -> null
-    ContentRating.MATURE, ContentRating.EXPLICIT -> "+18"
+    ContentRating.MATURE -> "16+"
+    ContentRating.EXPLICIT -> "18+"
 }
 
 fun adaptationPosterLabel(kind: AdaptationKind, format: String? = null): String = when (kind) {
@@ -331,6 +335,21 @@ private fun AgeRatingBadge(rating: ContentRating, modifier: Modifier = Modifier)
     ) {
         Text(label, Modifier.padding(horizontal = 6.dp, vertical = 3.dp), style = MaterialTheme.typography.labelSmall)
     }
+}
+
+/**
+ * Small content-tier badge for the series detail metadata row (v8.2.0 tier
+ * model). SAFE renders nothing; MATURE shows the 16+ label, EXPLICIT the 18+
+ * one, both through the shared [YomiraBadge] capsule pattern.
+ */
+@Composable
+fun TierRatingBadge(rating: ContentRating, copy: CatalogCopy = CatalogCopy(), modifier: Modifier = Modifier) {
+    val label = when (rating) {
+        ContentRating.SAFE -> return
+        ContentRating.MATURE -> copy.matureBadgeShort
+        ContentRating.EXPLICIT -> copy.explicitBadgeShort
+    }
+    YomiraBadge(text = label, accent = NeonFuchsia, style = MaterialTheme.typography.labelMedium, modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

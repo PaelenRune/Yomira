@@ -11,9 +11,10 @@ internal fun adaptiveHomeShelves(
     catalog: List<Manga>,
     readIds: Set<String>,
     savedIds: Set<String>,
+    isAdult: Boolean = false,
 ): List<HomeShelf> {
     val tasteIds = readIds + savedIds
-    val taste = publicCatalog(catalog).distinctBy { it.id }.filter { it.id in tasteIds }
+    val taste = publicCatalog(catalog, isAdult = isAdult).distinctBy { it.id }.filter { it.id in tasteIds }
     val promoted = HomeShelf.dynamicPool.filterNot { it == HomeShelf.DISCOVERY }
         .sortedByDescending { shelf -> taste.count(shelf::matches) }
         .take(HomeShelf.DYNAMIC_COUNT - 1)
@@ -32,11 +33,12 @@ fun buildHomeRails(
     limit: Int = 14,
     favoriteSeries: List<FavoriteSeries> = emptyList(),
     legacyFavoriteGenres: Set<String> = emptySet(),
+    isAdult: Boolean = false,
 ): List<HomeRail> {
-    val all = publicCatalog(catalog + discovered).distinctBy { it.id }
-    val recent = publicCatalog(updated)
+    val all = publicCatalog(catalog + discovered, isAdult = isAdult).distinctBy { it.id }
+    val recent = publicCatalog(updated, isAdult = isAdult)
     val discoveryIds = discovered.map { it.id }.toSet()
-    val shelves = selection ?: adaptiveHomeShelves(all, readIds, savedIds)
+    val shelves = selection ?: adaptiveHomeShelves(all, readIds, savedIds, isAdult)
     return shelves.map { shelf ->
         val items = when (shelf) {
             HomeShelf.POPULAR -> popularTrendingShelf(all, recent, seed, limit)

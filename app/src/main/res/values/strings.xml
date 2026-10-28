@@ -131,7 +131,7 @@
     <string name="onboarding_step_indicator">%1$d / %2$d</string>
     <string name="onboarding_step_description">Setup step %1$d of %2$d</string>
     <string name="onboarding_language_title">Select your reading language</string>
-    <string name="onboarding_language_description">We’ll tailor sources and suggestions to the languages you read.</string>
+    <string name="onboarding_language_description">We ask so Yomira can pick sources and suggestions in the languages you actually read. It shapes Home, Discover and search.</string>
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
     <string name="onboarding_language_both">Both (Türkçe + English)</string>
@@ -145,11 +145,11 @@
     <string name="onboarding_connect_start">Start Exploring</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_age_title">An age-appropriate start</string>
-    <string name="onboarding_age_description">Safe mode hides adult content. You can change your preference in Settings.</string>
+    <string name="onboarding_age_description">Safe mode shows all-ages series only. Choosing 18+ also adds mature-themed (16+) titles to Home, Discover and search; explicit series stay locked inside the +18 Vault.</string>
     <string name="onboarding_exclusions_title">What would you rather not see?</string>
-    <string name="onboarding_exclusions_description">Series with these tags are hidden everywhere, including search, shelves and the Vault.</string>
+    <string name="onboarding_exclusions_description">We ask so these themes never reach your feeds. Series with these tags are hidden everywhere, including search, shelves and the Vault.</string>
     <string name="onboarding_genres_title">Choose your 5 favorite series</string>
-    <string name="onboarding_genres_description">Pick up to 5 beloved series to shape your recommendations. You can continue with one or skip.</string>
+    <string name="onboarding_genres_description">These shape your Home shelves and recommendations. Pick up to 5 beloved series, or skip for now.</string>
     <string name="onboarding_series_search">Search series</string>
     <string name="onboarding_series_empty">No series found. Try another title or skip for now.</string>
     <string name="onboarding_series_remove">Remove</string>
@@ -186,6 +186,14 @@
     <string name="vault_auth_incomplete">Verification didn’t complete. You can try again.</string>
     <string name="vault_no_screen_lock">First set up a secure screen lock (PIN, pattern or password) in Android settings.</string>
     <string name="vault_adult_disabled">Adult content permission is off. The Vault is unavailable.</string>
+
+    <!-- v8.2.0: one-time Vault adult-content consent, asked after the biometric/PIN unlock. -->
+    <string name="vault_consent_title">Adult content in the Vault</string>
+    <string name="vault_consent_body">This vault contains adult (18+) content. Do you want to see it? Your choice is saved on this device and can be changed later in Settings.</string>
+    <string name="vault_consent_show">Yes, show</string>
+    <string name="vault_consent_hide">No, keep hidden</string>
+    <string name="vault_hidden_title">Adult content hidden</string>
+    <string name="vault_hidden_body">This vault contains adult content and you chose to keep it hidden, so the shelves stay empty. You can change the decision in Settings; the entry stays locked as always.</string>
 
     <!-- Details -->
     <string name="action_back">Go back</string>
@@ -304,6 +312,8 @@
     <string name="settings_privacy_section">Privacy and Vault</string>
     <string name="settings_vault_title">+18 Vault</string>
     <string name="settings_vault_body">Turn off and the 🔒 +18 Vault tab disappears from the bottom bar completely; the phone keeps no hint that adult content exists. Verifying the device lock brings it back.</string>
+    <string name="settings_vault_nsfw_title">Show adult content in the Vault</string>
+    <string name="settings_vault_nsfw_body">The decision of the one-time prompt shown when the Vault is first opened. Turn off and the vault still opens, but its shelves stay empty; the content stays hidden and the entry remains locked.</string>
     <string name="settings_vault_hidden_badge">HIDDEN</string>
     <string name="settings_reveal_denied">Device lock could not be verified; the +18 Vault stays hidden.</string>
     <string name="settings_device_lock_title">Protect with Device Lock</string>

@@ -98,6 +98,9 @@ data class VaultCopy(
     val collectionTitle: String = "Özel koleksiyon",
     val emptyTitle: String = "Bu vitrin boş",
     val emptyMessage: String = "Seçili türde yetişkin serisi bulunmuyor. Kaynaklarını eşitle veya filtreyi değiştir.",
+    /** v8.2.0: shown when the first-use adult-content consent was declined. */
+    val hiddenTitle: String = "Yetişkin içerik gizli",
+    val hiddenMessage: String = "Bu kasa yetişkin içerik içeriyor ve onayı reddedildiğin için raflar boş. Kararı Ayarlar’dan değiştirebilirsin; giriş her zamanki gibi kilitli kalır.",
     val pagingLoading: String = "Daha fazla yetişkin serisi yükleniyor",
     val pagingEnd: String = "Tüm yetişkin serileri yüklendi · %1\$d seri",
     val catalog: CatalogCopy = CatalogCopy(),
@@ -120,7 +123,7 @@ data class VaultCopy(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true) {
+fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true, showAdultContent: Boolean = true) {
     val eligible = isAdult && allowAdultContent
     if (!eligible) {
         Column(Modifier.fillMaxSize().padding(28.dp), verticalArrangement = Arrangement.Center) {
@@ -143,14 +146,17 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
     }
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     val gridColumns = columns.coerceIn(2, 4)
+    // v8.2.0 consent flow: a declined first-use prompt keeps the shelves empty
+    // and the content hidden; the entry itself stays unlocked-but-gated as usual.
+    val contentVisible = unlocked && showAdultContent
     // Room and the append-only page list are merged by id; the Vault never sees
     // public rows because vaultCatalog() filters EXPLICIT for every input.
-    val home = remember(manga, discovered, unlocked, selected, excludedTags, isAdult, allowAdultContent) {
-        buildVaultHome(
+    val home = remember(manga, discovered, unlocked, selected, excludedTags, isAdult, allowAdultContent, showAdultContent) {
+        if (contentVisible) buildVaultHome(
             vaultCatalog(manga, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
             vaultCatalog(discovered, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
             unlocked, selected,
-        )
+        ) else buildVaultHome(emptyList(), emptyList(), unlocked, selected)
     }
     val visible = home.collection
     val gridState = rememberLazyGridState()
@@ -161,7 +167,7 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
             info.totalItemsCount > 0 && lastVisible >= info.totalItemsCount - LOAD_MORE_THRESHOLD
         }
     }
-    LaunchedEffect(unlocked) { if (unlocked) onLoadMore() }
+    LaunchedEffect(unlocked, showAdultContent) { if (contentVisible) onLoadMore() }
     LaunchedEffect(nearBottom, loadingMore, hasMore, pagingError, discovered.size) {
         if (nearBottom && hasMore && !loadingMore && pagingError == null) onLoadMore()
     }
@@ -187,12 +193,12 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
                 }
             }
         }
-        if (home.hero.isNotEmpty()) {
+        if (contentVisible && home.hero.isNotEmpty()) {
             item(key = "vault-hero", span = { GridItemSpan(maxLineSpan) }) {
                 HeroCarousel(home.hero, onManga, vault = true, copy = copy.catalog)
             }
         }
-        home.rails.forEach { rail ->
+        if (contentVisible) home.rails.forEach { rail ->
             item(key = "vault-rail-${rail.style}", contentType = "rail", span = { GridItemSpan(maxLineSpan) }) {
                 VaultMangaRail(rail, onManga, copy, onMangaLongClick, adaptationBadges, onPosterVisible)
             }
@@ -203,8 +209,13 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
                 GridColumnSelector(gridColumns, onColumns, copy = copy.catalog)
             }
         }
-        if (visible.isEmpty() && !loading && error == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState(copy.emptyTitle, copy.emptyMessage) }
-        items(visible, key = { it.id }) { item ->
+        if (!contentVisible) item(key = "vault-hidden-consent", span = { GridItemSpan(maxLineSpan) }) {
+            Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(copy.hiddenTitle, style = MaterialTheme.typography.titleMedium, color = NeonFuchsia)
+                Text(copy.hiddenMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        } else if (visible.isEmpty() && !loading && error == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState(copy.emptyTitle, copy.emptyMessage) }
+        if (contentVisible) items(visible, key = { it.id }) { item ->
             LaunchedEffect(item.id) { onPosterVisible(item) }
             MangaCard(item, gridColumns, { onManga(item) }, Modifier.padding(horizontal = 4.dp), copy.catalog, onLongClick = { onMangaLongClick(item) }, adaptationBadge = adaptationBadges[item.id])
         }

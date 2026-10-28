@@ -65,6 +65,7 @@ fun SettingsScreen(
     versionName: String,
     onBack: () -> Unit,
     onVaultVisibilityChange: (Boolean) -> Unit,
+    onVaultNsfwConsentChange: (Boolean) -> Unit = {},
     onRequireDeviceLockChange: (Boolean) -> Unit,
     onLockOnBackgroundChange: (Boolean) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
@@ -272,6 +273,17 @@ fun SettingsScreen(
                         badge = copy.vaultHiddenBadge.takeIf { !state.settings.vaultVisible },
                         error = copy.revealDenied.takeIf { state.revealDenied },
                     )
+                    // The one-time first-use consent stays changeable here (v8.2.0).
+                    if (state.settings.vaultVisible) {
+                        RowDivider()
+                        SettingsSwitchRow(
+                            title = copy.vaultNsfwTitle,
+                            body = copy.vaultNsfwBody,
+                            checked = state.settings.vaultNsfwConsent == true,
+                            onCheckedChange = onVaultNsfwConsentChange,
+                            accent = NeonFuchsia,
+                        )
+                    }
                     RowDivider()
                     SettingsSwitchRow(copy.deviceLockTitle, copy.deviceLockBody, state.settings.requireDeviceLock, onRequireDeviceLockChange, NeonPurple)
                     RowDivider()
