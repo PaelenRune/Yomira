@@ -35,7 +35,7 @@ data class OnboardingCopy(
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
     val languageBoth: String = "Both (Türkçe + English)",
-    val languageNote: String = "Your sources are ready. You can change your language preference later.",
+    val languageNote: String = "You can change your language preference later.",
     val saving: String = "Saving setup…",
     val connectAndStart: String = "Start Exploring",
     val ageTitle: String = "An age-appropriate start",
@@ -50,6 +50,13 @@ data class OnboardingCopy(
     val gore: String = "Gore / Extreme Violence",
     val back: String = "Back",
     val continueAction: String = "Continue",
+    val repositoriesTitle: String = "Content sources",
+    val repositoriesDescription: String = "Yomira ships without content sources. Add a repository to browse extensions, or skip for now.",
+    val addRepository: String = "Add repository",
+    val openRepository: String = "Open repository page",
+    val skip: String = "Skip",
+    val confirmRepository: String = "Add the official repository?",
+    val cancel: String = "Cancel",
 )
 
 /** Four explicit steps; no age or content consent is preselected. */
@@ -66,11 +73,16 @@ fun OnboardingScreen(
     initialExcludedTags: Set<String> = emptySet(),
     initialFavoriteGenres: Set<String> = emptySet(),
     onLanguageSelected: (String) -> Unit = {},
+    onCompleteWithRepository: (String, Boolean, Set<String>, Set<String>) -> Unit = onComplete,
+    onOpenRepository: () -> Unit = {},
+    showRepositoryStep: Boolean = true,
 ) {
     var step by rememberSaveable { mutableStateOf(0) }
     var isAdult by rememberSaveable { mutableStateOf(initialIsAdult) }
     var excluded by rememberSaveable { mutableStateOf(ArrayList(initialExcludedTags)) }
     var favorites by rememberSaveable { mutableStateOf(ArrayList(initialFavoriteGenres)) }
+    var confirmRepository by rememberSaveable { mutableStateOf(false) }
+    val totalSteps = if (showRepositoryStep) 5 else 4
     var language by rememberSaveable {
         mutableStateOf(initialLanguage.takeIf { it in setOf("tr", "en", "both") } ?: "en")
     }
@@ -82,8 +94,8 @@ fun OnboardingScreen(
             Column(Modifier.widthIn(max = 600.dp).fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 24.dp)) {
                 Text("Yomira", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text("${step + 1} / 4", color = OnboardingMuted, modifier = Modifier.padding(top = 12.dp))
-                LinearProgressIndicator(progress = { (step + 1) / 4f }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp), color = OnboardingPurple)
+                Text("${step + 1} / $totalSteps", color = OnboardingMuted, modifier = Modifier.padding(top = 12.dp))
+                LinearProgressIndicator(progress = { (step + 1) / totalSteps.toFloat() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp), color = OnboardingPurple)
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Center) {
                     Spacer(Modifier.height(32.dp))
@@ -91,7 +103,8 @@ fun OnboardingScreen(
                         0 -> copy.languageTitle
                         1 -> copy.ageTitle
                         2 -> copy.exclusionsTitle
-                        else -> copy.genresTitle
+                        3 -> copy.genresTitle
+                        else -> copy.repositoriesTitle
                     }, style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
@@ -99,7 +112,8 @@ fun OnboardingScreen(
                         0 -> copy.languageDescription
                         1 -> copy.ageDescription
                         2 -> copy.exclusionsDescription
-                        else -> copy.genresDescription
+                        3 -> copy.genresDescription
+                        else -> copy.repositoriesDescription
                     }, style = MaterialTheme.typography.bodyLarge, color = OnboardingMuted)
                     Spacer(Modifier.height(32.dp))
                     if (step == 0) Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -111,7 +125,7 @@ fun OnboardingScreen(
                         LanguageOption(copy.adult, "18+", isAdult == true, !saving) { isAdult = true }
                         LanguageOption(copy.minor, copy.safeMode, isAdult == false, !saving) { isAdult = false }
                     }
-                    if (step >= 2) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (step in 2..3) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         val options = if (step == 2) blacklistTags else linkedMapOf(
                             "action" to "Action", "isekai" to "Isekai", "webtoon" to "Webtoon",
                             "murim" to "Murim", "romance" to "Romance", "seinen" to "Seinen",
@@ -126,7 +140,7 @@ fun OnboardingScreen(
                         }
                     }
                     Spacer(Modifier.height(20.dp))
-                    Text(copy.languageNote, style = MaterialTheme.typography.bodyMedium, color = OnboardingMuted)
+                    if (step != 4) Text(copy.languageNote, style = MaterialTheme.typography.bodyMedium, color = OnboardingMuted)
                     Spacer(Modifier.height(32.dp))
                 }
                 if (error != null) {
@@ -134,8 +148,12 @@ fun OnboardingScreen(
                         .semantics { liveRegion = LiveRegionMode.Polite })
                 }
                 if (step > 0) TextButton(onClick = { step-- }, enabled = !saving) { Text(copy.back) }
+                if (step == 4) {
+                    Button(onClick = { confirmRepository = true }, enabled = !saving, modifier = Modifier.fillMaxWidth()) { Text(copy.addRepository) }
+                    TextButton(onClick = onOpenRepository, enabled = !saving, modifier = Modifier.fillMaxWidth()) { Text(copy.openRepository) }
+                }
                 Button(onClick = {
-                    if (step < 3) step++ else onComplete(language, isAdult == true, excluded.toSet(), favorites.toSet())
+                    if (step < totalSteps - 1) step++ else onComplete(language, isAdult == true, excluded.toSet(), favorites.toSet())
                 }, enabled = !saving && (step != 1 || isAdult != null),
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = OnboardingPurple, contentColor = Color.White),
@@ -144,11 +162,17 @@ fun OnboardingScreen(
                         CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         Spacer(Modifier.width(12.dp))
                         Text(copy.saving)
-                    } else Text(if (step == 3) copy.connectAndStart else copy.continueAction)
+                    } else Text(if (step == 4) copy.skip else if (step == totalSteps - 1) copy.connectAndStart else copy.continueAction)
                 }
             }
         }
     }
+    if (confirmRepository) AlertDialog(
+        onDismissRequest = { confirmRepository = false },
+        title = { Text(copy.confirmRepository) },
+        confirmButton = { TextButton(onClick = { confirmRepository = false; onCompleteWithRepository(language, isAdult == true, excluded.toSet(), favorites.toSet()) }) { Text(copy.addRepository) } },
+        dismissButton = { TextButton(onClick = { confirmRepository = false }) { Text(copy.cancel) } },
+    )
 }
 
 @Composable

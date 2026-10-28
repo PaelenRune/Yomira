@@ -24,6 +24,18 @@ class ExtensionsViewModelTest {
     @Before fun setup() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun cleanup() { Dispatchers.resetMain() }
 
+    @Test fun `clean install is empty and does not fetch or install`() = runBlocking {
+        val repo = FakeRepository()
+        val model = ExtensionsViewModel(repo, noOperations)
+        model.load()
+        val state = model.await { !it.loading }
+        assertTrue(state.repositories.isEmpty())
+        assertTrue(state.available.isEmpty())
+        assertTrue(state.installed.isEmpty())
+        assertTrue(state.rows.isEmpty())
+        assertEquals(0, repo.refreshCalls)
+    }
+
     @Test fun `filters search source names installed updates and languages`() = runBlocking<Unit> {
         val repo = FakeRepository().apply {
             urls = listOf(url)

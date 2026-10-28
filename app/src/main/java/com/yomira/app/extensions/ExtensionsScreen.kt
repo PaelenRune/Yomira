@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yomira.app.R
 import com.yomira.domain.extension.requireHttps
+import com.yomira.domain.extension.OnboardingWizardManager
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -25,6 +26,7 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
 ) {
     var showAdd by rememberSaveable { mutableStateOf(false) }
     var showRepositories by rememberSaveable { mutableStateOf(false) }
+    var showOfficial by rememberSaveable { mutableStateOf(false) }
     val busy = state.loading || state.busyPackage != null
     Scaffold(topBar = {
         TopAppBar(title = { Text(stringResource(R.string.extensions_title)) }, navigationIcon = {
@@ -42,6 +44,10 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(stringResource(R.string.extensions_repositories, state.repositories.size), style = MaterialTheme.typography.titleMedium)
                         Text(stringResource(R.string.extensions_trust), style = MaterialTheme.typography.bodySmall)
+                        if (state.repositories.isEmpty() && !state.loading) {
+                            Text(stringResource(R.string.extensions_no_repos))
+                            FilledTonalButton(onClick = { showOfficial = true }, enabled = !busy) { Text(stringResource(R.string.repo_add_official)) }
+                        }
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilledTonalButton(onClick = { showAdd = true }, enabled = !busy) { Text(stringResource(R.string.extensions_add_repo)) }
                             TextButton(onClick = { showRepositories = !showRepositories }) { Text(stringResource(R.string.extensions_manage_repos)) }
@@ -100,6 +106,7 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(descriptor.name, style = MaterialTheme.typography.titleMedium)
                             Text("v${descriptor.versionName} · ${descriptor.language.uppercase()}", style = MaterialTheme.typography.bodySmall)
+                            if (descriptor.sources.isNotEmpty()) Text(descriptor.sources.joinToString { it.name }, style = MaterialTheme.typography.bodySmall)
                             if (descriptor.nsfw) Text("+18 / NSFW", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)
                         }
                         OutlinedButton(onClick = { onAction(descriptor.packageName) }, enabled = !busy && row.action != ExtensionAction.BUILT_IN) {
@@ -117,6 +124,11 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
             }
         }
     }
+    if (showOfficial) AlertDialog(onDismissRequest = { showOfficial = false },
+        title = { Text(stringResource(R.string.repo_confirm_title)) },
+        text = { Text(OnboardingWizardManager.KEIYOUSHI_INDEX) },
+        confirmButton = { TextButton(onClick = { showOfficial = false; onAddRepository(OnboardingWizardManager.KEIYOUSHI_INDEX) }) { Text(stringResource(R.string.repo_add_official)) } },
+        dismissButton = { TextButton(onClick = { showOfficial = false }) { Text(stringResource(R.string.extensions_cancel)) } })
     if (showAdd) {
         var url by rememberSaveable { mutableStateOf("") }
         val valid = url.isNotBlank() && runCatching { requireHttps(url.trim()) }.isSuccess

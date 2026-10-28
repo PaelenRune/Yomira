@@ -4,6 +4,14 @@
   ../values-tr/strings.xml and carries the exact same keys.
 -->
 <resources>
+    <string name="repo_step_title">Content sources</string>
+    <string name="repo_step_body">Yomira ships without content sources. Add the official repository to browse extensions, or skip for now. No extensions are installed automatically.</string>
+    <string name="repo_add_official">Add repository</string>
+    <string name="repo_open_page">Open repository page</string>
+    <string name="repo_skip">Skip</string>
+    <string name="repo_confirm_title">Add this repository?</string>
+    <string name="repo_error_title">Repository error</string>
+    <string name="repo_error_body">The repository URL is invalid or could not be added. An HTTPS URL is required.</string>
     <string name="settings_factory_reset">Factory Reset All App Data</string>
     <string name="settings_factory_reset_body">Your library, reading history, extension settings and caches will be permanently deleted. The app returns to its first-use state.</string>
     <string name="settings_factory_reset_warning">This cannot be undone. The app will close; reopen it to start fresh onboarding. Google Drive backups and exported files are not deleted.</string>
@@ -127,7 +135,7 @@
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
     <string name="onboarding_language_both">Both (Türkçe + English)</string>
-    <string name="onboarding_language_note">Your sources are ready. You can change your language preference later.</string>
+    <string name="onboarding_language_note">You can change your language preference later.</string>
     <string name="onboarding_source_title">Open a door to your sources</string>
     <string name="onboarding_source_description">Keiyoushi, Turkish and Western repositories come connected out of the box.</string>
     <string name="onboarding_source_body">Extension suggestions match your reading language. Manage repositories later in Settings.</string>

@@ -57,8 +57,8 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
         save(languageCode, integrateRepository, false, emptySet(), emptySet())
     }
 
-    fun complete(languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {
-        save(languageCode, true, isAdult, excludedTags, favoriteGenres)
+    fun complete(languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>, integrateRepository: Boolean = false) {
+        save(languageCode, integrateRepository, isAdult, excludedTags, favoriteGenres)
     }
 
     private fun save(languageCode: String, integrateRepository: Boolean, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {

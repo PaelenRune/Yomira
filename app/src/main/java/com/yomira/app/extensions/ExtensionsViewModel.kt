@@ -109,7 +109,12 @@ class ExtensionsViewModel @Inject constructor(
     fun setFilter(value: ExtensionFilter) { mutableState.update { it.copy(filter = value) } }
     fun setLanguage(value: String) { mutableState.update { it.copy(language = value) } }
 
-    fun load() = change { loadCached() }
+    fun load() = change {
+        loadCached()
+        if (mutableState.value.repositories.isNotEmpty() && mutableState.value.available.isEmpty()) {
+            mutableState.update { it.copy(available = repository.refresh()) }
+        }
+    }
     fun refresh() = change { loadCached(); mutableState.update { it.copy(available = repository.refresh()) } }
     fun addRepository(url: String) = change {
         repository.addRepository(url.trim())

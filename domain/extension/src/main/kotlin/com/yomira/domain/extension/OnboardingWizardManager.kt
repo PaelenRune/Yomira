@@ -13,35 +13,39 @@ class OnboardingWizardManager(
     suspend fun state(): OnboardingState? = store.read()
 
     /**
-     * Completes onboarding and always registers the bundled catalogs. Only repository
-     * metadata is loaded; no APK is silently installed or trusted. A refresh
-     * failure is not fatal: registration is local, so the catalogs stay active and
-     * suggestions are simply left empty until the next refresh.
+     * Completes onboarding. The app ships without any repository: only when the user
+     * explicitly taps "Add repository" ([integrateRepository]) is the official index
+     * registered. Only metadata is loaded; no APK is ever installed automatically. A
+     * refresh failure is not fatal and simply leaves suggestions empty.
      */
     suspend fun complete(
         preferences: ReaderPreferences,
-        @Suppress("UNUSED_PARAMETER") integrateKeiyoushi: Boolean,
+        integrateRepository: Boolean = false,
     ): OnboardingState = mutex.withLock {
-        ONBOARDING_INDEXES.forEach { extensions.addRepository(it) }
-        val suggestions = try {
-            extensions.refresh().filter { extension ->
-                (preferences.allowAdultContent || !extension.nsfw) &&
-                    extension.sources.any { preferences.language.accepts(it.language) }
-            }.sortedBy { it.packageName }.map { it.packageName }
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
+        val suggestions = if (integrateRepository) {
+            extensions.addRepository(KEIYOUSHI_INDEX)
+            try {
+                extensions.refresh().filter { extension ->
+                    (preferences.allowAdultContent || !extension.nsfw) &&
+                        extension.sources.any { preferences.language.accepts(it.language) }
+                }.sortedBy { it.packageName }.map { it.packageName }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                emptyList()
+            }
+        } else {
             emptyList()
         }
-        val primaryRepository = if (preferences.language == ReadingLanguage.TURKISH) TURKISH_INDEX else WESTERN_INDEX
-        OnboardingState(preferences, primaryRepository, suggestions, completed = true).also { store.write(it) }
+        val repository = if (integrateRepository) KEIYOUSHI_INDEX else null
+        OnboardingState(preferences, repository, suggestions, completed = true).also { store.write(it) }
     }
 
     companion object {
         const val KEIYOUSHI_INDEX = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
+        /** Official website linked from the repository's own README. */
+        const val KEIYOUSHI_WEBPAGE = "https://keiyoushi.github.io/"
         const val TURKISH_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json"
         const val WESTERN_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/western/index.min.json"
-        // Full upstream remains available as an explicit custom repository, not a network bootstrap.
-        val ONBOARDING_INDEXES = listOf(TURKISH_INDEX, WESTERN_INDEX)
     }
 }

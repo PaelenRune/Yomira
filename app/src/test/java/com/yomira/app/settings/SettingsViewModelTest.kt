@@ -112,24 +112,26 @@ class SettingsViewModelTest {
         assertEquals(ReadingMode.WESTERN_LTR, settings.readingMode)
     }
 
-    @Test fun `first run seeds every bundled repository as active`() = runTest(scheduler) {
+    @Test fun `first run does not add repositories`() = runTest(scheduler) {
         val store = MemorySettingsStore()
         val extensions = FakeExtensions()
         val model = model(store = store, extensions = extensions)
         val states = model.recordStates(this)
         advanceUntilIdle()
 
-        val bundled = CuratedRepositories.ALL.map { it.indexUrl }
-        assertEquals(bundled, extensions.added)
-        assertEquals(bundled, model.state.value.repositories)
-        assertEquals(bundled, states.last().repositories)
-        assertTrue(store.snapshot().bundledRepositoriesSeeded)
+        assertTrue(extensions.added.isEmpty())
+        assertTrue(model.state.value.repositories.isEmpty())
+        assertTrue(states.last().repositories.isEmpty())
+        assertFalse(store.snapshot().bundledRepositoriesSeeded)
     }
 
     @Test fun `a disabled bundled repository is not resurrected on the next launch`() = runTest(scheduler) {
         val store = MemorySettingsStore()
         val extensions = FakeExtensions()
         val first = model(store = store, extensions = extensions)
+        advanceUntilIdle()
+        first.setRepositoryEnabled(CuratedRepositories.TURKISH_COMICS, true)
+        first.setRepositoryEnabled(CuratedRepositories.UNIVERSAL, true)
         advanceUntilIdle()
         first.setRepositoryEnabled(CuratedRepositories.UNIVERSAL, false)
         advanceUntilIdle()

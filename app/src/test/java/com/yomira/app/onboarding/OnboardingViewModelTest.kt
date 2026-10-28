@@ -29,7 +29,7 @@ class OnboardingViewModelTest {
     @Before fun setUp() { Dispatchers.setMain(UnconfinedTestDispatcher()) }
     @After fun tearDown() { Dispatchers.resetMain() }
 
-    @Test fun newInstallRequiresSetupAndAlwaysRegistersBundledRepositories() = runBlocking {
+    @Test fun newInstallRequiresSetupAndSkipRegistersNothing() = runBlocking {
         val store = MemoryStore()
         val added = mutableListOf<String>()
         val model = model(store, added = added)
@@ -37,8 +37,8 @@ class OnboardingViewModelTest {
         model.complete("tr", false)
         model.await { it.completed }
         assertEquals(ReaderPreferences(ReadingLanguage.TURKISH), store.saved?.preferences)
-        assertEquals(OnboardingWizardManager.TURKISH_INDEX, store.saved?.repositoryUrl)
-        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, added)
+        assertEquals(null, store.saved?.repositoryUrl)
+        assertTrue(added.isEmpty())
     }
 
     @Test fun completedSetupBypassesWizardAfterRestart() = runBlocking {
@@ -69,7 +69,7 @@ class OnboardingViewModelTest {
         assertTrue(completed.completed)
         assertFalse(completed.saving)
         assertEquals(null, completed.error)
-        assertEquals(OnboardingWizardManager.ONBOARDING_INDEXES, added)
+        assertEquals(listOf(OnboardingWizardManager.KEIYOUSHI_INDEX), added)
         assertTrue(store.saved!!.suggestedPackages.isEmpty())
         assertFalse(store.saved!!.preferences.allowAdultContent)
         assertEquals(ReadingLanguage.ENGLISH, store.saved?.preferences?.language)

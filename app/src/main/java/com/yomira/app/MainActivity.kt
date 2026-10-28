@@ -39,6 +39,13 @@ import com.yomira.app.settings.SettingsViewModel
 import com.yomira.app.settings.SettingsMaintenanceViewModel
 import com.yomira.app.update.InAppUpdateDialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.yomira.domain.extension.ExtensionRepository
+import com.yomira.domain.extension.OnboardingWizardManager
+import com.yomira.domain.extension.RepoDeepLink
+import com.yomira.domain.extension.RepoDeepLinkResult
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -69,6 +76,10 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var journeyRepository: JourneyRepository
+    @Inject lateinit var extensionRepository: ExtensionRepository
+    private var pendingRepoLink by mutableStateOf<RepoDeepLinkResult>(RepoDeepLinkResult.NotRepoLink)
+    private var navigateExtensions by mutableStateOf(false)
+    private var addingRepo by mutableStateOf(false)
     private val model: YomiraViewModel by viewModels()
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
@@ -123,6 +134,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) receiveRepoIntent(intent)
+        else {
+            pendingRepoLink = savedInstanceState.getString("pendingRepo")?.let { RepoDeepLinkResult.Valid(it) }
+                ?: if (savedInstanceState.getBoolean("invalidRepo")) RepoDeepLinkResult.Invalid else RepoDeepLinkResult.NotRepoLink
+            navigateExtensions = savedInstanceState.getBoolean("navigateExtensions")
+        }
         // Also hides all app previews in Recents; no sensitive frame can leak during navigation.
         // Debug builds stay capturable: FLAG_SECURE makes `adb exec-out screencap` return an
         // empty PNG, which would hide real crashes from the QA screenshot harness.
@@ -161,6 +178,10 @@ class MainActivity : AppCompatActivity() {
                     },
                     copy = onboardingCopy(), initialLanguage = LocaleManagerCompat.currentApplicationTag(),
                     onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
+                    onCompleteWithRepository = { language, adult, excluded, favorites ->
+                        onboardingModel.complete(language, adult, excluded, favorites, true)
+                    },
+                    onOpenRepository = { openReference(OnboardingWizardManager.KEIYOUSHI_WEBPAGE) },
                 )
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
@@ -178,13 +199,59 @@ class MainActivity : AppCompatActivity() {
                                 getString(R.string.settings_reveal_prompt_body),
                             ) { verified -> settingsModel.onVaultRevealResult(verified) }
                         },
-                        ::openReference,
+                        ::openReference, navigateExtensions, { navigateExtensions = false },
                     )
                 }
             }
             AchievementBannerHost(journeyRepository.unlockEvents)
+            if (!onboarding.loading && onboarding.completed) when (val link = pendingRepoLink) {
+                is RepoDeepLinkResult.Valid -> AlertDialog(
+                    onDismissRequest = { if (!addingRepo) pendingRepoLink = RepoDeepLinkResult.NotRepoLink },
+                    title = { Text(stringResource(R.string.repo_confirm_title)) },
+                    text = { Text(link.indexUrl) },
+                    confirmButton = { TextButton(enabled = !addingRepo, onClick = {
+                        addingRepo = true
+                        lifecycleScope.launch {
+                            try {
+                                withContext(Dispatchers.IO) { extensionRepository.addRepository(link.indexUrl) }
+                                pendingRepoLink = RepoDeepLinkResult.NotRepoLink
+                                navigateExtensions = true
+                            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled
+                            } catch (_: Exception) { pendingRepoLink = RepoDeepLinkResult.Invalid
+                            } finally { addingRepo = false }
+                        }
+                    }) { Text(stringResource(R.string.settings_add)) } },
+                    dismissButton = { TextButton(enabled = !addingRepo, onClick = { pendingRepoLink = RepoDeepLinkResult.NotRepoLink }) { Text(stringResource(R.string.settings_cancel)) } },
+                )
+                RepoDeepLinkResult.Invalid -> AlertDialog(
+                    onDismissRequest = { pendingRepoLink = RepoDeepLinkResult.NotRepoLink },
+                    title = { Text(stringResource(R.string.repo_error_title)) },
+                    text = { Text(stringResource(R.string.repo_error_body)) },
+                    confirmButton = { TextButton(onClick = { pendingRepoLink = RepoDeepLinkResult.NotRepoLink }) { Text(stringResource(R.string.settings_cancel)) } },
+                )
+                RepoDeepLinkResult.NotRepoLink -> Unit
+            }
             }
         } }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        receiveRepoIntent(intent)
+    }
+
+    private fun receiveRepoIntent(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_VIEW) return
+        val result = RepoDeepLink.parse(intent.dataString)
+        if (result != RepoDeepLinkResult.NotRepoLink) pendingRepoLink = result
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        (pendingRepoLink as? RepoDeepLinkResult.Valid)?.let { outState.putString("pendingRepo", it.indexUrl) }
+        outState.putBoolean("invalidRepo", pendingRepoLink == RepoDeepLinkResult.Invalid)
+        outState.putBoolean("navigateExtensions", navigateExtensions)
+        super.onSaveInstanceState(outState)
     }
 
     private fun openReference(url: String): Boolean {
@@ -215,8 +282,16 @@ private fun YomiraNavigation(
     onUnlockVault: () -> Unit,
     onRevealVault: () -> Unit,
     openReference: (String) -> Boolean,
+    navigateExtensions: Boolean,
+    onExtensionsNavigated: () -> Unit,
 ) {
     val nav = rememberNavController()
+    LaunchedEffect(navigateExtensions) {
+        if (navigateExtensions) {
+            nav.navigate("extensions") { launchSingleTop = true }
+            onExtensionsNavigated()
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val maintenanceState by maintenanceModel.state.collectAsStateWithLifecycle()
     val preferences = maintenanceState.readerPreferences ?: ReaderPreferences(ReadingLanguage.TURKISH)
@@ -615,6 +690,7 @@ private fun YomiraNavigation(
                     initialIsAdult = preferences.isAdult,
                     initialExcludedTags = preferences.excludedTags,
                     initialFavoriteGenres = preferences.favoriteGenres,
+                    showRepositoryStep = false,
                     onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
                     onComplete = { language, adult, excluded, favorites ->
                         submitted = true
@@ -941,4 +1017,11 @@ private fun onboardingCopy() = OnboardingCopy(
     gore = stringResource(R.string.onboarding_gore),
     back = stringResource(R.string.onboarding_back),
     continueAction = stringResource(R.string.onboarding_continue),
+    repositoriesTitle = stringResource(R.string.repo_step_title),
+    repositoriesDescription = stringResource(R.string.repo_step_body),
+    addRepository = stringResource(R.string.repo_add_official),
+    openRepository = stringResource(R.string.repo_open_page),
+    skip = stringResource(R.string.repo_skip),
+    confirmRepository = stringResource(R.string.repo_confirm_title),
+    cancel = stringResource(R.string.settings_cancel),
 )

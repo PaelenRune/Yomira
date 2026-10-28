@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Türkçe arayüz katmanı; values/strings.xml (İngilizce varsayılan) ile birebir aynı anahtarları taşır. -->
 <resources>
+    <string name="repo_step_title">İçerik kaynakları</string>
+    <string name="repo_step_body">Yomira içerik kaynaklarıyla birlikte gelmez. Eklentilere göz atmak için resmi depoyu ekleyebilir veya şimdilik atlayabilirsin. Eklentiler otomatik yüklenmez.</string>
+    <string name="repo_add_official">Depo Ekle</string>
+    <string name="repo_open_page">Depo sayfasını aç</string>
+    <string name="repo_skip">Atla</string>
+    <string name="repo_confirm_title">Bu depo eklensin mi?</string>
+    <string name="repo_error_title">Depo hatası</string>
+    <string name="repo_error_body">Depo adresi geçersiz veya eklenemedi. HTTPS adresi gereklidir.</string>
     <string name="settings_factory_reset">Tüm Verileri Sıfırla (Fabrika Ayarlarına Dön)</string>
     <string name="settings_factory_reset_body">Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulduğu ilk günkü haline döner.</string>
     <string name="settings_factory_reset_warning">Bu işlem geri alınamaz. Uygulama kapanır; yeniden açtığınızda ilk kurulum başlar. Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.</string>
@@ -124,7 +132,7 @@
     <string name="onboarding_language_turkish">Türkçe</string>
     <string name="onboarding_language_english">English</string>
     <string name="onboarding_language_both">Her İkisi (Both)</string>
-    <string name="onboarding_language_note">Kaynakların hazır. Dil tercihini daha sonra değiştirebilirsin.</string>
+    <string name="onboarding_language_note">Dil tercihini daha sonra değiştirebilirsin.</string>
     <string name="onboarding_source_title">Kaynaklarına bir kapı aç</string>
     <string name="onboarding_source_description">Keiyoushi, Türkçe ve Batı depoları hazır olarak bağlanır.</string>
     <string name="onboarding_source_body">Okuma diline uygun eklenti önerileri hazırlanır. Depoları daha sonra Ayarlar’dan yönetebilirsin.</string>

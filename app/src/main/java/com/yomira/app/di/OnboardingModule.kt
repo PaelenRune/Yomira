@@ -1,7 +1,6 @@
 package com.yomira.app.di
 
 import android.content.Context
-import com.yomira.app.catalog.NativeSourceRepository
 import androidx.datastore.preferences.preferencesDataStore
 import com.yomira.app.onboarding.DataStoreOnboardingStore
 import com.yomira.data.extension.ExtensionManager
@@ -31,12 +30,12 @@ object OnboardingModule {
 
     @Provides @Singleton
     fun extensions(@ApplicationContext context: Context, client: OkHttpClient, installed: InstalledExtensionProvider): ExtensionRepository =
-        NativeSourceRepository(ExtensionManager(
+        ExtensionManager(
             FileRepositoryStore(context.filesDir.toPath().resolve("extensions/repositories.json")),
             OkHttpRepositoryClient(client),
             KeiyoushiRepoParser(),
             installed,
-        ))
+        )
 
     @Provides @Singleton
     fun wizard(extensions: ExtensionRepository, store: OnboardingStore): OnboardingWizardManager =

@@ -7,39 +7,7 @@
 * `:data:extension`: `KeiyoushiRepoParser`, `ExtensionManager`, bounded/cancellable
   `OkHttpRepositoryClient`, atomic private-file persistence, and `SandboxSourceBridge`.
 
-The core contains no chapter content, source implementations, APK bundles, or server. The full official
-Keiyoushi catalog is packaged as one clean JVM resource (also included in the Android APK) at
-`assets/keiyoushi/index.min.json`. It is immediately loaded by `ExtensionManager`, even with an empty URL store and
-without calling `refresh`. Bundled snapshots require no network to load. `available()` automatically
-attempts an upstream metadata sync on first use and then at most once per six hours while in use;
-`refresh()` forces a check. Offline/invalid upstream responses retain the last valid in-memory snapshot.
-No background service runs while the app is closed, and refreshed indexes are not persisted across
-process restarts. Explicit additional URLs are fetched on refresh. Completing onboarding does
-**not silently install or automatically trust APK code**.
-
-## Bundled catalog generation
-
-Run `powershell -ExecutionPolicy Bypass -File scripts/update-curated-repositories.ps1` on Windows,
-or `pwsh -File scripts/update-curated-repositories.ps1` using PowerShell 7 on Linux/macOS.
-The generator fetches Keiyoushi's current v2 metadata and includes every upstream entry in
-`assets/keiyoushi/index.min.json`. This is repository metadata conversion,
-not conversion of executable APK scraping code into JSON.
-
-The old encrypted group indexes, catalog indirection and redundant exports are retired. The bundled
-resource is ordinary UTF-8 JSON. The parser retains backwards compatibility for manually configured
-wrapped repositories; the bundled loader needs no decoder or key. No APK execution trust or automatic
-source installation is implied by a metadata update. Existing auto-seeded group URLs migrate to the
-official full catalog; manually added custom HTTPS repositories remain supported.
-
-For daily catalog regeneration, schedule the same command using Task Scheduler, or use cron:
-
-```cron
-0 4 * * * cd /path/to/Yomira && pwsh -NoProfile -File scripts/update-curated-repositories.ps1
-```
-
-Commit/publish the generated outputs as needed. Generation requires network access and PowerShell;
-normal builds use committed snapshots and do not fetch upstream. Existing auto-seeded legacy URLs
-are mapped to the bundled catalogs to avoid overlapping package ownership after upgrade.
+The core contains no bundled repository indexes, chapter content, source implementations, APK bundles, or server. A fresh URL store and the in-memory `ExtensionManager` snapshot are empty. The app does not seed or migrate repositories automatically; existing explicitly stored URLs remain intact. Users may explicitly add the official Keiyoushi index or a custom HTTPS index. Adding a URL stores consent; `refresh()` fetches metadata and replaces the snapshot only after all indexes validate. No offline bundled snapshot is seeded. No APK is downloaded or installed during onboarding or repository registration; installation requires a separate user action.
 
 ## APK-to-JSON conversion
 
@@ -101,8 +69,7 @@ The Keiyoushi index contains `apk`, `pkgName`, `lang`, `nsfw`, `version`, numeri
 filenames resolve under the index's `apk/` directory. Numeric source IDs are preserved as strings to
 avoid precision loss. New repository snapshots replace the old only after every index validates;
 duplicate package ownership across repositories is rejected instead of silently selecting a publisher.
-Adding another repository that overlaps the bundled snapshot still requires an explicit ownership
-policy; the manager deliberately does not silently replace a publisher.
+Overlapping configured repositories require an explicit ownership policy; the manager deliberately does not silently replace a publisher.
 
 ## Verification
 
@@ -114,5 +81,5 @@ gradlew.bat :domain:extension:test :data:extension:test
 
 Tests cover repo parsing/validation, missing/installed/multiple-source matching, language/NSFW policy,
 cancellation, onboarding persistence decisions, version updates, refresh rollback, trust checks,
-bridge timeouts, private-file persistence, offline packaged catalogs, binary/text manifest inspection,
+bridge timeouts, private-file persistence, empty initial catalogs, binary/text manifest inspection,
 APK JSON metadata, DEX descriptor discovery, conversion round trips, and package mismatch rollback.

@@ -80,8 +80,8 @@ data class CuratedRepository(
     val title: String,
     val subtitle: String,
     val indexUrl: String,
-    /** True for the catalogs shipped and activated automatically on a fresh install. */
-    val enabledByDefault: Boolean = true,
+    /** Curated indexes are suggestions, never activated on a fresh install. */
+    val enabledByDefault: Boolean = false,
 )
 
 object CuratedRepositories {

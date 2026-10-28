@@ -8,6 +8,15 @@ import org.junit.Test
 class ExtensionManagerTest {
     private val entry = """[{"name":"Example","pkgName":"example","apk":"example.apk","lang":"tr","nsfw":0,"version":"2","code":2,"sources":[]}]"""
 
+    @Test fun `empty store has no catalog and refresh makes no requests`() = runTest {
+        var requests = 0
+        val manager = manager { requests++; entry }
+        assertTrue(manager.repositories().isEmpty())
+        assertTrue(manager.available().isEmpty())
+        assertTrue(manager.refresh().isEmpty())
+        assertEquals(0, requests)
+    }
+
     @Test fun `repository additions are idempotent and updates compare version codes`() = runTest {
         val manager = manager { entry }
         manager.addRepository("https://example.org/index.json")
