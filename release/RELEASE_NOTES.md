@@ -1,27 +1,29 @@
-# 🌟 Yomira v8.1.3 — Sürüm Notları
+# 🌟 Yomira v8.1.4 — Sürüm Notları
 
-Bu sürüm rafların gerçek okuyucu ortaklaşımına (popülerlik) dayanmasını sağlar:
-Ana sayfa, Keşfet ve Vault raflarında artık gerçekten popüler seriler öne çıkar.
+Bu sürüm ana sayfayı tamamen ergin-üstü içerikten arındırır: **Ana sayfa, Keşfet ve
+arama artık yalnızca herkese açık (SAFE) serileri gösterir.** Artı on sekiz yaş
+içerik yalnızca Vault kilidinin arkasındadır.
 
 ---
 
-### 🧮 Raflar Artık Gerçek Popülerlikle Sıralanıyor
+### 🔒 Ana Sayfa Artık Tamamen Herkese Açık
 
-- **AniList keşfi popülerlik sırasına geçti:** Öne çıkan raf artık sezonluk trendler
-  yerine kalıcı popülerlik sıralamasını (POPULARITY_DESC) kullanır.
-- **Çevrimdışı katalog gerçek sayılarla geldi:** Uygulama içi 159 serilik başlangıç
-  kataloğuna gerçek okuyucu sayıları eklendi (Chainsaw Man, Solo Leveling, Berserk,
-  One Piece…). Böylece ilk kurulumda bile popüler raflar internetsiz doğru çalışır.
-- **Keşif rafı consenso ile sıralanır:** Yeni indirilen seriler kendi entre
-  popularity değerine göre sıralanır; yeni diye sıradan bir seri zirveye çıkamaz.
-- **Vault tazelik bonusi küçüldü:** Vault raflarında "yeni geldi" bonusu geriletilerek
-  gerçek popülerliğin önüne geçmesi engellendi.
+- **Pornografik webtoon ve +18 içerik ana sayfada görünmez:** Ana sayfa rafları,
+  hero/öne çıkanlar, Keşfet karışımı ve arama sonuçları yalnızca SAFE dereceli
+  serileri listeler — yaş beyanından bağımsız olarak.
+- **Yetişkin içerik Vault'ta:** Vault yalnızca EXPLICIT koleksiyonunu kilitle
+  korumalı biçimde sunmaya devam eder. Kara liste (yaoi, yuri, futanari, NTR,
+  gore, harem) Vault'ta da geçerlidir.
+- **Kitaplık senin:** Bilerek kitaplığına eklediğin seri hiçbir yerde zorla
+  gizlenmez; Kitaplık yalnızca kara listeyle süzülür. Okuduğun +18 seriler
+  kitaplıktan açıkça erişilebilir kalır.
+- **"Okumaya devam et" şeridi herkese açık:** Şerit artık yalnızca SAFE
+  serileri önerir; +18 seri ana sayfada yarım kaldığı yerden teklif edilmez.
 
-### 🔧 Teknik
+### 🔧 Raflar (v8.1.3 devamı)
 
-- `prepopulated_catalog.json` artık `popularity` alanı taşır; tohumlama bu değeri
-  Room'a yazar (şema değişikliği yok).
-- Home keşif rafı ve Vault rail sıralaması `globalRankScore` üzerinden tutarlı.
+- Popülerlik tabanlı sıralama korundu; keşif rafı ve Vault taze içerik bonusu
+  gerçek okuyucu sayılarıyla dengeli çalışmaya devam eder.
 
 ---
 
@@ -29,10 +31,10 @@ Ana sayfa, Keşfet ve Vault raflarında artık gerçekten popüler seriler öne 
 
 | Bilgi | Değer |
 | --- | --- |
-| Sürüm | `8.1.3` (versionCode `23`) |
-| Testler | Tüm modüllerde yeşil (sürüm kaynağında) |
-| Ekli APK | `yomira-v8.1.3.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
-| Temiz kaynak kanıtı | Depodaki `release/yomira-v8.1.3.apk` — boyut ve SHA-256 `SHA256SUMS.txt` içinde |
+| Sürüm | `8.1.4` (versionCode `24`) |
+| Testler | feature:home + feature:vault + app + domain:extension yeşil (sürüm kaynağında) |
+| Ekli APK | `yomira-v8.1.4.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
+| Temiz kaynak kanıtı | Depodaki `release/yomira-v8.1.4.apk` — boyut ve SHA-256 `SHA256SUMS.txt` içinde |
 
 APK, sürüm commit'i üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası
 önceki sürümlerle aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir.
