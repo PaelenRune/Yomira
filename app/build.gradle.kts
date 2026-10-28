@@ -18,6 +18,7 @@ android {
         versionCode = 21
         versionName = "8.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("boolean", "QA_CAPTURE", "false")
     }
 
     // Fixed, repo-committed keystore so every debug and release APK (local or CI)
@@ -41,6 +42,11 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        create("qa") {
+            initWith(getByName("release"))
+            matchingFallbacks += listOf("release")
+            buildConfigField("boolean", "QA_CAPTURE", "true")
         }
     }
 

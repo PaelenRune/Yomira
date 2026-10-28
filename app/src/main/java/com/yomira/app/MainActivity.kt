@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         // Also hides all app previews in Recents; no sensitive frame can leak during navigation.
         // Debug builds stay capturable: FLAG_SECURE makes `adb exec-out screencap` return an
         // empty PNG, which would hide real crashes from the QA screenshot harness.
-        if (!BuildConfig.DEBUG) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        if (!BuildConfig.DEBUG && !BuildConfig.QA_CAPTURE) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent { YomiraTheme {
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
