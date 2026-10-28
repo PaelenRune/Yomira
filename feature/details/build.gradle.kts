@@ -5,7 +5,7 @@ plugins {
 }
 android {
     namespace = "com.yomira.feature.details"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig { minSdk = 26 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -11,6 +11,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // injekt-core (uy.kohesive.injekt) is only published via JitPack; the
+        // extension DEXes link against it at runtime (HOST-PROVIDED table).
+        maven("https://jitpack.io")
     }
 }
 

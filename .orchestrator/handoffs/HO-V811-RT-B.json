@@ -1,0 +1,51 @@
+{
+  "taskId": "V811-RT-B",
+  "attempt": 3,
+  "status": "in-progress",
+  "role": "AGENT-RT (Android runtime engineer)",
+  "goal": "Production in-process extension runtime + end-to-end wiring (charter DEC-V811-RUNTIME-A). Device verification is RT-C.",
+  "design": {
+    "dependencyAlignment": "Bump host libs to satisfy runtime-link-inventory.md HOST-PROVIDED table: okhttp 5.4.0 (+brotli/zstd/json-okio), coroutines 1.11.0, kotlin 2.4.x (stdlib parseOrNull requirement), jsoup per table, injekt-core via JitPack repo. Fix okhttp5 fallout in our code (Response.body non-null, mockwebserver artifact, etc.).",
+    "runtime": "AndroidSourceRuntime in :app — DexClassLoader(extracted dex dir, nativeLibraryDir, parent = app classloader) per installed+consented extension, cached per package; SandboxIntegrityGuard.requireLoadable before load; ShimServiceLocator.configure(host instrumented OkHttpClient) before first classload; instantiate entry classes via SourceFactory/createSources; expose through existing SandboxSourceBridge/IsolatedExtensionRuntime contract (timeouts, typed errors, fail-closed consent).",
+    "wiring": "MatcherModule composite SourceBridge: installed runtime sources join MangaDex bridge for SmartSourceMatcher; dead-source-id fallback for continue-reading via matcher across installed+MangaDex; reader pages through runtime; consent decline stays fail-closed."
+  },
+  "steps": {
+    "1-dependency-alignment": "complete",
+    "2-android-source-runtime": "pending",
+    "3-wiring": "pending",
+    "4-doc-sync": "pending",
+    "5-gate": "pending"
+  },
+  "depsBumped": {
+    "gradle/libs.versions.toml": {
+      "kotlin": "2.1.20 -> 2.4.10 (stdlib parseOrNull requirement)",
+      "ksp": "2.1.20-1.0.32 -> 2.3.12 (KSP2, decoupled versioning)",
+      "agp": "8.9.2 -> 8.13.2",
+      "gradle-wrapper": "8.11.1 -> 8.14.4",
+      "coroutines": "1.10.2 -> 1.11.0",
+      "serialization": "1.8.1 -> 1.11.0 (json-okio on runtime classpath)",
+      "okhttp": "4.12.0 -> 5.4.0 (dnsoverhttps/tls/mockwebserver follow)",
+      "jsoup": "1.18.3 -> 1.22.2",
+      "hilt": "2.56.2 -> 2.58 + forced kotlin-metadata-jvm 2.4.10 on processor classpaths (root build.gradle.kts)",
+      "added": ["okhttp-brotli", "okhttp-zstd", "com.squareup.zstd:zstd-kmp-okio:0.4.0", "com.github.null2264.injekt:injekt-core:4135455a2a (JitPack repo added to settings)", "kotlinx-serialization-json-okio"]
+    },
+    "compileSdk": "35 -> 36 in all Android modules (okhttp 5.4.0 android AAR requires it; platform android-36 installed via sdkmanager)",
+    "okhttp5FalloutFixed": [
+      "Response.body non-null: AppUpdateChecker, ApkDownloader, GoogleDriveClient, OkHttpRepositoryClient, OkHttpExtensionDownloadClient, BakaUpdatesClient, HttpSupport (elvis/safe-call removed)",
+      "okhttp3.Call new abstract members (addEventListener/tag overloads) implemented in CancellableReaderCallTest.PendingCall",
+      "mockwebserver legacy artifact still exists at 5.4.0 - test sources compile unchanged"
+    ],
+    "decisions": [
+      "Hilt: 2.59+ Gradle plugin requires AGP 9 (built-in-Kotlin/new-DSL world); AGP 9 migration deemed out of scope/risk for this task. Stayed on AGP 8.13.2 + Hilt 2.58 (last AGP-8-compatible plugin) and forced org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.10 onto all configurations (root build.gradle.kts subprojects resolutionStrategy.force) so Hilt processors can read Kotlin 2.4.0 class metadata. Verified by green testDebugUnitTest. Escape hatch if this proves fragile: full AGP 9 + Gradle 9.1 + Hilt 2.60.1 migration.",
+      "Debug APK dex verified to contain the whole HOST-PROVIDED surface: okhttp3.Gzip, okhttp3.brotli.Brotli/BrotliInterceptor, okhttp3.zstd.Zstd, com.squareup.zstd.okio.OkioZstd, kotlinx.serialization.json.okio.OkioStreamsKt, uy.kohesive.injekt.*, kotlin.time.Instant.",
+      "NOTE for release builds: R8 keep rules needed for the HOST-PROVIDED surface + kotlin.time.Instant$Companion.parseOrNull + coroutines synthetics (extension DEXes reference them at runtime, invisible to R8 static analysis) - added with the runtime in step 2."
+    ],
+    "gate": ".\\gradlew.bat testDebugUnitTest: BUILD SUCCESSFUL; 1102 tests, 0 failures across modules (counted from JUnit XML). :app:assembleDebug: BUILD SUCCESSFUL (app-debug.apk 38,209,601 bytes)."
+  },
+  "runtimeDesign": "see design fields",
+  "wiringPoints": null,
+  "tests": null,
+  "hashes": null,
+  "devicePrepNotes": null,
+  "goForRTC": null
+}

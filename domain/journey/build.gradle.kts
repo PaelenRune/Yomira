@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.yomira.domain.journey"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

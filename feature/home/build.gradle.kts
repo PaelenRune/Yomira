@@ -5,7 +5,7 @@ plugins {
 }
 android {
     namespace = "com.yomira.feature.home"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

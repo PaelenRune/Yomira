@@ -1,18 +1,22 @@
 [versions]
-agp = "8.9.2"
-kotlin = "2.1.20"
-ksp = "2.1.20-1.0.32"
+agp = "8.13.2"
+kotlin = "2.4.10"
+ksp = "2.3.12"
 compose-bom = "2025.04.01"
 compose-multiplatform = "1.8.2"
 activity = "1.10.1"
 core = "1.16.0"
 lifecycle = "2.9.0"
-coroutines = "1.10.2"
-serialization = "1.8.1"
+coroutines = "1.11.0"
+serialization = "1.11.0"
 room = "2.7.1"
-hilt = "2.56.2"
-okhttp = "4.12.0"
-jsoup = "1.18.3"
+hilt = "2.58"
+okhttp = "5.4.0"
+jsoup = "1.22.2"
+# Runtime host classpath for third-party extension DEXes (see
+# .orchestrator/execution/runtime-link-inventory.md HOST-PROVIDED table).
+injekt = "4135455a2a"
+zstd-kmp-okio = "0.4.0"
 junit = "4.13.2"
 androidx-junit = "1.2.1"
 test-runner = "1.6.2"
@@ -52,6 +56,11 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-dnsoverhttps = { module = "com.squareup.okhttp3:okhttp-dnsoverhttps", version.ref = "okhttp" }
+okhttp-brotli = { module = "com.squareup.okhttp3:okhttp-brotli", version.ref = "okhttp" }
+okhttp-zstd = { module = "com.squareup.okhttp3:okhttp-zstd", version.ref = "okhttp" }
+zstd-kmp-okio = { module = "com.squareup.zstd:zstd-kmp-okio", version.ref = "zstd-kmp-okio" }
+injekt-core = { module = "com.github.null2264.injekt:injekt-core", version.ref = "injekt" }
+kotlinx-serialization-json-okio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "serialization" }
 conscrypt-android = { module = "org.conscrypt:conscrypt-android", version = "2.5.3" }
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 okhttp-tls = { module = "com.squareup.okhttp3:okhttp-tls", version.ref = "okhttp" }

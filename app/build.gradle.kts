@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.yomira.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.yomira.app"
@@ -116,6 +116,14 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.okhttp)
     implementation(libs.conscrypt.android)
+    // HOST-PROVIDED runtime classpath for third-party extension DEXes
+    // (runtime-link-inventory.md): the in-process DexClassLoader resolves
+    // these through its parent (the app classloader). Never prune them.
+    implementation(libs.okhttp.brotli)
+    implementation(libs.okhttp.zstd)
+    implementation(libs.zstd.kmp.okio)
+    implementation(libs.injekt.core)
+    implementation(libs.kotlinx.serialization.json.okio)
     implementation(libs.coil.compose)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)

@@ -20,7 +20,8 @@ class ApkDownloader(private val client: OkHttpClient = OkHttpClient.Builder().fo
         try {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful || !response.request.url.isHttps) throw IOException("Update download failed")
-                val body = response.body ?: throw IOException("Empty update response")
+                // OkHttp 5 guarantees a non-null body; an empty stream is caught below.
+                val body = response.body
                 val length = body.contentLength()
                 var received = 0L
                 var lastPercent = -1

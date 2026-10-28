@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "com.yomira.core.extension.api"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26

@@ -210,7 +210,7 @@ class GoogleDriveClient(
 
     /** Responsible for closing [response]; callers use it inside `use`. */
     private fun readBody(response: Response): String {
-        val body = response.body ?: throw SyncTransportException("Drive returned an empty body")
+        val body = response.body
         if (body.contentLength() > MAX_RESPONSE_BYTES) {
             throw SyncTransportException("Drive response is too large")
         }

@@ -65,7 +65,7 @@ class BakaUpdatesClient(
             .build()
         val request = Request.Builder().url(url).commonHeaders(config.userAgent).get().build()
         // Let a failed fallback propagate: an unreachable provider is not an exhausted feed.
-        val html = httpClient.executeChecked(request, sourceId).use { it.body?.string().orEmpty() }
+        val html = httpClient.executeChecked(request, sourceId).use { it.body.string() }
         val items = parseHtmlSearch(html, config.mangaUpdatesWebUrl, window.pageSize)
         val document = Jsoup.parse(html, config.mangaUpdatesWebUrl)
         val hasNext = document.select("a[href]").any {
@@ -126,7 +126,7 @@ class BakaUpdatesClient(
             .get()
             .build()
         val html = try {
-            httpClient.executeChecked(request, sourceId).use { it.body?.string().orEmpty() }
+            httpClient.executeChecked(request, sourceId).use { it.body.string() }
         } catch (error: MetadataClientException) {
             return emptyList()
         }
@@ -140,7 +140,7 @@ class BakaUpdatesClient(
             .get()
             .build()
         return try {
-            val html = httpClient.executeChecked(request, sourceId).use { it.body?.string().orEmpty() }
+            val html = httpClient.executeChecked(request, sourceId).use { it.body.string() }
             parseHtmlDetail(html, url, config.mangaUpdatesWebUrl)
         } catch (error: IOException) {
             null

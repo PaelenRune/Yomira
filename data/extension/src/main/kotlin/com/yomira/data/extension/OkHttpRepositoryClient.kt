@@ -34,7 +34,7 @@ class OkHttpRepositoryClient(client: OkHttpClient) : RepositoryClient {
                         response.use {
                             requireHttps(it.request.url.toString())
                             if (!it.isSuccessful) throw IOException("Repository HTTP ${it.code}")
-                            val body = it.body ?: throw IOException("Empty repository response")
+                            val body = it.body
                             if (body.contentLength() > MAX_BYTES) throw IOException("Repository index too large")
                             val source = body.source()
                             if (source.request(MAX_BYTES + 1)) throw IOException("Repository index too large")

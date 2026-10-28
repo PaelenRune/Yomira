@@ -54,7 +54,7 @@ class AppUpdateChecker(
             .build()
         return httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return@use null
-            val body = response.body?.string().orEmpty()
+            val body = response.body.string()
             if (body.length > MAX_PAYLOAD_CHARS) return@use null
             val release = json.decodeFromString<GitHubRelease>(body)
             if (release.draft) return@use null

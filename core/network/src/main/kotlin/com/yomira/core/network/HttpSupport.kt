@@ -28,7 +28,7 @@ internal fun OkHttpClient.executeChecked(request: Request, sourceId: String): Re
 
 internal inline fun <reified T> Response.decodeJson(json: Json, sourceId: String): T {
     val payload = try {
-        body?.string().orEmpty()
+        body.string()
     } catch (error: IOException) {
         throw MetadataClientException(sourceId, message = "Unable to read response body", cause = error)
     }
