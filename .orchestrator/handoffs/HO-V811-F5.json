@@ -1,0 +1,42 @@
+{
+  "taskId": "V811-F5",
+  "filesChanged": [
+    "feature/settings/src/main/java/com/yomira/feature/settings/SettingsScreen.kt",
+    "feature/settings/src/main/java/com/yomira/feature/settings/SettingsCopy.kt",
+    "app/src/main/res/values/strings.xml",
+    "app/src/main/res/values-tr/strings.xml",
+    "app/src/main/res/values/settings_maintenance.xml",
+    "app/src/main/res/values-tr/settings_maintenance.xml",
+    ".orchestrator/handoffs/HO-V811-F5.json"
+  ],
+  "decisions": [
+    "Order: language/reading, content filters, extensions/repositories, privacy/Vault, sync/backup, storage/reset, application information. Keep every existing action and its callback/enabled condition.",
+    "Place the existing extensions shortcut inside the repository section. Explain that first install adds no repositories or extensions and describe manual repository selection followed by extension installation.",
+    "Use existing DeepOledBlack, CardSurface, HairlineBorder and TextMuted tokens. Standardize 24dp section gaps, 12dp header spacing, 20dp action icons, 56dp minimum action rows and 72dp minimum switch rows; retain expanding text layouts.",
+    "Keep repository loading indicators in the switch-sized trailing slot. Put the hidden badge below the title so long localized titles retain room.",
+    "Use the existing update-dialog visual convention for all settings dialogs: 24dp corners, CardSurface, zero tonal elevation and muted body copy. Inline repository errors remain inline.",
+    "SettingsCopy.kt now owns mirrored TR/EN filter and repository display copy. Existing SettingsCopy fields are injected from app resources, so only corresponding settings resource entries were updated in both locales; no MainActivity edit was needed.",
+    "Repository display descriptions avoid unverified source counts; persisted repository IDs, URLs, tag keys and preference semantics are unchanged. No shared component change was necessary."
+  ],
+  "testCommand": "$env:ANDROID_HOME = 'C:\\Users\\paele\\AppData\\Local\\Android\\Sdk'; .\\gradlew.bat :feature:settings:testDebugUnitTest :app:testDebugUnitTest :core:ui:testDebugUnitTest --console=plain",
+  "testResult": {
+    "status": "PASS",
+    "tail": "BUILD SUCCESSFUL in 12s\n210 actionable tasks: 12 executed, 198 up-to-date",
+    "tests": 171,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "modules": { "feature:settings": 10, "app": 126, "core:ui": 35 },
+    "copyParity": "PASS: 83 settings resource keys and format placeholders match between TR and EN; all 14 SettingsContentCopy fields have explicit English mirrors.",
+    "scopeCheck": "PASS: SettingsScreen public signature and callback reference counts preserved; git diff --check passes.",
+    "environment": "JDK 17. Initial run lacked SDK location; setting ANDROID_HOME resolved it. All requested tasks exist.",
+    "log": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\V811-F5-tests.log",
+    "visualVerification": "Source/layout review only; no APK installed on the connected physical device."
+  },
+  "mergeNotes": [
+    "Branch: v811-ui-polish. Commit message: style(ui): refine settings IA, copy hygiene and OLED Plum consistency (v8.1.1 F5). No push.",
+    "No changes to home/onboarding screens, OnboardingViewModel, MainActivity, extension modules, app/build.gradle.kts, ViewModel APIs or persistence.",
+    "App resource changes are settings copy only. If another branch edits these resource files, preserve both agents' unrelated keys and merge these settings entries in TR/EN pairs.",
+    "Only this handoff is changed under .orchestrator."
+  ]
+}

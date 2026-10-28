@@ -10,7 +10,7 @@
     <string name="repo_error_title">Depo hatası</string>
     <string name="repo_error_body">Depo adresi geçersiz veya eklenemedi. HTTPS adresi gereklidir.</string>
     <string name="settings_factory_reset">Tüm Verileri Sıfırla (Fabrika Ayarlarına Dön)</string>
-    <string name="settings_factory_reset_body">Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulduğu ilk günkü haline döner.</string>
+    <string name="settings_factory_reset_body">Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulum durumuna döner.</string>
     <string name="settings_factory_reset_warning">Bu işlem geri alınamaz. Uygulama kapanır; yeniden açtığınızda ilk kurulum başlar. Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.</string>
     <string name="settings_confirm_factory_reset">Tüm uygulama verileri silinsin mi?</string>
     <string name="settings_reset">Sıfırla</string>
@@ -284,7 +284,7 @@
     <!-- Ayarlar ekranı -->
     <string name="settings_title">Ayarlar</string>
     <string name="settings_subtitle">Gizlilik, depolar ve okuma deneyimi</string>
-    <string name="settings_privacy_section">Gizlilik ve +18 Vault</string>
+    <string name="settings_privacy_section">Gizlilik ve Kasa</string>
     <string name="settings_vault_title">+18 Vault</string>
     <string name="settings_vault_body">Kapatınca alt çubuktaki 🔒 +18 Kasa sekmesi tamamen kaybolur; telefonda yetişkin içerik olduğuna dair hiçbir iz kalmaz. Yeniden açmak için cihaz kilidi doğrulanır.</string>
     <string name="settings_vault_hidden_badge">GİZLİ</string>
@@ -295,8 +295,8 @@
     <string name="settings_lock_background_body">Uygulama arka plana alındığında Vault anında yeniden kilitlenir.</string>
     <string name="settings_reveal_prompt_title">Yomira</string>
     <string name="settings_reveal_prompt_body">+18 Vault’u yeniden göstermek için cihaz kilidini doğrula</string>
-    <string name="settings_repositories_section">Eklenti ve Depo Yöneticisi</string>
-    <string name="settings_repositories_section_body">Kaynak depolarını tek dokunuşla bağla veya kaldır; seçimler cihazda kalıcı saklanır.</string>
+    <string name="settings_repositories_section">Eklentiler ve depolar</string>
+    <string name="settings_repositories_section_body">İlk kurulumda depo veya eklenti eklenmez. Aşağıdan bir depo seçin ya da özel depo ekleyin; ardından Eklentiler ekranından kullanmak istediğiniz eklentileri yükleyin.</string>
     <string name="settings_add_repository">Özel Depo Ekle</string>
     <string name="settings_add_repository_title">Özel Depo Ekle</string>
     <string name="settings_add_repository_body">Depo indeksinin https:// ile başlayan JSON adresini gir.</string>
@@ -307,7 +307,7 @@
     <string name="settings_invalid_repository_url">Geçersiz adres: depo adresi mutlaka https ile başlayan tam bir JSON indeksi olmalı.</string>
     <string name="settings_repository_error">Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
     <string name="settings_custom_repositories">Özel depoların</string>
-    <string name="settings_reading_section">Dil &amp; İçerik Tercihleri</string>
+    <string name="settings_reading_section">Dil ve okuma</string>
     <string name="settings_language_title">Arayüz Dili</string>
     <string name="settings_language_turkish">Türkçe</string>
     <string name="settings_language_english">English</string>

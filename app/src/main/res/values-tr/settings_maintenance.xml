@@ -1,9 +1,9 @@
 <resources>
-    <string name="settings_storage_section">Depolama &amp; Önbellek</string>
+    <string name="settings_storage_section">Depolama ve sıfırlama</string>
     <string name="settings_cache_size">Kullanılan önbellek: %1$s</string>
     <string name="settings_cache_loading">Hesaplanıyor…</string>
     <string name="settings_confirm_cache">Önbelleği temizlemek istiyor musunuz?</string>
-    <string name="settings_sync_section">Google Drive Senkronizasyonu</string>
+    <string name="settings_sync_section">Eşitleme ve yedekleme</string>
     <string name="settings_automatic_sync">Cihazlar Arası Otomatik Senkronizasyon</string>
     <string name="settings_automatic_sync_body">Okuma geçmişiniz, serileriniz ve eklentileriniz Google Drive ile otomatik eşitlenir.</string>
     <string name="settings_sync_suggestion">Başka cihazda kaldığınız yerden devam etmek için otomatik eşitlemeyi açın.</string>
