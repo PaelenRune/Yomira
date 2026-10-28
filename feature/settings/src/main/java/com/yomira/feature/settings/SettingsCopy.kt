@@ -9,18 +9,18 @@ data class SettingsCopy(
     val title: String = "Ayarlar",
     val subtitle: String = "Gizlilik, depolar ve okuma deneyimi",
     val back: String = "Geri",
-    val storageSection: String = "Depolama & Önbellek",
+    val storageSection: String = "Depolama ve sıfırlama",
     val cacheSize: String = "Kullanılan önbellek: %1\$s",
     val loading: String = "Hesaplanıyor…",
     val confirmClearCache: String = "Önbelleği temizlemek istiyor musunuz?",
     val factoryReset: String = "Tüm Verileri Sıfırla (Fabrika Ayarlarına Dön)",
-    val factoryResetBody: String = "Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulduğu ilk günkü haline döner.",
+    val factoryResetBody: String = "Kitaplık, okuma geçmişi, eklenti ayarları ve önbellek tamamen silinir. Uygulama ilk kurulum durumuna döner.",
     val factoryResetWarning: String = "Bu işlem geri alınamaz. Uygulama kapanır; yeniden açtığınızda ilk kurulum başlar. Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.",
     val confirmFactoryReset: String = "Tüm uygulama verileri silinsin mi?",
     val reset: String = "Sıfırla",
     val resetting: String = "Tüm veriler sıfırlanıyor…",
     val resetFailed: String = "Sıfırlama tamamlanamadı. Yeniden deneyin veya Android uygulama ayarlarından depolamayı temizleyin.",
-    val syncSection: String = "Google Drive Senkronizasyonu",
+    val syncSection: String = "Eşitleme ve yedekleme",
     val connectDrive: String = "Google Hesabı ile Giriş Yap",
     val connectDriveBody: String = "Yedeklerinizi ve okuma geçmişinizi Google Drive’da saklamak için Google hesabınızla giriş yapın.",
     val disconnectDrive: String = "Çıkış Yap / Hesabı Ayır",
@@ -46,8 +46,8 @@ data class SettingsCopy(
     val contentLanguageBody: String = "Tümü, Türkçe ve İngilizce kaynakları kapsar.",
     val cacheClearSuccess: String = "Önbellek temizlendi.",
 
-    // Section 1 — privacy and the +18 Vault.
-    val privacySection: String = "Gizlilik ve +18 Vault",
+    // Privacy and the +18 Vault.
+    val privacySection: String = "Gizlilik ve Kasa",
     val stealthShieldTitle: String = "Gizlilik & Sansür Kalkanı",
     val stealthShieldBody: String = "Harici VPN gerekmeden İSS engellerini ve DNS takibini aşar. Her ağda çalışmayabilir; anonimlik sağlamaz.",
     val vaultTitle: String = "+18 Vault",
@@ -59,9 +59,9 @@ data class SettingsCopy(
     val lockBackgroundTitle: String = "Arka Plana Geçince Kilitle",
     val lockBackgroundBody: String = "Uygulama arka plana alındığında Vault anında yeniden kilitlenir.",
 
-    // Section 2 — extension and repository manager.
-    val repositoriesSection: String = "Eklenti ve Depo Yöneticisi",
-    val repositoriesSectionBody: String = "Kaynak depolarını tek dokunuşla bağla veya kaldır; seçimler cihazda kalıcı saklanır.",
+    // Extensions and repositories.
+    val repositoriesSection: String = "Eklentiler ve depolar",
+    val repositoriesSectionBody: String = "İlk kurulumda depo veya eklenti eklenmez. Aşağıdan bir depo seçin ya da özel depo ekleyin; ardından Eklentiler ekranından kullanmak istediğiniz eklentileri yükleyin.",
     val addRepository: String = "Özel Depo Ekle",
     val addRepositoryTitle: String = "Özel Depo Ekle",
     val addRepositoryBody: String = "Depo indeksinin https:// ile başlayan JSON adresini gir.",
@@ -73,8 +73,8 @@ data class SettingsCopy(
     val repositoryError: String = "Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.",
     val customRepositories: String = "Özel depoların",
 
-    // Section 3 — reading and language.
-    val readingSection: String = "Dil & İçerik Tercihleri",
+    // Reading and language.
+    val readingSection: String = "Dil ve okuma",
     val languageTitle: String = "Arayüz Dili",
     val languageTurkish: String = "Türkçe",
     val languageEnglish: String = "English",
@@ -85,7 +85,7 @@ data class SettingsCopy(
     val guidedViewTitle: String = "Guided View (Panel Takibi)",
     val guidedViewBody: String = "Sayfalar panel panel, sinematik yakınlaşmayla okunur; tek dokunuşla açılıp kapatılır.",
 
-    // Section 4 — application and cache.
+    // Application and cache.
     val appSection: String = "Uygulama Bilgisi",
     val clearCache: String = "Önbelleği Temizle",
     val clearCacheBody: String = "Kapak görselleri ve geçici dosyalar silinir; kütüphanen ve ilerlemen etkilenmez.",
@@ -100,3 +100,57 @@ data class SettingsCopy(
     val githubTitle: String = "GitHub'da Yomira",
     val githubBody: String = "Kaynak kod, sürüm notları ve destek.",
 )
+
+/** Settings-owned copy for controls previously hardcoded in the screen. */
+internal data class SettingsContentCopy(
+    val filtersSection: String = "İçerik filtreleri",
+    val contentLevel: String = "Yaş ve içerik düzeyi",
+    val safeMode: String = "Güvenli mod",
+    val adultNormal: String = "18+ · Normal",
+    val adultVault: String = "18+ · Kasa",
+    val excludedTagsBody: String = "Seçili etiketlerdeki seriler her yerde gizlenir.",
+    val rerunSurvey: String = "Okuma anketini yeniden yap",
+    val gore: String = "Gore / Aşırı şiddet",
+    val universalTitle: String = "Keiyoushi evrensel deposu",
+    val universalBody: String = "Farklı dillerde topluluk kaynakları.",
+    val turkishTitle: String = "Türkçe çizgi roman ve manga deposu",
+    val turkishBody: String = "Türkçe okuma kaynakları.",
+    val westernTitle: String = "Batı çizgi romanları deposu",
+    val westernBody: String = "Batı çizgi romanı ve webcomic kaynakları.",
+) {
+    fun repositoryTitle(repository: CuratedRepository): String = when (repository.id) {
+        CuratedRepositories.UNIVERSAL.id -> universalTitle
+        CuratedRepositories.TURKISH_COMICS.id -> turkishTitle
+        CuratedRepositories.WESTERN_COMICS.id -> westernTitle
+        else -> repository.title
+    }
+
+    fun repositoryBody(repository: CuratedRepository): String = when (repository.id) {
+        CuratedRepositories.UNIVERSAL.id -> universalBody
+        CuratedRepositories.TURKISH_COMICS.id -> turkishBody
+        CuratedRepositories.WESTERN_COMICS.id -> westernBody
+        else -> repository.subtitle
+    }
+
+    companion object {
+        fun forLanguage(language: AppLanguage): SettingsContentCopy = when (language) {
+            AppLanguage.TURKISH -> SettingsContentCopy()
+            AppLanguage.ENGLISH -> SettingsContentCopy(
+                filtersSection = "Content filters",
+                contentLevel = "Age and content level",
+                safeMode = "Safe mode",
+                adultNormal = "18+ · Normal",
+                adultVault = "18+ · Vault",
+                excludedTagsBody = "Series with selected tags are hidden everywhere.",
+                rerunSurvey = "Retake reading survey",
+                gore = "Gore / Extreme violence",
+                universalTitle = "Keiyoushi universal repository",
+                universalBody = "Community sources in multiple languages.",
+                turkishTitle = "Turkish comics and manga repository",
+                turkishBody = "Turkish reading sources.",
+                westernTitle = "Western comics repository",
+                westernBody = "Western comics and webcomic sources.",
+            )
+        }
+    }
+}

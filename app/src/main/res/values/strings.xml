@@ -297,7 +297,7 @@
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
     <string name="settings_subtitle">Privacy, repositories and reading experience</string>
-    <string name="settings_privacy_section">Privacy &amp; +18 Vault</string>
+    <string name="settings_privacy_section">Privacy and Vault</string>
     <string name="settings_vault_title">+18 Vault</string>
     <string name="settings_vault_body">Turn off and the 🔒 +18 Vault tab disappears from the bottom bar completely; the phone keeps no hint that adult content exists. Verifying the device lock brings it back.</string>
     <string name="settings_vault_hidden_badge">HIDDEN</string>
@@ -308,8 +308,8 @@
     <string name="settings_lock_background_body">The Vault re-locks instantly when the app goes to the background.</string>
     <string name="settings_reveal_prompt_title">Yomira</string>
     <string name="settings_reveal_prompt_body">Verify the device lock to show the +18 Vault again</string>
-    <string name="settings_repositories_section">Extensions &amp; Repository Manager</string>
-    <string name="settings_repositories_section_body">Connect or remove source repositories with one tap; choices persist on this device.</string>
+    <string name="settings_repositories_section">Extensions and repositories</string>
+    <string name="settings_repositories_section_body">No repositories or extensions are added on first install. Select a repository below or add a custom one, then install the extensions you want from the Extensions screen.</string>
     <string name="settings_add_repository">Add Custom Repository</string>
     <string name="settings_add_repository_title">Add Custom Repository</string>
     <string name="settings_add_repository_body">Enter the https:// JSON index address of the repository.</string>
@@ -320,7 +320,7 @@
     <string name="settings_invalid_repository_url">Invalid address: a repository must be a full https JSON index URL.</string>
     <string name="settings_repository_error">Repository operation failed. Check your connection and try again.</string>
     <string name="settings_custom_repositories">Your custom repositories</string>
-    <string name="settings_reading_section">Language &amp; content preferences</string>
+    <string name="settings_reading_section">Language and reading</string>
     <string name="settings_language_title">Interface Language</string>
     <string name="settings_language_turkish">Türkçe</string>
     <string name="settings_language_english">English</string>

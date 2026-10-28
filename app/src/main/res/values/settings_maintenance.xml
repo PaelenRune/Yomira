@@ -1,9 +1,9 @@
 <resources>
-    <string name="settings_storage_section">Storage &amp; cache</string>
+    <string name="settings_storage_section">Storage and reset</string>
     <string name="settings_cache_size">Cache used: %1$s</string>
     <string name="settings_cache_loading">Calculating…</string>
     <string name="settings_confirm_cache">Clear the cache?</string>
-    <string name="settings_sync_section">Google Drive synchronization</string>
+    <string name="settings_sync_section">Sync and backup</string>
     <string name="settings_automatic_sync">Automatic cross-device sync</string>
     <string name="settings_automatic_sync_body">Your reading history, series and extensions are automatically synchronized through Google Drive.</string>
     <string name="settings_sync_suggestion">Enable automatic sync to continue where you left off on another device.</string>

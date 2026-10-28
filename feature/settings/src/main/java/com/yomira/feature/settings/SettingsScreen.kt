@@ -41,6 +41,7 @@ import java.util.Date
 import com.yomira.core.model.ReadingMode
 import com.yomira.core.ui.theme.CardSurface
 import com.yomira.core.ui.theme.DeepOledBlack
+import com.yomira.core.ui.theme.HairlineBorder
 import com.yomira.core.ui.theme.NeonFuchsia
 import com.yomira.core.ui.theme.NeonPurple
 import com.yomira.core.ui.theme.TextMuted
@@ -91,6 +92,7 @@ fun SettingsScreen(
     onConnectDrive: () -> Unit = {},
     onDisconnectDrive: () -> Unit = {},
 ) {
+    val contentCopy = SettingsContentCopy.forLanguage(currentLanguage)
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var showCacheDialog by rememberSaveable { mutableStateOf(false) }
     var showResetDialog by rememberSaveable { mutableStateOf(false) }
@@ -112,168 +114,13 @@ fun SettingsScreen(
         snackbar.showSnackbar(text)
         onConsumeMessage()
     }
-    Box(Modifier.fillMaxSize().background(Color(0xFF0D0D12))) {
+    Box(Modifier.fillMaxSize().background(DeepOledBlack)) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(22.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             item { SettingsHeader(copy, onBack) }
-            item {
-                FilledTonalButton(onClick = onOpenExtensions, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Icon(Icons.Default.Extension, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text(extensionsLabel)
-                }
-            }
-            item {
-                SettingsSection(Icons.Default.FilterAlt, "İçerik Filtreleri & Kara Liste", NeonPurple) {
-                    val preferences = maintenance.readerPreferences
-                    if (preferences != null) {
-                        ChoiceRow("Yaş ve içerik düzeyi") {
-                            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                                listOf("Güvenli Mod", "18+ · Normal", "18+ · Vault").forEachIndexed { index, label ->
-                                    val tier = if (!preferences.isAdult) 0 else if (!preferences.allowAdultContent) 1 else 2
-                                    SegmentedButton(selected = tier == index,
-                                        enabled = !maintenance.preferenceBusy,
-                                        onClick = { onReaderPreferencesChange(preferences.copy(isAdult = index > 0, allowAdultContent = index == 2)) },
-                                        shape = SegmentedButtonDefaults.itemShape(index, 3)) { Text(label) }
-                                }
-                            }
-                            Text("Seçili etiketlerdeki seriler her yerde gizlenir.", style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                blacklistTags.forEach { (key, label) ->
-                                    FilterChip(selected = key in preferences.excludedTags, enabled = !maintenance.preferenceBusy,
-                                        onClick = { onReaderPreferencesChange(preferences.copy(excludedTags =
-                                            if (key in preferences.excludedTags) preferences.excludedTags - key else preferences.excludedTags + key)) },
-                                        label = { Text(label) })
-                                }
-                            }
-                            OutlinedButton(onClick = onRerunSurvey, enabled = !maintenance.preferenceBusy) { Text("Okuma Anketini Baştan Yap") }
-                        }
-                    }
-                }
-            }
-            item {
-                SettingsSection(Icons.Default.Storage, copy.storageSection, NeonPurple) {
-                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(if (maintenance.cacheSizeFailed) copy.cacheSizeFailed else
-                            copy.cacheSize.format(maintenance.cacheBytes?.let(::formatCacheSize) ?: copy.loading),
-                            style = MaterialTheme.typography.titleMedium)
-                        Text(copy.clearCacheBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                        Button(onClick = { showCacheDialog = true }, enabled = !maintenance.cacheBusy,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                            if (maintenance.cacheBusy) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                            else Text(copy.clearCache)
-                        }
-                        HorizontalDivider()
-                        Text(copy.factoryResetBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                        Button(
-                            onClick = { showResetDialog = true },
-                            enabled = !maintenance.resetBusy && !maintenance.cacheBusy && !maintenance.syncBusy && !maintenance.preferenceBusy,
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError),
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                        ) { Text(copy.factoryReset) }
-                    }
-                }
-            }
-            item {
-                SettingsSection(Icons.Default.CloudSync, copy.syncSection, NeonPurple) {
-                    val connected = maintenance.driveAccountEmail != null
-                    val available = connected && !maintenance.driveAuthBusy && !maintenance.resetBusy
-                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (connected) {
-                            Text(copy.driveConnected.format(maintenance.driveAccountEmail), style = MaterialTheme.typography.titleMedium)
-                            Text(if (maintenance.syncBusy) copy.syncing else if (state.settings.automaticSync)
-                                copy.driveSyncActive else copy.driveSyncManual, style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                            OutlinedButton(onClick = onDisconnectDrive,
-                                enabled = available && !maintenance.syncBusy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.disconnectDrive) }
-                        } else {
-                            Text(copy.connectDriveBody, style = MaterialTheme.typography.bodyMedium)
-                            Button(onClick = onConnectDrive, enabled = !maintenance.driveAuthBusy && !maintenance.resetBusy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.connectDrive) }
-                        }
-                        if (maintenance.driveAuthBusy) LinearProgressIndicator(Modifier.fillMaxWidth())
-                    }
-                    SettingsSwitchRow(copy.automaticSync, copy.automaticSyncBody, state.settings.automaticSync,
-                        onAutomaticSyncChange, NeonPurple, enabled = available && !maintenance.syncBusy)
-                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (!state.settings.automaticSync) Text(copy.syncSuggestion, style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                        if (maintenance.driveSignInRequired) Text(copy.signInRequired,
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                        Text(copy.lastSynced.format(maintenance.lastSyncedAt?.let {
-                            DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(it))
-                        } ?: copy.neverSynced), style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                        OutlinedButton(onClick = onSyncNow, enabled = available && !maintenance.syncBusy,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                            Text(if (maintenance.syncBusy) copy.syncing else copy.syncNow)
-                        }
-                    }
-                }
-            }
-            item {
-                SettingsSection(icon = Icons.Default.Security, title = copy.privacySection, accent = NeonFuchsia) {
-                    SettingsSwitchRow(copy.stealthShieldTitle, copy.stealthShieldBody,
-                        state.settings.stealthShieldEnabled, onStealthShieldChange, NeonPurple)
-                    RowDivider()
-                    SettingsSwitchRow(
-                        title = copy.vaultTitle,
-                        body = copy.vaultBody,
-                        checked = state.settings.vaultVisible,
-                        onCheckedChange = onVaultVisibilityChange,
-                        accent = NeonFuchsia,
-                        badge = copy.vaultHiddenBadge.takeIf { !state.settings.vaultVisible },
-                        error = copy.revealDenied.takeIf { state.revealDenied },
-                    )
-                    RowDivider()
-                    SettingsSwitchRow(copy.deviceLockTitle, copy.deviceLockBody, state.settings.requireDeviceLock, onRequireDeviceLockChange, NeonPurple)
-                    RowDivider()
-                    SettingsSwitchRow(copy.lockBackgroundTitle, copy.lockBackgroundBody, state.settings.lockOnBackground, onLockOnBackgroundChange, NeonPurple)
-                }
-            }
-            item {
-                SettingsSection(icon = Icons.Default.Extension, title = copy.repositoriesSection, accent = NeonPurple) {
-                    Text(copy.repositoriesSectionBody, Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        style = MaterialTheme.typography.bodySmall, color = TextMuted)
-                    CuratedRepositories.ALL.forEachIndexed { index, repository ->
-                        if (index > 0) RowDivider()
-                        RepositoryRow(
-                            repository = repository,
-                            enabled = repository.indexUrl in state.repositories,
-                            busy = state.busyRepository == repository.indexUrl,
-                            onToggle = { enabled -> onRepositoryToggle(repository, enabled) },
-                        )
-                    }
-                    val custom = customRepositories(state.repositories)
-                    if (custom.isNotEmpty()) {
-                        RowDivider()
-                        Text(copy.customRepositories, Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                            style = MaterialTheme.typography.labelMedium, color = TextMuted)
-                        custom.forEach { url ->
-                            CustomRepositoryRow(url = url, removeLabel = copy.removeRepository, onRemove = { onRemoveRepository(url) })
-                        }
-                    }
-                    RowDivider()
-                    Row(
-                        Modifier.fillMaxWidth().clickable(onClick = { showAddDialog = true }).padding(horizontal = 14.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(20.dp))
-                        Text(copy.addRepository, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = NeonPurple)
-                    }
-                    if (state.invalidRepositoryUrl) {
-                        Text(copy.invalidRepositoryUrl, Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                    }
-                    if (state.repositoryError) {
-                        Text(copy.repositoryError, Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                    }
-                }
-            }
             item {
                 SettingsSection(icon = Icons.Default.Language, title = copy.readingSection, accent = NeonPurple) {
                     ChoiceRow(copy.contentLanguage) {
@@ -334,14 +181,171 @@ fun SettingsScreen(
                 }
             }
             item {
+                SettingsSection(Icons.Default.FilterAlt, contentCopy.filtersSection, NeonPurple) {
+                    val preferences = maintenance.readerPreferences
+                    if (preferences != null) {
+                        ChoiceRow(contentCopy.contentLevel) {
+                            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                                listOf(contentCopy.safeMode, contentCopy.adultNormal, contentCopy.adultVault).forEachIndexed { index, label ->
+                                    val tier = if (!preferences.isAdult) 0 else if (!preferences.allowAdultContent) 1 else 2
+                                    SegmentedButton(selected = tier == index,
+                                        enabled = !maintenance.preferenceBusy,
+                                        onClick = { onReaderPreferencesChange(preferences.copy(isAdult = index > 0, allowAdultContent = index == 2)) },
+                                        shape = SegmentedButtonDefaults.itemShape(index, 3)) { Text(label) }
+                                }
+                            }
+                            Text(contentCopy.excludedTagsBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                blacklistTags.forEach { (key, label) ->
+                                    FilterChip(selected = key in preferences.excludedTags, enabled = !maintenance.preferenceBusy,
+                                        onClick = { onReaderPreferencesChange(preferences.copy(excludedTags =
+                                            if (key in preferences.excludedTags) preferences.excludedTags - key else preferences.excludedTags + key)) },
+                                         label = { Text(if (key == "gore") contentCopy.gore else label) })
+                                }
+                            }
+                            OutlinedButton(onClick = onRerunSurvey, enabled = !maintenance.preferenceBusy) { Text(contentCopy.rerunSurvey) }
+                        }
+                    }
+                }
+            }
+            item {
+                SettingsSection(icon = Icons.Default.Extension, title = copy.repositoriesSection, accent = NeonPurple) {
+                    FilledTonalButton(
+                        onClick = onOpenExtensions,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp).heightIn(min = 48.dp),
+                    ) {
+                        Icon(Icons.Default.Extension, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(12.dp))
+                        Text(extensionsLabel)
+                    }
+                    Text(copy.repositoriesSectionBody, Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                    CuratedRepositories.ALL.forEachIndexed { index, repository ->
+                        if (index > 0) RowDivider()
+                        RepositoryRow(
+                            repository = repository,
+                            contentCopy = contentCopy,
+                            enabled = repository.indexUrl in state.repositories,
+                            busy = state.busyRepository == repository.indexUrl,
+                            onToggle = { enabled -> onRepositoryToggle(repository, enabled) },
+                        )
+                    }
+                    val custom = customRepositories(state.repositories)
+                    if (custom.isNotEmpty()) {
+                        RowDivider()
+                        Text(copy.customRepositories, Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.labelMedium, color = TextMuted)
+                        custom.forEach { url ->
+                            CustomRepositoryRow(url = url, removeLabel = copy.removeRepository, onRemove = { onRemoveRepository(url) })
+                        }
+                    }
+                    RowDivider()
+                    Row(
+                        Modifier.fillMaxWidth().clickable(onClick = { showAddDialog = true }).heightIn(min = 56.dp).padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(20.dp))
+                        Text(copy.addRepository, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium, color = NeonPurple)
+                    }
+                    if (state.invalidRepositoryUrl) {
+                        Text(copy.invalidRepositoryUrl, Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    }
+                    if (state.repositoryError) {
+                        Text(copy.repositoryError, Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+            item {
+                SettingsSection(icon = Icons.Default.Security, title = copy.privacySection, accent = NeonFuchsia) {
+                    SettingsSwitchRow(copy.stealthShieldTitle, copy.stealthShieldBody,
+                        state.settings.stealthShieldEnabled, onStealthShieldChange, NeonPurple)
+                    RowDivider()
+                    SettingsSwitchRow(
+                        title = copy.vaultTitle,
+                        body = copy.vaultBody,
+                        checked = state.settings.vaultVisible,
+                        onCheckedChange = onVaultVisibilityChange,
+                        accent = NeonFuchsia,
+                        badge = copy.vaultHiddenBadge.takeIf { !state.settings.vaultVisible },
+                        error = copy.revealDenied.takeIf { state.revealDenied },
+                    )
+                    RowDivider()
+                    SettingsSwitchRow(copy.deviceLockTitle, copy.deviceLockBody, state.settings.requireDeviceLock, onRequireDeviceLockChange, NeonPurple)
+                    RowDivider()
+                    SettingsSwitchRow(copy.lockBackgroundTitle, copy.lockBackgroundBody, state.settings.lockOnBackground, onLockOnBackgroundChange, NeonPurple)
+                }
+            }
+            item {
+                SettingsSection(Icons.Default.CloudSync, copy.syncSection, NeonPurple) {
+                    val connected = maintenance.driveAccountEmail != null
+                    val available = connected && !maintenance.driveAuthBusy && !maintenance.resetBusy
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (connected) {
+                            Text(copy.driveConnected.format(maintenance.driveAccountEmail), style = MaterialTheme.typography.titleMedium)
+                            Text(if (maintenance.syncBusy) copy.syncing else if (state.settings.automaticSync)
+                                copy.driveSyncActive else copy.driveSyncManual, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                            OutlinedButton(onClick = onDisconnectDrive,
+                                enabled = available && !maintenance.syncBusy,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.disconnectDrive) }
+                        } else {
+                            Text(copy.connectDriveBody, style = MaterialTheme.typography.bodyMedium, color = TextMuted)
+                            Button(onClick = onConnectDrive, enabled = !maintenance.driveAuthBusy && !maintenance.resetBusy,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(copy.connectDrive) }
+                        }
+                        if (maintenance.driveAuthBusy) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    }
+                    SettingsSwitchRow(copy.automaticSync, copy.automaticSyncBody, state.settings.automaticSync,
+                        onAutomaticSyncChange, NeonPurple, enabled = available && !maintenance.syncBusy)
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (!state.settings.automaticSync) Text(copy.syncSuggestion, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        if (maintenance.driveSignInRequired) Text(copy.signInRequired,
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                        Text(copy.lastSynced.format(maintenance.lastSyncedAt?.let {
+                            DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(it))
+                        } ?: copy.neverSynced), style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        OutlinedButton(onClick = onSyncNow, enabled = available && !maintenance.syncBusy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text(if (maintenance.syncBusy) copy.syncing else copy.syncNow)
+                        }
+                    }
+                }
+            }
+            item {
+                SettingsSection(Icons.Default.Storage, copy.storageSection, NeonPurple) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(if (maintenance.cacheSizeFailed) copy.cacheSizeFailed else
+                            copy.cacheSize.format(maintenance.cacheBytes?.let(::formatCacheSize) ?: copy.loading),
+                            style = MaterialTheme.typography.titleMedium)
+                        Text(copy.clearCacheBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Button(onClick = { showCacheDialog = true }, enabled = !maintenance.cacheBusy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            if (maintenance.cacheBusy) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                            else Text(copy.clearCache)
+                        }
+                        RowDivider()
+                        Text(copy.factoryResetBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Button(
+                            onClick = { showResetDialog = true },
+                            enabled = !maintenance.resetBusy && !maintenance.cacheBusy && !maintenance.syncBusy && !maintenance.preferenceBusy,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        ) { Text(copy.factoryReset) }
+                    }
+                }
+            }
+            item {
                 SettingsSection(icon = Icons.Default.Info, title = copy.appSection, accent = NeonPurple) {
                     UpdateRow(copy, state, versionName, onCheckUpdates, onOpenLink)
                     RowDivider()
                     Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                        Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 14.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(12.dp))
                         Text(copy.versionTitle, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                         Column(horizontalAlignment = Alignment.End) {
@@ -351,11 +355,11 @@ fun SettingsScreen(
                     }
                     RowDivider()
                     Row(
-                        Modifier.fillMaxWidth().clickable(onClick = { onOpenLink(YOMIRA_GITHUB_URL) }).padding(horizontal = 14.dp, vertical = 12.dp),
+                        Modifier.fillMaxWidth().clickable(onClick = { onOpenLink(YOMIRA_GITHUB_URL) }).heightIn(min = 56.dp).padding(horizontal = 14.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = NeonPurple, modifier = Modifier.size(20.dp))
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(copy.githubTitle, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                             Text(copy.githubBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
@@ -367,6 +371,10 @@ fun SettingsScreen(
         SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
     }
     if (maintenance.resetBusy) AlertDialog(
+        shape = RoundedCornerShape(24.dp),
+        containerColor = CardSurface,
+        textContentColor = TextMuted,
+        tonalElevation = 0.dp,
         onDismissRequest = {},
         title = { Text(copy.resetting) },
         text = { CircularProgressIndicator() },
@@ -374,6 +382,10 @@ fun SettingsScreen(
         properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
     )
     if (showResetDialog) AlertDialog(
+        shape = RoundedCornerShape(24.dp),
+        containerColor = CardSurface,
+        textContentColor = TextMuted,
+        tonalElevation = 0.dp,
         onDismissRequest = { showResetDialog = false },
         title = { Text(copy.confirmFactoryReset) },
         text = { Text(copy.factoryResetBody + "\n\n" + copy.factoryResetWarning) },
@@ -385,6 +397,10 @@ fun SettingsScreen(
         dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text(copy.cancel) } },
     )
     if (showCacheDialog) AlertDialog(
+        shape = RoundedCornerShape(24.dp),
+        containerColor = CardSurface,
+        textContentColor = TextMuted,
+        tonalElevation = 0.dp,
         onDismissRequest = { showCacheDialog = false },
         title = { Text(copy.confirmClearCache) },
         text = { Text(copy.clearCacheBody) },
@@ -422,8 +438,8 @@ private fun SettingsHeader(copy: SettingsCopy, onBack: () -> Unit) {
 
 @Composable
 private fun SettingsSection(icon: ImageVector, title: String, accent: Color, content: @Composable () -> Unit) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(
                 Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(accent.copy(alpha = .18f)),
                 contentAlignment = Alignment.Center,
@@ -432,7 +448,7 @@ private fun SettingsSection(icon: ImageVector, title: String, accent: Color, con
             }
             Text(title, Modifier.semantics { heading() }, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         }
-        Surface(color = CardSurface, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, TextMuted.copy(alpha = .14f)), tonalElevation = 0.dp) {
+        Surface(color = CardSurface, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, HairlineBorder), tonalElevation = 0.dp) {
             Column(Modifier.fillMaxWidth().padding(6.dp)) { content() }
         }
     }
@@ -450,10 +466,10 @@ private fun SettingsSwitchRow(
     enabled: Boolean = true,
 ) {
     Column(Modifier.fillMaxWidth().toggleable(value = checked, enabled = enabled, role = Role.Switch, onValueChange = onCheckedChange)
-        .padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        .heightIn(min = 72.dp).padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                     if (badge != null) {
                         Surface(color = accent.copy(alpha = .2f), shape = RoundedCornerShape(6.dp)) {
@@ -472,24 +488,26 @@ private fun SettingsSwitchRow(
 }
 
 @Composable
-private fun RepositoryRow(repository: CuratedRepository, enabled: Boolean, busy: Boolean, onToggle: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+private fun RepositoryRow(repository: CuratedRepository, contentCopy: SettingsContentCopy, enabled: Boolean, busy: Boolean, onToggle: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(repository.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            Text(repository.subtitle, style = MaterialTheme.typography.bodySmall, color = TextMuted, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(contentCopy.repositoryTitle(repository), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(contentCopy.repositoryBody(repository), style = MaterialTheme.typography.bodySmall, color = TextMuted)
         }
         Spacer(Modifier.width(12.dp))
-        if (busy) {
-            CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = NeonPurple)
-        } else {
-            Switch(checked = enabled, onCheckedChange = onToggle, colors = neonSwitchColors(NeonPurple))
+        Box(Modifier.width(52.dp).heightIn(min = 48.dp), contentAlignment = Alignment.Center) {
+            if (busy) {
+                CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = NeonPurple)
+            } else {
+                Switch(checked = enabled, onCheckedChange = onToggle, colors = neonSwitchColors(NeonPurple))
+            }
         }
     }
 }
 
 @Composable
 private fun CustomRepositoryRow(url: String, removeLabel: String, onRemove: () -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 14.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(url, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.MiddleEllipsis)
         IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, removeLabel, tint = TextMuted) }
     }
@@ -512,7 +530,7 @@ private fun UpdateRow(
     onOpenLink: (String) -> Unit,
 ) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onCheckUpdates).padding(horizontal = 14.dp, vertical = 12.dp),
+        Modifier.fillMaxWidth().clickable(onClick = onCheckUpdates).heightIn(min = 56.dp).padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -543,7 +561,8 @@ private fun AddRepositoryDialog(copy: SettingsCopy, onAdd: (String) -> Unit, onD
     var url by rememberSaveable { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DeepOledBlack,
+        containerColor = CardSurface,
+        textContentColor = TextMuted,
         tonalElevation = 0.dp,
         shape = RoundedCornerShape(24.dp),
         title = { Text(copy.addRepositoryTitle, fontWeight = FontWeight.Bold) },
@@ -566,7 +585,7 @@ private fun AddRepositoryDialog(copy: SettingsCopy, onAdd: (String) -> Unit, onD
 }
 
 @Composable
-private fun RowDivider() = HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = TextMuted.copy(alpha = .12f))
+private fun RowDivider() = HorizontalDivider(Modifier.padding(horizontal = 14.dp), color = HairlineBorder)
 
 @Composable
 private fun neonSwitchColors(accent: Color) = SwitchDefaults.colors(
