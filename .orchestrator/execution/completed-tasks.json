@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-10-27T15:04:11Z",
+  "updatedAt": "2026-10-28T08:06:31Z",
   "completedTasks": [
     {
       "taskId": "TASK-01-INV",
@@ -67,6 +67,85 @@
         "handoff": "handoffs/HO-TASK-001.json"
       },
       "executionPhase": "PHASE_SETUP"
+    },
+    {
+      "taskId": "V811-F2-F3",
+      "wbs": "2.1-2.2 + 3.1",
+      "phase": "PHASE_V811_MIGRATION",
+      "title": "Upgrade migration (purge extensions/repos, notice screen), version bump 8.1.1/21, SmartSourceMatcher path verification",
+      "status": "completed",
+      "assignedProvider": "openai",
+      "assignedModel": "openai/gpt-6.1-sol",
+      "backupModels": [
+        "opencode/gpt-6.1-sol",
+        "openai/gpt-5.3-codex",
+        "opencode/deepseek-v4-pro"
+      ],
+      "workspace": "worktree v811-upgrade-migration (branch v811-upgrade-migration from main@3992f65)",
+      "sessionId": "ses_e7e7fffceffezwmHmKE8bBlZiv",
+      "startedAt": "2026-10-28T07:54:29Z",
+      "dispatchedAt": "2026-10-28T07:54:29Z",
+      "completedAt": "2026-10-28T08:01:04Z",
+      "result": {
+        "branch": "v811-upgrade-migration",
+        "commit": "5950fff",
+        "versionName": "8.1.1",
+        "versionCode": 21,
+        "testsPassed": 235,
+        "failures": 0,
+        "handoff": ".orchestrator/handoffs/HO-V811-F2.json",
+        "summary": "Idempotent upgrade cleanup + localized TR/EN notice, version bump, SmartSourceMatcher bypass fixes (cached-detail, direct-reader)"
+      },
+      "mergePending": true,
+      "mergeNote": "merge into main after V811-F1 commits (MainActivity overlap)"
+    },
+    {
+      "taskId": "V811-F1",
+      "wbs": "1.1-1.4",
+      "phase": "PHASE_V811_CLEAN_INSTALL",
+      "title": "Clean install & repo flow: no preseed, onboarding repo step, deep-link add-repo, extensions empty state",
+      "status": "completed",
+      "assignedProvider": "openai",
+      "assignedModel": "openai/gpt-6.1-terra",
+      "primaryHistory": [
+        {
+          "model": "google/antigravity-claude-opus-5-5",
+          "outcome": "FAILED 429 quota locked ~4h"
+        },
+        {
+          "model": "opencode/claude-opus-5-5",
+          "outcome": "FAILED insufficient account funds"
+        },
+        {
+          "model": "openai/gpt-5.3-codex",
+          "outcome": "UNAVAILABLE removed from live catalog"
+        }
+      ],
+      "backupModels": [
+        "openai/gpt-6.1-sol-fast",
+        "evren2/glm-5.3",
+        "openai/gpt-6-astra"
+      ],
+      "workspace": "main checkout (D:/Projeler/Kişisel Projeler/Yomira, branch main, continues uncommitted WIP)",
+      "sessionId": "ses_e7e800c89ffeNzC3Dr6EPjp3fi",
+      "startedAt": "2026-10-28T07:54:29Z",
+      "dispatchedAt": "2026-10-28T07:54:29Z",
+      "completedAt": "2026-10-28T08:06:31Z",
+      "result": {
+        "commit": "c9ba7e2",
+        "handoff": ".orchestrator/handoffs/HO-V811-F1.json"
+      }
+    },
+    {
+      "taskId": "V811-INT-1",
+      "status": "completed",
+      "completedAt": "2026-10-28T08:06:31Z",
+      "result": {
+        "mergedBranch": "v811-upgrade-migration",
+        "mergeCommit": "5dc24f9",
+        "tests": "full testDebugUnitTest+assembleDebug green",
+        "version": "8.1.1/21"
+      }
     }
   ]
 }
