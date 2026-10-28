@@ -273,6 +273,52 @@
 # OkHttp probes for its bundled public-suffix list by name.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
+# -----------------------------------------------------------------------------
+# In-process extension runtime — HOST-PROVIDED surface (runtime-link-inventory.md)
+# -----------------------------------------------------------------------------
+# Third-party extension DEXes are loaded with a DexClassLoader whose parent is
+# the app classloader. R8 never sees those dexes, so every class and member
+# they link against must be kept explicitly or the linkage fails on device
+# with NoClassDefFoundError / NoSuchMethodError. The referenced-member sets are
+# checked in under core/extension-api/src/test/resources/inventory/.
+#
+# keiyoushi.source.Generated (the minified-dex SourceFactory entry point) is
+# resolved by name from the extension dex, not by the runtime host.
+-keep class keiyoushi.** { *; }
+# DI container the dexes read (Injekt global scope self-initializes).
+-keep class uy.kohesive.injekt.** { *; }
+# OkHttp 5 compression stack referenced by extension client builders.
+-keep class okhttp3.brotli.** { *; }
+-keep class org.brotli.** { *; }
+-keep class okhttp3.zstd.** { *; }
+-keep class com.squareup.zstd.** { *; }
+-keep class okhttp3.Gzip { *; }
+-keep class okhttp3.CompressionInterceptor { *; }
+-keep class okhttp3.CompressionInterceptor$* { *; }
+# okhttp members only referenced from dexes (Duration overloads, companions).
+-keepclassmembers class okhttp3.CacheControl$Builder {
+    public okhttp3.CacheControl$Builder maxAge(kotlin.time.Duration);
+}
+-keepclassmembers class okhttp3.HttpUrl$Companion { *; }
+-keepclassmembers class okhttp3.MediaType$Companion { *; }
+-keep class okhttp3.Cookie { *; }
+-keep class okhttp3.CookieJar { *; }
+-keep class okhttp3.CacheControl { *; }
+# kotlinx-serialization okio streams used by JSON-heavy sources.
+-keep class kotlinx.serialization.json.okio.** { *; }
+-keep class kotlinx.serialization.** { *; }
+# ConfigurableSource preference screens (androidx.preference is otherwise
+# unused by the app and would be stripped entirely).
+-keep class androidx.preference.** { *; }
+# Kotlin stdlib members referenced from dexes: synthetic $default bridges,
+# mangled value-class members (maxAge-LRDsOJo, parseOrNull) and companions are
+# invisible to R8's static analysis, so the stdlib stays intact.
+-keep class kotlin.** { *; }
+-keep class kotlinx.coroutines.** { *; }
+# okio types appear directly in extension signatures (BufferedSource, Buffer).
+-keep class okio.** { *; }
+
+# -----------------------------------------------------------------------------
 # JVM-only / optional dependencies that never ship on Android.
 -dontwarn java.lang.invoke.**
 -dontwarn sun.misc.**
