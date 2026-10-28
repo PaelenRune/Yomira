@@ -1,23 +1,5 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-10-28T08:06:31Z",
-  "activeTasks": [
-    {
-      "taskId": "V811-F4",
-      "wbs": "4.1-4.2",
-      "phase": "PHASE_V811_RECO_SEED",
-      "title": "Survey: pick 5 favorite series replaces genre chips; favorites seed home showcase weighting",
-      "status": "RUNNING",
-      "assignedProvider": "openai",
-      "assignedModel": "openai/gpt-6.1-sol",
-      "backupModels": [
-        "evren/glm-5.3",
-        "openai/gpt-6-luna",
-        "nvidia/z-ai/glm-5.3"
-      ],
-      "workspace": "worktree v811-favorite-survey (branch v811-favorite-survey from main@3992f65)",
-      "sessionId": null,
-      "startedAt": "2026-10-28T08:01:04Z"
-    }
-  ]
+  "updatedAt": "2026-10-28T08:10:50Z",
+  "activeTasks": []
 }
