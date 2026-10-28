@@ -17,6 +17,17 @@ class OutdatedRepositoryClientException : IllegalArgumentException("Repository d
 class KeiyoushiRepoParser {
     private val json = Json { ignoreUnknownKeys = true }
 
+    fun parse(response: RepositoryResponse, indexUrl: String): List<ExtensionDescriptor> {
+        val bytes = ProtoRepositoryParser.decompress(response.bytes)
+        val first = bytes.firstOrNull { it.toInt().toChar() !in " \t\r\n" }
+        val explicitlyProto = java.net.URI(indexUrl).path.endsWith(".pb", ignoreCase = true) ||
+            response.contentType?.contains("protobuf", ignoreCase = true) == true
+        val jsonPayload = !explicitlyProto && (first == '{'.code.toByte() || first == '['.code.toByte() ||
+            bytes.take(13).toByteArray().toString(Charsets.UTF_8).startsWith("YOMIRA-XOR-1:"))
+        return if (jsonPayload) parse(bytes.toString(Charsets.UTF_8), indexUrl)
+        else ProtoRepositoryParser.parse(bytes, indexUrl)
+    }
+
     fun parse(payload: String, indexUrl: String): List<ExtensionDescriptor> {
         requireHttps(indexUrl)
         val entries = json.parseToJsonElement(RepositoryPayload.decode(payload)) as? JsonArray

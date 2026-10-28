@@ -16,7 +16,10 @@ interface RepositoryStore {
 
 fun interface RepositoryClient {
     suspend fun fetch(indexUrl: String): String
+    suspend fun fetchPayload(indexUrl: String): RepositoryResponse = RepositoryResponse(fetch(indexUrl).toByteArray(Charsets.UTF_8))
 }
+
+data class RepositoryResponse(val bytes: ByteArray, val contentType: String? = null)
 
 /** Supplied by the Android package manager and the user's explicit certificate trust decisions. */
 fun interface InstalledExtensionProvider {
@@ -52,7 +55,7 @@ class ExtensionManager(
 
     /** All-or-nothing refresh preserves the previous snapshot on network or parsing failure. */
     override suspend fun refresh(): List<ExtensionDescriptor> = mutex.withLock {
-        val indexed = store.read().distinct().map { url -> url to parser.parse(client.fetch(url), url) }
+        val indexed = store.read().distinct().map { url -> url to parser.parse(client.fetchPayload(url), url) }
         val entries = indexed.flatMap { it.second }
         // Ambiguous package ownership is not resolved by silently trusting the highest version.
         require(entries.map { it.packageName }.distinct().size == entries.size) {

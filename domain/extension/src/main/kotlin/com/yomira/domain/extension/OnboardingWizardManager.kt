@@ -42,7 +42,7 @@ class OnboardingWizardManager(
     }
 
     companion object {
-        const val KEIYOUSHI_INDEX = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
+        const val KEIYOUSHI_INDEX = "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.pb"
         /** Official website linked from the repository's own README. */
         const val KEIYOUSHI_WEBPAGE = "https://keiyoushi.github.io/"
         const val TURKISH_INDEX = "https://raw.githubusercontent.com/PaelenRune/Yomira/main/repositories/turkish/index.min.json"

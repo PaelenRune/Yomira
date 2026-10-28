@@ -17,7 +17,9 @@ class OkHttpRepositoryClient(client: OkHttpClient) : RepositoryClient {
         .callTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         .build()
 
-    override suspend fun fetch(indexUrl: String): String {
+    override suspend fun fetch(indexUrl: String): String = fetchPayload(indexUrl).bytes.toString(Charsets.UTF_8)
+
+    override suspend fun fetchPayload(indexUrl: String): RepositoryResponse {
         requireHttps(indexUrl)
         return suspendCancellableCoroutine { continuation ->
             val call = client.newCall(Request.Builder().url(indexUrl).build())
@@ -36,7 +38,7 @@ class OkHttpRepositoryClient(client: OkHttpClient) : RepositoryClient {
                             if (body.contentLength() > MAX_BYTES) throw IOException("Repository index too large")
                             val source = body.source()
                             if (source.request(MAX_BYTES + 1)) throw IOException("Repository index too large")
-                            source.readUtf8()
+                            RepositoryResponse(source.readByteArray(), body.contentType()?.toString())
                         }
                     }
                     if (continuation.isActive) result.fold(continuation::resume, continuation::resumeWithException)
