@@ -227,5 +227,12 @@
   },
   "topRisks": ["R-001", "R-002", "R-003", "R-004", "R-005"],
   "riskRegister": "project-management/risk-register.json",
-  "workBreakdown": "project-management/wbs.json"
+  "workBreakdown": "project-management/wbs.json",
+  "amendmentV811": {
+    "decisionId": "DEC-V811-RUNTIME-A",
+    "date": "2026-10-28T09:53:02Z",
+    "decision": "Production extension runtime: consent-based IN-PROCESS DexClassLoader execution with install-time manifest+certificate verification (option A chosen by product owner over isolated-service B and scope-cut C). IsolatedProcess language retired; docs must not claim OS-level sandbox.",
+    "consequence": "Extension reading becomes real in v8.1.1; security wording updated honestly; full QA rounds re-run after runtime lands",
+    "decidedBy": "product owner via orchestrator"
+  }
 }

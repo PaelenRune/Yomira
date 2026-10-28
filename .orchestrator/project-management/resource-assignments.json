@@ -1,13 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "generatedAt": "2026-10-27T15:04:11Z",
-  "updatedBy": "TASK_001",
+  "updatedAt": "2026-10-28T10:01:34Z",
+  "updatedBy": "V811-POOL-EVENT-4",
   "sourceRef": "SRC-006",
   "policy": {
-    "orchestratorModelExcluded": "google/antigravity-gemini-3.8-flash",
-    "denyModelIdRegex": "gemini[-_. ]?3[._-]?8[-_. ]?flash",
+    "orchestratorModelExcluded": "evren/qwen3.8-flash-next",
+    "denyModelIdRegex": "qwen3\\.8-flash-next|(^|/)(evren2?3?/)?auto$",
+    "excludedEndpoints": [
+      "evren/qwen3.8-flash-next",
+      "evren2/qwen3.8-flash-next",
+      "evren3/qwen3.8-flash-next",
+      "evren/auto",
+      "evren2/auto",
+      "evren3/auto"
+    ],
+    "policyNote": "This orchestrator session runs on evren/qwen3.8-flash-next; its base-model trio and opaque routers are excluded for this cycle. Previous cycle's exclusion (google/antigravity-gemini-3.8-flash) belonged to a different orchestrator model.",
     "selectionRule": "Every assignment is checked against the exclusion policy before dispatch.",
-    "primaryProviderDiversity": 6
+    "primaryProviderDiversity": 6,
+    "poolStatus": {
+      "google/antigravity": "QUOTA_LOCKED resets ~2026-10-28T16:50Z (second lock)",
+      "openai": "USAGE_LIMIT_REACHED ~13:40Z, reset unknown",
+      "opencode": "INSUFFICIENT_FUNDS",
+      "evren": "ACTIVE_WORKING (RT-A glm-5.3)",
+      "evren2": "ACTIVE_WORKING (RT-T glm-5.3)",
+      "evren3": "RESERVE_ACTIVE (bookkeeping)",
+      "nvidia": "RESERVE"
+    }
   },
   "assignments": [
     {
@@ -545,6 +564,72 @@
       "allocationHours": 3.0,
       "status": "pending",
       "concurrencyKey": "AGENT-RELEASE",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "V811-F1",
+      "wbs": "1.1-1.4",
+      "phase": "PHASE_V811_CLEAN_INSTALL",
+      "agent": "AGENT-A",
+      "role": "Clean install, onboarding and repo flow implementation",
+      "provider": "openai",
+      "model": "openai/gpt-6.1-terra",
+      "backupModels": [
+        "openai/gpt-6.1-sol-fast",
+        "evren2/glm-5.3",
+        "openai/gpt-6-astra"
+      ],
+      "allocationHours": 6.0,
+      "status": "running",
+      "concurrencyKey": "main-checkout",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "V811-F2-F3",
+      "wbs": "2.1-2.2 + 3.1",
+      "phase": "PHASE_V811_MIGRATION",
+      "agent": "AGENT-C",
+      "role": "Upgrade migration, versioning and source-matching verification",
+      "provider": "openai",
+      "model": "openai/gpt-6.1-sol",
+      "backupModels": [
+        "opencode/gpt-6.1-sol",
+        "openai/gpt-5.3-codex",
+        "opencode/deepseek-v4-pro"
+      ],
+      "allocationHours": 4.0,
+      "status": "completed",
+      "concurrencyKey": "worktree:v811-upgrade-migration",
+      "policyCheck": {
+        "excludedModel": false,
+        "denyRegexMatch": false,
+        "eligibleInventoryModel": true
+      }
+    },
+    {
+      "taskId": "V811-F4",
+      "wbs": "4.1-4.2",
+      "phase": "PHASE_V811_RECO_SEED",
+      "agent": "AGENT-B",
+      "role": "Onboarding survey rework and recommendation seeding",
+      "provider": "openai",
+      "model": "openai/gpt-6.1-sol",
+      "backupModels": [
+        "evren/glm-5.3",
+        "openai/gpt-6-luna",
+        "nvidia/z-ai/glm-5.3"
+      ],
+      "allocationHours": 3.0,
+      "status": "running",
+      "concurrencyKey": "worktree:v811-favorite-survey",
       "policyCheck": {
         "excludedModel": false,
         "denyRegexMatch": false,

@@ -1,5 +1,23 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-10-28T08:10:50Z",
-  "activeTasks": []
+  "updatedAt": "2026-10-28T11:25:27Z",
+  "bindingDoc": ".orchestrator/execution/tur_plan_v811.md",
+  "activeTasks": [
+    {
+      "taskId": "V811-RT-B",
+      "phase": "PHASE_V811_EXTENSION_RUNTIME",
+      "title": "Host lib alignment (okhttp5 etc) + AndroidSourceRuntime DexClassLoader + matcher composite + consent enforcement + doc sync",
+      "status": "RUNNING",
+      "assignedProvider": "evren",
+      "assignedModel": "evren/glm-5.3",
+      "backupModels": [
+        "evren3/glm-5.3",
+        "nvidia/z-ai/glm-5.3",
+        "openai/gpt-6.1-terra (on reset)"
+      ],
+      "workspace": "main checkout HEAD a848968",
+      "sessionId": "ses_e7dc201cdffeEeuEJQlUNXr3dL",
+      "startedAt": "2026-10-28T11:25:27Z"
+    }
+  ]
 }

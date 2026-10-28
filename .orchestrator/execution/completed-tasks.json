@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-10-28T08:21:21Z",
+  "updatedAt": "2026-10-28T11:22:37Z",
   "completedTasks": [
     {
       "taskId": "TASK-01-INV",
@@ -176,7 +176,8 @@
         "branch": "v811-ui-polish",
         "commit": "131b37d",
         "tests": 171,
-        "handoff": ".orchestrator/handoffs/HO-V811-F5.json"
+        "handoff": ".orchestrator/handoffs/HO-V811-F5.json",
+        "summary": "Settings IA grouping, copy hygiene, OLED Plum consistency"
       }
     },
     {
@@ -191,6 +192,119 @@
           "sha256": "de098d76dc3751911023d5dce76010423989f5ddfbe2c5a136dd5847a87a96d4",
           "version": "8.1.1/21"
         }
+      }
+    },
+    {
+      "taskId": "V811-TUR-B",
+      "phase": "PHASE_V811_DEVICE_QA",
+      "status": "completed_no_go",
+      "completedAt": "2026-10-28T11:35:14Z",
+      "result": {
+        "verdict": "NO-GO",
+        "findings": ".orchestrator/execution/turB_findings.md",
+        "bugs": "1 high (B1 repo placeholder index), rig: FLAG_SECURE blocked screenshots, notice not observed",
+        "deviceSpan": "11:22:21-11:27:25 +03:00",
+        "note": ">=5min ACTIVE usage not verified"
+      }
+    },
+    {
+      "taskId": "V811-FIX-1",
+      "phase": "PHASE_V811_DEFECT_RESPONSE",
+      "status": "completed",
+      "completedAt": "2026-10-28T11:35:14Z",
+      "result": {
+        "status": "partial",
+        "b1": "root cause: upstream moved to protobuf index.pb; JSON url serves outdated-client placeholder for ALL UAs (evidence in HO-V811-FIX-1.json)",
+        "delivered": "placeholder error copy + parser regression test, notice presentation-state coverage + log, qa build variant (assembleQa, release keeps FLAG_SECURE)",
+        "buildGate": "NOT verified in session",
+        "commits": "local only, no push"
+      }
+    },
+    {
+      "taskId": "V811-FIX-2",
+      "status": "completed",
+      "completedAt": "2026-10-28T09:17:49Z",
+      "result": {
+        "commit": "cda200c",
+        "protobufSupport": "index.pb parser verified vs upstream index.proto; 1435 extensions/2348 sources fixture; canonical URL updated",
+        "gate": "testDebugUnitTest green (61 fresh suites, 0 failures) verified by orchestrator",
+        "artifacts": {
+          "releaseSha256": "1eedd3dde7ab813e409672a0c12a928a6cca64f4b8906a4effe709c15af4a7bd",
+          "qaSha256": "62c139063f8b89429a1606794b2bfbc69162ccdc386414a2ec827f68238e4455",
+          "markerCheck": "extensions/repo/index.pb found in classes2.dex"
+        }
+      }
+    },
+    {
+      "taskId": "V811-TUR-B2",
+      "status": "completed_no_go",
+      "completedAt": "2026-10-28T09:17:49Z",
+      "result": {
+        "repoLoad": "protobuf entries displayed; app-side loaded count unverified",
+        "installs": "MangaFire/Weeb Central/Toonily reached installed UI state ~3.1s, runtime readiness unproven",
+        "reading": "FAIL provisional high: Frieren + One Piece continue-reading show source unavailable",
+        "usageGate": "0 paired timestamps - not met",
+        "vault": "untested",
+        "findings": ".orchestrator/execution/turB2_findings.md",
+        "commits": [
+          "570b112 artifact hygiene",
+          "c24f79a findings"
+        ]
+      }
+    },
+    {
+      "taskId": "V811-RN",
+      "status": "completed",
+      "completedAt": "2026-10-28T09:17:49Z",
+      "result": {
+        "file": "release/RELEASE_NOTES_v8.1.1_DRAFT.md",
+        "commit": "0701648",
+        "unverifiedClaims": "QA totals, device extension runtime, device notice proof"
+      }
+    },
+    {
+      "taskId": "V811-DEBUG-R",
+      "status": "completed",
+      "result": {
+        "rootCauses": [
+          "adult-source policy excluded nsfw-flagged extensions for safe titles (upstream field7=MIXED, not parser bug)",
+          "IsolatedExtensionRuntime had no production implementation - only MangaDex bridge wired"
+        ],
+        "handoff": "HO-V811-DEBUG-R.json",
+        "fixedBy": "fb178c6 (policy) + V811-RUNTIME-1 (runtime)"
+      }
+    },
+    {
+      "taskId": "V811-FIX-POLICY",
+      "status": "completed",
+      "result": {
+        "commit": "fb178c6",
+        "tests": 249,
+        "nsfwOrigin": "upstream MIXED flag field 7",
+        "rebuiltArtifacts": "qa+release 12:26-12:28 local"
+      }
+    },
+    {
+      "taskId": "V811-RT-T",
+      "status": "completed",
+      "result": {
+        "commit": "2ec6eee",
+        "consent": "per-package consent store, dialog TR/EN, decline fail-closed, revocation on uninstall",
+        "fingerprint": "v1-path proven via JDK fixture; live Keiyoushi corpus 0/3 (all v2-signed) shows doğrulanamadı",
+        "tests": "97+141+settings green",
+        "handoff": "HO-V811-RT-T.json",
+        "backlogCandidate": "v2 APK Signing Block fingerprinting for v8.2"
+      }
+    },
+    {
+      "taskId": "V811-RT-A",
+      "status": "completed",
+      "result": {
+        "commit": "a848968",
+        "shims": "23 eu.kanade.* types / 40 classes in :core:extension-api, suspend-only v1.6 API verified, ShimServiceLocator network delegation",
+        "inventory": "runtime-link-inventory.md; host-abi needs: okhttp5.4/coroutines1.11/stdlib2.4/jsoup/injekt(JitPack)/brotli/zstd/json-okio",
+        "tests": "17 new + app suite green + shims in debug dex",
+        "apkTempDir": "C:/Users/paele/AppData/Local/Temp/opencode/extdex"
       }
     }
   ]

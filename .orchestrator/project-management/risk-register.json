@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "generatedAt": "2026-10-27T15:04:11Z",
-  "updatedAt": "2026-10-27T15:04:11Z",
-  "updatedBy": "TASK_001",
+  "updatedAt": "2026-10-28T11:25:27Z",
+  "updatedBy": "V811-BOOKKEEP-6",
   "registerId": "YOMIRA-RISK-V6",
   "scoring": {
     "probability": "1 rare - 5 almost certain",
@@ -441,16 +441,135 @@
       "residualImpact": 2,
       "residualScore": 4,
       "reviewDate": "2026-11-03"
+    },
+    {
+      "id": "R-PB-1",
+      "riskId": "R-PB-1",
+      "title": "Upstream repository format/URL drift (JSON->protobuf precedent)",
+      "category": "external-api",
+      "description": "Upstream repository format/URL drift (JSON->protobuf precedent); app must detect and report format changes honestly",
+      "probability": 3,
+      "probabilityLevel": "medium",
+      "impact": 4,
+      "impactLevel": "high",
+      "score": 12,
+      "severity": "high",
+      "status": "monitoring",
+      "owner": "AGENT-DATA",
+      "phase": "PHASE_V811_DEFECT_RESPONSE",
+      "triggers": [
+        "Upstream repository index switches format or URL.",
+        "JSON endpoint returns an outdated-client placeholder for every User-Agent.",
+        "Repository list fails to parse after an upstream change."
+      ],
+      "mitigation": [
+        "protobuf parser + placeholder detection + honest error copy + golden fixtures"
+      ],
+      "contingency": "manual format update task, pre-release live fetch check",
+      "residualProbability": 2,
+      "residualImpact": 4,
+      "residualScore": 8,
+      "reviewDate": "2026-11-03"
+    },
+    {
+      "id": "R-QA-RIG",
+      "riskId": "R-QA-RIG",
+      "title": "FLAG_SECURE on release blocks QA screenshots",
+      "category": "environment",
+      "description": "FLAG_SECURE on release blocks QA screenshots",
+      "probability": 4,
+      "probabilityLevel": "high",
+      "impact": 3,
+      "impactLevel": "medium",
+      "score": 12,
+      "severity": "high",
+      "status": "mitigated",
+      "owner": "AGENT-KOTLIN",
+      "phase": "PHASE_V811_DEVICE_QA",
+      "triggers": [
+        "Screenshot capture on the release APK returns black or blocked frames.",
+        "Device QA requires visual evidence on a FLAG_SECURE build."
+      ],
+      "mitigation": [
+        "assembleQa variant with capture permitted; release unchanged"
+      ],
+      "contingency": "uiautomator XML evidence only",
+      "residualProbability": 2,
+      "residualImpact": 2,
+      "residualScore": 4,
+      "reviewDate": "2026-11-17"
+    },
+    {
+      "id": "R-EXT-RT",
+      "riskId": "R-EXT-RT",
+      "title": "Extension sandbox runtime not functional end-to-end on device",
+      "category": "runtime/extensions",
+      "description": "Extension sandbox runtime may not be functional end-to-end on device (install 3.1s metadata-only suspicion; all reading fails)",
+      "probability": 4,
+      "probabilityLevel": "medium-high",
+      "impact": 5,
+      "impactLevel": "critical",
+      "impactNote": "critical for v8.1.1 value prop",
+      "score": 20,
+      "severity": "critical",
+      "status": "in-mitigation-execution",
+      "owner": "AGENT-KOTLIN",
+      "phase": "PHASE_V811_DEFECT_RESPONSE",
+      "triggers": [
+        "Extension installs return success in ~3s without any runtime work.",
+        "Every manga source reports unavailable on reading entry.",
+        "Installed extension count in app UI does not match repository installs."
+      ],
+      "mitigation": [
+        "DEBUG-R root-cause with run-as forensics on debug build",
+        "option A approved; RUNTIME-1 executing; doc honesty amendment recorded"
+      ],
+      "contingency": "scoped runtime fix task; if OS-policy-bound, honest scope reduction decision by user",
+      "residualProbability": 4,
+      "residualImpact": 5,
+      "residualScore": 20,
+      "reviewDate": "2026-10-31"
+    },
+    {
+      "id": "R-OKHTTP5",
+      "riskId": "R-OKHTTP5",
+      "title": "Host-wide okhttp 4->5 bump for extension ABI breaks existing network clients",
+      "category": "dependency/abi",
+      "description": "Host-wide okhttp 4->5 bump for extension ABI may break existing network clients (DoH/Cloudflare/interceptors)",
+      "probability": 3,
+      "probabilityLevel": "medium",
+      "impact": 4,
+      "impactLevel": "high",
+      "score": 12,
+      "severity": "high",
+      "status": "monitoring",
+      "owner": "AGENT-KOTLIN",
+      "phase": "PHASE_V811_EXTENSION_RUNTIME",
+      "triggers": [
+        "Existing network clients (DoH, Cloudflare, interceptors) fail or change behavior after the okhttp 4->5 bump.",
+        "Extension runtime requires okhttp 5.4 API surface not present on okhttp 4.",
+        "Duplicate okhttp or okio class versions surface at build or runtime."
+      ],
+      "mitigation": [
+        "RT-B dependency-first order: align host libs before runtime wiring, full-suite regression after"
+      ],
+      "contingency": "pin-and-shim decision or classloader-local okhttp5 (documented tradeoff)",
+      "residualProbability": 2,
+      "residualImpact": 4,
+      "residualScore": 8,
+      "reviewDate": "2026-11-03"
     }
   ],
   "summary": {
-    "total": 10,
+    "total": 14,
     "openExternal": 1,
-    "monitoring": 3,
-    "mitigated": 6,
+    "open": 0,
+    "inMitigationExecution": 1,
+    "monitoring": 5,
+    "mitigated": 7,
     "closed": 0,
-    "critical": 1,
-    "high": 4,
+    "critical": 2,
+    "high": 7,
     "medium": 5,
     "low": 0
   },
