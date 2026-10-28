@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "updatedAt": "2026-10-28T08:10:50Z",
+  "updatedAt": "2026-10-28T08:21:21Z",
   "completedTasks": [
     {
       "taskId": "TASK-01-INV",
@@ -166,6 +166,31 @@
         "mergedBranch": "v811-favorite-survey",
         "mergeCommit": "10e9a38be8aec4b93b8be9b48389f26ba7307542",
         "tests": "full green"
+      }
+    },
+    {
+      "taskId": "V811-F5",
+      "status": "completed",
+      "completedAt": "2026-10-28T08:21:21Z",
+      "result": {
+        "branch": "v811-ui-polish",
+        "commit": "131b37d",
+        "tests": 171,
+        "handoff": ".orchestrator/handoffs/HO-V811-F5.json"
+      }
+    },
+    {
+      "taskId": "V811-INT-3/RB",
+      "status": "completed",
+      "completedAt": "2026-10-28T08:21:21Z",
+      "result": {
+        "mergeCommit": "b17d9b2593a982b4992289abaa7cc7a201a0c691",
+        "releaseApk": {
+          "path": "release/yomira-v8.1.1.apk",
+          "size": 19526521,
+          "sha256": "de098d76dc3751911023d5dce76010423989f5ddfbe2c5a136dd5847a87a96d4",
+          "version": "8.1.1/21"
+        }
       }
     }
   ]
