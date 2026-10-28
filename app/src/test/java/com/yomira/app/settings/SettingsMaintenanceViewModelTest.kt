@@ -190,6 +190,17 @@ class SettingsMaintenanceViewModelTest {
         assertEquals(onboarding.value.preferences, model.state.value.readerPreferences)
     }
 
+    @Test fun `settings rerun preferences preserve adult opt in and blacklist`() = runTest(dispatcher) {
+        val model = model()
+        model.state.first { it.readerPreferences != null }
+        val preferences = ReaderPreferences(ReadingLanguage.ENGLISH, true, true, setOf("ntr"))
+        model.setReaderPreferences(preferences)
+        model.state.first { !it.preferenceBusy && it.readerPreferences == preferences }
+        model.setContentLanguage(ReadingLanguage.BOTH)
+        model.state.first { !it.preferenceBusy && it.contentLanguage == ReadingLanguage.BOTH }
+        assertEquals(preferences.copy(language = ReadingLanguage.BOTH), onboarding.value.preferences)
+    }
+
     @Test fun `disconnected account gates sync and automatic opt in`() = runTest(dispatcher) {
         val model = model()
         advanceUntilIdle()

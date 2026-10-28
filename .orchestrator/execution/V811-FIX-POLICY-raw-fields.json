@@ -1,0 +1,240 @@
+{
+  "fixture": "data\\extension\\src\\test\\resources\\keiyoushi-index.pb",
+  "sha256": "396aab410bd65cade429c38ab577192b27bf40d2bb7054f5039cc41fd42451e6",
+  "extensionCount": 1435,
+  "mangaFireRawFields": [
+    {
+      "field": 1,
+      "wire": 2,
+      "value": "MangaFire"
+    },
+    {
+      "field": 2,
+      "wire": 2,
+      "value": "eu.kanade.tachiyomi.extension.all.mangafire"
+    },
+    {
+      "field": 3,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 2,
+          "value": "https://github.com/keiyoushi/extensions/releases/download/f1edb03/tachiyomi-all.mangafire-v1.6.35.apk"
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "https://cdn.jsdelivr.net/gh/keiyoushi/extensions-source@main/src/all/mangafire/res/mipmap-xhdpi/ic_launcher.png"
+        },
+        {
+          "field": 501,
+          "wire": 2,
+          "value": "https://github.com/keiyoushi/extensions/releases/download/f1edb03/tachiyomi-all.mangafire-v1.6.35.jar"
+        }
+      ]
+    },
+    {
+      "field": 4,
+      "wire": 2,
+      "value": "1.6"
+    },
+    {
+      "field": 5,
+      "wire": 0,
+      "value": 106035
+    },
+    {
+      "field": 6,
+      "wire": 2,
+      "value": "1.6.35"
+    },
+    {
+      "field": 7,
+      "wire": 0,
+      "value": 2
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 6084907896154116083
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "en"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 8098539940032331958
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "es"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 3849324770075062403
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "es-419"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 6228021941803932286
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "fr"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 524110931382140732
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "ja"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 758400875161895515
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "pt"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    },
+    {
+      "field": 8,
+      "wire": 2,
+      "value": [
+        {
+          "field": 1,
+          "wire": 0,
+          "value": 7842137233968841729
+        },
+        {
+          "field": 2,
+          "wire": 2,
+          "value": "MangaFire"
+        },
+        {
+          "field": 3,
+          "wire": 2,
+          "value": "pt-BR"
+        },
+        {
+          "field": 4,
+          "wire": 2,
+          "value": "https://mangafire.to"
+        }
+      ]
+    }
+  ]
+}

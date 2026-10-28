@@ -256,10 +256,12 @@ class YomiraViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val stored = onboardingStore.read()?.preferences
                     val language = stored?.language ?: activeReadingLanguage()
-                    val preferences = (stored ?: ReaderPreferences(language)).copy(language = language, allowAdultContent = false)
+                    val preferences = (stored ?: ReaderPreferences(language)).copy(language = language)
                     for (manga in titles) {
                         try {
-                            val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()), preferences)
+                            val sourcePreferences = com.yomira.app.catalog.readingSourcePreferences(manga, preferences, unlocked = false)
+                                ?: continue
+                            val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()), sourcePreferences)
                             if (result is SmartMatchResult.Ready && result.canRead) {
                                 val current = chapterDao.getByMangaId(manga.id).firstOrNull()?.url?.let(SourceChapterLocation::decode)
                                 if (current == null || (current.packageName == result.selected.extension.packageName && current.sourceId == result.selected.source.id)) {
@@ -544,8 +546,10 @@ class YomiraViewModel @Inject constructor(
         matchJob?.join()
         return withContext(Dispatchers.IO) {
             val stored = onboardingStore.read()?.preferences ?: ReaderPreferences(activeReadingLanguage())
+            val sourcePreferences = com.yomira.app.catalog.readingSourcePreferences(manga, stored, unlocked.value)
+                ?: return@withContext null
             com.yomira.app.catalog.ReadingSourceResolver(matcher.get(), chapterDao).resolve(manga, requestedId,
-                stored.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value), requestedNumber)
+                sourcePreferences, requestedNumber)
         }
     }
 
@@ -563,8 +567,10 @@ class YomiraViewModel @Inject constructor(
                     val stored = onboardingStore.read()?.preferences
                     val language = stored?.language ?: activeReadingLanguage()
                     val settings = stored?.copy(language = language) ?: ReaderPreferences(language)
+                    val sourcePreferences = com.yomira.app.catalog.readingSourcePreferences(manga, settings, unlocked.value)
+                        ?: return@withContext SmartMatchResult.NoMatch
                     val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
-                        settings.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value))
+                        sourcePreferences)
                     if (result is SmartMatchResult.Ready) {
                         // Activate before publishing: opening a series never asks the reader
                         // to choose a match or switch away from the onboarding language.

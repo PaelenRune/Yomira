@@ -1,0 +1,54 @@
+{
+  "taskId": "V811-FIX-POLICY",
+  "role": "AGENT-F2",
+  "rootCause": {
+    "nsfwTrueOrigin": "Upstream extension-level CONTENT_WARNING_MIXED, not a parser field-number bug and not a per-source classification.",
+    "schema": "https://github.com/keiyoushi/extensions-source/blob/main/.github/scripts/index.proto",
+    "decodedEvidence": ".orchestrator/execution/V811-FIX-POLICY-raw-fields.json",
+    "reproduce": "python .orchestrator/execution/decode-v811-policy-fixture.py",
+    "fixtureSha256": "396aab410bd65cade429c38ab577192b27bf40d2bb7054f5039cc41fd42451e6",
+    "rawFields": "MangaFire Extension field 7, wire type 0, value 2 = CONTENT_WARNING_MIXED. Field 8 contains seven Source messages; English Source field 1 = 6084907896154116083, field 3 = en. Source schema has no NSFW/contentWarning field (optional field 7 is message).",
+    "policyDefect": "YomiraViewModel replaced saved adult permission with title-is-explicit AND vault-unlocked; normal Frieren was therefore excluded from MIXED catalogs before probing. Library refresh also unconditionally disabled adult-source permission."
+  },
+  "fix": {
+    "mapping": "Retain correct field-7 MIXED/NSFW -> nsfw=true conservative extension-catalog warning; document that it does not classify each source/title. Do not relabel MangaFire safe.",
+    "policy": "Shared readingSourcePreferences preserves saved adult opt-in when isAdult=true for any allowed title, independent of vault lock for non-explicit titles. Applied to detail matching, reader resolution, and library refresh. SmartSourceMatcher already honors this preference and needs no production change.",
+    "safety": "Safe-mode users still exclude adult-flagged catalogs before any probe. Missing age consent cannot enable adult sources. Target metadata blacklist remains authoritative before matching; explicit titles still require both consent and vault unlock. Existing catalog/UI filters are unchanged.",
+    "settingsRerun": "Reviewed MainActivity survey rerun -> SettingsMaintenanceViewModel.setReaderPreferences and content-language update. They already persist the new adult/age choice and exclusions without title-dependent override; regression test verifies opt-in and blacklist survive the language update. Subsequent matching reads fresh stored preferences."
+  },
+  "tests": {
+    "command": ".\\gradlew.bat :data:extension:test :domain:extension:test :app:testDebugUnitTest",
+    "tail": "BUILD SUCCESSFUL in 24s; 205 actionable tasks: 18 executed, 187 up-to-date",
+    "counts": { "dataExtension": 83, "domainExtension": 31, "appDebug": 135, "failures": 0, "errors": 0 },
+    "supplementalBlacklistGate": ".\\gradlew.bat :core:model:test: BUILD SUCCESSFUL in 17s; 4 actionable tasks: 4 up-to-date. Includes existing ContentFiltersTest blacklist-alias and blacklist-over-consent regressions.",
+    "finalBuildCommand": ".\\gradlew.bat :data:extension:test :domain:extension:test :app:testDebugUnitTest assembleRelease assembleQa",
+    "finalBuildTail": "BUILD SUCCESSFUL in 3m 6s; 707 actionable tasks: 32 executed, 675 up-to-date",
+    "coverage": [
+      "Independent raw fixture assertion for MangaFire extension warning=2 and seven source entries; parser flag stays true",
+      "Synthetic ContentWarning values 0/1 -> false, 2/3 -> true",
+      "Adult-allowed matcher probes flagged catalog for ordinary title; safe-mode and settings opt-out produce zero probes",
+      "Shared app policy preserves consent for Frieren while locked; rejects blacklisted tags at every rating, underage opt-in, and locked/non-consenting explicit titles",
+      "Settings rerun retains adult permission and blacklist through language changes"
+    ],
+    "logs": [".orchestrator/execution/V811-FIX-POLICY-tests.log", ".orchestrator/execution/V811-FIX-POLICY-build.log"]
+  },
+  "hashes": {
+    "release": {
+      "path": "release/yomira-v8.1.1.apk",
+      "builtFrom": "app/build/outputs/apk/release/app-release.apk",
+      "bytes": 19527165,
+      "sha256": "a11434a86fd6244d03b76a9528f76218b3cea8c90db4e5653307db6f18c9f0a0",
+      "versionName": "8.1.1",
+      "versionCode": 21
+    },
+    "qa": {
+      "path": "app/build/outputs/apk/qa/app-qa.apk",
+      "bytes": 19527165,
+      "sha256": "44d02dbdc07efc23c49b5c21b2caa0a2024816cb7738cefe13b960cdc32cc97c",
+      "versionName": "8.1.1",
+      "versionCode": 21
+    }
+  },
+  "retest": "GO for policy/source-eligibility re-test, NOT full reader/runtime qualification: separate DEBUG-R blocker remains, production MangaDexSourceBridge refuses non-MangaDex sources without an isolated extension runtime. No device validation performed by this task.",
+  "gitPush": false
+}

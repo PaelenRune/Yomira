@@ -83,6 +83,25 @@ class SmartSourceMatcherTest {
         assertEquals(SmartMatchResult.NoMatch, matcher(listOf(candidate("empty", 0))).match(series, preferences))
     }
 
+    @Test fun `adult allowed reader probes flagged catalog for any title while safe reader never probes it`() = runTest {
+        val adult = candidate("mixed-catalog", 3, nsfw = true)
+        var probes = 0
+        val bridge = object : SourceBridge by FakeBridge(listOf(adult)) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
+                probes++
+                return listOf(manga)
+            }
+        }
+        val router = SmartSourceMatcher(FakeRepository(listOf(adult)), bridge, noDiscovery)
+        assertEquals(SmartMatchResult.NoMatch, router.match(series, preferences))
+        assertEquals(0, probes)
+        assertTrue(router.match(series, preferences.copy(isAdult = true, allowAdultContent = true)) is SmartMatchResult.Ready)
+        assertTrue(probes > 0)
+        probes = 0
+        assertEquals(SmartMatchResult.NoMatch, router.match(series, preferences.copy(isAdult = true)))
+        assertEquals(0, probes) // Settings disabling adult content applies on the next matching run.
+    }
+
     @Test fun `failed chapter probe silently falls back and all failures return unavailable`() = runTest {
         val values = listOf(candidate("best", 50), candidate("backup", 4))
         val bridge = object : SourceBridge by FakeBridge(values) {

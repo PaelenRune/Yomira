@@ -51,6 +51,9 @@ internal object ProtoRepositoryParser {
             ExtensionSource((source.lastOrNull { it.number == 1 }?.numberValue() ?: 0L).toString(), sourceText(2), sourceText(3))
         }
         val languages = sources.map { it.language }.distinct()
+        // Extension.contentWarning (7), NOT a Source field. Upstream has no per-source
+        // warning: MIXED means the catalog can contain adult titles, not that every title is adult.
+        // Preserve the conservative catalog flag for safe-mode exclusion.
         val warning = fields.lastOrNull { it.number == 7 }?.numberValue() ?: 0
         return ExtensionDescriptor(
             packageName = text(2), name = text(1), language = languages.singleOrNull() ?: "all",

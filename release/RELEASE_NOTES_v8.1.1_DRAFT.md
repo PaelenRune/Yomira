@@ -56,6 +56,6 @@ Yomira v8.1.1, kaynak seçimini sizin elinize bırakıyor. Temiz kurulum, seçer
 | Nihai test sayısı ve QA sonucu | &lt;QA tamamlanınca netleşecek&gt; |
 | Release APK | `release/yomira-v8.1.1.apk` |
 | APK boyutu | `19.527.165 bayt` |
-| SHA-256 | `1eedd3dde7ab813e409672a0c12a928a6cca64f4b8906a4effe709c15af4a7bd` |
+| SHA-256 | `a11434a86fd6244d03b76a9528f76218b3cea8c90db4e5653307db6f18c9f0a0` |
 
-APK bilgileri son derleme teslim kaydından (`HO-V811-FIX-2.json`) alınmıştır. Bu kayıt, birim testleri ile release ve QA derlemelerinin başarıyla tamamlandığını bildirir. Eklenti kurulumu/çalıştırılması ve yükseltme bildiriminin cihaz üzerindeki son doğrulaması henüz tamamlanmış olarak belgelenmemiştir.
+APK bilgileri son derleme teslim kaydından (`HO-V811-FIX-POLICY.json`) alınmıştır. Bu kayıt, birim testleri ile release ve QA derlemelerinin başarıyla tamamlandığını bildirir. Eklenti kurulumu/çalıştırılması ve yükseltme bildiriminin cihaz üzerindeki son doğrulaması henüz tamamlanmış olarak belgelenmemiştir.
