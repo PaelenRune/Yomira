@@ -51,7 +51,7 @@ class SourceMatchActivatorTest {
         ), emptyList())
     }
 
-    private class FakeChapterDao : ChapterDao {
+    internal class FakeChapterDao : ChapterDao {
         val rows = MutableStateFlow<List<ChapterEntity>>(emptyList())
         override suspend fun getProgress(chapterId: String): ReaderProgressEntity? = null
         override suspend fun saveProgress(progress: ReaderProgressEntity) = Unit

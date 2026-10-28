@@ -125,6 +125,16 @@ class SettingsViewModelTest {
         assertFalse(store.snapshot().bundledRepositoriesSeeded)
     }
 
+    @Test fun `upgrade-cleared seed flag never resurrects bundled repositories`() = runTest(scheduler) {
+        val store = MemorySettingsStore()
+        store.update { it.copy(repositoriesUserManaged = true, bundledRepositoriesSeeded = false) }
+        val extensions = FakeExtensions()
+        model(store = store, extensions = extensions)
+        advanceUntilIdle()
+        assertTrue(extensions.added.isEmpty())
+        assertFalse(store.snapshot().bundledRepositoriesSeeded)
+    }
+
     @Test fun `a disabled bundled repository is not resurrected on the next launch`() = runTest(scheduler) {
         val store = MemorySettingsStore()
         val extensions = FakeExtensions()

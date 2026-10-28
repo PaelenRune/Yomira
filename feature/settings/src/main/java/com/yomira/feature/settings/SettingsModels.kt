@@ -42,6 +42,8 @@ data class AppSettings(
     val automaticSync: Boolean = false,
     /** Encrypted DNS and best-effort TLS ClientHello fragmentation; device-local. */
     val stealthShieldEnabled: Boolean = true,
+    /** Upgrade cleanup revoked bundled defaults; an unset seed flag must not register them again. */
+    val repositoriesUserManaged: Boolean = false,
 )
 
 data class SettingsMaintenanceState(

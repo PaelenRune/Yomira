@@ -15,7 +15,7 @@ class SmartSourceMatcher(
     private val extensions: ExtensionRepository,
     private val bridge: SourceBridge,
     @Suppress("UNUSED_PARAMETER") discovery: SourceDiscovery,
-    @Suppress("UNUSED_PARAMETER") currentTimeMillis: () -> Long = System::currentTimeMillis,
+    private val currentTimeMillis: () -> Long = System::currentTimeMillis,
     private val nanoTime: () -> Long = System::nanoTime,
 ) {
     suspend fun match(series: SeriesIdentity, preferences: ReaderPreferences): SmartMatchResult =
@@ -64,8 +64,11 @@ class SmartSourceMatcher(
                 chaptersBySource[it.extension.packageName to it.source.id] = observation.chapters
             }
         }
+        val maxChapters = candidates.maxOfOrNull { it.chapterCount } ?: 1
+        val now = currentTimeMillis()
         val ranked = candidates.distinctBy { it.extension.packageName to it.source.id }
-            .sortedWith(compareByDescending<SourceCandidate> { it.chapterCount }
+            .sortedWith(compareByDescending<SourceCandidate> { score(it, preferences, maxChapters, now) }
+                .thenByDescending { it.chapterCount }
                 .thenByDescending { it.latestChapterAt ?: Long.MIN_VALUE })
         val best = ranked.firstOrNull()
             ?: return if (failures.isEmpty()) SmartMatchResult.NoMatch else SmartMatchResult.Unavailable(failures)
@@ -113,7 +116,19 @@ class SmartSourceMatcher(
         Observation(failure = SourceFailure(source.id, error.message ?: "Source unavailable"))
     }
 
-    /** Language is an eligibility filter only, never a ranking factor. */
+    /** Bounded evidence weights; unknown dates/health never earn a fabricated bonus. */
+    private fun score(candidate: SourceCandidate, preferences: ReaderPreferences, maxChapters: Int, now: Long): Double {
+        val language = if (languageRank(candidate.source, preferences) == 2) 1000.0 else 0.0
+        val completeness = 500.0 * candidate.chapterCount / maxChapters.coerceAtLeast(1)
+        val recency = candidate.latestChapterAt?.let {
+            val ageDays = (now.toDouble() - it.toDouble()).coerceAtLeast(0.0) / 86_400_000.0
+            200.0 / (1.0 + ageDays / 30.0)
+        } ?: 0.0
+        val health = if (candidate.health == SourceHealth.HEALTHY) 300.0 else 0.0
+        val speed = candidate.responseTimeMillis?.let { 100.0 / (1.0 + it.coerceAtLeast(0) / 1000.0) } ?: 0.0
+        return language + completeness + recency + health + speed
+    }
+
     private fun accepts(source: ExtensionSource, preferences: ReaderPreferences): Boolean =
         languageRank(source, preferences) > 0
 

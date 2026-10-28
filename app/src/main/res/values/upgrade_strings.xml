@@ -1,0 +1,3 @@
+<resources>
+    <string name="upgrade_sources_notice">Content sources are now entirely under your control: old site extensions have been removed. You can add the sites you want yourself via Settings → Extensions.</string>
+</resources>
