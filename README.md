@@ -72,8 +72,8 @@ okuyucu doğrulamasının sınırları dahil ayrıntılar:
 
 | Özellik | Sana ne kazandırır? |
 | :--- | :--- |
-| 🏛️ **Mihon & Nuvio felsefesi** | Açık kaynak metadata tarayıcısı ve okuyucu yaklaşımı: Yomira bölüm barındırmaz veya dağıtmaz; bağımsız eklentiler ve depo seçimi kullanıcı kontrolündedir. İçerik erişimi, seçtiğin kaynağın koşullarına ve kullanım hakkına bağlıdır. |
-| 🧩 **Mihon-style eklenti mağazası** | Ana ekran üst çubuğu veya **Ayarlar → Eklentiler** üzerinden depo ekle; eklenti/kaynak ara, TR/EN ve kurulum filtrelerini kullan, yükle (Install), güncelle veya kaldır. |
+| 🏛️ **Bağımsız ve Temiz Açık Kaynak Felsefesi** | Yomira hiçbir bölüm veya korsan kaynak barındırmaz, dağıtmaz ve içinde taşımaz. Yalnızca AniList, Kitsu ve MangaUpdates tabanlı saf bir metadata tarayıcısı ve OLED okuma motorudur. Eklenti ve depo yönetimi tamamen kullanıcının kendi kontrolündedir. |
+| 🧩 **Gelişmiş Eklenti (Extensions) Yöneticisi** | Ana ekran üst çubuğu veya **Ayarlar → Eklentiler** üzerinden dilediğin depoyu ekle; eklenti/kaynak ara, TR/EN ve kurulum filtrelerini kullan, tek dokunuşla yükle (Install), güncelle veya kaldır. |
 | 👑 **MangaUpdates · AniList · Kitsu omurgası** | MangaUpdates (Baka-Updates), AniList ve Kitsu metadata entegrasyonlarıyla geniş seri keşfi, alternatif adlar ve zengin seri bilgileri. Katalog kapsamı ve erişilebilirlik sağlayıcılara bağlıdır; sabit bir yerel 200.000+ seri arşivi değildir. |
 | 🧬 **Zamanla evrilen akıllı ana sayfa** | Okuma alışkanlıklarınla öncelik kazanan tür vitrinleri ve sağlayıcıların global okuyucu/popülerlik verileriyle keşif. Solo Leveling ve One Piece gibi serilerin sırası güncel verilere göre değişir. |
 | 📺 **İzlenebilir içerik rozetleri** | Uygun metadata bulunan poster ve detaylarda **Anime, Hentai OVA, K-Drama ve Donghua** uyarlama rozetleri. Rozetler video yayını veya izleme bağlantısı taahhüdü değildir. |
@@ -86,7 +86,7 @@ okuyucu doğrulamasının sınırları dahil ayrıntılar:
 | 🌐 **Dile duyarlı kaynak eşleştirme** | Başlangıçta veya ayarlarda seçtiğin **TR/EN** diline göre kaynakları önceliklendirir; uyumsuz tek dilli kaynakları filtreler. |
 | 🔔 **Updates Hub — yeni bölüm takip alanı** | Kitaplığındaki serilere gelen yeni bölümleri kronolojik akışta gör; **+X Bölüm** rozetiyle yenilikleri ayırt et ve tek dokunuşla okumaya geç. |
 | 👁️ **Okunan bölüm kontrastı** | Okunmuş bölümler **%38 opaklıkla** geri planda kalır; okunmamış bölümler tam belirginliğini korur. Bölüm seçimi sade ve hızlıdır. |
-| 🎮 **Steam-style başarım bildirimi ve ses** | Üstten kayan animasyonlu başarım banner'ı, sesli başarı tınısı (audio chime), seviye ve okuma yolculuğuyla ilerlemeni kutla. |
+| 🎮 **Animasyonlu başarım bildirimi ve ses** | Üstten kayan animasyonlu başarım banner'ı, sesli başarı tınısı (audio chime), seviye ve okuma yolculuğuyla ilerlemeni kutla. |
 | 📖 **Akıcı okuyucu · OLED Plum** | Dikişsiz webtoon akışı, sağdan sola manga okuma, otomatik okuma geçmişi ve kaldığın yerden devam; koyu siyah zemin ve mor aksanlarla tek tasarım dili. |
 
 ### 🛡️ Gizlilik, kontrol ve yedekleme
@@ -96,7 +96,7 @@ okuyucu doğrulamasının sınırları dahil ayrıntılar:
 | 🛡️ **Dahili Stealth Shield** | **Cloudflare 1.1.1.1 / Quad9** ve yedek şifreli çözümleyiciyle DNS-over-HTTPS; Anti-DPI için TLS ClientHello/SNI parçalama denemesi. Ayrı VPN uygulaması kurmadan uygulama içi ağ koruması sunar; VPN veya anonimlik garantisi değildir. |
 | 📋 **4 adımlı başlangıç anketi ve kara liste** | Dil, **18+ / 18 yaş altı güvenli mod**, içerik tercihleri ve tür seçimleriyle kişisel başlangıç. **Futanari, Yaoi, Yuri ve NTR** gibi etiketleri gizle; filtreleme mevcut metadata doğruluğuna bağlıdır. |
 | 🔒 **Gizli Kasa — Vault** | Biyometrik veya cihaz kimlik doğrulamasıyla korunan özel arşiv; kapalıyken görünmeyen kasa yaklaşımı. |
-| ☁️ **Google Drive & WebDAV bulut senkronizasyonu** | Google hesabıyla giriş yap, bağlı hesabı gör, manuel/otomatik eşitlemeyi yönet veya hesabı ayır. Drive yedekleri uygulamaya özel **`appDataFolder`** alanında tutulur; WebDAV ve Mihon/Tachiyomi **`.tachibk`** yedek uyumluluğu da desteklenir. |
+| ☁️ **Google Drive & WebDAV bulut senkronizasyonu** | Google hesabıyla giriş yap, bağlı hesabı gör, manuel/otomatik eşitlemeyi yönet veya hesabı ayır. Drive yedekleri uygulamaya özel **`appDataFolder`** alanında tutulur; WebDAV ve standart **`.tachibk`** yerel arşiv yedekleme uyumluluğu da desteklenir. |
 | 🔴 **Fabrika ayarlarına dönüş — tam sıfırlama** | **Ayarlar → Depolama → Tüm Verileri Sıfırla**: onaydan sonra yerel uygulama verileri silinir, uygulama kapanır ve sonraki açılışta ilk kurulum başlar. Drive yedekleri ve dışa aktarılan dosyalar korunur. |
 
 > **Güvenlik sınırı:** Stealth Shield IP adresini gizlemez; trafiği yeniden birleştirebilen
