@@ -1,0 +1,14 @@
+{
+  "taskId": "V811-FIX-2",
+  "protoSchemaSourceUrl": "https://github.com/keiyoushi/extensions-source/blob/main/.github/scripts/index.proto",
+  "canonicalUrlEvidence": "https://github.com/keiyoushi/extensions/blob/repo/README.md publishes https://github.com/keiyoushi/extensions/raw/repo/index.pb; equivalent raw URL https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.pb is used to avoid redirect.",
+  "filesChanged": ["domain/extension/src/main/kotlin/com/yomira/domain/extension/OnboardingWizardManager.kt", "data/extension/src/main/kotlin/com/yomira/data/extension/ExtensionManager.kt", "data/extension/src/main/kotlin/com/yomira/data/extension/KeiyoushiRepoParser.kt", "data/extension/src/main/kotlin/com/yomira/data/extension/OkHttpRepositoryClient.kt", "data/extension/src/main/kotlin/com/yomira/data/extension/ProtoRepositoryParser.kt"],
+  "fixtures": ["data/extension/src/test/resources/keiyoushi-index.pb", "data/extension/src/test/kotlin/com/yomira/data/extension/ProtoRepositoryParserTest.kt"],
+  "gateTails": "./gradlew.bat :data:extension:test testDebugUnitTest assembleRelease assembleQa: BUILD SUCCESSFUL in 3m 20s; 766 actionable tasks: 84 executed, 682 up-to-date. Targeted ProtoRepositoryParserTest also passed.",
+  "apkHashes": {
+    "release": { "path": "release/yomira-v8.1.1.apk", "bytes": 19527165, "sha256": "1eedd3dde7ab813e409672a0c12a928a6cca64f4b8906a4effe709c15af4a7bd", "versionName": "8.1.1", "versionCode": 21 },
+    "qa": { "path": "app/build/outputs/apk/qa/app-qa.apk", "bytes": 19527165, "sha256": "62c139063f8b89429a1606794b2bfbc69162ccdc386414a2ec827f68238e4455", "versionName": "8.1.1", "versionCode": 21 }
+  },
+  "validation": "Captured gzip-compressed protobuf fixture contains 1435 extensions and 2348 sources according to upstream generated bindings. Parser test verifies at least 100 entries and MangaFire English source id 6084907896154116083. MIXED and NSFW are conservatively marked adult.",
+  "limitations": "The old JSON URL remains in previously saved repositories; remove it before adding the new URL. External extensionListUrl stores are not supported. Extension installation and execution are not verified by index parsing. Device rerun should verify library 1.6 extension compatibility and upgrade notice."
+}
