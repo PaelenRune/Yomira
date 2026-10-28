@@ -54,13 +54,16 @@ class HomeRailsTest {
         assertEquals(rails(1), rails(999))
     }
 
-    @Test fun `mature commercial titles remain visible in public rails`() {
+    @Test fun `plus18 commercial titles never reach public rails`() {
+        // v8.1.4: MATURE records are hidden from the public grid regardless of age;
+        // the library still keeps them once the user saved them.
         val titles = listOf("Tsugumomo", "Reincarnated Carrier's Strategy", "Yabadere Gyaru")
             .map { manga(it).copy(contentRating = ContentRating.MATURE) }
+        val safe = manga("safe-anchor")
         val rail = buildHomeRails(
-            titles, emptyList(), emptyList(), listOf(HomeShelf.POPULAR), emptySet(), emptySet(), 1,
+            titles + safe, emptyList(), emptyList(), listOf(HomeShelf.POPULAR), emptySet(), emptySet(), 1,
         ).single()
-        assertEquals(titles.toSet(), rail.items.toSet())
+        assertEquals(listOf("safe-anchor"), rail.items.map { it.id })
     }
 
     @Test fun `selection and card order stay stable across identical snapshots`() {

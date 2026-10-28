@@ -143,7 +143,7 @@ fun OnboardingScreen(
                         }
                     }
                     if (step == 3) FavoriteSeriesPicker(
-                        publicCatalog(catalog, excluded.toSet(), isAdult == true), favorites, !saving, copy,
+                        publicCatalog(catalog, excluded.toSet()), favorites, !saving, copy,
                     ) { favorites = it }
                     Spacer(Modifier.height(20.dp))
                     if (step != 4) Text(copy.languageNote, style = MaterialTheme.typography.bodyMedium, color = OnboardingMuted)

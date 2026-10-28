@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
-import com.yomira.core.model.isVisibleForReader
+import com.yomira.core.model.hasExcludedTags
 import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.globalRankScore
@@ -40,9 +40,14 @@ import com.yomira.core.ui.theme.SurfaceRaised
 import com.yomira.core.ui.theme.TextMuted
 import com.yomira.core.ui.theme.TextPrimary
 
-/** Apply at every presentation boundary, including search and curated rails. */
-fun publicCatalog(items: List<Manga>, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true): List<Manga> =
-    items.filter { it.contentRating != ContentRating.EXPLICIT && it.isVisibleForReader(excludedTags, isAdult, false) }
+/**
+ * Apply at every presentation boundary, including search and curated rails.
+ * Since v8.1.4 the public surface is strictly 18-free: MATURE and EXPLICIT records
+ * never appear outside the Vault, even for adults. The library keeps what the user
+ * deliberately saved, and the Vault shows the explicit collection behind its lock.
+ */
+fun publicCatalog(items: List<Manga>, excludedTags: Set<String> = emptySet()): List<Manga> =
+    items.filter { it.contentRating == ContentRating.SAFE && !it.hasExcludedTags(excludedTags) }
 
 /**
  * The single "pick up where you left off" entry of the home shelf. It is a plain
@@ -161,7 +166,7 @@ fun HomeScreen(
     // Room snapshot keeps newly fetched cards at the end without duplicating
     // a series that is already on screen.
     val all = remember(state.manga, state.discovery, state.excludedTags, state.isAdult) {
-        publicCatalog(state.manga + state.discovery, state.excludedTags, state.isAdult).distinctBy { it.id }
+        publicCatalog(state.manga + state.discovery, state.excludedTags).distinctBy { it.id }
     }
     val visible = remember(all, state.query, state.selectedTags) {
         searchLocalCatalog(all, state.query).let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
@@ -237,7 +242,7 @@ fun HomeScreen(
             Column(Modifier.padding(20.dp)) { Text(message); TextButton(onClick = onRetry) { Text(copy.retry) } }
         } }
         if (showHero && quietShelf) {
-            item(key = "hero", contentType = "hero", span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending, state.excludedTags, state.isAdult).take(6), onManga, copy = copy.catalog) }
+            item(key = "hero", contentType = "hero", span = { GridItemSpan(maxLineSpan) }) { HeroCarousel(publicCatalog(state.trending, state.excludedTags).take(6), onManga, copy = copy.catalog) }
             state.rails.forEach { rail ->
                 item(key = "shelf-${rail.shelf.name}", contentType = "shelf", span = { GridItemSpan(maxLineSpan) }) {
                     val railTitle = copy.shelfTitles[rail.shelf] ?: when (rail.shelf) {
@@ -245,7 +250,7 @@ fun HomeScreen(
                         HomeShelf.PERSONAL -> copy.railPersonal
                         else -> rail.shelf.title
                     }
-                    MangaRail(railTitle, publicCatalog(rail.items, state.excludedTags, state.isAdult), onManga, copy.catalog, copy.emptyRail, onMangaLongClick, state.adaptationBadges, onPosterVisible)
+                    MangaRail(railTitle, publicCatalog(rail.items, state.excludedTags), onManga, copy.catalog, copy.emptyRail, onMangaLongClick, state.adaptationBadges, onPosterVisible)
                 }
             }
         }

@@ -51,6 +51,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.yomira.core.model.ContentRating
 import com.yomira.core.model.Manga
+import com.yomira.core.model.hasExcludedTags
 import com.yomira.core.model.isVisibleForReader
 import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.extension.ReadingLanguage
@@ -455,16 +456,20 @@ private fun YomiraNavigation(
                 composable(route) {
                     var query by rememberSaveable { mutableStateOf("") }
                     val paging = if (route == "library") DiscoveryState(hasMore = false) else discovery
-                    val items = publicCatalog(catalog.manga, preferences.excludedTags, preferences.isAdult).filter { route != "library" || it.id in saved }
+                    // v8.1.4: public surfaces are strictly SAFE. The library shows what the
+                    // user deliberately saved; only the blacklist still filters it there.
+                    val items = if (route == "library") catalog.manga.filter { it.id in saved && !it.hasExcludedTags(preferences.excludedTags) }
+                        else publicCatalog(catalog.manga, preferences.excludedTags)
                     val resume by model.continueReading.collectAsStateWithLifecycle()
                     val resumeItem = resume?.takeIf { entry ->
-                        catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating != ContentRating.EXPLICIT } == true
+                        catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating == ContentRating.SAFE } == true
                     }
                     val seriesContent: @Composable () -> Unit = { HomeScreen(
                         HomeUiState(
                             manga = items,
                             trending = items.sortedByDescending { it.score },
-                            updated = publicCatalog(catalog.updated).filter { route != "library" || it.id in saved },
+                            updated = if (route == "library") catalog.updated.filter { it.id in saved && !it.hasExcludedTags(preferences.excludedTags) }
+                                else publicCatalog(catalog.updated, preferences.excludedTags),
                             columns = columns,
                             query = query,
                             loading = catalog.loading,
