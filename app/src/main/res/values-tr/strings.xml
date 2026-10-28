@@ -2,7 +2,7 @@
 <!-- Türkçe arayüz katmanı; values/strings.xml (İngilizce varsayılan) ile birebir aynı anahtarları taşır. -->
 <resources>
     <string name="repo_step_title">İçerik kaynakları</string>
-    <string name="repo_step_body">Yomira içerik kaynaklarıyla birlikte gelmez. Eklentilere göz atmak için resmi depoyu ekleyebilir veya şimdilik atlayabilirsin. Eklentiler otomatik yüklenmez.</string>
+    <string name="repo_step_body">Yomira küratörlü depolarla hazır gelir: Keiyoushi evrensel deposu ile Türkçe ve Batı depoları uygulamada gömülüdür. Eklentileri Eklentiler ekranından yüklersin; hiçbir eklenti otomatik yüklenmez.</string>
     <string name="repo_add_official">Depo Ekle</string>
     <string name="repo_open_page">Depo sayfasını aç</string>
     <string name="repo_skip">Atla</string>
@@ -296,7 +296,7 @@
     <string name="settings_reveal_prompt_title">Yomira</string>
     <string name="settings_reveal_prompt_body">+18 Vault’u yeniden göstermek için cihaz kilidini doğrula</string>
     <string name="settings_repositories_section">Eklentiler ve depolar</string>
-    <string name="settings_repositories_section_body">İlk kurulumda depo veya eklenti eklenmez. Aşağıdan bir depo seçin ya da özel depo ekleyin; ardından Eklentiler ekranından kullanmak istediğiniz eklentileri yükleyin.</string>
+    <string name="settings_repositories_section_body">Yomira küratörlü depolarla hazır gelir: Keiyoushi evrensel deposu ile Türkçe ve Batı depoları uygulamanın içinde gömülüdür ve ilk açılışta çevrimdışı bile kullanılabilir. İstemeyeceklerini aşağıdaki anahtarlarla kapat, özel depo ekle; eklentileri Eklentiler ekranından yükleyin.</string>
     <string name="settings_add_repository">Özel Depo Ekle</string>
     <string name="settings_add_repository_title">Özel Depo Ekle</string>
     <string name="settings_add_repository_body">Depo indeksinin https:// ile başlayan JSON adresini gir.</string>
@@ -306,7 +306,7 @@
     <string name="settings_remove_repository">Depoyu kaldır</string>
     <string name="settings_invalid_repository_url">Geçersiz adres: depo adresi mutlaka https ile başlayan tam bir JSON indeksi olmalı.</string>
     <string name="settings_repository_error">Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
-    <string name="settings_custom_repositories">Özel depoların</string>
+    <string name="settings_custom_repositories">Diğer depoların</string>
     <string name="settings_reading_section">Dil ve okuma</string>
     <string name="settings_language_title">Arayüz Dili</string>
     <string name="settings_language_turkish">Türkçe</string>

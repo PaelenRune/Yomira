@@ -2,11 +2,12 @@
     <string name="extensions_title">Eklentiler</string>
     <string name="extensions_refresh">Yenile</string>
     <string name="extensions_repositories">Depolar (%1$d)</string>
-    <string name="extensions_trust">Yalnızca güvendiğin depoları ekle. Eklentiler uygulamaya özel alana kod indirir.</string>
+    <string name="extensions_trust">Yomira küratörlü depolarla hazır gelir. Yalnızca güvendiğin depoları ekle: eklentiler uygulamaya özel alana kod indirir.</string>
+    <string name="extensions_repo_bundled">Gömülü</string>
     <string name="extensions_add_repo">+ Depo Ekle</string>
     <string name="extensions_manage_repos">Depoları yönet</string>
     <string name="extensions_remove_repo">Depoyu kaldır</string>
-    <string name="extensions_no_repos">Eklentileri görmek ve yüklemek için bir depo ekle.</string>
+    <string name="extensions_no_repos">Kayıtlı depo yok. Depo ekle ya da Ayarlar → Eklentiler ve depolar bölümünden küratörlü depoları yeniden aç.</string>
     <string name="extensions_search">Eklenti veya kaynak ara</string>
     <string name="extensions_all">Tümü</string>
     <string name="extensions_installed">Yüklü</string>

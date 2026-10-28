@@ -82,8 +82,8 @@ data class CuratedRepository(
     val title: String,
     val subtitle: String,
     val indexUrl: String,
-    /** Curated indexes are suggestions, never activated on a fresh install. */
-    val enabledByDefault: Boolean = false,
+    /** Curated indexes ship inside the app and are registered on a fresh install; the switch revokes them. */
+    val enabledByDefault: Boolean = true,
 )
 
 object CuratedRepositories {

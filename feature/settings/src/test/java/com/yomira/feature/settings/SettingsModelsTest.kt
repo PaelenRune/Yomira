@@ -46,7 +46,7 @@ class SettingsModelsTest {
 
     @Test fun `all curated repositories are enabled by default`() {
         assertEquals(3, CuratedRepositories.ALL.size)
-        assertTrue(CuratedRepositories.ALL.none { it.enabledByDefault })
+        assertTrue(CuratedRepositories.ALL.all { it.enabledByDefault })
     }
 
     @Test fun `universal switch mirrors the onboarding registration url`() {

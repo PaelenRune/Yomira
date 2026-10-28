@@ -15,8 +15,8 @@ android {
         applicationId = "com.yomira.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 21
-        versionName = "8.1.1"
+        versionCode = 22
+        versionName = "8.1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "QA_CAPTURE", "false")
     }

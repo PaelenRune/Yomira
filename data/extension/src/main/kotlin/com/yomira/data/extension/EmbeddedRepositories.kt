@@ -1,5 +1,6 @@
 package com.yomira.data.extension
 
+import com.yomira.domain.extension.OnboardingWizardManager
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -16,9 +17,41 @@ data class EmbeddedRepository(
     val upstreamUrl: String? = null,
 )
 
-/** The engine ships without repositories. Users explicitly configure their own indexes. */
+/**
+ * The personal build ships with curated repositories: the full Keiyoushi catalog plus the
+ * Turkish and Western slices, packaged as committed snapshots so the list is usable offline
+ * from the first launch. [DEFAULTS] is what a fresh install registers; the slices are opt-in
+ * alternatives for a narrower scope. Users can still disable any curated index or register
+ * their own; regenerate the snapshots with `scripts/update-curated-repositories.ps1`.
+ */
 object EmbeddedRepositories {
-    fun load(): List<EmbeddedRepository> = emptyList()
+    const val UPSTREAM_URL = "https://raw.githubusercontent.com/keiyoushi/extensions/main/index.json"
+
+    /**
+     * Indexes registered on a fresh install. The universal catalog already contains every
+     * Turkish and Western source, so registering a slice beside it would only duplicate
+     * package ownership; slices stay opt-in for users who disable the universal index.
+     */
+    val DEFAULTS: List<String> = listOf(OnboardingWizardManager.KEIYOUSHI_INDEX)
+
+    /** Curated slices of [DEFAULTS]; their packages yield to any other registered index. */
+    val CURATED_SLICES: Set<String> = setOf(
+        OnboardingWizardManager.TURKISH_INDEX,
+        OnboardingWizardManager.WESTERN_INDEX,
+    )
+
+    fun load(): List<EmbeddedRepository> = listOf(
+        embedded("/assets/keiyoushi/index.min.json", OnboardingWizardManager.KEIYOUSHI_INDEX),
+        embedded("/assets/repositories/turkish/index.min.json", OnboardingWizardManager.TURKISH_INDEX),
+        embedded("/assets/repositories/western/index.min.json", OnboardingWizardManager.WESTERN_INDEX),
+    )
+
+    private fun embedded(resource: String, indexUrl: String): EmbeddedRepository {
+        val payload = requireNotNull(javaClass.getResourceAsStream(resource)) {
+            "Missing bundled repository snapshot: $resource"
+        }.bufferedReader(Charsets.UTF_8).use { it.readText() }
+        return EmbeddedRepository(indexUrl, payload, UPSTREAM_URL)
+    }
 
     /** Convert all upstream v2 metadata, without selecting or favoring any site. */
     internal fun refreshedPayload(upstream: String): String {

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.yomira.app.R
 import com.yomira.domain.extension.requireHttps
 import com.yomira.domain.extension.OnboardingWizardManager
+import com.yomira.feature.settings.CuratedRepositories
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -55,8 +56,20 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
                         if (showRepositories) {
                             if (state.repositories.isEmpty()) Text(stringResource(R.string.extensions_no_repos))
                             state.repositories.forEach { url ->
-                                Column {
-                                    Text(url, style = MaterialTheme.typography.bodySmall)
+                                val curated = CuratedRepositories.ALL.firstOrNull { it.indexUrl == url }
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text(curated?.title ?: url, style = MaterialTheme.typography.bodyMedium)
+                                        if (curated == null) Text(url, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                    if (curated != null) {
+                                        Surface(shape = MaterialTheme.shapes.small, tonalElevation = 2.dp) {
+                                            Text(stringResource(R.string.extensions_repo_bundled),
+                                                Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                style = MaterialTheme.typography.labelSmall)
+                                        }
+                                    }
                                     TextButton(onClick = { onRemoveRepository(url) }, enabled = !busy) { Text(stringResource(R.string.extensions_remove_repo)) }
                                 }
                             }

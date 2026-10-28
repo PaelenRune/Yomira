@@ -5,7 +5,7 @@
 -->
 <resources>
     <string name="repo_step_title">Content sources</string>
-    <string name="repo_step_body">Yomira ships without content sources. Add the official repository to browse extensions, or skip for now. No extensions are installed automatically.</string>
+    <string name="repo_step_body">Yomira ships with curated repositories built in: the Keiyoushi universal index plus the Turkish and Western slices are bundled in the app. Install extensions from the Extensions screen; no extension is ever installed automatically.</string>
     <string name="repo_add_official">Add repository</string>
     <string name="repo_open_page">Open repository page</string>
     <string name="repo_skip">Skip</string>
@@ -313,7 +313,7 @@
     <string name="settings_reveal_prompt_title">Yomira</string>
     <string name="settings_reveal_prompt_body">Verify the device lock to show the +18 Vault again</string>
     <string name="settings_repositories_section">Extensions and repositories</string>
-    <string name="settings_repositories_section_body">No repositories or extensions are added on first install. Select a repository below or add a custom one, then install the extensions you want from the Extensions screen.</string>
+    <string name="settings_repositories_section_body">Yomira ships with curated repositories built in: the Keiyoushi universal index plus the Turkish and Western slices are bundled and ready on first launch — even offline. Switch off the ones you do not want, add a custom repository, and install extensions from the Extensions screen.</string>
     <string name="settings_add_repository">Add Custom Repository</string>
     <string name="settings_add_repository_title">Add Custom Repository</string>
     <string name="settings_add_repository_body">Enter the https:// JSON index address of the repository.</string>
@@ -323,7 +323,7 @@
     <string name="settings_remove_repository">Remove repository</string>
     <string name="settings_invalid_repository_url">Invalid address: a repository must be a full https JSON index URL.</string>
     <string name="settings_repository_error">Repository operation failed. Check your connection and try again.</string>
-    <string name="settings_custom_repositories">Your custom repositories</string>
+    <string name="settings_custom_repositories">Other repositories</string>
     <string name="settings_reading_section">Language and reading</string>
     <string name="settings_language_title">Interface Language</string>
     <string name="settings_language_turkish">Türkçe</string>

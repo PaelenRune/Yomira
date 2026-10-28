@@ -57,7 +57,7 @@ data class OnboardingCopy(
     val back: String = "Back",
     val continueAction: String = "Continue",
     val repositoriesTitle: String = "Content sources",
-    val repositoriesDescription: String = "Yomira ships without content sources. Add a repository to browse extensions, or skip for now.",
+    val repositoriesDescription: String = "Yomira ships with curated repositories built in: universal Keiyoushi plus the Turkish and Western slices. Install extensions from the Extensions screen; nothing is installed automatically.",
     val addRepository: String = "Add repository",
     val openRepository: String = "Open repository page",
     val confirmRepository: String = "Add the official repository?",

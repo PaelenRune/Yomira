@@ -2,11 +2,12 @@
     <string name="extensions_title">Extensions</string>
     <string name="extensions_refresh">Refresh</string>
     <string name="extensions_repositories">Repositories (%1$d)</string>
-    <string name="extensions_trust">Only add repositories you trust. Extensions download code into app-private storage.</string>
+    <string name="extensions_trust">Yomira ships with curated repositories built in. Only add repositories you trust: extensions download code into app-private storage.</string>
+    <string name="extensions_repo_bundled">Bundled</string>
     <string name="extensions_add_repo">+ Add repository</string>
     <string name="extensions_manage_repos">Manage repositories</string>
     <string name="extensions_remove_repo">Remove repository</string>
-    <string name="extensions_no_repos">Add a repository to browse and install extensions.</string>
+    <string name="extensions_no_repos">No repositories registered. Add one, or re-enable the curated repositories in Settings → Extensions and repositories.</string>
     <string name="extensions_search">Search extensions or sources</string>
     <string name="extensions_all">All</string>
     <string name="extensions_installed">Installed</string>

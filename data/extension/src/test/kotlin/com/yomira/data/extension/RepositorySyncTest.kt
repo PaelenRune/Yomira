@@ -1,5 +1,6 @@
 package com.yomira.data.extension
 
+import com.yomira.domain.extension.OnboardingWizardManager
 import java.util.Base64
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
@@ -21,8 +22,9 @@ class RepositorySyncTest {
         assertTrue(parser.parse(encoded, repository.indexUrl).all { it.nsfw })
     }
 
-    @Test fun `engine ships no default catalog`() {
-        assertTrue(EmbeddedRepositories.load().isEmpty())
+    @Test fun `personal build registers only the universal index by default`() {
+        assertEquals(listOf(OnboardingWizardManager.KEIYOUSHI_INDEX), EmbeddedRepositories.DEFAULTS)
+        assertEquals(3, EmbeddedRepositories.load().size)
     }
 
     @Test fun `only explicit refresh fetches user repositories and failure retains snapshot`() = runTest {

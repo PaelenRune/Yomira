@@ -1,96 +1,39 @@
-# Yomira v8.0.5-Beta
+# 🌟 Yomira v8.1.2 — Sürüm Notları
 
-Android 8.0+ (API 26) · versionCode `19`
-
-**Varsayılan İngilizce ve anlık dil değişimi:** İlk kurulum cihaz dilinden bağımsız
-İngilizce başlar. Kurulumda Türkçe seçildiğinde tüm uygulama Türkçeye; English veya
-Both seçildiğinde İngilizceye geçer. Dört kurulum adımı da TR/EN metinleri kullanır.
-
-[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.5-Beta.md) ·
-[Doğrulama raporu](VALIDATION_v8.0.5-Beta.md)
+Yomira artık Google Play yolculuğundan bağımsız, doğrudan GitHub üzerinden yayımlanan kişisel bir yapıdır. Bu sürümün ana armağanı: **küratörlü depolar uygulamanın içinde gömülü geliyor**. Kurulum biter bitmez eklenti listesi hazırdır — çevrimdışı bile.
 
 ---
 
-# Yomira v8.0.4-Beta (arşiv)
+### 🚀 Öne Çıkan Yenilikler ve İyileştirmeler
 
-Android 8.0+ (API 26) · versionCode `18`
+#### 📦 1. Küratörlü Depolar Artık Uygulamanın İçinde (Gömülü)
+- **Üç küratörlü indeks APK ile birlikte gelir:** Keiyoushi evrensel deposu (bu sürüm anlık görüntüsünde 1.435 eklenti), Türkçe depolar (93) ve Batı çizgi romanı depoları (20).
+- **İlk açılışta hazır:** Temiz kurulumda evrensel depo otomatik kayıtlıdır; eklenti listesi indirme beklenmeden, internetsiz de listelenir. Depo çevrimiçi ulaşılamazsa uygulamanın içindeki anlık görüntü kullanılır — liste boş kalmaz, hata vermez.
+- **Türkçe ve Batı depoları isteğe bağlı anahtardır:** Bu kaynaklar zaten evrensel deponun içindedir. Tam listeyi yalnızca Türkçe ya da yalnızca Batı kaynaklarına daraltmak istersen Ayarlar'daki anahtarlarla evrensel depoyu kapatıp dilimi açabilirsin; birlikte açıkken çift kayıt oluşmaz.
+- **Kontrol yine sende:** Gömülü depoları anahtarlarla kapatabilir, kendi HTTPS depo adresini ekleyebilirsin. senin yönettiğin depo listesi hiçbir yükseltmede otomatik değiştirilmez; v8.1.x'ten yükseltirken senin seçtiğin kaynaklar aynen kalır.
+- **Anlık görüntüler repoda yaşar:** `scripts/update-curated-repositories.ps1` ile yenilenebilir; `repositories/turkish/index.min.json` ve `repositories/western/index.min.json` barındırılan kopyaları da bu sürümde yeniden üretildi.
 
-**Google Drive hesabı:** Ayarlar'dan Google hesabıyla giriş yapın, bağlı e-postanızı
-görün, manuel/otomatik eşitlemeyi kullanın veya hesabı ayırın. Hesap bağlanmadan
-eşitleme kapalıdır. Dağıtım için Google Cloud OAuth paket/imza kaydı gereklidir.
+#### 🎛️ 2. Ayarlar ve Eklentiler Düzenlendi
+- **"Eklentiler ve depolar" bölümü yeni politikayı anlatıyor:** Bölüm açıklaması, depo anahtarı alt yazıları ("Uygulamada gömülü") ve TR/EN metinler netleştirildi; "Özel depoların" başlığı "Diğer depoların" olarak sadeleşti.
+- **Eklentiler → Depoları yönet:** Kayıtlı depolar artık çıplak URL yerine anlaşılır adlarıyla listelenir; küratörlü olanlar **"Gömülü"** rozetiyle işaretlidir, kaldırma düğmesi her satırda durur.
+- **Tutarlı bilgilendirme:** Onboarding, boş durum ve güven uyarısı metinleri gömülü depo düzenine göre yenilendi.
 
-[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.4-Beta.md) ·
-[Google Cloud kurulumu](../docs/GOOGLE_DRIVE_AUTH.md)
-
----
-
-# Yomira v8.0.3-Beta (arşiv)
-
-Android 8.0+ (API 26) · versionCode `17`
-
-**İngilizce kapak önceliği:** Doğrulanmış İngilizce ve Batılı kaynak kapakları,
-orijinal Japonca/Korece/Çince kapaklardan önce seçilir. MangaDex İngilizce cilt
-kapağı AniList orijinal kapağını geçer; İngilizce seri adı tek başına kapak dilini
-doğrulamaz. İngilizce yoksa bilinmeyen, ardından İngilizce olmayan kapaklar son çare
-olarak kullanılabilir; görsel OCR doğrulaması yapılmaz.
-
-[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.3-Beta.md)
+#### 🧭 3. Google Play Kısıtları Kalktı, Güvenlik Tercihleri Duruyor
+- Play uyumu için uygulanan "deposuz temiz kurulum" politikası kaldırıldı; ilk kurulum deneyimi yeniden zenginleşti.
+- Korumalar yerinde: eklenti kurmak ayrıca senin onayındır, ilk kullanımda parmak izi bağlamlı eklenti onayı sorulur ve hiçbir eklenti otomatik yüklenmez.
+- Güncellemeler GitHub Releases üzerinden gelir: **Ayarlar → Uygulama Bilgisi → Güncellemeleri Denetle**.
 
 ---
 
-# Yomira v8.0.2-Beta (arşiv)
+### 📦 Sürüm ve Doğrulama Bilgileri
 
-Android 8.0+ (API 26) · versionCode `16`
+| Bilgi | Değer |
+| --- | --- |
+| Sürüm | `8.1.2` |
+| Sürüm Kodu (versionCode) | `22` |
+| Birim test sonucu | 1.113 test, 0 hata (tüm modüllerin `testDebugUnitTest` + JVM test paketi, 195 test sınıfı — sürüm kaynağında yeşil) |
+| Release APK | `release/yomira-v8.1.2.apk` |
+| APK boyutu | `BOYUT` |
+| SHA-256 | `SHA256` |
 
-**Mihon tarzı eklenti yönetimi:** Ana ekran üst çubuğu veya Ayarlar → Eklentiler.
-Depo ekle, eklenti/kaynak ara, dil ve kurulum filtrelerini kullan; eklentileri yükle,
-güncelle veya kaldır. Kurulumlar mevcut uygulama içi sandbox sistemini kullanır.
-Yüklü eklentiler, depoları kaldırıldığında veya çevrimdışı olduğunda da yönetilebilir.
-
-[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.2-Beta.md)
-
----
-
-# Yomira v8.0.1-Beta (arşiv)
-
-Android 8.0+ (API 26) · versionCode `15`
-
-**Tam sıfırlama:** Ayarlar → Depolama → Tüm Verileri Sıfırla. Onaydan sonra tüm yerel
-uygulama verileri silinir, uygulama kapanır ve yeniden açıldığında ilk kurulum başlar.
-Google Drive yedekleri ve dışa aktarılan dosyalar silinmez.
-
-[Ayrıntılı sürüm notları](RELEASE_NOTES_v8.0.1-Beta.md)
-
----
-
-# Yomira v5.4.0-beta (arşiv)
-
-27 Ekim 2026 · Android 8.0+ (API 26) · versionCode `9`
-
-## Yenilikler ve iyileştirmeler
-
-- Uygulama içi APK indirme, ilerleme gösterimi ve Android paket yükleyicisine geçiş akışı.
-- Kaynak eşleştirme, bölüm adresi çözümleme ve eşleşmiş kaynaklardan okuma entegrasyonu.
-- Gömülü depo yükleri, depo senkronizasyonu ve katalog tekilleştirme iyileştirmeleri.
-- Ana sayfa, seri detayı, kapaklar, Kasa arayüzü ve içerik sınıflandırma güncellemeleri.
-
-## APK
-
-- Dosya: [`yomira-v5.4.0-beta.apk`](yomira-v5.4.0-beta.apk)
-- Boyut: **10.978.918 bayt**.
-- Paket: `com.yomira.app`; sürüm: `5.4.0-beta` / `9`.
-- İmza: `CN=Yomira Release`, APK Signature Scheme v2; mevcut kalıcı anahtar korunur.
-- SHA-256: `c86a7b9959126d24b62e6e7245c8577a9601f225eb15e0352b42444d1ed6b38a`
-
-```sh
-adb install -r yomira-v5.4.0-beta.apk
-sha256sum -c SHA256SUMS.txt
-```
-
-## Doğrulama
-
-Release derlemesi ve APK imzası doğrulandı. Xiaomi M2007J3SY / Android 12 (API 31) üzerinde mevcut kurulumun üzerine yükleme ve soğuk açılış başarılı; açılış sonrası süreç canlı ve ön planda, sürece ait crash kaydı yok.
-
-Bu kontrol tam işlevsel kabul testi değildir; tüm kaynakların canlı ağ üzerinden okunması ve güncelleme akışının uçtan uca kurulumu bu smoke testinde doğrulanmadı. Ayrıntılar: [VALIDATION_5.4.0-beta.md](VALIDATION_5.4.0-beta.md).
-
-[Sürüm geçmişi](CHANGELOG.md) · [GitHub](https://github.com/PaelenRune/Yomira)
+APK, sürüm commit'i (`SURUMCOMMIT`) üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası önceki sürümlerle birebir aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Depo dizinleri yalnızca metadata taşır; bölüm içeriği veya eklenti APK'sı uygulama içinde barındırılmaz — kurulumlar sandbox'a senin onayınla indirilir.

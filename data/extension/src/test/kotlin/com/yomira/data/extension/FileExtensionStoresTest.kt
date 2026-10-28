@@ -21,13 +21,12 @@ class FileExtensionStoresTest {
         assertEquals(listOf("https://example.org/index.json"), FileRepositoryStore(path).read())
     }
 
-    @Test fun `a fresh install starts without repositories`() = runTest {
+    @Test fun `a fresh install starts with the bundled universal repository`() = runTest {
         val path = temporary.root.toPath().resolve("repositories.json")
         val repositories = FileRepositoryStore(path).read()
 
-        assertEquals(0, repositories.size)
+        assertEquals(EmbeddedRepositories.DEFAULTS, repositories)
         assertTrue(repositories.all { it.startsWith("https://") })
-        assertEquals(EmbeddedRepositories.load().map { it.indexUrl }, repositories)
     }
 
     @Test fun `onboarding state including null repo round trips`() = runTest {

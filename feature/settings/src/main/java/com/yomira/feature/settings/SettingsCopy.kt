@@ -61,7 +61,7 @@ data class SettingsCopy(
 
     // Extensions and repositories.
     val repositoriesSection: String = "Eklentiler ve depolar",
-    val repositoriesSectionBody: String = "İlk kurulumda depo veya eklenti eklenmez. Aşağıdan bir depo seçin ya da özel depo ekleyin; ardından Eklentiler ekranından kullanmak istediğiniz eklentileri yükleyin.",
+    val repositoriesSectionBody: String = "Yomira küratörlü depolarla hazır gelir: Keiyoushi evrensel deposu ile Türkçe ve Batı depoları uygulamanın içinde gömülüdür ve ilk açılışta çevrimdışı bile kullanılabilir. İstemeyeceklerini anahtarlarla kapat, özel depo ekle; eklentileri Eklentiler ekranından yükle.",
     val addRepository: String = "Özel Depo Ekle",
     val addRepositoryTitle: String = "Özel Depo Ekle",
     val addRepositoryBody: String = "Depo indeksinin https:// ile başlayan JSON adresini gir.",
@@ -71,7 +71,7 @@ data class SettingsCopy(
     val removeRepository: String = "Depoyu kaldır",
     val invalidRepositoryUrl: String = "Geçersiz adres: depo adresi mutlaka https ile başlayan tam bir JSON indeksi olmalı.",
     val repositoryError: String = "Depo işlemi tamamlanamadı. Bağlantını kontrol edip tekrar dene.",
-    val customRepositories: String = "Özel depoların",
+    val customRepositories: String = "Diğer depoların",
 
     // Reading and language.
     val readingSection: String = "Dil ve okuma",
@@ -112,11 +112,11 @@ internal data class SettingsContentCopy(
     val rerunSurvey: String = "Okuma anketini yeniden yap",
     val gore: String = "Gore / Aşırı şiddet",
     val universalTitle: String = "Keiyoushi evrensel deposu",
-    val universalBody: String = "Farklı dillerde topluluk kaynakları.",
+    val universalBody: String = "Uygulamada gömülü · Farklı dillerde topluluk kaynakları.",
     val turkishTitle: String = "Türkçe çizgi roman ve manga deposu",
-    val turkishBody: String = "Türkçe okuma kaynakları.",
+    val turkishBody: String = "Uygulamada gömülü · Türkçe okuma kaynakları.",
     val westernTitle: String = "Batı çizgi romanları deposu",
-    val westernBody: String = "Batı çizgi romanı ve webcomic kaynakları.",
+    val westernBody: String = "Uygulamada gömülü · Batı çizgi romanı ve webcomic kaynakları.",
 ) {
     fun repositoryTitle(repository: CuratedRepository): String = when (repository.id) {
         CuratedRepositories.UNIVERSAL.id -> universalTitle
@@ -145,11 +145,11 @@ internal data class SettingsContentCopy(
                 rerunSurvey = "Retake reading survey",
                 gore = "Gore / Extreme violence",
                 universalTitle = "Keiyoushi universal repository",
-                universalBody = "Community sources in multiple languages.",
+                universalBody = "Bundled in-app · Community sources in multiple languages.",
                 turkishTitle = "Turkish comics and manga repository",
-                turkishBody = "Turkish reading sources.",
+                turkishBody = "Bundled in-app · Turkish reading sources.",
                 westernTitle = "Western comics repository",
-                westernBody = "Western comics and webcomic sources.",
+                westernBody = "Bundled in-app · Western comics and webcomic sources.",
             )
         }
     }

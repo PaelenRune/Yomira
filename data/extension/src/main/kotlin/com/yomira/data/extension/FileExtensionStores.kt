@@ -27,7 +27,7 @@ import kotlinx.serialization.json.put
 /** Use one store instance per private application file. No APKs or copyrighted content are stored. */
 class FileRepositoryStore(
     path: Path,
-    private val defaultRepositories: List<String> = EmbeddedRepositories.load().map { it.indexUrl },
+    private val defaultRepositories: List<String> = EmbeddedRepositories.DEFAULTS,
 ) : RepositoryStore {
     private val file = AtomicJsonFile(path)
 

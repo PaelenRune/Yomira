@@ -13,10 +13,12 @@ class OnboardingWizardManager(
     suspend fun state(): OnboardingState? = store.read()
 
     /**
-     * Completes onboarding. The app ships without any repository: only when the user
-     * explicitly taps "Add repository" ([integrateRepository]) is the official index
-     * registered. Only metadata is loaded; no APK is ever installed automatically. A
-     * refresh failure is not fatal and simply leaves suggestions empty.
+     * Completes onboarding. The personal build already registers the bundled curated
+     * repositories (universal Keiyoushi + Turkish + Western) through the repository store
+     * defaults, so a fresh install lists extensions offline. When [integrateRepository] is
+     * set, the official index is registered explicitly (idempotent) and language/appropriate
+     * suggestions are computed. Only metadata is loaded; no APK is ever installed
+     * automatically. A refresh failure is not fatal and simply leaves suggestions empty.
      */
     suspend fun complete(
         preferences: ReaderPreferences,

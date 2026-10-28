@@ -7,7 +7,7 @@
 * `:data:extension`: `KeiyoushiRepoParser`, `ExtensionManager`, bounded/cancellable
   `OkHttpRepositoryClient`, atomic private-file persistence, and `SandboxSourceBridge`.
 
-The core contains no bundled repository indexes, chapter content, source implementations, APK bundles, or server. A fresh URL store and the in-memory `ExtensionManager` snapshot are empty. The app does not seed or migrate repositories automatically; existing explicitly stored URLs remain intact. Users may explicitly add the official Keiyoushi index or a custom HTTPS index. Adding a URL stores consent; `refresh()` fetches metadata and replaces the snapshot only after all indexes validate. No offline bundled snapshot is seeded. No APK is downloaded or installed during onboarding or repository registration; installation requires a separate user action.
+The personal build ships with curated repositories: the full Keiyoushi catalog plus the Turkish and Western slices (`EmbeddedRepositories.load()`), packaged as clean JSON snapshots and registered through the store defaults, so a fresh install lists extensions with no network. A snapshot unreachable online falls back to its bundled payload; custom HTTPS indexes keep the strict all-or-nothing `refresh()`. Users can disable any curated index or register their own; existing explicitly stored URLs remain intact. Adding a URL stores consent. No APK is downloaded or installed during onboarding or repository registration; installation requires a separate user action. Regenerate the snapshots with `scripts/update-curated-repositories.ps1` (also refreshes the hosted `repositories/turkish|western/index.min.json` copies).
 
 ## APK-to-JSON conversion
 
