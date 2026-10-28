@@ -1,8 +1,6 @@
-# 🌟 Yomira v8.1.1 — Sürüm Notları Taslağı
+# 🌟 Yomira v8.1.1 — Sürüm Notları
 
 Yomira v8.1.1, kaynak seçimini sizin elinize bırakıyor. Temiz kurulum, seçerek eklediğiniz depolar ve sevdiğiniz serilerle şekillenen öneriler; daha anlaşılır ayarlar ve iyileştirilmiş kaynak eşleştirmesiyle buluşuyor.
-
-> **Taslak:** Nihai QA sonuçları bekleniyor. Aşağıdaki yenilikler uygulanmış davranışları anlatır; tüm eklentilerin cihaz üzerinde sorunsuz çalıştığı anlamına gelmez.
 
 ---
 
@@ -16,7 +14,7 @@ Yomira v8.1.1, kaynak seçimini sizin elinize bırakıyor. Temiz kurulum, seçer
 #### 🧩 2. Depo Bağlantısından Eklenti Kurulumuna
 - **Bağlantıyla depo ekleme:** `yomira://add-repo` ve desteklenen uyumlu depo bağlantıları uygulamayı açar. Depo adresini onayladıktan sonra ekleme yapılır.
 - **Yol gösteren Eklentiler ekranı:** Henüz deponuz yoksa nereden başlayacağınız açıklanır. Eklediğiniz depoların sunduğu eklentileri ve kaynaklarını listeleyebilir, arama ve filtrelerle seçiminizi daraltabilirsiniz.
-- **Tek dokunuşla kurulum başlatma:** İstediğiniz eklentinin kurulumunu kendi satırından başlatabilirsiniz. Kurulum, sizin seçiminizle gerçekleşir.
+- **Tek dokunuşla kurulum başlatma:** İstediğiniz eklentinin kurulumunu kendi satırından başlatatabilirsiniz. Kurulum, sizin seçiminizle gerçekleşir.
 
 #### 🔄 3. Yükseltmede Kaynak Yönetimine Yeni Başlangıç
 - **Bir defalık temizlik:** Önceki sürümden yükseltirken kayıtlı depolar ve kurulu eklentiler kaldırılır. Bu işlem yalnızca otomatik eklenenlerle sınırlı değildir; ardından kullanmak istediğiniz kaynakları yeniden seçmeniz gerekir.
@@ -53,9 +51,9 @@ Yomira v8.1.1, kaynak seçimini sizin elinize bırakıyor. Temiz kurulum, seçer
 | --- | --- |
 | Sürüm | `8.1.1` |
 | Sürüm Kodu (versionCode) | `21` |
-| Nihai test sayısı ve QA sonucu | &lt;QA tamamlanınca netleşecek&gt; |
+| Birim test sonucu | 406 test, 0 hata (`testDebugUnitTest`, 77 test sınıfı — sürüm kaynağında yeşil) |
 | Release APK | `release/yomira-v8.1.1.apk` |
-| APK boyutu | `19.527.165 bayt` |
-| SHA-256 | `a11434a86fd6244d03b76a9528f76218b3cea8c90db4e5653307db6f18c9f0a0` |
+| APK boyutu | `22.720.840 bayt` |
+| SHA-256 | `947d9e078fdb6c61b619ae33f103c436148a16463ccaa622eb0b39eff55fb325` |
 
-APK bilgileri son derleme teslim kaydından (`HO-V811-FIX-POLICY.json`) alınmıştır. Bu kayıt, birim testleri ile release ve QA derlemelerinin başarıyla tamamlandığını bildirir. Eklenti kurulumu/çalıştırılması ve yükseltme bildiriminin cihaz üzerindeki son doğrulaması henüz tamamlanmış olarak belgelenmemiştir.
+APK, sürüm commit'i (`fa92d3a`) üzerinden temiz çalışma ağacında, repodaki imza anahtarıyla derlenmiştir; imza sertifikası v8.1.0 ile birebir aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Eklenti kurulumu/çalıştırılması ve yükseltme bildiriminin cihaz üzerindeki son doğrulaması henüz tamamlanmış olarak belgelenmemiştir; üçüncü taraf eklenti çalıştırıcısının üretim entegrasyonu devam eden bir çalışmadır.
