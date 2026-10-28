@@ -41,10 +41,10 @@ class SmartSourceMatcherTest {
         assertTrue(result.canRead)
     }
 
-    @Test fun `old but complete source beats recent source with fewer chapters`() = runTest {
+    @Test fun `freshness can outweigh a small completeness difference`() = runTest {
         val values = listOf(candidate("recent", 10, 1_800_000_000_000), candidate("old", 11, 100))
         val result = matcher(values).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("old", result.selected.extension.packageName)
+        assertEquals("recent", result.selected.extension.packageName)
     }
 
     @Test fun `unknown chapter dates sort behind known dates at equal completeness`() = runTest {
@@ -53,19 +53,19 @@ class SmartSourceMatcherTest {
         assertEquals("dated", result.selected.extension.packageName)
     }
 
-    @Test fun `language cannot outweigh completeness among accepted sources`() = runTest {
+    @Test fun `exact language has the strongest weight among accepted sources`() = runTest {
         val result = matcher(listOf(candidate("turkish", 1), candidate("multi", 1000, language = "all"),
             candidate("english", 500, language = "en"))).match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("multi", result.selected.extension.packageName)
-        assertEquals(listOf("english", "turkish"), result.alternatives.map { it.extension.packageName })
+        assertEquals("turkish", result.selected.extension.packageName)
+        assertEquals(listOf("multi", "english"), result.alternatives.map { it.extension.packageName })
     }
 
-    @Test fun `latency never breaks a count or freshness tie`() = runTest {
+    @Test fun `verified speed breaks equal language completeness and recency ties`() = runTest {
         val values = listOf(candidate("slow", 3), candidate("fast", 3))
         val ticks = listOf(0L, 10_000_000_000L, 10_000_000_000L, 10_100_000_000L).iterator()
         val result = SmartSourceMatcher(FakeRepository(values), FakeBridge(values), noDiscovery, nanoTime = { ticks.next() })
             .match(series, preferences) as SmartMatchResult.Ready
-        assertEquals("slow", result.selected.extension.packageName)
+        assertEquals("fast", result.selected.extension.packageName)
     }
 
     @Test fun `unrelated language and adult sources are filtered before probing`() = runTest {
@@ -197,7 +197,8 @@ class SmartSourceMatcherTest {
     private val noDiscovery = SourceDiscovery { _, _ -> error("Uninstalled discovery must never run") }
 
     private fun matcher(values: List<SourceCandidate>, installed: Set<String> = values.map { it.extension.packageName }.toSet()) =
-        SmartSourceMatcher(FakeRepository(values, installed), FakeBridge(values), noDiscovery, nanoTime = { 0L })
+        SmartSourceMatcher(FakeRepository(values, installed), FakeBridge(values), noDiscovery,
+            currentTimeMillis = { 1_800_000_000_000L }, nanoTime = { 0L })
 
     private class FakeRepository(
         val values: List<SourceCandidate>,

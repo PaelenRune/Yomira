@@ -30,13 +30,13 @@ object OnboardingModule {
         DataStoreOnboardingStore(context.onboardingDataStore)
 
     @Provides @Singleton
-    fun extensions(@ApplicationContext context: Context, client: OkHttpClient, installed: InstalledExtensionProvider): ExtensionRepository =
+    fun extensions(@ApplicationContext context: Context, client: OkHttpClient, installed: InstalledExtensionProvider, upgrade: com.yomira.app.migration.PreferenceUpgradeState): ExtensionRepository =
         NativeSourceRepository(ExtensionManager(
             FileRepositoryStore(context.filesDir.toPath().resolve("extensions/repositories.json")),
             OkHttpRepositoryClient(client),
             KeiyoushiRepoParser(),
             installed,
-        ))
+        ), includeNative = { !upgrade.sourcesCleared() })
 
     @Provides @Singleton
     fun wizard(extensions: ExtensionRepository, store: OnboardingStore): OnboardingWizardManager =

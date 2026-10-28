@@ -34,6 +34,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         readingMode = readingModes[this[readingMode]] ?: ReadingMode.MANGA_RTL,
         guidedView = this[guidedView] ?: false,
         bundledRepositoriesSeeded = this[bundledSeeded] ?: false,
+        repositoriesUserManaged = this[userManaged] ?: false,
         automaticSync = this[automaticSync] ?: false,
         stealthShieldEnabled = this[stealthShield] ?: true,
     )
@@ -45,6 +46,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         set(readingMode, settings.readingMode.name)
         set(guidedView, settings.guidedView)
         set(bundledSeeded, settings.bundledRepositoriesSeeded)
+        set(userManaged, settings.repositoriesUserManaged)
         set(automaticSync, settings.automaticSync)
         set(stealthShield, settings.stealthShieldEnabled)
     }
@@ -56,6 +58,7 @@ class DataStoreSettingsStore(private val dataStore: DataStore<Preferences>) : Se
         val readingMode = stringPreferencesKey("readingMode")
         val guidedView = booleanPreferencesKey("guidedView")
         val bundledSeeded = booleanPreferencesKey("bundledRepositoriesSeeded")
+        val userManaged = booleanPreferencesKey("repositoriesUserManaged")
         val automaticSync = booleanPreferencesKey("automaticSync")
         val stealthShield = booleanPreferencesKey("stealthShieldEnabled")
         val readingModes = ReadingMode.entries.associateBy { it.name }

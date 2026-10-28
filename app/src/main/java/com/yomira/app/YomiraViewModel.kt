@@ -526,11 +526,24 @@ class YomiraViewModel @Inject constructor(
 
     fun lock() { unlocked.value = false; clearMatch() }
 
-    /** Query Room, not Compose's initial empty value, before starting automatic matching. */
+    /** Cached chapters do not bypass fresh installed-source ranking. */
     suspend fun ensureSource(manga: Manga) {
         if (manga.contentRating == ContentRating.EXPLICIT && !unlocked.value) return
-        val empty = withContext(Dispatchers.IO) { chapterDao.getByMangaId(manga.id).isEmpty() }
-        if (empty) findSource(manga)
+        findSource(manga)
+    }
+
+    suspend fun resolveReadingChapter(manga: Manga, requestedId: String): String? {
+        if (!matcher.isPresent || (manga.contentRating == ContentRating.EXPLICIT && !unlocked.value)) return null
+        // Snapshot before waiting: detail activation can replace source-specific chapter IDs.
+        val requestedNumber = withContext(Dispatchers.IO) {
+            chapterDao.getById(requestedId)?.takeIf { it.mangaId == manga.id }?.chapterNumber
+        }
+        matchJob?.join()
+        return withContext(Dispatchers.IO) {
+            val stored = onboardingStore.read()?.preferences ?: ReaderPreferences(activeReadingLanguage())
+            com.yomira.app.catalog.ReadingSourceResolver(matcher.get(), chapterDao).resolve(manga, requestedId,
+                stored.copy(allowAdultContent = manga.contentRating == ContentRating.EXPLICIT && unlocked.value), requestedNumber)
+        }
     }
 
     fun findSource(manga: Manga) {

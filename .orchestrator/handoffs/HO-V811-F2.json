@@ -1,0 +1,62 @@
+{
+  "taskId": "V811-F2",
+  "filesChanged": [
+    "app/build.gradle.kts",
+    "app/src/main/java/com/yomira/app/MainActivity.kt",
+    "app/src/main/java/com/yomira/app/YomiraApp.kt",
+    "app/src/main/java/com/yomira/app/YomiraViewModel.kt",
+    "app/src/main/java/com/yomira/app/catalog/NativeSourceRepository.kt",
+    "app/src/main/java/com/yomira/app/catalog/ReadingSourceResolver.kt",
+    "app/src/main/java/com/yomira/app/di/OnboardingModule.kt",
+    "app/src/main/java/com/yomira/app/migration/UpgradeCleanupManager.kt",
+    "app/src/main/java/com/yomira/app/migration/UpgradeModule.kt",
+    "app/src/main/java/com/yomira/app/migration/UpgradeSourceCleanup.kt",
+    "app/src/main/java/com/yomira/app/settings/DataStoreSettingsStore.kt",
+    "app/src/main/java/com/yomira/app/settings/SettingsViewModel.kt",
+    "app/src/main/java/com/yomira/app/sync/DriveExtensionStore.kt",
+    "app/src/main/res/values/upgrade_strings.xml",
+    "app/src/main/res/values-tr/upgrade_strings.xml",
+    "app/src/test/java/com/yomira/app/catalog/ReadingSourceResolverTest.kt",
+    "app/src/test/java/com/yomira/app/catalog/SourceMatchActivatorTest.kt",
+    "app/src/test/java/com/yomira/app/migration/UpgradeCleanupManagerTest.kt",
+    "app/src/test/java/com/yomira/app/migration/UpgradeSourceCleanupTest.kt",
+    "app/src/test/java/com/yomira/app/settings/DataStoreSettingsStoreTest.kt",
+    "app/src/test/java/com/yomira/app/settings/SettingsViewModelTest.kt",
+    "domain/extension/src/main/kotlin/com/yomira/domain/extension/SmartSourceMatcher.kt",
+    "domain/extension/src/test/kotlin/com/yomira/domain/extension/SmartSourceMatcherTest.kt",
+    "feature/settings/src/main/java/com/yomira/feature/settings/SettingsModels.kt",
+    ".orchestrator/handoffs/HO-V811-F2.json"
+  ],
+  "decisions": [
+    "Version is 8.1.1 / 21. UpgradeCleanupManager runs local cleanup before UI and automatic sync from YomiraApp.onCreate. The persisted last_seen_version advances only after successful cleanup; interrupted cleanup retries safely.",
+    "Pre-21 builds had no version marker. For a missing marker, Android PackageInfo.lastUpdateTime > firstInstallTime identifies an upgrade; a genuinely fresh installation only records version 21 without clearing data or showing the notice.",
+    "Use public manifest/installer/repository APIs. Remove every manifest and corresponding DEX cache, regenerate the empty manifest index, persist an explicit empty repository list, clear onboarding repository/suggested-package references, and clear bundledRepositoriesSeeded. No ExtensionManager internals were changed.",
+    "repositoriesUserManaged prevents SettingsViewModel from re-seeding cleared bundled URLs. A persisted sources_cleared flag disables NativeSourceRepository's implicit installed MangaDex entry after migration; fresh-install behavior remains unchanged on this branch.",
+    "DriveExtensionStore revokes local synced extension records with newer uninstall tombstones and empty repository/manifest references while preserving their custom configuration preferences, so automatic sync does not resurrect removed sources.",
+    "Library, vault, history, achievements and other UI preferences are outside the cleanup capability boundary. Onboarding consent, language, excluded tags, favorites and unrelated settings remain intact.",
+    "The EN/TR notice is a resource-localized dialog in MainActivity. Its pending state survives recreation/restart until acknowledgment, then remains dismissed.",
+    "F3 audit found that detail ensureSource skipped matching for cached chapters and home resume / Updates Hub navigated directly to reader. Detail now reranks cached series, and the shared reader route resolves through ReadingSourceResolver before composing ReaderScreen. Requested chapter numbers map to selected-source IDs; missing matches or missing requested chapter numbers fail closed rather than reading stale sources or jumping to another chapter.",
+    "SmartSourceMatcher implementation differed from its README: ranking was count then date only. It now uses bounded exact-language 1000, relative completeness 500, recency 200, verified healthy 300 and speed 100 weights, then count/date tie-breakers. Only trusted installed sources are queried. Existing tests that asserted the previous contrary ranking were updated to the contract.",
+    "ReadingSourceResolverTest exercises real matcher-to-DAO activation, cached and replaced chapter-ID cases, most-complete/fresh same-language selection, absent chapters, and removed installations. MainActivity's one reader-route gate covers home resume, detail read/continue and Updates Hub; navigation wiring was source-inspected, not device-tested."
+  ],
+  "testCommand": "$env:ANDROID_HOME='C:\\Users\\paele\\AppData\\Local\\Android\\Sdk'; .\\gradlew.bat :app:testDebugUnitTest :data:extension:test :domain:extension:test :feature:settings:testDebugUnitTest",
+  "testResult": {
+    "status": "GREEN",
+    "tail": "BUILD SUCCESSFUL in 17s\n209 actionable tasks: 12 executed, 197 up-to-date",
+    "app": "125 tests, 0 failures, 0 errors",
+    "dataExtension": "75 tests, 0 failures, 0 errors",
+    "domainExtension": "25 tests, 0 failures, 0 errors",
+    "featureSettings": "10 tests, 0 failures, 0 errors",
+    "log": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\v811-f2-tests-final.log",
+    "limitations": "JVM unit tests and source inspection only; no emulator/device sessions. Existing opt-in/deprecation compiler warnings remain."
+  },
+  "mergeNotes": [
+    "Commit on v811-upgrade-migration only; no push. Requested commit message: feat(migration): purge extensions on upgrade to 8.1.1 + version bump (v811-F2/F3).",
+    "Forbidden OnboardingScreen.kt, onboarding/OnboardingViewModel.kt and AndroidManifest.xml were not edited. No .orchestrator content other than this handoff was touched.",
+    "MainActivity.kt shared-file hunks: inject/show the upgrade notice and add the reader-route resolution gate. Preserve other agents' onboarding and extensions navigation/UI changes around these hunks.",
+    "YomiraViewModel.kt shared-file hunks: always match from ensureSource, plus resolveReadingChapter. YomiraApp.kt adds startup cleanup before automaticSync.start; preserve this ordering.",
+    "OnboardingModule.kt and NativeSourceRepository.kt add a migration-aware native-source guard. If another agent removes built-in source wiring entirely, retain their stronger removal rather than restoring the wrapper; keep migration cleanup and marker wiring.",
+    "SettingsViewModel.kt only adds the repositoriesUserManaged no-reseed guard. SettingsModels.kt and DataStoreSettingsStore.kt add/persist that flag. If F1 removes all automatic seeding, keep its stronger policy while retaining the cleared legacy seed flag.",
+    "Matcher ranking changes intentionally supersede the old count-only/language-agnostic ranking tests; README weights were the requested contract. Merge domain matcher and its tests together."
+  ]
+}

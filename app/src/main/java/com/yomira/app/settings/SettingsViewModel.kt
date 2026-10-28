@@ -94,7 +94,8 @@ class SettingsViewModel @Inject constructor(
      */
     private suspend fun seedBundledRepositories() {
         try {
-            if (store.read().bundledRepositoriesSeeded) return
+            val settings = store.read()
+            if (settings.bundledRepositoriesSeeded || settings.repositoriesUserManaged) return
             val registered = extensions.repositories().toMutableSet()
             val missing = CuratedRepositories.ALL
                 .filter { it.enabledByDefault && registered.add(it.indexUrl) }

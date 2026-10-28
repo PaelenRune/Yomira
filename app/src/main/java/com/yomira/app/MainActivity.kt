@@ -69,6 +69,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var journeyRepository: JourneyRepository
+    @Inject lateinit var upgradeCleanup: com.yomira.app.migration.UpgradeCleanupManager
     private val model: YomiraViewModel by viewModels()
     private val readerModel: ReaderViewModel by viewModels()
     private val onboardingModel: OnboardingViewModel by viewModels()
@@ -183,6 +184,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             AchievementBannerHost(journeyRepository.unlockEvents)
+            var showUpgradeNotice by remember { mutableStateOf(upgradeCleanup.noticePending()) }
+            if (showUpgradeNotice && !onboarding.loading) AlertDialog(
+                onDismissRequest = { upgradeCleanup.dismissNotice(); showUpgradeNotice = false },
+                text = { Text(stringResource(R.string.upgrade_sources_notice)) },
+                confirmButton = { TextButton(onClick = {
+                    upgradeCleanup.dismissNotice(); showUpgradeNotice = false
+                }) { Text(stringResource(android.R.string.ok)) } },
+            )
             }
         } }
     }
@@ -533,7 +542,20 @@ private fun YomiraNavigation(
                 val chapterId = entry.arguments?.getString("chapterId") ?: return@composable
                 val manga = catalog.manga.firstOrNull { it.id == mangaId }
                 if (manga != null && (manga.contentRating != ContentRating.EXPLICIT || unlocked)) {
-                    ReaderScreen(mangaId, chapterId, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode,
+                    var resolvedId by remember(mangaId, chapterId) { mutableStateOf<String?>(null) }
+                    var resolving by remember(mangaId, chapterId) { mutableStateOf(true) }
+                    LaunchedEffect(mangaId, chapterId) {
+                        try { resolvedId = model.resolveReadingChapter(manga, chapterId) }
+                        catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                        catch (_: Exception) { resolvedId = null }
+                        finally { resolving = false }
+                    }
+                    if (resolving) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                    else if (resolvedId == null) Column {
+                        Text(stringResource(R.string.match_unreachable))
+                        TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) }
+                    }
+                    else ReaderScreen(mangaId, resolvedId!!, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode,
                         defaultGuidedView = settings.guidedView, copy = readerCopy(),
                         onChapter = { target ->
                             nav.navigate("reader/${Uri.encode(mangaId)}/${Uri.encode(target)}") {

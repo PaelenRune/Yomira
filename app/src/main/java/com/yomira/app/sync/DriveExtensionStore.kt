@@ -33,6 +33,14 @@ class DriveExtensionStore @Inject constructor(
     private val localState = context.getSharedPreferences("sync-extension-materialization", Context.MODE_PRIVATE)
     private val mutex = Mutex()
 
+    /** Revoke legacy source records too, so automatic sync cannot resurrect removed installs. */
+    suspend fun revokeSourcesForUpgrade() = mutex.withLock {
+        val now = System.currentTimeMillis()
+        persist(snapshot().map { it.copy(installed = false, repositorySources = emptyList(),
+            manifestJson = null, updatedAt = maxOf(now, it.updatedAt + 1)) })
+        recordMaterialized(emptySet())
+    }
+
     override suspend fun read(): List<InstalledExtensionSyncEntry> = mutex.withLock {
         val entries = snapshot()
         persist(entries)
