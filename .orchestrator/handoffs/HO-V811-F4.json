@@ -1,0 +1,47 @@
+{
+  "taskId": "V811-F4",
+  "filesChanged": [
+    "app/src/main/java/com/yomira/app/MainActivity.kt",
+    "app/src/main/java/com/yomira/app/YomiraViewModel.kt",
+    "app/src/main/java/com/yomira/app/onboarding/DataStoreOnboardingStore.kt",
+    "app/src/main/java/com/yomira/app/onboarding/OnboardingViewModel.kt",
+    "app/src/main/res/values/strings.xml",
+    "app/src/main/res/values-tr/strings.xml",
+    "app/src/test/java/com/yomira/app/onboarding/DataStoreOnboardingStoreTest.kt",
+    "app/src/test/java/com/yomira/app/onboarding/OnboardingViewModelTest.kt",
+    "data/extension/src/main/kotlin/com/yomira/data/extension/FavoriteSeriesJson.kt",
+    "data/extension/src/main/kotlin/com/yomira/data/extension/FileExtensionStores.kt",
+    "data/extension/src/test/kotlin/com/yomira/data/extension/FileExtensionStoresTest.kt",
+    "domain/extension/src/main/kotlin/com/yomira/domain/extension/ExtensionModels.kt",
+    "feature/home/build.gradle.kts",
+    "feature/home/src/androidTest/java/com/yomira/feature/home/OnboardingScreenTest.kt",
+    "feature/home/src/main/java/com/yomira/feature/home/FavoriteSeriesPicker.kt",
+    "feature/home/src/main/java/com/yomira/feature/home/HomeRails.kt",
+    "feature/home/src/main/java/com/yomira/feature/home/HomeScreen.kt",
+    "feature/home/src/main/java/com/yomira/feature/home/OnboardingScreen.kt",
+    "feature/home/src/test/java/com/yomira/feature/home/FavoriteSeriesTest.kt",
+    ".orchestrator/handoffs/HO-V811-F4.json"
+  ],
+  "decisions": [
+    "Verified 3992f65 indices: language=0, age=1, blacklist=2, former genre step=3. Replaced only the final taste step, without changing the step count/order or age/blacklist behavior.",
+    "Picker reuses YomiraViewModel.catalog, the Room-observed catalog already seeded at startup, and extracts Home's local title/alias/genre matching into searchLocalCatalog. No remote query or new catalog infrastructure. Picker filters age/blacklist visibility and displays at most 20 results per query.",
+    "FavoriteSeries contains optional catalogId plus title. Selection is saveable, limited to five, removable, and can be submitted with one selection. Explicit Skip submits no favorite series. New users collect no genres; reruns preserve legacy genres for fallback.",
+    "Both FileOnboardingStore and Android DataStore persist favoriteSeries with the shared FavoriteSeriesJson codec; absent v1 fields decode as an empty list. OnboardingViewModel.complete retains its favoriteGenres argument with favoriteSeries appended as an optional argument.",
+    "Home's existing personalized affinity combines reading/saved history with selected series genres. IDs resolve seeds; title/alias matching resolves title-only seeds. Legacy genre seeds apply only when no favorite series are stored. Ranking remains deterministic for a fixed rotation seed and runs in the existing Default-dispatcher rail pipeline.",
+    "No prohibited files, repository seeding internals, Vault code, device/emulator sessions, or git push were touched/run."
+  ],
+  "testCommand": "$env:ANDROID_HOME = \"$env:LOCALAPPDATA\\Android\\Sdk\"; .\\gradlew.bat :app:testDebugUnitTest :feature:home:testDebugUnitTest :domain:extension:test :data:extension:test :feature:home:compileDebugAndroidTestKotlin",
+  "testResult": {
+    "status": "GREEN",
+    "tail": "BUILD SUCCESSFUL in 18s\n217 actionable tasks: 12 executed, 205 up-to-date",
+    "unitTests": "251 tests; 0 failures; 0 errors; 0 skipped (app=121, feature:home=29, domain:extension=25, data:extension=76)",
+    "coverage": "Local search, selection/max-five/removal, saved selection restoration, deterministic seeded/legacy rails, both store round trips including title-only favorites and legacy records, ViewModel old/new signatures. Compose search/select/max-five/removal/skip scenarios compile successfully but were not executed because device/emulator sessions are prohibited.",
+    "log": "C:/Users/paele/AppData/Local/Temp/opencode/V811-F4-tests.log"
+  },
+  "mergeNotes": [
+    "OnboardingScreen.kt edited regions (post-change lines): imports 24-25 (Manga/FavoriteSeries); OnboardingCopy taste-copy fields 47-52; OnboardingScreen completion callback signature line 67 and appended favorite-series/catalog parameters 75-76; favorite state line 81; former combined genre/blacklist FlowRow region 122-134, now the same blacklist behavior at step 2 plus the series picker at step 3; final footer 144-149, adding final-step Skip and favorite-series submission/nonempty gating. No language/age step content, step/progress indices, BackHandlers, error display, LanguageOption, or other footer styling was edited.",
+    "When merging the concurrently restructured onboarding flow, transplant the final taste-step content into its new index rather than reintroducing this branch's four-step structure. The verified base uses index 3 for taste, not index 2. Keep the existing blacklist mapping on the target branch.",
+    "MainActivity changes are limited to Room catalog input, favorite-series arguments in the two onboarding call sites (startup and rerun survey), and four copy-resource bindings. Adapt those arguments to the target branch's new onboarding host. OnboardingScreen.onComplete now has a fifth argument; ViewModel.complete remains source-compatible with four-argument callers.",
+    "Home integration adds two optional trailing arguments to buildHomeRails/personalizedShelf and observes onboarding preferences in YomiraViewModel.homeRails. feature:home adds a domain:extension dependency. No manifest, app Gradle file, RepoDeepLink, ExtensionManager, SettingsViewModel, or feature/vault changes."
+  ]
+}

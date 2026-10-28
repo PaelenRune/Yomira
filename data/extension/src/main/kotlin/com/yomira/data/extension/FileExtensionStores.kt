@@ -56,6 +56,7 @@ class FileOnboardingStore(path: Path) : OnboardingStore {
                 value["isAdult"]?.jsonPrimitive?.boolean ?: false,
                 value["excludedTags"]?.jsonArray?.map { it.jsonPrimitive.content }?.toSet().orEmpty(),
                 value["favoriteGenres"]?.jsonArray?.map { it.jsonPrimitive.content }?.toSet().orEmpty(),
+                FavoriteSeriesJson.decode(value["favoriteSeries"]?.toString()),
             ),
             repositoryUrl = value.getValue("repositoryUrl").jsonPrimitive.contentOrNull?.also(::requireHttps),
             suggestedPackages = value.getValue("suggestedPackages").jsonArray.map { it.jsonPrimitive.content },
@@ -71,6 +72,7 @@ class FileOnboardingStore(path: Path) : OnboardingStore {
             put("isAdult", state.preferences.isAdult)
             put("excludedTags", JsonArray(state.preferences.excludedTags.sorted().map(::JsonPrimitive)))
             put("favoriteGenres", JsonArray(state.preferences.favoriteGenres.sorted().map(::JsonPrimitive)))
+            put("favoriteSeries", Json.parseToJsonElement(FavoriteSeriesJson.encode(state.preferences.favoriteSeries)))
             put("repositoryUrl", state.repositoryUrl?.let(::JsonPrimitive) ?: JsonNull)
             put("suggestedPackages", JsonArray(state.suggestedPackages.map(::JsonPrimitive)))
             put("completed", state.completed)

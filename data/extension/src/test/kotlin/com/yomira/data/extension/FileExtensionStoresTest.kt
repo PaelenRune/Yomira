@@ -1,6 +1,7 @@
 package com.yomira.data.extension
 
 import com.yomira.domain.extension.OnboardingState
+import com.yomira.domain.extension.FavoriteSeries
 import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.extension.ReadingLanguage
 import kotlinx.coroutines.test.runTest
@@ -31,10 +32,19 @@ class FileExtensionStoresTest {
 
     @Test fun `onboarding state including null repo round trips`() = runTest {
         val path = temporary.root.toPath().resolve("preferences.json")
-        val state = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH, true, true, setOf("futanari", "gore"), setOf("romance")), null, emptyList(), true)
+        val state = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH, true, true, setOf("futanari", "gore"), setOf("romance"),
+            listOf(FavoriteSeries("catalog:1", "Türkçe \"Seri\""), FavoriteSeries(title = "Title only"))), null, emptyList(), true)
         assertNull(FileOnboardingStore(path).read())
         FileOnboardingStore(path).write(state)
         assertEquals(state, FileOnboardingStore(path).read())
+    }
+
+    @Test fun `v1 records without favorites keep legacy preferences`() = runTest {
+        val path = temporary.root.toPath().resolve("legacy.json")
+        java.nio.file.Files.writeString(path, """{"language":"ENGLISH","allowAdultContent":false,"favoriteGenres":["action"],"repositoryUrl":null,"suggestedPackages":[],"completed":true}""")
+        val preferences = FileOnboardingStore(path).read()!!.preferences
+        assertTrue(preferences.favoriteSeries.isEmpty())
+        assertEquals(setOf("action"), preferences.favoriteGenres)
     }
 
     @Test fun `user configured indexes are preserved without substitution`() = runTest {

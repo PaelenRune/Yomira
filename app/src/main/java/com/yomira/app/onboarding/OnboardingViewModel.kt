@@ -3,6 +3,7 @@ package com.yomira.app.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yomira.domain.extension.OnboardingWizardManager
+import com.yomira.domain.extension.FavoriteSeries
 import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.extension.ReadingLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,18 +58,18 @@ class OnboardingViewModel @Inject constructor(private val wizard: OnboardingWiza
         save(languageCode, integrateRepository, false, emptySet(), emptySet())
     }
 
-    fun complete(languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {
-        save(languageCode, true, isAdult, excludedTags, favoriteGenres)
+    fun complete(languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>, favoriteSeries: List<FavoriteSeries> = emptyList()) {
+        save(languageCode, true, isAdult, excludedTags, favoriteGenres, favoriteSeries)
     }
 
-    private fun save(languageCode: String, integrateRepository: Boolean, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) {
+    private fun save(languageCode: String, integrateRepository: Boolean, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>, favoriteSeries: List<FavoriteSeries> = emptyList()) {
         if (mutableState.value.loading || mutableState.value.saving || mutableState.value.completed) return
         mutableState.value = mutableState.value.copy(saving = true, error = null)
         viewModelScope.launch {
             try {
                 val language = ReadingLanguage.entries.first { it.code == languageCode }
                 withContext(Dispatchers.IO) {
-                    wizard.complete(ReaderPreferences(language, isAdult, isAdult, excludedTags, favoriteGenres), integrateRepository)
+                    wizard.complete(ReaderPreferences(language, isAdult, isAdult, excludedTags, favoriteGenres, favoriteSeries), integrateRepository)
                 }
                 mutableState.value = OnboardingUiState(loading = false, completed = true,
                     languageCode = language.code)

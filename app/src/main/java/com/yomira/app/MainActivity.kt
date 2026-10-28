@@ -130,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent { YomiraTheme {
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
+            val onboardingCatalog by model.catalog.collectAsStateWithLifecycle()
             // The reading language chosen in the wizard is also the UI language: applying
             // it through LocaleManagerCompat recreates this activity with the new resource
             // locale, so every string switches to English/Turkish instantly. The startup
@@ -155,12 +156,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 !onboarding.completed -> OnboardingScreen(
                     onboarding.saving, localizedOnboardingError(onboarding.error),
-                    onComplete = { language, adult, excluded, favorites ->
-                        onboardingModel.complete(language, adult, excluded, favorites)
+                    onComplete = { language, adult, excluded, favorites, series ->
+                        onboardingModel.complete(language, adult, excluded, favorites, series)
                         LocaleManagerCompat.setApplicationLocales(language)
                     },
                     copy = onboardingCopy(), initialLanguage = LocaleManagerCompat.currentApplicationTag(),
                     onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
+                    catalog = onboardingCatalog.manga,
                 )
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
@@ -615,11 +617,13 @@ private fun YomiraNavigation(
                     initialIsAdult = preferences.isAdult,
                     initialExcludedTags = preferences.excludedTags,
                     initialFavoriteGenres = preferences.favoriteGenres,
+                    initialFavoriteSeries = preferences.favoriteSeries,
+                    catalog = model.catalog.collectAsStateWithLifecycle().value.manga,
                     onLanguageSelected = { LocaleManagerCompat.setApplicationLocales(it) },
-                    onComplete = { language, adult, excluded, favorites ->
+                    onComplete = { language, adult, excluded, favorites, series ->
                         submitted = true
                         maintenanceModel.setReaderPreferences(ReaderPreferences(
-                            ReadingLanguage.entries.first { it.code == language }, adult, adult, excluded, favorites,
+                            ReadingLanguage.entries.first { it.code == language }, adult, adult, excluded, favorites, series,
                         ))
                         LocaleManagerCompat.setApplicationLocales(language)
                     },
@@ -935,6 +939,10 @@ private fun onboardingCopy() = OnboardingCopy(
     exclusionsDescription = stringResource(R.string.onboarding_exclusions_description),
     genresTitle = stringResource(R.string.onboarding_genres_title),
     genresDescription = stringResource(R.string.onboarding_genres_description),
+    seriesSearch = stringResource(R.string.onboarding_series_search),
+    seriesEmpty = stringResource(R.string.onboarding_series_empty),
+    removeFavorite = stringResource(R.string.onboarding_series_remove),
+    skip = stringResource(R.string.onboarding_series_skip),
     adult = stringResource(R.string.onboarding_adult),
     minor = stringResource(R.string.onboarding_minor),
     safeMode = stringResource(R.string.onboarding_safe_mode),

@@ -21,6 +21,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yomira.core.model.blacklistTags
+import com.yomira.core.model.Manga
+import com.yomira.domain.extension.FavoriteSeries
 
 private val OnboardingBackground = Color.Black
 private val OnboardingPurple = Color(0xFF7B61FF)
@@ -42,8 +44,12 @@ data class OnboardingCopy(
     val ageDescription: String = "Safe mode hides adult content. You can change your preference in Settings.",
     val exclusionsTitle: String = "What would you rather not see?",
     val exclusionsDescription: String = "Series with these tags are hidden everywhere, including search, shelves and the Vault.",
-    val genresTitle: String = "Which worlds shall we explore?",
-    val genresDescription: String = "You can select multiple genres. These preferences do not change your blacklist.",
+    val genresTitle: String = "Choose your 5 favorite series",
+    val genresDescription: String = "Pick up to 5 beloved series to shape your recommendations. You can continue with one or skip.",
+    val seriesSearch: String = "Search series",
+    val seriesEmpty: String = "No series found. Try another title or skip for now.",
+    val removeFavorite: String = "Remove",
+    val skip: String = "Skip",
     val adult: String = "🔞 I am 18 or older",
     val minor: String = "🛡️ I am under 18",
     val safeMode: String = "Safe Mode",
@@ -58,7 +64,7 @@ data class OnboardingCopy(
 fun OnboardingScreen(
     saving: Boolean,
     error: String?,
-    onComplete: (languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>) -> Unit,
+    onComplete: (languageCode: String, isAdult: Boolean, excludedTags: Set<String>, favoriteGenres: Set<String>, favoriteSeries: List<FavoriteSeries>) -> Unit,
     modifier: Modifier = Modifier,
     copy: OnboardingCopy = OnboardingCopy(),
     initialLanguage: String = "en",
@@ -66,11 +72,13 @@ fun OnboardingScreen(
     initialExcludedTags: Set<String> = emptySet(),
     initialFavoriteGenres: Set<String> = emptySet(),
     onLanguageSelected: (String) -> Unit = {},
+    initialFavoriteSeries: List<FavoriteSeries> = emptyList(),
+    catalog: List<Manga> = emptyList(),
 ) {
     var step by rememberSaveable { mutableStateOf(0) }
     var isAdult by rememberSaveable { mutableStateOf(initialIsAdult) }
     var excluded by rememberSaveable { mutableStateOf(ArrayList(initialExcludedTags)) }
-    var favorites by rememberSaveable { mutableStateOf(ArrayList(initialFavoriteGenres)) }
+    var favorites by rememberSaveable(stateSaver = FavoriteSeriesSaver) { mutableStateOf(initialFavoriteSeries.take(5)) }
     var language by rememberSaveable {
         mutableStateOf(initialLanguage.takeIf { it in setOf("tr", "en", "both") } ?: "en")
     }
@@ -111,20 +119,19 @@ fun OnboardingScreen(
                         LanguageOption(copy.adult, "18+", isAdult == true, !saving) { isAdult = true }
                         LanguageOption(copy.minor, copy.safeMode, isAdult == false, !saving) { isAdult = false }
                     }
-                    if (step >= 2) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        val options = if (step == 2) blacklistTags else linkedMapOf(
-                            "action" to "Action", "isekai" to "Isekai", "webtoon" to "Webtoon",
-                            "murim" to "Murim", "romance" to "Romance", "seinen" to "Seinen",
-                        )
-                        options.forEach { (key, label) ->
-                            val selection = if (step == 2) excluded else favorites
+                    if (step == 2) FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        blacklistTags.forEach { (key, label) ->
+                            val selection = excluded
                             FilterChip(selected = key in selection, enabled = !saving,
                                 onClick = {
                                     val next = ArrayList(selection).apply { if (!remove(key)) add(key) }
-                                    if (step == 2) excluded = next else favorites = next
-                                }, label = { Text(if (step == 2) "🚫 ${if (key == "gore") copy.gore else label}" else label) })
+                                    excluded = next
+                                }, label = { Text("🚫 ${if (key == "gore") copy.gore else label}") })
                         }
                     }
+                    if (step == 3) FavoriteSeriesPicker(
+                        publicCatalog(catalog, excluded.toSet(), isAdult == true), favorites, !saving, copy,
+                    ) { favorites = it }
                     Spacer(Modifier.height(20.dp))
                     Text(copy.languageNote, style = MaterialTheme.typography.bodyMedium, color = OnboardingMuted)
                     Spacer(Modifier.height(32.dp))
@@ -134,9 +141,12 @@ fun OnboardingScreen(
                         .semantics { liveRegion = LiveRegionMode.Polite })
                 }
                 if (step > 0) TextButton(onClick = { step-- }, enabled = !saving) { Text(copy.back) }
+                if (step == 3) TextButton(onClick = {
+                    onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, emptyList())
+                }, enabled = !saving) { Text(copy.skip) }
                 Button(onClick = {
-                    if (step < 3) step++ else onComplete(language, isAdult == true, excluded.toSet(), favorites.toSet())
-                }, enabled = !saving && (step != 1 || isAdult != null),
+                    if (step < 3) step++ else onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites)
+                }, enabled = !saving && (step != 1 || isAdult != null) && (step != 3 || favorites.isNotEmpty()),
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = OnboardingPurple, contentColor = Color.White),
                     shape = RoundedCornerShape(16.dp)) {
