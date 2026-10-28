@@ -148,8 +148,12 @@
     <string name="onboarding_age_description">Safe mode hides adult content. You can change your preference in Settings.</string>
     <string name="onboarding_exclusions_title">What would you rather not see?</string>
     <string name="onboarding_exclusions_description">Series with these tags are hidden everywhere, including search, shelves and the Vault.</string>
-    <string name="onboarding_genres_title">Which worlds shall we explore?</string>
-    <string name="onboarding_genres_description">You can select multiple genres. These preferences do not change your blacklist.</string>
+    <string name="onboarding_genres_title">Choose your 5 favorite series</string>
+    <string name="onboarding_genres_description">Pick up to 5 beloved series to shape your recommendations. You can continue with one or skip.</string>
+    <string name="onboarding_series_search">Search series</string>
+    <string name="onboarding_series_empty">No series found. Try another title or skip for now.</string>
+    <string name="onboarding_series_remove">Remove</string>
+    <string name="onboarding_series_skip">Skip</string>
     <string name="onboarding_adult">🔞 I am 18 or older</string>
     <string name="onboarding_minor">🛡️ I am under 18</string>
     <string name="onboarding_safe_mode">Safe Mode</string>

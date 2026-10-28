@@ -131,7 +131,8 @@ class YomiraViewModel @Inject constructor(
     private val shelfSession = MutableStateFlow(Random.nextInt() to HomeShelf.select())
 
     /** Reading and saved-state changes promote learned interests without random shelf rolls. */
-    val homeRails: StateFlow<List<HomeRail>> = combine(catalog, discovery, read, saved, shelfSession) {
+    val homeRails: StateFlow<List<HomeRail>> = combine(catalog, discovery, read, saved,
+        combine(shelfSession, onboardingStore.observe()) { session, state -> session to state?.preferences }) {
         catalogState, discoveryState, readIds, savedIds, session ->
         buildHomeRails(
             catalog = catalogState.manga,
@@ -139,7 +140,9 @@ class YomiraViewModel @Inject constructor(
             discovered = discoveryState.items,
             readIds = readIds,
             savedIds = savedIds,
-            seed = session.first,
+            seed = session.first.first,
+            favoriteSeries = session.second?.favoriteSeries.orEmpty(),
+            legacyFavoriteGenres = session.second?.favoriteGenres.orEmpty(),
         )
     }.distinctUntilChanged()
         .flowOn(Dispatchers.Default)

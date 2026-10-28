@@ -3,6 +3,7 @@ package com.yomira.feature.home
 import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.Manga
+import com.yomira.domain.extension.FavoriteSeries
 
 /** Four learned-interest shelves plus one discovery slot; ties retain canonical order. */
 internal fun adaptiveHomeShelves(
@@ -28,6 +29,8 @@ fun buildHomeRails(
     savedIds: Set<String>,
     seed: Int,
     limit: Int = 14,
+    favoriteSeries: List<FavoriteSeries> = emptyList(),
+    legacyFavoriteGenres: Set<String> = emptySet(),
 ): List<HomeRail> {
     val all = publicCatalog(catalog + discovered).distinctBy { it.id }
     val recent = publicCatalog(updated)
@@ -36,7 +39,7 @@ fun buildHomeRails(
     return shelves.map { shelf ->
         val items = when (shelf) {
             HomeShelf.POPULAR -> popularTrendingShelf(all, recent, seed, limit)
-            HomeShelf.PERSONAL -> personalizedShelf(all, readIds, savedIds, seed, limit)
+            HomeShelf.PERSONAL -> personalizedShelf(all, readIds, savedIds, seed, limit, favoriteSeries, legacyFavoriteGenres)
                 .ifEmpty { popularTrendingShelf(all, recent, seed, limit) }
             // There is no creation timestamp in Manga. Prefer newly fetched rows;
             // otherwise offer a stable discovery mix rather than inventing recency.

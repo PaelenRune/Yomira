@@ -1,6 +1,7 @@
 package com.yomira.app.onboarding
 
 import com.yomira.domain.extension.ExtensionDescriptor
+import com.yomira.domain.extension.FavoriteSeries
 import com.yomira.domain.extension.ExtensionRepository
 import com.yomira.domain.extension.InstalledExtension
 import com.yomira.domain.extension.OnboardingState
@@ -84,6 +85,43 @@ class OnboardingViewModelTest {
         val failed = model.await { it.error != null }
         assertTrue(failed.loading)
         assertFalse(failed.completed)
+    }
+
+    @Test fun favoriteSeriesAndLegacyGenreParameterAreBothPreserved() = runBlocking {
+        val store = MemoryStore()
+        val model = model(store)
+        model.await { !it.loading }
+        val favorites = listOf(FavoriteSeries("one", "One"))
+        model.complete("en", false, setOf("gore"), setOf("action"), favorites)
+        model.await { it.completed }
+        assertEquals(favorites, store.saved!!.preferences.favoriteSeries)
+        assertEquals(setOf("action"), store.saved!!.preferences.favoriteGenres)
+        assertEquals(setOf("gore"), store.saved!!.preferences.excludedTags)
+    }
+
+    @Test fun legacyFourArgumentCompletionStillWorks() = runBlocking {
+        val store = MemoryStore()
+        val model = model(store)
+        model.await { !it.loading }
+        model.complete("en", false, emptySet(), setOf("action"))
+        model.await { it.completed }
+        assertEquals(setOf("action"), store.saved!!.preferences.favoriteGenres)
+        assertTrue(store.saved!!.preferences.favoriteSeries.isEmpty())
+    }
+
+    @Test fun favoritesAndExplicitRepositoryChoiceAreSavedTogether() = runBlocking {
+        for (integrate in listOf(false, true)) {
+            val store = MemoryStore()
+            val added = mutableListOf<String>()
+            val model = model(store, added = added)
+            model.await { !it.loading }
+            val favorites = listOf(FavoriteSeries("one", "One"))
+            model.complete("en", false, emptySet(), setOf("action"), favorites, integrateRepository = integrate)
+            model.await { it.completed }
+            assertEquals(favorites, store.saved!!.preferences.favoriteSeries)
+            assertEquals(setOf("action"), store.saved!!.preferences.favoriteGenres)
+            assertEquals(if (integrate) listOf(OnboardingWizardManager.KEIYOUSHI_INDEX) else emptyList(), added)
+        }
     }
 
     private fun model(

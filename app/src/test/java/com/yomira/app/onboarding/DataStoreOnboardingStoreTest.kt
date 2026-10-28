@@ -1,7 +1,12 @@
 package com.yomira.app.onboarding
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.core.edit
 import com.yomira.domain.extension.OnboardingState
+import com.yomira.domain.extension.FavoriteSeries
 import com.yomira.domain.extension.OnboardingWizardManager
 import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.extension.ReadingLanguage
@@ -32,7 +37,8 @@ class DataStoreOnboardingStoreTest {
         val file = File(temporary.root, "persisted.preferences_pb")
         val firstJob = SupervisorJob()
         val firstScope = CoroutineScope(firstJob + Dispatchers.IO)
-        val state = OnboardingState(ReaderPreferences(ReadingLanguage.BOTH, true, true, setOf("yaoi", "ntr"), setOf("murim", "action")),
+        val state = OnboardingState(ReaderPreferences(ReadingLanguage.BOTH, true, true, setOf("yaoi", "ntr"), setOf("murim", "action"),
+            listOf(FavoriteSeries("one", "Türkçe \"Title\""), FavoriteSeries(title = "Title only"))),
             OnboardingWizardManager.KEIYOUSHI_INDEX, listOf("extension.en"), true)
         try { store(file, firstScope).writeWithDiskRetry(state) } finally { firstScope.cancel(); firstJob.join() }
         kotlinx.coroutines.delay(50)
@@ -49,6 +55,23 @@ class DataStoreOnboardingStoreTest {
             val optedOut = OnboardingState(ReaderPreferences(ReadingLanguage.TURKISH), null, emptyList(), true)
             store.write(optedOut)
             assertEquals(optedOut, store.read())
+        } finally { scope.cancel() }
+    }
+
+    @Test fun legacyRecordsWithoutSeriesRetainGenreTaste() = runTest {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            val dataStore = PreferenceDataStoreFactory.create(scope = scope, produceFile = {
+                File(temporary.root, "legacy.preferences_pb")
+            })
+            dataStore.edit {
+                it[booleanPreferencesKey("onboardingCompleted")] = true
+                it[stringPreferencesKey("readingLanguage")] = "ENGLISH"
+                it[stringSetPreferencesKey("favoriteGenres")] = setOf("action")
+            }
+            val preferences = DataStoreOnboardingStore(dataStore).read()!!.preferences
+            assertEquals(emptyList<FavoriteSeries>(), preferences.favoriteSeries)
+            assertEquals(setOf("action"), preferences.favoriteGenres)
         } finally { scope.cancel() }
     }
 

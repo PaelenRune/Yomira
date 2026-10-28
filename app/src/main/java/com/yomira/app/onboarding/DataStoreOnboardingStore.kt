@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.yomira.domain.extension.OnboardingState
+import com.yomira.data.extension.FavoriteSeriesJson
 import com.yomira.domain.extension.OnboardingStore
 import com.yomira.domain.extension.ReaderPreferences
 import com.yomira.domain.extension.ReadingLanguage
@@ -30,6 +31,7 @@ class DataStoreOnboardingStore(private val dataStore: DataStore<Preferences>) : 
                 values[isAdult] ?: false,
                 values[excludedTags].orEmpty(),
                 values[favoriteGenres].orEmpty(),
+                FavoriteSeriesJson.decode(values[favoriteSeries]),
             ),
             repositoryUrl = values[repository],
             suggestedPackages = values[packages].orEmpty().sorted(),
@@ -44,6 +46,7 @@ class DataStoreOnboardingStore(private val dataStore: DataStore<Preferences>) : 
             values[isAdult] = state.preferences.isAdult
             values[excludedTags] = state.preferences.excludedTags
             values[favoriteGenres] = state.preferences.favoriteGenres
+            values[favoriteSeries] = FavoriteSeriesJson.encode(state.preferences.favoriteSeries)
             state.repositoryUrl?.let { values[repository] = it } ?: values.remove(repository)
             values[packages] = state.suggestedPackages.toSet()
             values[completed] = state.completed
@@ -57,6 +60,7 @@ class DataStoreOnboardingStore(private val dataStore: DataStore<Preferences>) : 
         val isAdult = booleanPreferencesKey("readerIsAdult")
         val excludedTags = stringSetPreferencesKey("excludedTags")
         val favoriteGenres = stringSetPreferencesKey("favoriteGenres")
+        val favoriteSeries = stringPreferencesKey("favoriteSeries")
         val repository = stringPreferencesKey("repositoryUrl")
         val packages = stringSetPreferencesKey("suggestedPackages")
     }

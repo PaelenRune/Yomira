@@ -13,12 +13,15 @@ enum class ReadingLanguage(val code: String) {
     }
 }
 
+data class FavoriteSeries(val catalogId: String? = null, val title: String)
+
 data class ReaderPreferences(
     val language: ReadingLanguage,
     val allowAdultContent: Boolean = false,
     val isAdult: Boolean = false,
     val excludedTags: Set<String> = emptySet(),
     val favoriteGenres: Set<String> = emptySet(),
+    val favoriteSeries: List<FavoriteSeries> = emptyList(),
 )
 
 data class ExtensionSource(val id: String, val name: String, val language: String)

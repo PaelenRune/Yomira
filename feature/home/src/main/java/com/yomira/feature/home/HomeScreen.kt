@@ -28,6 +28,7 @@ import com.yomira.core.model.isVisibleForReader
 import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.globalRankScore
+import com.yomira.domain.extension.FavoriteSeries
 import com.yomira.core.ui.*
 import java.util.Locale
 import com.yomira.core.ui.theme.CardSurface
@@ -163,11 +164,7 @@ fun HomeScreen(
         publicCatalog(state.manga + state.discovery, state.excludedTags, state.isAdult).distinctBy { it.id }
     }
     val visible = remember(all, state.query, state.selectedTags) {
-        all.filter {
-            it.title.contains(state.query, ignoreCase = true) ||
-                it.altTitles.any { alt -> alt.contains(state.query, ignoreCase = true) } ||
-                it.genres.any { genre -> genre.contains(state.query, true) }
-        }.let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
+        searchLocalCatalog(all, state.query).let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
     }
     val gridState = rememberLazyGridState()
     val nearBottom by remember(gridState) {
@@ -572,16 +569,22 @@ internal fun personalizedShelf(
     savedIds: Set<String>,
     seed: Int,
     limit: Int = 14,
+    favoriteSeries: List<FavoriteSeries> = emptyList(),
+    legacyFavoriteGenres: Set<String> = emptySet(),
 ): List<Manga> {
     if (all.isEmpty()) return emptyList()
     val tasteIds = readIds + savedIds
-    val favoriteGenres = all.asSequence()
+    val learnedGenres = all.asSequence()
         .filter { it.id in tasteIds }
         .flatMap { it.genres.asSequence() }
         .map { it.trim().lowercase(Locale.ROOT) }
         .filter { it.isNotEmpty() }
         .groupingBy { it }
         .eachCount()
+    val seedGenres = favoriteSeriesGenreAffinity(all, favoriteSeries, legacyFavoriteGenres)
+    val favoriteGenres = (learnedGenres.keys + seedGenres.keys).associateWith {
+        (learnedGenres[it] ?: 0) + (seedGenres[it] ?: 0)
+    }
     val strongest = favoriteGenres.values.maxOrNull() ?: 0
     val hasTaste = strongest > 0
     return all.distinctBy { it.id }
@@ -604,6 +607,22 @@ internal fun personalizedShelf(
             }.thenBy { it.id },
         )
         .take(limit)
+}
+
+/** Resolve at most five seeds in one catalog pass; IDs win, titles/aliases cover imported seeds. */
+internal fun favoriteSeriesGenreAffinity(
+    catalog: List<Manga>, favorites: List<FavoriteSeries>, legacyGenres: Set<String>,
+): Map<String, Int> {
+    fun String.normalized() = trim().lowercase(Locale.ROOT)
+    val seeds = favorites.take(5)
+    val byId = seeds.mapNotNull { it.catalogId }.toSet()
+    val byTitle = seeds.filter { it.catalogId == null }.map { it.title.normalized() }.toSet()
+    val genres = catalog.asSequence().distinctBy { it.id }.filter { manga ->
+        manga.id in byId || manga.title.normalized() in byTitle || manga.altTitles.any { it.normalized() in byTitle }
+    }.flatMap { it.genres.asSequence() }.map { it.normalized() }.filter { it.isNotEmpty() }
+        .groupingBy { it }.eachCount()
+    return if (favorites.isEmpty()) legacyGenres.asSequence().map { it.normalized() }
+        .filter { it.isNotEmpty() }.groupingBy { it }.eachCount() else genres
 }
 
 /** "🌀 Popüler Isekai & Fantezi": isekai/reincarnation first, then the fantasy shelf. */

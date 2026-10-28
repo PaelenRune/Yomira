@@ -333,8 +333,12 @@
     <string name="onboarding_age_description">Güvenli mod yetişkin içeriklerini gizler. Tercihini ayarlardan değiştirebilirsin.</string>
     <string name="onboarding_exclusions_title">Neleri görmek istemezsin?</string>
     <string name="onboarding_exclusions_description">Seçtiğin etiketlerdeki seriler arama, raflar ve Vault dahil hiçbir yerde gösterilmez.</string>
-    <string name="onboarding_genres_title">Hangi dünyalara dalalım?</string>
-    <string name="onboarding_genres_description">Birden fazla tür seçebilirsin. Bu tercihler kara listeni değiştirmez.</string>
+    <string name="onboarding_genres_title">En sevdiğin 5 seriyi seç</string>
+    <string name="onboarding_genres_description">Önerilerini şekillendirmek için en fazla 5 favori seri seç. Bir seçimle devam edebilir veya atlayabilirsin.</string>
+    <string name="onboarding_series_search">Seri ara</string>
+    <string name="onboarding_series_empty">Seri bulunamadı. Başka bir ad dene veya şimdilik atla.</string>
+    <string name="onboarding_series_remove">Kaldır</string>
+    <string name="onboarding_series_skip">Atla</string>
     <string name="onboarding_adult">🔞 18 Yaşından Büyüğüm</string>
     <string name="onboarding_minor">🛡️ 18 Yaşından Küçüğüm</string>
     <string name="onboarding_safe_mode">Güvenli Mod</string>
