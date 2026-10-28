@@ -41,6 +41,7 @@ data class ExtensionsUiState(
     val filter: ExtensionFilter = ExtensionFilter.ALL,
     val language: String = "all",
     val error: Boolean = false,
+    val outdatedRepository: Boolean = false,
     val rows: List<ExtensionRow> = emptyList(),
 )
 
@@ -150,13 +151,13 @@ class ExtensionsViewModel @Inject constructor(
 
     private fun change(packageName: String? = null, block: suspend () -> Unit) {
         if (mutableState.value.loading || mutableState.value.busyPackage != null) return
-        mutableState.update { it.copy(loading = packageName == null, busyPackage = packageName, error = false) }
+        mutableState.update { it.copy(loading = packageName == null, busyPackage = packageName, error = false, outdatedRepository = false) }
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) { block() }
             } catch (cancelled: CancellationException) { throw cancelled
-            } catch (_: Exception) {
-                mutableState.update { it.copy(error = true) }
+            } catch (error: Exception) {
+                mutableState.update { it.copy(error = true, outdatedRepository = error is com.yomira.data.extension.OutdatedRepositoryClientException) }
             } finally {
                 mutableState.update { it.copy(loading = false, busyPackage = null) }
             }

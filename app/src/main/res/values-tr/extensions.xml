@@ -13,6 +13,7 @@
     <string name="extensions_updates">Güncelleme</string>
     <string name="extensions_all_languages">Tüm diller</string>
     <string name="extensions_error">İşlem tamamlanamadı. Bağlantını ve depo adresini kontrol edip yeniden dene. Mevcut kurulumlar listelenmeye devam eder.</string>
+    <string name="extensions_outdated_repository">Depo bu istemci sürümünü tanımıyor. Deponun güncel uyumluluk gereksinimlerini kontrol et.</string>
     <string name="extensions_empty">Bu filtrelere uygun eklenti bulunamadı.</string>
     <string name="extensions_install">Yükle</string>
     <string name="extensions_uninstall">Kaldır</string>

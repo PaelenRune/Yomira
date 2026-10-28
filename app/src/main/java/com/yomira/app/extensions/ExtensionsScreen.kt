@@ -92,7 +92,7 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
             }
             if (state.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
             if (state.error) item {
-                Text(stringResource(R.string.extensions_error), color = MaterialTheme.colorScheme.error)
+                Text(stringResource(if (state.outdatedRepository) R.string.extensions_outdated_repository else R.string.extensions_error), color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = onRefresh, enabled = !busy) { Text(stringResource(R.string.extensions_refresh)) }
             }
             if (!state.loading && state.rows.isEmpty()) item {

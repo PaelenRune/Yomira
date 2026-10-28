@@ -13,6 +13,7 @@
     <string name="extensions_updates">Updates</string>
     <string name="extensions_all_languages">All languages</string>
     <string name="extensions_error">Could not complete the operation. Check your connection and repository URL, then retry. Existing installations are still listed.</string>
+    <string name="extensions_outdated_repository">The repository does not recognize this client version. Check the repository’s current compatibility requirements.</string>
     <string name="extensions_empty">No extensions match these filters.</string>
     <string name="extensions_install">Install</string>
     <string name="extensions_uninstall">Uninstall</string>

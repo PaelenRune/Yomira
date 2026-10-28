@@ -12,6 +12,8 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+class OutdatedRepositoryClientException : IllegalArgumentException("Repository does not recognize this client version")
+
 class KeiyoushiRepoParser {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -19,6 +21,9 @@ class KeiyoushiRepoParser {
         requireHttps(indexUrl)
         val entries = json.parseToJsonElement(RepositoryPayload.decode(payload)) as? JsonArray
             ?: throw IllegalArgumentException("Repository index must be a JSON array")
+        if (entries.size in 1..2 && entries.any {
+                (it as? JsonObject)?.text("name")?.equals("Outdated App", ignoreCase = true) == true
+            }) throw OutdatedRepositoryClientException()
         val extensions = entries.mapIndexed { index, element ->
             try {
                 val entry = element.jsonObject

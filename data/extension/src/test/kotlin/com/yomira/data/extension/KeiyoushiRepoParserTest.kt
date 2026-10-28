@@ -24,6 +24,11 @@ class KeiyoushiRepoParserTest {
 
     @Test fun `empty repository is valid`() { assertTrue(parser.parse("[]", url).isEmpty()) }
 
+    @Test(expected = OutdatedRepositoryClientException::class)
+    fun `identifies upstream outdated app placeholder before parsing legacy fields`() {
+        parser.parse("""[{"name":"Outdated App","pkg":"stub"},{"name":"Update to Mihon 0.20.1+","pkg":"stub2"}]""", url)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun `rejects malformed root`() { parser.parse("{}", url) }
 
