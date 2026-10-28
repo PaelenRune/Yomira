@@ -48,8 +48,11 @@ object ExtensionSandboxModule {
     /** "Installed" is the manifest store, not PackageManager — no APK installs, no warnings. */
     @Provides
     @Singleton
-    fun provideInstalledExtensionProvider(store: FileJsonSourceManifestStore): InstalledExtensionProvider =
-        ManifestInstalledExtensionProvider(store)
+    fun provideInstalledExtensionProvider(store: FileJsonSourceManifestStore,
+        consentStore: com.yomira.data.extension.ExtensionConsentStore,
+        coordinator: com.yomira.app.extensions.ExtensionConsentCoordinator,
+    ): InstalledExtensionProvider =
+        ManifestInstalledExtensionProvider(store, com.yomira.data.extension.ExtensionTrust(consentStore, coordinator))
 
     @Provides
     @Singleton

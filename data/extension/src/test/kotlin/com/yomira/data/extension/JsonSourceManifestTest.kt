@@ -44,6 +44,17 @@ class JsonSourceManifestTest {
         )
     }
 
+    @Test fun `legacy manifests without publisher fields decode as an unknown publisher`() {
+        // Exactly what an older app version wrote before publisher identity existed:
+        // the same document with the two additive fields stripped.
+        val legacy = JsonSourceManifestCodec.encode(manifest())
+            .replace(""","publisherFingerprint":null,"publisherFingerprintReason":null""", "")
+        val decoded = JsonSourceManifestCodec.decode(legacy)
+        assertNull(decoded.publisherFingerprint)
+        assertNull(decoded.publisherFingerprintReason)
+        assertEquals(manifest().normalized(), decoded.normalized())
+    }
+
     @Test fun `encoded output is deterministic regardless of input order`() {
         val shuffled = manifest().copy(
             dexFiles = listOf(SandboxedDexFile("classes2.dex", 2L, "b".repeat(64)), dex),
@@ -141,7 +152,7 @@ class JsonSourceManifestTest {
         val installed = provider.installed().single()
         assertEquals(descriptor.packageName, installed.packageName)
         assertEquals(14L, installed.versionCode)
-        assertTrue(installed.trusted)
+        assertFalse(installed.trusted)
         assertEquals(descriptor, installed.descriptor)
     }
 }

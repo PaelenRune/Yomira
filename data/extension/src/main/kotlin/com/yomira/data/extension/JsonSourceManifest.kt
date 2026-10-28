@@ -49,6 +49,9 @@ data class JsonSourceManifest(
     val sources: List<ManifestSourceEntry> = emptyList(),
     /** Optional APK inspection provenance; absent on legacy manifests. */
     val apkMetadata: ApkMetadata? = null,
+    /** SHA-256 of a v1 signing certificate DER; null means unknown, never verified trust. */
+    val publisherFingerprint: String? = null,
+    val publisherFingerprintReason: String? = null,
 ) {
     init {
         require(packageName.isNotBlank() && name.isNotBlank() && language.isNotBlank()) {
@@ -72,6 +75,7 @@ data class JsonSourceManifest(
 
     /** Rejects documents that could not have been produced by this app version. */
     fun validate() {
+        require(publisherFingerprint == null || publisherFingerprint.matches(SHA256_HEX)) { "Invalid publisher fingerprint" }
         require(schemaVersion in 1..CURRENT_SCHEMA_VERSION) { "Unsupported manifest schema $schemaVersion" }
         requireHttps(apkUrl)
         requireHttps(repositoryUrl)

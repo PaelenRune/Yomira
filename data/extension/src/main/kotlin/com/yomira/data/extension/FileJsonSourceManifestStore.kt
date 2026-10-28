@@ -118,12 +118,17 @@ class FileJsonSourceManifestStore(private val layout: SandboxLayout) {
 
 /**
  * JSON-first replacement for the Android package manager as the source of "installed" state:
- * a manifest on disk *is* the installation. Trust is explicit — manifests only appear through
- * [SandboxExtensionInstaller], which the user triggers against a consented repository.
+ * a manifest on disk is installation, but never implies first-use consent.
  */
-class ManifestInstalledExtensionProvider(private val store: FileJsonSourceManifestStore) : InstalledExtensionProvider {
+class ManifestInstalledExtensionProvider(
+    private val store: FileJsonSourceManifestStore,
+    private val trust: ExtensionTrust? = null,
+) : InstalledExtensionProvider {
     override suspend fun installed(): List<InstalledExtension> =
-        store.all().map { InstalledExtension(it.packageName, it.versionCode, trusted = true, descriptor = it.descriptor()) }
+        store.all().map {
+            val granted = trust?.allow(it, kotlinx.coroutines.currentCoroutineContext()[ExtensionConsentInteraction]) ?: false
+            InstalledExtension(it.packageName, it.versionCode, trusted = granted, descriptor = it.descriptor())
+        }
 }
 
 /**

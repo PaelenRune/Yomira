@@ -12,10 +12,12 @@ class RuntimeApkToJsonConverter(private val extractor: ApkSandboxExtractor) {
     ): JsonSourceManifest {
         com.yomira.domain.extension.requireHttps(repositoryUrl)
         require(installedAt >= 0)
+        val publisher = ApkPublisherInspector.inspect(apkBytes)
         val extraction = extractor.extract(apkBytes, descriptor.packageName, installedAt, descriptor.versionCode)
         return JsonSourceManifest.of(
             descriptor, repositoryUrl, extraction.installedAt,
             extraction.dexFiles, extraction.entryClassCandidates,
-        ).copy(apkMetadata = extraction.apkMetadata).also { it.validate() }
+        ).copy(apkMetadata = extraction.apkMetadata, publisherFingerprint = publisher.fingerprint,
+            publisherFingerprintReason = publisher.reason).also { it.validate() }
     }
 }

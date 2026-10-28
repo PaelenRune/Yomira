@@ -50,6 +50,10 @@ object SettingsModule {
         DataStoreSettingsStore(context.settingsDataStore)
 
     @Provides @Singleton
+    fun extensionConsentStore(@ApplicationContext context: Context): com.yomira.data.extension.ExtensionConsentStore =
+        com.yomira.app.settings.DataStoreExtensionConsentStore(context.settingsDataStore)
+
+    @Provides @Singleton
     fun cacheManager(@ApplicationContext context: Context, client: OkHttpClient, layout: SandboxLayout): CacheManager {
         // Resolve Coil lazily inside CacheManager's IO context, not on Hilt's caller thread.
         val images = object : ManagedCache {

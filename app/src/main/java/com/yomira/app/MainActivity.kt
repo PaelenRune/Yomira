@@ -77,6 +77,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var journeyRepository: JourneyRepository
     @Inject lateinit var extensionRepository: ExtensionRepository
+    @Inject lateinit var extensionConsent: com.yomira.app.extensions.ExtensionConsentCoordinator
     private var pendingRepoLink by mutableStateOf<RepoDeepLinkResult>(RepoDeepLinkResult.NotRepoLink)
     private var navigateExtensions by mutableStateOf(false)
     private var addingRepo by mutableStateOf(false)
@@ -147,6 +148,7 @@ class MainActivity : AppCompatActivity() {
         if (!BuildConfig.DEBUG && !BuildConfig.QA_CAPTURE) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent { YomiraTheme {
+            com.yomira.app.extensions.ExtensionConsentDialog(extensionConsent)
             val onboarding by onboardingModel.state.collectAsStateWithLifecycle()
             val onboardingCatalog by model.catalog.collectAsStateWithLifecycle()
             // The reading language chosen in the wizard is also the UI language: applying

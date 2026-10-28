@@ -548,8 +548,10 @@ class YomiraViewModel @Inject constructor(
             val stored = onboardingStore.read()?.preferences ?: ReaderPreferences(activeReadingLanguage())
             val sourcePreferences = com.yomira.app.catalog.readingSourcePreferences(manga, stored, unlocked.value)
                 ?: return@withContext null
-            com.yomira.app.catalog.ReadingSourceResolver(matcher.get(), chapterDao).resolve(manga, requestedId,
-                sourcePreferences, requestedNumber)
+            withContext(com.yomira.data.extension.ExtensionConsentInteraction(sourcePreferences)) {
+                com.yomira.app.catalog.ReadingSourceResolver(matcher.get(), chapterDao).resolve(manga, requestedId,
+                    sourcePreferences, requestedNumber)
+            }
         }
     }
 
@@ -569,8 +571,9 @@ class YomiraViewModel @Inject constructor(
                     val settings = stored?.copy(language = language) ?: ReaderPreferences(language)
                     val sourcePreferences = com.yomira.app.catalog.readingSourcePreferences(manga, settings, unlocked.value)
                         ?: return@withContext SmartMatchResult.NoMatch
-                    val result = matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()),
-                        sourcePreferences)
+                    val result = withContext(com.yomira.data.extension.ExtensionConsentInteraction(sourcePreferences)) {
+                        matcher.get().match(SeriesIdentity(manga.id, manga.title, manga.altTitles.toSet()), sourcePreferences)
+                    }
                     if (result is SmartMatchResult.Ready) {
                         // Activate before publishing: opening a series never asks the reader
                         // to choose a match or switch away from the onboarding language.

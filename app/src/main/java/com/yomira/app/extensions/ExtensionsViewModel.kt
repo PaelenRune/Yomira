@@ -79,11 +79,17 @@ interface ExtensionOperations {
     suspend fun uninstall(packageName: String)
 }
 
-class SandboxExtensionOperations @Inject constructor(private val installer: SandboxExtensionInstaller) : ExtensionOperations {
+class SandboxExtensionOperations @Inject constructor(
+    private val installer: SandboxExtensionInstaller,
+    private val consent: com.yomira.data.extension.ExtensionConsentStore,
+) : ExtensionOperations {
     override suspend fun install(descriptor: ExtensionDescriptor, repositoryUrl: String) {
         installer.install(descriptor, repositoryUrl)
     }
-    override suspend fun uninstall(packageName: String) { installer.uninstall(packageName) }
+    override suspend fun uninstall(packageName: String) {
+        installer.uninstall(packageName)
+        consent.revoke(packageName)
+    }
 }
 
 @HiltViewModel
