@@ -10,6 +10,10 @@ interface UpgradeStateStore {
     fun dismissNotice()
 }
 
+/** The pending notice remains visible through onboarding and waits for repository dialogs. */
+fun shouldShowUpgradeNotice(pending: Boolean, onboardingLoading: Boolean, repoDialogVisible: Boolean): Boolean =
+    pending && !onboardingLoading && !repoDialogVisible
+
 /** The version is committed only after every cleanup succeeds; interrupted work is retried. */
 class UpgradeCleanupManager(
     private val state: UpgradeStateStore,

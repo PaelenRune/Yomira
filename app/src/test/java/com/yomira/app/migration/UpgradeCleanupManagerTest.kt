@@ -17,9 +17,14 @@ class UpgradeCleanupManagerTest {
         val restarted = UpgradeCleanupManager(state, { purges++ }, { true })
         restarted.run()
         assertTrue(restarted.noticePending())
+        assertTrue(shouldShowUpgradeNotice(restarted.noticePending(), onboardingLoading = false, repoDialogVisible = false))
+        assertFalse(shouldShowUpgradeNotice(restarted.noticePending(), onboardingLoading = true, repoDialogVisible = false))
+        assertFalse(shouldShowUpgradeNotice(restarted.noticePending(), onboardingLoading = false, repoDialogVisible = true))
+        assertTrue(restarted.noticePending())
         restarted.dismissNotice()
         restarted.run()
         assertFalse(restarted.noticePending())
+        assertFalse(shouldShowUpgradeNotice(restarted.noticePending(), onboardingLoading = false, repoDialogVisible = false))
         assertEquals(1, purges)
     }
 

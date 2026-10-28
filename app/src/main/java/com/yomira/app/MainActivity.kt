@@ -235,14 +235,16 @@ class MainActivity : AppCompatActivity() {
                 RepoDeepLinkResult.NotRepoLink -> Unit
             }
             var showUpgradeNotice by remember { mutableStateOf(upgradeCleanup.noticePending()) }
+            val upgradeNoticeVisible = com.yomira.app.migration.shouldShowUpgradeNotice(
+                showUpgradeNotice, onboarding.loading,
+                onboarding.completed && pendingRepoLink != RepoDeepLinkResult.NotRepoLink,
+            )
             LaunchedEffect(showUpgradeNotice, onboarding.loading, onboarding.completed, pendingRepoLink) {
-                if (showUpgradeNotice && !onboarding.loading &&
-                    (!onboarding.completed || pendingRepoLink == RepoDeepLinkResult.NotRepoLink)) {
+                if (upgradeNoticeVisible) {
                     android.util.Log.d("YomiraUpgrade", "v811-notice shown")
                 }
             }
-            if (showUpgradeNotice && !onboarding.loading &&
-                (!onboarding.completed || pendingRepoLink == RepoDeepLinkResult.NotRepoLink)) AlertDialog(
+            if (upgradeNoticeVisible) AlertDialog(
                 onDismissRequest = { upgradeCleanup.dismissNotice(); showUpgradeNotice = false },
                 text = { Text(stringResource(R.string.upgrade_sources_notice)) },
                 confirmButton = { TextButton(onClick = {
