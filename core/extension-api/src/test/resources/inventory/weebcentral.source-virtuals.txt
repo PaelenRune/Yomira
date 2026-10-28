@@ -1,0 +1,10 @@
+Leu/kanade/tachiyomi/source/online/HttpSource;->getChapterUrl(Leu/kanade/tachiyomi/source/model/SChapter;)Ljava/lang/String;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getClient()Lokhttp3/OkHttpClient;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getDisableRelatedMangas()Z
+Leu/kanade/tachiyomi/source/online/HttpSource;->getDisableRelatedMangasBySearch()Z
+Leu/kanade/tachiyomi/source/online/HttpSource;->getFilterList()Leu/kanade/tachiyomi/source/model/FilterList;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getMangaUpdate(Leu/kanade/tachiyomi/source/model/SManga;Ljava/util/List;ZZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getMangaUrl(Leu/kanade/tachiyomi/source/model/SManga;)Ljava/lang/String;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getSearchManga(ILjava/lang/String;Leu/kanade/tachiyomi/source/model/FilterList;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+Leu/kanade/tachiyomi/source/online/HttpSource;->getSupportsLatest()Z
+Leu/kanade/tachiyomi/source/online/HttpSource;->headersBuilder()Lokhttp3/Headers$Builder;

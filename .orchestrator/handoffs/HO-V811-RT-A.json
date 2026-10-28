@@ -1,0 +1,90 @@
+{
+  "taskId": "V811-RT-A",
+  "status": "complete-go",
+  "role": "AGENT-API (compat layer engineer)",
+  "scope": "API-compatibility shim layer (:core:extension-api) so third-party extension DEXes link in the in-process DexClassLoader runtime. Evidence-based: every shim FQCN/signature derives from dexdump of the three fixture-pinned extension APKs.",
+  "inventory": {
+    "method": "tools/inventory.py (checked-in, stdlib-only) parses the committed keiyoushi-index.pb fixture, downloads the pinned APKs, extracts classes*.dex, and derives referenced-type/member sets via dexdump -f -d plus direct DEX header parsing.",
+    "apkBaseUrls": {
+      "publishedLayout": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/",
+      "fixturePinnedReleaseUrls": "https://github.com/keiyoushi/extensions/releases/download/<tag>/<apk> (byte-identical, sha256-stable across fetches)"
+    },
+    "referenceAbi": "keiyoushi/extensions-lib v1.6 commit 42255ee5fa (tachiyomi-lib-v16); Mihon source-api for runtime behaviors (generateId, headersBuilder, setUrlWithoutDomain, model impl defaults)",
+    "tempDir": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\ (APKs, extracted dex, full dexdump texts, upstream reference sources - kept for later agents)",
+    "perExtension": {
+      "mangafire": { "version": "1.6.35", "requiredTypes": 143, "euKanadeTypes": 20, "memberRefs": 52, "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-all.mangafire-v1.6.35.apk", "sha256": "d5b9bcbaa1d19e24ce82a9d6827cffc1778bcc58deb30e2c0eb02a8482503cb4" },
+      "weebcentral": { "version": "1.6.25", "requiredTypes": 82, "euKanadeTypes": 18, "memberRefs": 48, "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-en.weebcentral-v1.6.25.apk", "sha256": "04331a9b4bb878325dfca1079757c9152cdf66916f7859d0dddf41cf26553d30" },
+      "toonily": { "version": "1.6.72", "requiredTypes": 135, "euKanadeTypes": 19, "memberRefs": 55, "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-en.toonily-v1.6.72.apk", "sha256": "3cfefdaa4b798ef303b16d9d09c69b227ad76caa9ed13cdef495b42020af46b5" }
+    },
+    "shimUnionTypes": 23
+  },
+  "shimModule": {
+    "path": "core/extension-api",
+    "type": "Android library, namespace com.yomira.core.extension.api, classes under eu.kanade.tachiyomi.* for link compatibility",
+    "classFiles": 40,
+    "keyFacts": [
+      "Source/HttpSource expose the v1.6 suspend API only (getPopularManga/getLatestUpdates/getSearchManga/getMangaUpdate/getPageList); callback-style getMangaDetails/getChapterList/getImageList verified NOT required by the audited DEXes",
+      "Model constructor defaults pinned by DEX $default synthetics replicated exactly (Filter.CheckBox/Select/Separator/Text/TriState, Page incl. android.net.Uri)",
+      "NetworkHelper.client/OkHttpExtensionsKt.await+awaitSuccess/RequestsKt.GET$default implemented for real; OkHttpClient comes from eu.kanade.tachiyomi.shim.ShimServiceLocator.configure(client, userAgent?) - host injects its instrumented client; unconfigured access fails fast with ShimNotSupportedException naming the member",
+      "Mihon behaviors mirrored: generateId (MD5 name/lang/versionId big-endian, sign bit cleared), default UA headersBuilder, imageRequest, setUrlWithoutDomain (URI-decoded), SMangaImpl/SChapterImpl defaults",
+      "consumer-rules.pro keeps eu.kanade.tachiyomi.** unrenamed through release minification; classes verified present in app-debug.apk dex"
+    ]
+  },
+  "knownMissing": [
+    "JavaScriptEngine.evaluate - shipped for ABI completeness, always throws ShimNotSupportedException naming the member; needs a JS engine (QuickJS) to become functional; not referenced by the audited DEXes",
+    "parseJsoup/parseAs/parseAsJsoupList/parseAsSrcDocstring/parseAsProtoBytes, JavaNetClient, eu.kanade.tachiyomi.util.* - verified NOT referenced by the three audited DEXes (they call jsoup/kotlinx-serialization directly); add shims only if a future extension requires them"
+  ],
+  "hostRequirementsForRuntimeAgent": "See .orchestrator/execution/runtime-link-inventory.md (HOST-PROVIDED table): jsoup, injekt-core (JitPack repo needed), okhttp 5.4.0 upgrade (Gzip/zstd/CompressionInterceptor/maxAge-LRDsOJo members), okhttp-brotli, okhttp-zstd + zstd-kmp-okio, kotlinx-serialization-json-okio, androidx.preference, coroutines 1.11.0 (runBlockingK$default, Job.cancel$default), kotlin-stdlib 2.4.x (Instant$Companion.parseOrNull).",
+  "tests": {
+    "inventoryRegression": "InventoryLinkContractTest - required eu.kanade.* sets, referenced members, overridden source virtuals (from checked-in text inventory, not binaries) all resolve on the shim classpath; external members resolve unless documented host-provided",
+    "reflectionAndBehavior": "ShimBehaviorContractTest incl. FakeSource synthetic mini-extension compiled against the shim; Mihon id algorithm; filter/model shapes; setUrlWithoutDomain; GET/POST; await/awaitSuccess via MockWebServer",
+    "injection": "ServiceLocatorInjectionTest - fail-fast before injection, injected client used by NetworkHelper/FakeSource, userAgent override, reset"
+  },
+  "filesChanged": [
+    "core/extension-api/build.gradle.kts",
+    "core/extension-api/consumer-rules.pro",
+    "core/extension-api/tools/inventory.py",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/shim/ShimServiceLocator.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/shim/ShimNotSupportedException.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/network/HttpException.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/network/NetworkHelper.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/network/OkHttpExtensions.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/network/Requests.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/network/JavaScriptEngine.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/Source.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/CatalogueSource.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/ConfigurableSource.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/SourceFactory.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/UnmeteredSource.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/online/HttpSource.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/Filter.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/FilterList.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/MangasPage.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/Page.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SChapter.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SChapterImpl.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SManga.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SMangaImpl.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/SMangaUpdate.kt",
+    "core/extension-api/src/main/kotlin/eu/kanade/tachiyomi/source/model/UpdateStrategy.kt",
+    "core/extension-api/src/test/kotlin/com/yomira/core/extension/api/DexDescriptors.kt",
+    "core/extension-api/src/test/kotlin/com/yomira/core/extension/api/FakeSource.kt",
+    "core/extension-api/src/test/kotlin/com/yomira/core/extension/api/InventoryLinkContractTest.kt",
+    "core/extension-api/src/test/kotlin/com/yomira/core/extension/api/ShimBehaviorContractTest.kt",
+    "core/extension-api/src/test/kotlin/com/yomira/core/extension/api/ServiceLocatorInjectionTest.kt",
+    "core/extension-api/src/test/resources/inventory/ (15 inventory files + apks.json)",
+    "settings.gradle.kts (include :core:extension-api)",
+    "app/build.gradle.kts (implementation(project(\":core:extension-api\")))",
+    ".orchestrator/execution/runtime-link-inventory.md"
+  ],
+  "gateTails": [
+    ".\\gradlew.bat :core:extension-api:testDebugUnitTest: BUILD SUCCESSFUL in 3s (17 tests)",
+    ".\\gradlew.bat :app:testDebugUnitTest :app:assembleDebug: BUILD SUCCESSFUL in 40s, 288 actionable tasks: 32 executed, 2 from cache, 254 up-to-date"
+  ],
+  "goSignal": "Go for runtime host implementation: load DEXes with a DexClassLoader whose parent exposes this module, call ShimServiceLocator.configure(instrumentedClient) before first use, and satisfy the HOST-PROVIDED table (okhttp 5.4.0, coroutines 1.11.0, stdlib 2.4.x, jsoup, injekt via JitPack, brotli/zstd, json-okio) before enabling real sources.",
+  "knownLimits": [
+    "Shims make DEXes link and model/network code run; no security boundary is added - in-process extensions still run with the host app's permissions (documented product decision).",
+    "Only the three fixture-pinned extensions are audited; other extensions may reference additional members (InventoryLinkContractTest will surface them if their inventories are added).",
+    "JavaScriptEngine.evaluate and the util/parse* surface are unimplemented (see knownMissing); no automated device or install verification was in scope."
+  ]
+}

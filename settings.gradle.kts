@@ -21,6 +21,7 @@ include(
     ":core:database",
     ":core:ui",
     ":core:network",
+    ":core:extension-api",
     ":domain:classifier",
     ":data:metadata",
 )

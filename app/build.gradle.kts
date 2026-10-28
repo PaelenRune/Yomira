@@ -95,6 +95,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(project(":core:model"))
     implementation(project(":core:database"))
+    // Extension API compatibility shims (in-process DexClassLoader linking);
+    // unused at runtime until the extension runtime host lands.
+    implementation(project(":core:extension-api"))
     // RoomBackupImportTarget runs its merge inside RoomDatabase.withTransaction.
     implementation(libs.androidx.room.ktx)
     implementation(project(":core:ui"))

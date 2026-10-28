@@ -1,0 +1,38 @@
+[
+  {
+    "extension": "mangafire",
+    "package": "eu.kanade.tachiyomi.extension.all.mangafire",
+    "rawUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-all.mangafire-v1.6.35.apk",
+    "fixtureUrl": "https://github.com/keiyoushi/extensions/releases/download/f1edb03/tachiyomi-all.mangafire-v1.6.35.apk",
+    "url": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-all.mangafire-v1.6.35.apk",
+    "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-all.mangafire-v1.6.35.apk",
+    "sha256": "d5b9bcbaa1d19e24ce82a9d6827cffc1778bcc58deb30e2c0eb02a8482503cb4",
+    "required": 143,
+    "shim": 20,
+    "members": 52
+  },
+  {
+    "extension": "weebcentral",
+    "package": "eu.kanade.tachiyomi.extension.en.weebcentral",
+    "rawUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-en.weebcentral-v1.6.25.apk",
+    "fixtureUrl": "https://github.com/keiyoushi/extensions/releases/download/8ef06cd-1/tachiyomi-en.weebcentral-v1.6.25.apk",
+    "url": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-en.weebcentral-v1.6.25.apk",
+    "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-en.weebcentral-v1.6.25.apk",
+    "sha256": "04331a9b4bb878325dfca1079757c9152cdf66916f7859d0dddf41cf26553d30",
+    "required": 82,
+    "shim": 18,
+    "members": 48
+  },
+  {
+    "extension": "toonily",
+    "package": "eu.kanade.tachiyomi.extension.en.toonily",
+    "rawUrl": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-en.toonily-v1.6.72.apk",
+    "fixtureUrl": "https://github.com/keiyoushi/extensions/releases/download/e97033f/tachiyomi-en.toonily-v1.6.72.apk",
+    "url": "https://raw.githubusercontent.com/keiyoushi/extensions/repo/apk/tachiyomi-en.toonily-v1.6.72.apk",
+    "apk": "C:\\Users\\paele\\AppData\\Local\\Temp\\opencode\\extdex\\tachiyomi-en.toonily-v1.6.72.apk",
+    "sha256": "3cfefdaa4b798ef303b16d9d09c69b227ad76caa9ed13cdef495b42020af46b5",
+    "required": 135,
+    "shim": 19,
+    "members": 55
+  }
+]
