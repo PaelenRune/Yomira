@@ -3,6 +3,7 @@ package com.yomira.feature.home
 import com.yomira.core.model.HomeRail
 import com.yomira.core.model.HomeShelf
 import com.yomira.core.model.Manga
+import com.yomira.core.model.globalRankScore
 import com.yomira.domain.extension.FavoriteSeries
 
 /** Four learned-interest shelves plus one discovery slot; ties retain canonical order. */
@@ -41,13 +42,21 @@ fun buildHomeRails(
             HomeShelf.POPULAR -> popularTrendingShelf(all, recent, seed, limit)
             HomeShelf.PERSONAL -> personalizedShelf(all, readIds, savedIds, seed, limit, favoriteSeries, legacyFavoriteGenres)
                 .ifEmpty { popularTrendingShelf(all, recent, seed, limit) }
-            // There is no creation timestamp in Manga. Prefer newly fetched rows;
-            // otherwise offer a stable discovery mix rather than inventing recency.
-            HomeShelf.DISCOVERY -> all.sortedWith(
-                compareByDescending<Manga> { it.id in discoveryIds }
-                    .thenByDescending { rotationNoise(it.id, seed) }
-                    .thenBy { it.id },
-            ).take(limit)
+            // There is no creation timestamp in Manga. Prefer newly fetched rows,
+            // but rank those by real reader consensus (v8.1.3): a fresh fetch of an
+            // obscure title must not beat a fresh fetch of a global hit. The
+            // leftover slots keep the stable discovery mix rather than inventing recency.
+            HomeShelf.DISCOVERY -> {
+                val maxPopularity = all.maxOfOrNull { it.popularity ?: 0L } ?: 0L
+                all.sortedWith(
+                    compareByDescending<Manga> { it.id in discoveryIds }
+                        .thenByDescending { manga ->
+                            if (manga.id in discoveryIds) manga.globalRankScore(maxPopularity) else 0.0
+                        }
+                        .thenByDescending { rotationNoise(it.id, seed) }
+                        .thenBy { it.id },
+                ).take(limit)
+            }
             else -> all.filter(shelf::matches).sortedWith(
                 compareByDescending<Manga> { it.score ?: 0.0 }
                     .thenByDescending { rotationNoise(it.id, seed) }

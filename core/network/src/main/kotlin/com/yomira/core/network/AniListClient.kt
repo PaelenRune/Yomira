@@ -372,7 +372,7 @@ class AniListClient(
             query (${'$'}page: Int, ${'$'}perPage: Int, ${'$'}isAdult: Boolean) {
               Page(page: ${'$'}page, perPage: ${'$'}perPage) {
                 pageInfo { currentPage hasNextPage total }
-                media(type: MANGA, sort: TRENDING_DESC, isAdult: ${'$'}isAdult) {
+                media(type: MANGA, sort: POPULARITY_DESC, isAdult: ${'$'}isAdult) {
                   id
                   title { romaji english native }
                   description(asHtml: false)

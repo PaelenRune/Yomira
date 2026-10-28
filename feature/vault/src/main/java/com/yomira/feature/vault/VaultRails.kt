@@ -21,8 +21,10 @@ fun buildVaultHome(
     val discoveryIds = discovered.map { it.id }.toSet()
     val maxPopularity = all.maxOfOrNull { it.popularity ?: 0L } ?: 0L
     // Discovery is the only observed freshness signal: no fabricated release dates.
+    // The bonus stays small so a freshly fetched unknown can never outrank a
+    // genuinely popular series on a Vault rail (v8.1.3 shelf fix).
     val ranking = compareByDescending<Manga> {
-        it.globalRankScore(maxPopularity, if (it.id in discoveryIds) 1.0 else 0.0)
+        it.globalRankScore(maxPopularity, if (it.id in discoveryIds) 0.4 else 0.0)
     }.thenBy { it.id }
     val rails = vaultGenreChips.filter { style == null || it == style }.map { genre ->
         val matches = vaultCatalog(all, unlocked, genre)
