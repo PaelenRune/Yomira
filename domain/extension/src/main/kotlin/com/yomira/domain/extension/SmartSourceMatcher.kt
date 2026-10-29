@@ -149,11 +149,14 @@ class SmartSourceMatcher(
     }
 
     companion object {
-        /** Use every supplied localized name; translation cannot be inferred from Romaji alone. */
+        /**
+         * Bounded fan-out over the series' names: the primary spelling of each
+         * distinct name first, then spelling micro-variants, capped at
+         * [QueryFanout.MAX_VARIANTS] network round trips per source. Probing
+         * stops at the first variant whose match yields chapters.
+         */
         private fun queries(series: SeriesIdentity): List<String> =
-            ((listOf(series.title) + series.aliases))
-                .flatMap(TitleNormalizer::searchVariants)
-                .distinct()
+            QueryFanout.generate(listOf(series.title) + series.aliases)
 
         /** Shared by discovery adapters so they do not discard fuzzy matches before routing. */
         fun matchesTitle(title: String, aliases: Collection<String>): Boolean =

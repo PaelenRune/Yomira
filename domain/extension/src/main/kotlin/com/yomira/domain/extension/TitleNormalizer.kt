@@ -41,8 +41,12 @@ object TitleNormalizer {
     /** Fully folded, case-insensitive comparison key. Blank input folds to "". */
     fun canonical(title: String): String {
         if (title.isBlank()) return ""
-        // CJK part markers fold first: they live inside unspaced tokens (第6部).
-        var text = foldCjkPartMarkers(clean(title).lowercase(Locale.ROOT))
+        // Katakana folds to hiragana so script style never splits a title;
+        // CJK part markers fold first because they live inside unspaced tokens (第6部).
+        val kataFolded = KATAKANA_TO_HIRAGANA.replace(clean(title)) { match ->
+            String(Character.toChars(match.value.codePointAt(0) - KANA_OFFSET))
+        }
+        var text = foldCjkPartMarkers(kataFolded.lowercase(Locale.ROOT))
         if (text.isEmpty()) return ""
 
         // Romaji spelling variants (class doc, rule 7). CJK text is untouched.
@@ -88,9 +92,9 @@ object TitleNormalizer {
         var text = Normalizer.normalize(title.trim(), Normalizer.Form.NFKC)
         text = PARENTHESES.replace(text, " ")
         text = stripDiacritics(text)
-        text = KATAKANA_TO_HIRAGANA.replace(text) { match ->
-            String(Character.toChars(match.value.codePointAt(0) - KANA_OFFSET))
-        }
+        // Script is preserved on purpose: clean feeds remote search queries,
+        // and a source that indexes katakana expects katakana. The comparison
+        // fold (katakana→hiragana) lives in [canonical].
         text = PUNCTUATION.replace(text, " ")
         text = text.replace(WHITESPACE, " ").trim()
         if (text.isEmpty()) return ""
@@ -117,8 +121,9 @@ object TitleNormalizer {
     /**
      * Raw spellings a source may have indexed for [title], most likely first:
      * the untouched title, its macron-digraph expansion (`ō`→`ou`), the cleaned
-     * punctuation-free form of both, a doubled terminal `u` (`Haikyu`→`Haikyuu`)
-     * and the fully folded canonical form. Never empty for non-blank input.
+     * punctuation-free form of both and a doubled terminal `u`
+     * (`Haikyu`→`Haikyuu`). Never empty for non-blank input; case is preserved
+     * because remote search is the consumer, not the comparison engine.
      */
     fun searchVariants(title: String): List<String> {
         val trimmed = title.trim()
@@ -127,7 +132,7 @@ object TitleNormalizer {
         val cleanedExpanded = clean(expandMacrons(trimmed))
         val doubledTerminalU =
             if (cleanedExpanded.endsWith("u") && !cleanedExpanded.endsWith("uu")) cleanedExpanded + "u" else ""
-        return listOf(trimmed, expandMacrons(trimmed), cleaned, cleanedExpanded, doubledTerminalU, canonical(trimmed))
+        return listOf(trimmed, expandMacrons(trimmed), cleaned, cleanedExpanded, doubledTerminalU)
             .filter { it.isNotBlank() }
             .distinct()
     }

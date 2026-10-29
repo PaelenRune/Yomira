@@ -16,6 +16,8 @@ import kotlinx.coroutines.withTimeout
 class RepositorySourceDiscovery(private val bridge: SourceBridge) : SourceDiscovery {
     override suspend fun discover(series: SeriesIdentity, extensions: List<ExtensionDescriptor>): List<SourceCandidate> = coroutineScope {
         val names = (listOf(series.title) + series.aliases).map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        // Bounded fan-out: same generator, cap and ordering as the smart matcher.
+        val queries = QueryFanout.generate(names)
         val permits = Semaphore(8)
         extensions.flatMap { extension ->
             extension.sources.map { source ->
@@ -24,7 +26,7 @@ class RepositorySourceDiscovery(private val bridge: SourceBridge) : SourceDiscov
                         try {
                             withTimeout(15_000L) {
                                 val started = System.nanoTime()
-                                val manga = names.firstNotNullOfOrNull { query ->
+                                val manga = queries.firstNotNullOfOrNull { query ->
                                     bridge.getMangaList(extension.packageName, source.id, query)
                                         .firstOrNull { SmartSourceMatcher.matchesTitle(it.title, names) }
                                 } ?: return@withTimeout null
