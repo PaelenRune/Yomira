@@ -34,6 +34,9 @@ class SettingsMaintenanceViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            services.backfill.collect { progress -> mutableState.update { it.copy(backfill = progress) } }
+        }
+        viewModelScope.launch {
             auth.email.collect { email ->
                 mutableState.update { it.copy(driveAccountEmail = email, driveSignInRequired = email == null) }
                 if (email == null) {
@@ -142,6 +145,12 @@ class SettingsMaintenanceViewModel @Inject constructor(
     }
 
     fun consumeMessage() { mutableState.update { it.copy(message = null) } }
+
+    fun startMetadataBackfill() {
+        if (state.value.resetBusy) return
+        viewModelScope.launch { services.startBackfill() }
+    }
+    fun cancelMetadataBackfill() { services.cancelBackfill() }
 
     fun beginDriveSignIn(): Intent? {
         if (state.value.run { driveAuthBusy || syncBusy || resetBusy }) return null

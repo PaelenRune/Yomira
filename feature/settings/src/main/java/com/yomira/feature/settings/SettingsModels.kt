@@ -67,6 +67,14 @@ data class SettingsMaintenanceState(
     val preferenceBusy: Boolean = false,
     val resetBusy: Boolean = false,
     val message: MaintenanceMessage? = null,
+    val backfill: MetadataBackfillState = MetadataBackfillState(),
+)
+
+data class MetadataBackfillState(
+    val active: Boolean = false,
+    val done: Int = 0,
+    val total: Int = 0,
+    val failures: Int = 0,
 )
 
 enum class MaintenanceMessage { CACHE_CLEARED, CACHE_FAILED, CACHE_SIZE_FAILED, SYNC_SUCCESS, SIGN_IN_REQUIRED, AUTH_FAILED, DISCONNECT_FAILED, SYNC_FAILED, PREFERENCE_FAILED, RESET_FAILED }

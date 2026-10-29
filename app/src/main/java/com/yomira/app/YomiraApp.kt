@@ -19,6 +19,7 @@ class YomiraApp : Application(), Configuration.Provider, ImageLoaderFactory {
     @Inject lateinit var automaticSync: AutomaticSyncController
     @Inject lateinit var httpClient: okhttp3.OkHttpClient
     @Inject lateinit var upgradeCleanup: com.yomira.app.migration.UpgradeCleanupManager
+    @Inject lateinit var metadataBackfill: com.yomira.app.metadata.MetadataBackfillScheduler
 
     override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)
         .okHttpClient(httpClient)
@@ -51,5 +52,6 @@ class YomiraApp : Application(), Configuration.Provider, ImageLoaderFactory {
         // Finish local, idempotent cleanup before UI, source probes or automatic sync start.
         kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) { upgradeCleanup.run() }
         automaticSync.start(this)
+        metadataBackfill.scheduleOnce()
     }
 }

@@ -92,8 +92,7 @@ class WaterfallMetadataAggregator(
         // English display title wins: `Shingeki no Kyojin` is shelved as `Attack on Titan`,
         // `Boku no Hero Academia` as `My Hero Academia`. The romaji survives as an alt title,
         // so search and cross-provider identity matching keep working.
-        val displayTitle = records.firstNotNullOfOrNull { it.englishTitle?.trim()?.takeIf(String::isNotEmpty) }
-            ?: first.title
+        val displayTitle = TitleLocalizer.select(records) ?: first.title
         val titles = records.flatMap { it.allTitles() }.distinctBy(::normalize)
         return Manga(
             id = "${first.sourceId}:${first.remoteId}", title = displayTitle,

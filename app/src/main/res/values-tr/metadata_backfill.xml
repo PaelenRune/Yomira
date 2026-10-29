@@ -1,0 +1,6 @@
+<resources>
+    <string name="metadata_backfill_title">Kitaplık adlarını ve kapaklarını yenile</string>
+    <string name="metadata_backfill_body">İngilizce → orijinal dil. Yalnız ölçülmeyen ağda, ekran açık ve kilitli değilken çalışır; veri tasarrufunda duraklar. İstediğiniz zaman iptal edebilirsiniz.</string>
+    <string name="metadata_backfill_progress">%1$d / %2$d · Başarısız: %3$d</string>
+    <string name="metadata_backfill_cancel">İptal</string>
+</resources>

@@ -7,6 +7,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ArtworkResolverTest {
+    @Test fun knownOriginalBeatsUnknownCoverWithEnglishTitleOnly() {
+        val original = record(MetadataSources.MANGADEX, "https://img.test/ja.jpg").copy(coverLocale = "ja")
+        val hint = record(MetadataSources.ANILIST, "https://img.test/unknown.jpg").copy(englishTitle = "Series")
+        assertEquals(original.coverUrl, ArtworkResolver.cover(listOf(hint, original)))
+    }
     @Test fun westernProvidersBeatEnglishTitleHintsAndJapaneseOriginals() {
         for (source in listOf(MetadataSources.COMICVINE, MetadataSources.OPENLIBRARY)) {
             val original = record(MetadataSources.ANILIST, "https://img.test/original.jpg")
@@ -34,7 +39,8 @@ class ArtworkResolverTest {
                 val localized = record(source, "https://img.test/localized.jpg")
                     .copy(coverLocale = locale, englishTitle = "Series", altTitles = mapOf("en" to listOf("Series")))
                 val unknown = record(MetadataSources.BAKA_UPDATES, "https://img.test/unknown.jpg")
-                assertEquals(unknown.coverUrl, ArtworkResolver.cover(listOf(localized, unknown)))
+                assertEquals(if (locale == "fr") unknown.coverUrl else localized.coverUrl,
+                    ArtworkResolver.cover(listOf(localized, unknown)))
             }
         }
     }
@@ -43,6 +49,14 @@ class ArtworkResolverTest {
         val kitsu = record(MetadataSources.KITSU, "https://img.test/kitsu-en.jpg").copy(coverLocale = "en")
         val mangaDex = record(MetadataSources.MANGADEX, "https://img.test/md-en.jpg").copy(coverLocale = "en")
         assertEquals(kitsu.coverUrl, ArtworkResolver.cover(listOf(mangaDex, kitsu)))
+    }
+
+    @Test fun englishRegionVariantBeatsOriginalAndOriginalBeatsTranslation() {
+        val translated = record(MetadataSources.ANILIST, "https://img.test/fr.jpg").copy(coverLocale = "fr")
+        val original = record(MetadataSources.MANGADEX, "https://img.test/ko.jpg").copy(coverLocale = "ko-KR")
+        val english = record(MetadataSources.KITSU, "https://img.test/en.jpg").copy(coverLocale = "en-US")
+        assertEquals(english.coverUrl, ArtworkResolver.cover(listOf(translated, original, english)))
+        assertEquals(original.coverUrl, ArtworkResolver.cover(listOf(translated, original)))
     }
 
     @Test fun explicitEnglishCoverWinsOverProviderQualityAndEnglishTitleHints() {

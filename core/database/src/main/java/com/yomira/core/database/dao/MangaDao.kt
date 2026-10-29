@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MangaDao {
+    /** Display-only migration: never replace reading state, identity or safety classification. */
+    @Query("UPDATE manga SET title = :title, altTitles = :aliases, coverUrl = COALESCE(:cover, coverUrl) WHERE id = :id")
+    suspend fun updateDisplayMetadata(id: String, title: String, aliases: List<String>, cover: String?)
+
     @Query("UPDATE manga SET contentRating = :rating WHERE id = :mangaId")
     suspend fun updateContentRating(mangaId: String, rating: com.yomira.core.model.ContentRating)
 

@@ -92,6 +92,8 @@ fun SettingsScreen(
     extensionsLabel: String = "Eklentiler / Extensions",
     onConnectDrive: () -> Unit = {},
     onDisconnectDrive: () -> Unit = {},
+    onStartMetadataBackfill: () -> Unit = {},
+    onCancelMetadataBackfill: () -> Unit = {},
 ) {
     val contentCopy = SettingsContentCopy.forLanguage(currentLanguage)
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
@@ -328,6 +330,18 @@ fun SettingsScreen(
             item {
                 SettingsSection(Icons.Default.Storage, copy.storageSection, NeonPurple) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(copy.backfillBody, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                        Text(copy.backfillProgress.format(maintenance.backfill.done, maintenance.backfill.total,
+                            maintenance.backfill.failures), style = MaterialTheme.typography.bodySmall)
+                        if (maintenance.backfill.active) {
+                            LinearProgressIndicator(progress = {
+                                if (maintenance.backfill.total == 0) 0f else maintenance.backfill.done.toFloat() / maintenance.backfill.total
+                            }, modifier = Modifier.fillMaxWidth())
+                            OutlinedButton(onClick = onCancelMetadataBackfill) { Text(copy.cancel) }
+                        } else OutlinedButton(onClick = onStartMetadataBackfill, enabled = !maintenance.resetBusy) {
+                            Text(copy.backfillTitle)
+                        }
+                        RowDivider()
                         Text(if (maintenance.cacheSizeFailed) copy.cacheSizeFailed else
                             copy.cacheSize.format(maintenance.cacheBytes?.let(::formatCacheSize) ?: copy.loading),
                             style = MaterialTheme.typography.titleMedium)
