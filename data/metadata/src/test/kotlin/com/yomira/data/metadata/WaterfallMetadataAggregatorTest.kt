@@ -35,6 +35,18 @@ class WaterfallMetadataAggregatorTest {
     private fun record(source: String, title: String = "One Piece") = RemoteMetadata(source, "1", title)
     private val clock = Clock.fixed(Instant.parse("2026-10-23T00:00:00Z"), ZoneOffset.UTC)
 
+    @Test fun languageSelectionDoesNotChangeIdentityOwnerAndPreservesAliases() = runTest {
+        val owner = record(MetadataSources.BAKA_UPDATES, "Other translation")
+        val later = record(MetadataSources.MANGADEX, "Other translation").copy(
+            altTitles = mapOf("ja" to listOf("日本語"), "en-US" to listOf("English")))
+        val aggregator = WaterfallMetadataAggregator(listOf(
+            provider(owner.sourceId) { listOf(owner) }, provider(later.sourceId) { listOf(later) }), Cache())
+        val result = aggregator.aggregate(owner.title)!!
+        assertEquals("${owner.sourceId}:1", result.id)
+        assertEquals("English", result.title)
+        assertTrue(result.altTitles.containsAll(listOf("日本語", owner.title)))
+    }
+
     @Test fun usesCanonicalOrderAndFillsOnlyMissingFields() = runTest {
         val calls = mutableListOf<String>()
         val ids = listOf(MetadataSources.BAKA_UPDATES, MetadataSources.ANILIST, MetadataSources.MANGADEX, MetadataSources.KITSU, MetadataSources.COMICVINE)

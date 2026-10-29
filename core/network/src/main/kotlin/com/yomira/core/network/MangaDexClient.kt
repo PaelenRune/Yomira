@@ -191,8 +191,12 @@ class MangaDexClient(
             .distinct()
         val covers = relationships.filter { it.type == "cover_art" && !it.attributes?.fileName.isNullOrBlank() }
         // Cover locale, not the manga's English title, identifies localized artwork.
-        // Unknown artwork is preferable to a known non-English fallback.
-        val cover = covers.firstOrNull { it.attributes?.locale?.trim().equals("en", ignoreCase = true) }
+        // English edition first, then the declared original language, then unknown artwork.
+        fun language(code: String?) = code.orEmpty().trim().lowercase(java.util.Locale.ROOT)
+            .replace('_', '-').substringBefore('-')
+        val cover = covers.firstOrNull { language(it.attributes?.locale) == "en" }
+            ?: covers.firstOrNull { !attributes.originalLanguage.isNullOrBlank() &&
+                language(it.attributes?.locale) == language(attributes.originalLanguage) }
             ?: covers.firstOrNull { it.attributes?.locale.isNullOrBlank() }
             ?: covers.firstOrNull()
         val coverFile = cover?.attributes?.fileName

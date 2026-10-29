@@ -25,7 +25,7 @@ object CatalogRecordMapper {
     ): Manga? {
         // English display title first: the shelf shows *Attack on Titan*, not the
         // AniList romaji *Shingeki no Kyojin*.
-        val canonical = (record.englishTitle ?: record.title).trim().takeIf { it.isNotEmpty() } ?: return null
+        val canonical = com.yomira.data.metadata.TitleLocalizer.select(listOf(record)) ?: return null
         val titles = record.allTitles()
         // Room persists flattened labels, not a publication-type column. Keep
         // format evidence (including provider tags) through that round-trip.

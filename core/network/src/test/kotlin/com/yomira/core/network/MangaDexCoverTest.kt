@@ -65,10 +65,23 @@ class MangaDexCoverTest {
         )
     }
 
-    private suspend fun assertCover(relationships: String, fileName: String, locale: String?) {
+    @Test fun originalLanguageBeatsUnknownAndTranslatedCovers() = runTest {
+        assertCover("""{"type":"cover_art","attributes":{"fileName":"fr.jpg","locale":"fr"}},
+            {"type":"cover_art","attributes":{"fileName":"unknown.jpg"}},
+            {"type":"cover_art","attributes":{"fileName":"ko.jpg","locale":"ko-KR"}}""",
+            "ko.jpg", "ko-KR", "ko")
+    }
+
+    @Test fun regionalEnglishCoverWins() = runTest {
+        assertCover("""{"type":"cover_art","attributes":{"fileName":"ja.jpg","locale":"ja"}},
+            {"type":"cover_art","attributes":{"fileName":"en.jpg","locale":"en-US"}}""",
+            "en.jpg", "en-US", "ja")
+    }
+
+    private suspend fun assertCover(relationships: String, fileName: String, locale: String?, original: String = "") {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("""
-                {"data":{"id":"series","attributes":{"title":{"en":"Series"}},
+                {"data":{"id":"series","attributes":{"title":{"en":"Series"},"originalLanguage":"$original"},
                 "relationships":[$relationships]}}
             """.trimIndent()))
             server.enqueue(MockResponse().setBody("""{"statistics":{}}"""))

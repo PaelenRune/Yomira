@@ -13,6 +13,14 @@ import org.junit.Test
 class CatalogRecordMapperTest {
     private val classifier = ContentRatingClassifier()
 
+    @Test fun feedUsesSharedLanguagePolicy() {
+        val record = RemoteMetadata("test", "4", "Other translation",
+            altTitles = mapOf("ja" to listOf("日本語"), "en-US" to listOf("English")))
+        assertEquals("English", CatalogRecordMapper.toMangaOrNull(record, classifier)?.title)
+        assertEquals("日本語", CatalogRecordMapper.toMangaOrNull(
+            record.copy(altTitles = mapOf("ja" to listOf("日本語"))), classifier)?.title)
+    }
+
     @Test fun classifierCorrectionOverridesProviderPornographicLabel() {
         val record = RemoteMetadata("test", "1", "I Formed a MILF Party with the Heroes' Mothers",
             contentRating = ExternalRating.PORNOGRAPHIC)
