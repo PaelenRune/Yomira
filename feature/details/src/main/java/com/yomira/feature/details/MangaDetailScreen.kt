@@ -240,7 +240,7 @@ private fun SinglePaneDetail(
                             }
                         }
                     }
-                    MetadataBlock(manga, copy)
+                    MetadataBlock(manga, copy, adaptations)
                     if (adaptations.isNotEmpty()) AdaptationBadges(adaptations, copy)
                     SynopsisBlock(manga, expanded, onToggle = { expanded = !expanded }, copy)
                     ChapterHeading(sorted.size, descending, { descending = !descending }, copy,
@@ -351,7 +351,7 @@ private fun TwoPaneDetail(
                     }
                 }
             }
-            item(key = "metadata", contentType = "metadata") { MetadataBlock(manga, copy) }
+            item(key = "metadata", contentType = "metadata") { MetadataBlock(manga, copy, adaptations) }
             if (adaptations.isNotEmpty()) {
                 item(key = "adaptations", contentType = "adaptations") { AdaptationBadges(adaptations, copy) }
             }
@@ -544,7 +544,7 @@ private fun SaveButton(saved: Boolean, onSave: () -> Unit, copy: DetailCopy) {
  * so the page keeps one continuous reading rhythm.
  */
 @Composable
-private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
+private fun MetadataBlock(manga: Manga, copy: DetailCopy, adaptations: List<WatchableAdaptation>) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -572,6 +572,9 @@ private fun MetadataBlock(manga: Manga, copy: DetailCopy) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             // v8.2.0 tier model: the content tier leads the badge row (16+ / 18+).
             TierRatingBadge(manga.contentRating, copy.catalog)
+            detailAdaptationKinds(adaptations).forEach { kind ->
+                YomiraBadge(text = copy.adaptationLabel(kind), icon = Icons.Default.Tv, accent = NeonLavender)
+            }
             manga.score?.let { score ->
                 YomiraBadge(
                     text = "%.1f".format(score),
