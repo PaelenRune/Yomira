@@ -1,73 +1,69 @@
-# 🌟 Yomira v8.2.4 — Sürüm Notları
+# 🌟 Yomira v8.2.5 — Sürüm Notları
 
-Bu sürüm aramanın "anlamasını" getirir: **seri adı artık hangi dilde veya hangi
-yazımla yazılırsa yazılsın tanınıyor.** Japonca özgün ad, İngilizce ad, romaji ve yazım
-varyantları tek bir eşleştirme motorunda buluşuyor. Buna ek olarak eklenti logolarının
-baş-harf rozeti artık her cihazda görünür oluyor ve kitaplık araması okuduğunuz ama
-kaydetmediğiniz serileri de buluyor.
+Bu sürüm keşif listelerinde "kayıp" görünen serileri geri getirir: **+18 temalı ama
+gerçekten yasak olmayan seriler artık normal keşifte görünür.** Kara liste bu sürümle
+iki kademeli çalışıyor — gerçekten yasak kategoriler her koşulda gizlenirken, tarz
+etiketleri (harem, NTR, gore vb.) içeriği listeden silmek yerine yalnızca sıralamada
+aşağı düşürüyor. Vault rafları da belirgin biçimde daha dolu: daha derin tarama,
+iki-varyantlı raf sorguları ve "gerçekten boş" ile "yavaş doldu" ayrımı.
 
-> **TR:** v8.2.4, birleşik eşleştirme motoruyla aramanın Japonca/özgün-ad/yazım-varyantı
-> sorguları tanımasını sağlar (NARUTO=ナルト, 呪術廻戦=Jujutsu Kaisen); sağlayıcıların
-> bildirdiği alternatif adlar otomatik olarak bir alias sözlüğüne işlenir. Eklenti
-> logosu yüklenemezse baş-harf rozeti artık her cihazda görünür (erişilebilirlik
-> düzeltmesi) ve kitaplık araması okunan-ama-kayıtlı-olmayan serileri de bulur.
+> **TR:** v8.2.5'te kara liste iki kademeli ayrıldı: gerçekten yasak kategoriler
+> (futanari, incest, bestiality, rape, lolicon, shotacon) tercihlere, yaşa ve +18
+> onayına bakılmaksızın her yüzeyde gizli kalır; tarz etiketleri (harem, NTR, gore,
+> ecchi) ise seriyi listeden silmez, yalnızca sıralamada düşürür. Böylece daha önce
+> "kaybolan" +18 temalı seriler normal keşfe döner; tek bir yanlış tür etiketi de bir
+> seriyi artık gizlemez. Vault rafları daha derin taramayla (sayfa başına 25 → 50),
+> iki-varyantlı başlık aramalarıyla ve "gerçekten boş" ayrımıyla daha dolu görünür.
 >
-> **EN:** v8.2.4 gives search a unified matcher engine that understands Japanese,
-> original-title and spelling-variant queries (NARUTO=ナルト, 呪術廻戦=Jujutsu Kaisen);
-> alternative names reported by providers are automatically folded into an alias
-> dictionary. When an extension logo cannot load, the initial-letters badge is now
-> visible on every device (accessibility fix), and library search also finds series
-> you read but never saved.
+> **EN:** v8.2.5 makes the blacklist two-tier: truly banned categories (futanari,
+> incest, bestiality, rape, lolicon, shotacon) stay hidden on every surface regardless
+> of preferences, age or adult consent, while style tags (harem, NTR, gore, ecchi) no
+> longer remove a series — they only rank it lower. "+18 themed but not banned" series
+> return to normal discovery, and a single wrong genre tag no longer hides a series.
+> Vault shelves look fuller thanks to a deeper scan (25 → 50 per page), two-variant
+> title-based rail queries, and a clear "truly empty" vs "slowly filling" distinction.
 
 ---
 
-### 🧭 Birleşik Eşleştirme Motoru (Normalizasyon + Alias Sözlüğü + Fan-out)
+### 🛡️ İki-Kademe Kara Liste (Gerçek Yasak + Tarz Tercihi)
 
-- **Japonca ve özgün adlar:** Aramada `ナルト` yazmak NARUTO'yu, `呪術廻戦` yazmak
-  Jujutsu Kaisen'i bulur. Katakan ve hiragan aynı biçime katlanır, Latin diyakritikleri
-  (`Tokyo Bağlı`→`Tokyo Bagli` gibi) temizlenir; iki taraf da aynı kurallardan geçtiği
-  için karşılaştırma hangi dilde yazıldığını bilmeden eşleşir.
-- **Yazım-varyantı ve sezon-soneki toleransı:** Romaji yazımları (`ou`↔`o`, `uu`↔`u`,
-  `sh`↔`sy`), noktalama ve parantezli niteleyiciler (`(official)`, `(manhwa)`), editoryal
-  sonekler (`Full Color Edition`) ve sezon/bölüm işaretleri (`Part 6`, `2nd Season`,
-  `Act II`, sonundaki `III` gibi devam numaraları) aynı biçime katlanır — `Shingeki no
-  Kyojin 2. Sezon` ile `Attack on Titan Second Season` aynı seriye çözümlenir.
-- **Otomatik alias sözlüğü:** Metadata sağlayıcıların seri için bildirdiği her alternatif
-  ad (kanonik, İngilizce, yerelleştirilmiş) artık veritabanındaki yeni `series_alias`
-  tablosuna yazılır ve sonraki aramalar bu adlarla da seriye ulaşır (veritabanı sürüm
-  6→7 otomatik göçle geçilir). Sözlük yalnızca eşleştirme içindir; rafta görünen adı
-  asla değiştirmez.
-- **Akıllı sorgu fan-out:** Canlı arama, uzak kaynakların indekslemiş olması muhtemel
-  en fazla dört yazımı (macron-açık romaji, noktalamasız biçim, tam katlanmış biçim)
-  türetir; ilk anlamlı sonuçla durur, böylece her deneme bir ağ turu olan sorgular
-  sınırlı kalır.
-- **Ölçülen kazanım:** 100 serilik kıyaset üzerinde 412 sorgunun tamamı (EN + özgün ad
-  + alias) yeni motorla doğru seriye bağlandı — eski motorda bu oran %93,7 idi; "zor"
-  işaretli sorgularda %100. Ayrıntılar
-  [VALIDATION_v8.2.4.md](VALIDATION_v8.2.4.md) içindeki benchmark bölümünde.
+- **"+18 temalı" ≠ "yasak":** Eski davranışta harem, NTR, gore gibi tarz etiketleri
+  taşıyan seriler kara listeye alınınca keşiften, aramadan ve detaydan tamamen
+  siliniyordu — sağlayıcıların gevşek etiketleri yüzünden çok sayıda sıradan seri
+  "kayboluyordu". Artık bu tarz etiketleri **yasak listesine ekleseniz bile seri
+  görünmeye devam eder**; yalnızca sıralamada aşağı iner (her eşleşen tarz etiketi
+  küçük bir sıralama cezası ekler). Seriyi rafta bulur, açar, okumaya devam edersiniz.
+- **Gerçekten yasak kategoriler her koşulda gizli:** Futanari, incest, bestiality,
+  rape/non-con, lolicon ve shotacon etiketli içerik; tercihlerinize, yaşınıza, +18
+  onayınıza veya Vault kilidinize bakılmaksızın **hiçbir yüzeyde görünmez** (keşif,
+  arama, seri detayı, Vault dahil). Bu kademeye kullanıcı tercihi karışmaz.
+- **Diğer tür tercihleriniz eskisi gibi:** Yaoi/yuri gibi klasik tür tercihleri
+  davranış değişikliğine uğramadı — seçtiğinizde gizlemeye devam eder.
+- **Tek yanlış etiket artık seri gizlemez:** Etiket eşleştirmesi "içeriyor" yerine
+  normalize edilmiş **tam eşleşmeye** (+ yazım sözlüğü: netorare, guro, ecchi/etchi,
+  non-con, lolicon…) çevrildi. Bir serinin tür etiketlerinden yalnızca biri yanlışlıkla
+  yasaklı bir tarz taşıyorsa seri artık görünmez olmaz.
 
 ---
 
-### 🖼️ Eklenti Rozeti Erişilebilirlik Düzeltmesi
+### 📚 Vault Rafları Daha Dolu
 
-- **Baş-harf rozeti artık her cihazda görünür:** Eklenti logosu (ikon → favicon → baş
-  harfler) zincirinde son adım olan baş-harf rozeti, önceki sürümde erişilebilirlik
-  ağacından yanlışlıkla budanıyordu: rozet ekrana çizilse de ekran okuyucular ve UI
-  dökümü onu göremiyordu. v8.2.4'te budanan anlam düzeltildi; logo yüklenemezse baş
-  harfler her cihazda, TalkBack ve UI dökümleri dahil, görünür durumda.
-- **Sapkma-dirençli durum makinesi:** Yükleme hatası zinciri saf bir durum makinesine
-  çıkarıldı: hata sırasında adaylar sırayla denenir, liste tükenince baş harflerde
-  kalınır ve yükleme başardıktan sonra gelen fazladan bir hata görüntüyü yıkamaz.
-
----
-
-### 📚 Kitaplık Araması Okunan Serileri de Bulur
-
-- **Okunan-ama-kaydedilmemiş seriler:** Kitaplık sekmesinde arama artık yalnızca
-  bilinçli olarak kaydettiğiniz serilerde değil, okuma ilerlemesi olan tüm serilerde
-  arar. Örneğin devam kartından okuduğunuz `One Piece` daha Kitaplık'a eklemediyseniz,
-  Kitaplık'ta "one piece" yazmak artık onu bulur — boş sonuç ekranı, aynı ekrandaki
-  devam kartıyla çelişmez. Boş sorgudaki raf yine yalnızca kayıtlı serileri gösterir.
+- **Daha derin tarama:** Vault beslemesi her kaynaktan sayfa başına **50 sonuç**
+  çekiyor (eskiden 25). Normal keşif akışı 25'te kalır; yalnızca +18 Vault taraması
+  derinleşir.
+- **İki-varyantlı raf sorguları:** İlk Vault sayfasında her raf, başlık-tabanlı
+  aramayla **ikişer yazım varyantıyla** taranır ve sonuçlar birleştirilir:
+  "adult webtoon" + "pornhwa", "hentai" + "erotic manga", "doujinshi" + "doujin",
+  "erotic comic" + "3d comic". Sağlayıcılar OR işlecini desteklemediği için varyantlar
+  ayrı sorgular halinde gönderilir; yalnızca ilk sayfada çalıştığından normal sayfalama
+  aynı aramaları tekrarlamaz.
+- **"Gerçekten boş" ayrımı:** Üç ve altı serili rafların üstünde artık "Bu raf yavaş
+  doldu; daha fazla sonuç için kaynakları eşitle." ipucu görünür. Tam boş mesajı ise
+  yalnızca raf **gerçekten** boşken gösterilir — "daha fazla yükleniyor" veya sayfalama
+  hatası sırasında yanlışlıkla boş ekran çıkmaz.
+- **Raf teşhisi:** Vault açıkken her kaynak ve raf için aşama sayıları (giren / açık
+  içerik dışı / elenen / eşleşmeyen / eşleşen) `VaultDiagnostics` günlük satırlarına
+  yazılır — başlık veya kimlik içermez, yalnızca sayı.
 
 ---
 
@@ -75,17 +71,14 @@ kaydetmediğiniz serileri de buluyor.
 
 | Bilgi | Değer |
 | --- | --- |
-| Sürüm | `8.2.4` (versionCode `28`) |
-| Testler | Kabul kapıları sürüm kaynağında yeşil: `:app:testReleaseUnitTest` **192/192**, `:domain:extension:test` **88/88** (benchmark dahil) ve `assembleRelease` başarılı. Cihaz turundan gelen düzeltmelerin (FIX-M2) modül kapıları — app **192**, feature-home **38**, data-metadata **43**, core-network **51** test, 0 başarısız — ve merge-sonrası ana ağaç doğrulaması (app 192, domain/extension 88, feature-home 38, data-metadata 50, core-network 51; hepsi 0 başarısız) tamamen yeşil. Bu sürümde **73 yeni birim testi + 1 yeni androidTest (Room göçü)** |
-| Benchmark | 100 serilik kıyaset: **412 sorgu**; eski motor **%93,7** → birleşik motor **%100,0**, zor küme **%100,0** — %90 kabul kapısı GEÇTİ |
-| Ekli APK | `yomira-v8.2.4.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
-| Doğrulama raporu | `release/VALIDATION_v8.2.4.md` — benchmark ham satırları, test sayıları, commit envanteri ve cihaz kontrol listesi |
+| Sürüm | `8.2.5` (versionCode `29`) |
+| Testler | Kabul kapıları sürüm kaynağında yeşil: `:app:testReleaseUnitTest` **192/192** ve `assembleRelease` başarılı. Merge-sonrası ana ağaç doğrulaması — app **192**, core/model **30**, feature-home **39**, feature-vault **27** test, 0 başarısız (toplam **288**); dal worktree kanıtları — core/model **30**, feature-home **32**, feature-vault **27**, app **167** test (toplam **256**), hepsi yeşil. Bu sürümde **7 yeni birim testi + 2 sınanmış testin güçlendirilmesi** |
+| Ekli APK | `yomira-v8.2.5.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
+| Doğrulama raporu | `release/VALIDATION_v825.md` — merge kanıtı, test ham sayıları, commit envanteri ve cihaz kontrol listesi |
 
 APK, sürüm commit'i üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası
-önceki sürümlerle aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir.
-Bu sürümün cihaz üzeri doğrulaması henüz yapılmadı; orijinal-ad araması, baş-harf
-rozeti görünürlüğü ve `One Piece` kitaplık araması maddeleri
-[VALIDATION_v8.2.4.md](VALIDATION_v8.2.4.md) içindeki telefon kontrol listesinde
-"bekliyor" olarak işaretlidir. Uyarlama (Anime/Donghua/K-Drama) rozeti ise sağlayıcı
-sinyali yetersiz kaldığı için VERİ-KISITI olarak işaretlenmiştir; ayrıntı ve kanıt
-zinciri aynı rapordadır.
+önceki sürümlerle aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Bu
+sürümün cihaz üzeri doğrulaması henüz yapılmadı; Vault raf doluluk gözlemi, MangaDex
+başlık-tabanlı varyant limiti notu ve EXPLICIT sızıntı taraması maddeleri
+[VALIDATION_v825.md](VALIDATION_v825.md) içindeki telefon kontrol listesinde
+"bekliyor" olarak işaretlidir.
