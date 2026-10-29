@@ -664,7 +664,10 @@ private fun YomiraNavigation(
                 if (manga != null && (manga.contentRating != ContentRating.EXPLICIT || unlocked)) {
                     var resolvedId by remember(mangaId, chapterId) { mutableStateOf<String?>(null) }
                     var resolving by remember(mangaId, chapterId) { mutableStateOf(true) }
-                    LaunchedEffect(mangaId, chapterId) {
+                    var retryAttempt by remember(mangaId, chapterId) { mutableStateOf(0) }
+                    LaunchedEffect(mangaId, chapterId, retryAttempt) {
+                        resolving = true
+                        resolvedId = null
                         try { resolvedId = model.resolveReadingChapter(manga, chapterId) }
                         catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
                         catch (_: Exception) { resolvedId = null }
@@ -673,6 +676,7 @@ private fun YomiraNavigation(
                     if (resolving) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                     else if (resolvedId == null) Column {
                         Text(stringResource(R.string.match_unreachable))
+                        TextButton(onClick = { resolving = true; retryAttempt++ }) { Text(stringResource(R.string.reader_retry)) }
                         TextButton(onClick = { nav.popBackStack() }) { Text(stringResource(R.string.action_back)) }
                     }
                     else ReaderScreen(mangaId, resolvedId!!, readerModel, onBack = { nav.popBackStack() }, defaultMode = settings.readingMode,

@@ -52,6 +52,10 @@ class ReadingSourceResolverTest {
             assertNull(ReadingSourceResolver(matcher, dao).resolve(Manga("series", "Series", sourceId = "metadata"),
                 result, ReaderPreferences(ReadingLanguage.ENGLISH)))
             assertEquals(4, dao.getByMangaId("series").size) // no installation: never read stale rows or erase history
+            // A second call from the retry action must probe again, not cache the unavailable result.
+            installed = true
+            assertNotNull(ReadingSourceResolver(matcher, dao).resolve(Manga("series", "Series", sourceId = "metadata"),
+                result, ReaderPreferences(ReadingLanguage.ENGLISH)))
         }
     }
 
