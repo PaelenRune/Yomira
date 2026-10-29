@@ -44,6 +44,21 @@ class JsonSourceManifestTest {
         )
     }
 
+    @Test fun `installed icon and origin survive offline manifest round trip`() {
+        val withIcon = JsonSourceManifest.of(descriptor.copy(iconUrl = "https://cdn.test/site.png"),
+            "https://repo.example.org/index.json", 0, listOf(dex))
+        val restored = JsonSourceManifestCodec.decode(JsonSourceManifestCodec.encode(withIcon)).descriptor()
+        assertEquals(withIcon.iconUrl, restored.iconUrl)
+        assertEquals(withIcon.repositoryUrl, restored.repositoryUrl)
+    }
+
+    @Test fun `legacy manifests without icon still offer repository fallback`() {
+        val legacy = JsonSourceManifestCodec.encode(manifest()).replace(",\"iconUrl\":null", "")
+        val restored = JsonSourceManifestCodec.decode(legacy).descriptor()
+        assertNull(restored.iconUrl)
+        assertEquals("https://repo.example.org/index.min.json", restored.repositoryUrl)
+    }
+
     @Test fun `legacy manifests without publisher fields decode as an unknown publisher`() {
         // Exactly what an older app version wrote before publisher identity existed:
         // the same document with the two additive fields stripped.
@@ -153,6 +168,6 @@ class JsonSourceManifestTest {
         assertEquals(descriptor.packageName, installed.packageName)
         assertEquals(14L, installed.versionCode)
         assertFalse(installed.trusted)
-        assertEquals(descriptor, installed.descriptor)
+        assertEquals(descriptor.copy(repositoryUrl = manifest().repositoryUrl), installed.descriptor)
     }
 }

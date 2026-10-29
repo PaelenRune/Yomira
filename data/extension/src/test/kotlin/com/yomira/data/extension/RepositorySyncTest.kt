@@ -20,6 +20,7 @@ class RepositorySyncTest {
         assertEquals(parser.parse(payload, repository.indexUrl), parser.parse(encoded, repository.indexUrl))
         assertEquals("9223372036854775806", parser.parse(encoded, repository.indexUrl).first().sources.single().id)
         assertTrue(parser.parse(encoded, repository.indexUrl).all { it.nsfw })
+        assertEquals("https://source.example.org/0.png", parser.parse(encoded, repository.indexUrl).first().iconUrl)
     }
 
     @Test fun `personal build registers only the universal index by default`() {
@@ -86,7 +87,7 @@ class RepositorySyncTest {
 
     private fun upstream(version: Int = 1): String = """{"extensionList":{"extensions":[${
         (0 until 100).joinToString(",") { index ->
-            """{"name":"Örnek $index","packageName":"example.item$index","resources":{"apkUrl":"https://source.example.org/$index.apk"},"sources":[{"id":"9223372036854775806","name":"Örnek","language":"en"}],"contentWarning":"CONTENT_WARNING_NSFW","versionName":"$version","versionCode":$version}"""
+            """{"name":"Örnek $index","packageName":"example.item$index","resources":{"apkUrl":"https://source.example.org/$index.apk","iconUrl":"https://source.example.org/$index.png"},"sources":[{"id":"9223372036854775806","name":"Örnek","language":"en"}],"contentWarning":"CONTENT_WARNING_NSFW","versionName":"$version","versionCode":$version}"""
         }
     }]}}"""
 
