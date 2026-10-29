@@ -8,7 +8,8 @@ import com.yomira.core.network.ProviderFailure
 import com.yomira.core.network.RemoteMetadata
 import com.yomira.domain.classifier.ClassificationInput
 import com.yomira.domain.classifier.ContentRatingClassifier
-import java.text.Normalizer
+import com.yomira.domain.extension.TitleMatcher
+import com.yomira.domain.extension.TitleNormalizer
 import java.time.Clock
 import java.time.Duration
 import java.util.Locale
@@ -37,6 +38,7 @@ class WaterfallMetadataAggregator(
     private val clock: Clock = Clock.systemUTC(),
     private val ttl: Duration = Duration.ofHours(24),
     private val onFailure: (ProviderFailure) -> Unit = {},
+    private val aliasSink: SeriesAliasSink? = null,
 ) {
     private val order = listOf(MetadataSources.BAKA_UPDATES, MetadataSources.ANILIST,
         MetadataSources.MANGADEX, MetadataSources.KITSU, MetadataSources.COMICVINE,
@@ -54,16 +56,30 @@ class WaterfallMetadataAggregator(
             val cached = guarded("metadata-cache") {
                 cache.read(key, now)?.let { json.decodeFromString<List<RemoteMetadata>>(it) }
             }
-            if (!cached.isNullOrEmpty()) return merge(distinctRecords(cached))
+            if (!cached.isNullOrEmpty()) {
+                recordAliases(distinctRecords(cached))
+                return merge(distinctRecords(cached))
+            }
         }
         val records = mutableListOf<RemoteMetadata>()
         for (provider in providers) {
             if (!provider.isAvailable) continue
             val results = guarded(provider.sourceId) { provider.search(query, 5) }.orEmpty()
-            val acceptedTitles = (records.flatMap { it.allTitles() } + query).map(::normalize).toSet()
+            val accepted = TitleMatcher.Subject(
+                records.flatMap { it.allTitles() } + query,
+                year = records.firstOrNull()?.year,
+                genres = records.flatMap { it.genres }.toSet(),
+            )
             val anchorYear = records.firstOrNull()?.year
             val match = results.firstOrNull { candidate ->
-                candidate.allTitles().any { normalize(it) in acceptedTitles } &&
+                // Shared scoring across search paths: the waterfall accepts a
+                // provider record exactly when the unified matcher would call
+                // it the same series, with year/genre evidence breaking ties.
+                val evidence = TitleMatcher.Evidence(
+                    year = candidate.year,
+                    genres = (candidate.genres + candidate.tags).toSet(),
+                )
+                candidate.allTitles().any { title -> TitleMatcher.matches(title, accepted, evidence) } &&
                     (anchorYear == null || candidate.year == null || anchorYear == candidate.year)
             }
             // Same remote id from the same provider can never be merged twice, even
@@ -77,7 +93,35 @@ class WaterfallMetadataAggregator(
         // Keep cleanup isolated: a failed sweep must not prevent caching fresh metadata.
         guarded("metadata-cache") { cache.pruneExpired(now) }
         guarded("metadata-cache") { cache.write(key, json.encodeToString(records), now, Math.addExact(now, ttl.toMillis())) }
+        recordAliases(distinctRecords(records))
         return merge(distinctRecords(records))
+    }
+
+    /**
+     * Feeds every observed title to the alias dictionary sink. Pure evidence
+     * for matching: never influences the merged display title, which
+     * [TitleLocalizer] owns. A failing sink must not break aggregation.
+     */
+    private suspend fun recordAliases(records: List<RemoteMetadata>) {
+        val sink = aliasSink ?: return
+        val aliases = records.flatMap { record ->
+            val seriesId = "${record.sourceId}:${record.remoteId}"
+            buildList {
+                add(SeriesAlias(seriesId, record.title, source = record.sourceId))
+                record.englishTitle?.let { add(SeriesAlias(seriesId, it, "en", record.sourceId)) }
+                record.altTitles.forEach { (lang, titles) ->
+                    titles.forEach { add(SeriesAlias(seriesId, it, lang, record.sourceId)) }
+                }
+            }
+        }.filter { it.title.isNotBlank() }
+        if (aliases.isEmpty()) return
+        try {
+            sink.record(aliases)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            onFailure(ProviderFailure("alias-sink", "Alias recording failed"))
+        }
     }
 
     /** Drops exact duplicate provider records so one series never merges into two cards. */
@@ -93,10 +137,10 @@ class WaterfallMetadataAggregator(
         // `Boku no Hero Academia` as `My Hero Academia`. The romaji survives as an alt title,
         // so search and cross-provider identity matching keep working.
         val displayTitle = TitleLocalizer.select(records) ?: first.title
-        val titles = records.flatMap { it.allTitles() }.distinctBy(::normalize)
+        val titles = records.flatMap { it.allTitles() }.distinctBy(TitleNormalizer::canonical)
         return Manga(
             id = "${first.sourceId}:${first.remoteId}", title = displayTitle,
-            altTitles = titles.filterNot { normalize(it) == normalize(displayTitle) },
+            altTitles = titles.filterNot { TitleNormalizer.canonical(it) == TitleNormalizer.canonical(displayTitle) },
             coverUrl = ArtworkResolver.cover(records), bannerUrl = ArtworkResolver.backdrop(records),
             author = text { it.author }, artist = text { it.artist }, synopsis = text { it.description },
             score = records.firstNotNullOfOrNull { it.score },
@@ -124,6 +168,6 @@ class WaterfallMetadataAggregator(
         null
     }
 
-    private fun normalize(value: String) = Normalizer.normalize(value, Normalizer.Form.NFKC)
-        .lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
+    /** Cache key: the unified engine's fold, so `One Piece` and `one piece` share an entry. */
+    private fun normalize(value: String) = TitleNormalizer.canonical(value)
 }

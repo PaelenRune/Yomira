@@ -191,6 +191,23 @@ class SmartSourceMatcherTest {
         }
     }
 
+    @Test fun `fan-out probing stops at the first variant whose match has chapters`() = runTest {
+        val found = candidate("one", 3).copy(manga = manga.copy(title = "Haikyuu!!"))
+        val probed = mutableListOf<String>()
+        val bridge = object : SourceBridge by FakeBridge(listOf(found)) {
+            override suspend fun getMangaList(packageName: String, sourceId: String, query: String, page: Int): List<SourceManga> {
+                probed += query
+                return if (query == "Haikyu") listOf(found.manga) else emptyList()
+            }
+        }
+        val result = SmartSourceMatcher(FakeRepository(listOf(found)), bridge, noDiscovery)
+            .match(series.copy(title = "Haikyu!!"), preferences) as SmartMatchResult.Ready
+        assertEquals(3, result.chapters.size)
+        // The primary spelling already yielded a chapter-bearing match, so no
+        // further fan-out variant costs a network round trip.
+        assertEquals(listOf("Haikyu"), probed)
+    }
+
     @Test fun `token containment tolerates subtitles and numbers but not distinct sequels`() {
         assertTrue(SmartSourceMatcher.matchesTitle("Attack on Titan Full Color Edition", listOf("Attack on Titan")))
         assertTrue(SmartSourceMatcher.matchesTitle("Series A", listOf("A Series")))

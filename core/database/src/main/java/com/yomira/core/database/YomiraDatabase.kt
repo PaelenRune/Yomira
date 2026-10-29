@@ -10,6 +10,7 @@ import com.yomira.core.database.dao.JourneyProfileDao
 import com.yomira.core.database.dao.MetadataCacheDao
 import com.yomira.core.database.dao.ReadChapterDao
 import com.yomira.core.database.dao.ReadingActivityDao
+import com.yomira.core.database.dao.SeriesAliasDao
 import com.yomira.core.database.dao.SyncDao
 import com.yomira.core.database.dao.SyncDataDao
 import com.yomira.core.database.dao.UnlockedBadgeDao
@@ -22,6 +23,7 @@ import com.yomira.core.database.entity.ReadChapterEntity
 import com.yomira.core.database.entity.ReaderProgressEntity
 import com.yomira.core.database.entity.ReadingActivityEntity
 import com.yomira.core.database.entity.ReadingProgressEntity
+import com.yomira.core.database.entity.SeriesAliasEntity
 import com.yomira.core.database.entity.SyncSettingsEntity
 import com.yomira.core.database.entity.SyncStateEntity
 import com.yomira.core.database.entity.UnlockedBadgeEntity
@@ -40,8 +42,9 @@ import com.yomira.core.database.entity.UnlockedBadgeEntity
         ReadChapterEntity::class,
         JourneyProfileEntity::class,
         UnlockedBadgeEntity::class,
+        SeriesAliasEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(DatabaseConverters::class)
@@ -64,4 +67,5 @@ abstract class YomiraDatabase : RoomDatabase() {
     abstract fun readChapterDao(): ReadChapterDao
     abstract fun journeyProfileDao(): JourneyProfileDao
     abstract fun unlockedBadgeDao(): UnlockedBadgeDao
+    abstract fun seriesAliasDao(): SeriesAliasDao
 }

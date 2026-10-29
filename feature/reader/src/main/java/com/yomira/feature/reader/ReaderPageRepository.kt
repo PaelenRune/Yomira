@@ -108,6 +108,7 @@ class ReaderPageRepository @Inject constructor(
         // Never silently change the reader's chosen language when its descriptor is known.
         val language = descriptors.flatMap { it.sources }.firstOrNull { it.id == (failed?.sourceId ?: sourceId) }?.language
         val alternatives = mutableListOf<Alternative>()
+        val queries = QueryFanout.generate(titles)
         for (extension in descriptors) {
             for (source in extension.sources) {
                 if (failed != null && extension.packageName == failed.packageName && source.id == failed.sourceId) continue
@@ -116,8 +117,8 @@ class ReaderPageRepository @Inject constructor(
                 attempt {
                     withTimeout(15_000) {
                         val visited = mutableSetOf<String>()
-                        for (title in titles) {
-                            for (candidate in bridge.get().getMangaList(extension.packageName, source.id, title)) {
+                        for (query in queries) {
+                            for (candidate in bridge.get().getMangaList(extension.packageName, source.id, query)) {
                                 if (!SmartSourceMatcher.matchesTitle(candidate.title, titles) || !visited.add(candidate.id)) continue
                                 val chapters = bridge.get().getChapterList(extension.packageName, source.id, candidate).distinctBy { it.id }
                                 val matching = chapters.firstOrNull { it.number == chapter.chapterNumber } ?: continue
