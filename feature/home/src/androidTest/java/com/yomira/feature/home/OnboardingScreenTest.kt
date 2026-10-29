@@ -19,6 +19,30 @@ import org.junit.Test
 class OnboardingScreenTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun repositoryPrimaryAddsOnlyAfterConfirmationAndCancelKeepsStep() {
+        var additions = 0
+        var skips = 0
+        compose.setContent { MaterialTheme {
+            OnboardingScreen(false, null, { _, _, _, _, _ -> skips++ },
+                onCompleteWithRepository = { _, _, _, _, _ -> additions++ })
+        } }
+        compose.onNodeWithText("Continue").performClick()
+        compose.onNodeWithText("🛡️ I am under 18").performClick()
+        compose.onNodeWithText("Continue").performClick()
+        compose.onNodeWithText("Continue").performClick()
+        compose.onNodeWithText("Skip").performClick()
+        compose.onNodeWithText("Add repository").performClick()
+        compose.onNodeWithText("Add the official repository?").assertExists()
+        assertEquals(0, additions)
+        assertEquals(0, skips)
+        compose.onNodeWithText("Cancel").performClick()
+        compose.onNodeWithText("Content sources").assertExists()
+        compose.onNodeWithText("Add repository").performClick()
+        compose.onNodeWithTag("onboarding-repository-confirm").performClick()
+        assertEquals(1, additions)
+        assertEquals(0, skips)
+    }
+
     @Test fun fourStepsCollectLanguageAgeBlacklistAndTaste() {
         var result: List<Any>? = null
         compose.setContent { MaterialTheme {

@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -155,8 +156,9 @@ fun OnboardingScreen(
                 }
                 if (step > 0) TextButton(onClick = { step-- }, enabled = !saving) { Text(copy.back) }
                 if (step == 4) {
-                    Button(onClick = { confirmRepository = true }, enabled = !saving, modifier = Modifier.fillMaxWidth()) { Text(copy.addRepository) }
                     TextButton(onClick = onOpenRepository, enabled = !saving, modifier = Modifier.fillMaxWidth()) { Text(copy.openRepository) }
+                    TextButton(onClick = { onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites) },
+                        enabled = !saving) { Text(copy.skip) }
                 }
                 if (step == 3) TextButton(onClick = {
                     favorites = emptyList()
@@ -164,16 +166,17 @@ fun OnboardingScreen(
                     else onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, emptyList())
                 }, enabled = !saving) { Text(copy.skip) }
                 Button(onClick = {
-                    if (step < totalSteps - 1) step++ else onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites)
+                    if (step == 4) confirmRepository = true
+                    else if (step < totalSteps - 1) step++ else onComplete(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites)
                 }, enabled = !saving && (step != 1 || isAdult != null) && (step != 3 || favorites.isNotEmpty()),
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("onboarding-primary"),
                     colors = ButtonDefaults.buttonColors(containerColor = OnboardingPurple, contentColor = Color.White),
                     shape = RoundedCornerShape(16.dp)) {
                     if (saving) {
                         CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         Spacer(Modifier.width(12.dp))
                         Text(copy.saving)
-                    } else Text(if (step == 4) copy.skip else if (step == totalSteps - 1) copy.connectAndStart else copy.continueAction)
+                    } else Text(copy.primaryActionLabel(step, totalSteps))
                 }
             }
         }
@@ -181,7 +184,7 @@ fun OnboardingScreen(
     if (confirmRepository) AlertDialog(
         onDismissRequest = { confirmRepository = false },
         title = { Text(copy.confirmRepository) },
-        confirmButton = { TextButton(onClick = { confirmRepository = false; onCompleteWithRepository(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites) }) { Text(copy.addRepository) } },
+        confirmButton = { TextButton(modifier = Modifier.testTag("onboarding-repository-confirm"), onClick = { confirmRepository = false; onCompleteWithRepository(language, isAdult == true, excluded.toSet(), initialFavoriteGenres, favorites) }) { Text(copy.addRepository) } },
         dismissButton = { TextButton(onClick = { confirmRepository = false }) { Text(copy.cancel) } },
     )
 }
