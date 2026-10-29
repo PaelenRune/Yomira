@@ -54,6 +54,9 @@ object TitleNormalizer {
         tokens = tokens.map { when (it) { "wo" -> "o"; "he" -> "e"; else -> it } }
         // Roman numerals and ordinal words become digits so `II` == `2` == `Second`.
         tokens = tokens.map(::foldRomanOrOrdinal)
+        // Volume/chapter metadata never carries identity, not even as a marker:
+        // `A Series Vol. 1` must equal `A Series`, so strip before marking.
+        tokens = stripVolumeMetadata(tokens)
 
         text = tokens.joinToString(" ")
         // Season/part phrases (class doc, rule 9). Phrases fold before the bare
@@ -155,6 +158,25 @@ object TitleNormalizer {
 
     private fun tokenize(text: String): List<String> = text.split(' ').filter { it.isNotEmpty() }
 
+    /** Drops `vol/volume/chapter/ch <number>` pairs from the token stream. */
+    private fun stripVolumeMetadata(tokens: List<String>): List<String> {
+        val result = mutableListOf<String>()
+        var index = 0
+        while (index < tokens.size) {
+            val token = tokens[index]
+            val isVolumeWord = token in VOLUME_WORDS
+            val nextIsNumber = index + 1 < tokens.size && tokens[index + 1].isNotEmpty() &&
+                tokens[index + 1].all { it.isDigit() }
+            if (isVolumeWord && nextIsNumber) {
+                index += 2
+            } else {
+                result += token
+                index += 1
+            }
+        }
+        return result
+    }
+
     private fun foldRomanOrOrdinal(token: String): String {
         ROMAN_NUMERALS[token]?.let { return it.toString() }
         return ORDINAL_SUFFIX.replace(token) { it.groupValues[1] }
@@ -186,6 +208,7 @@ object TitleNormalizer {
         "first" to "1", "second" to "2", "third" to "3", "fourth" to "4", "fifth" to "5",
         "sixth" to "6", "seventh" to "7", "eighth" to "8", "ninth" to "9", "tenth" to "10",
     )
+    private val VOLUME_WORDS = setOf("vol", "volume", "chapter", "ch")
 
     private val SEASON_WORDS = """(?:season|part|act|stage|cour|arc|year)"""
     private val SEASON_PHRASE = Regex("""\b$SEASON_WORDS\s+(\d+)\b""")

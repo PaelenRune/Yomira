@@ -118,6 +118,12 @@ class TitleNormalizerTest {
         assertEquals("20 century boys", TitleNormalizer.canonical("20th Century Boys"))
     }
 
+    @Test fun `canonical strips volume and chapter metadata entirely`() {
+        assertEquals("a series", TitleNormalizer.canonical("A Series Vol. 1"))
+        assertEquals("a series", TitleNormalizer.canonical("A Series Chapter 12"))
+        assertEquals("mob psycho 100 2024", TitleNormalizer.canonical("Mob Psycho 100 2024 Vol 1"))
+    }
+
     // --- head(): colon-split long titles ---------------------------------------
 
     @Test fun `head returns the canonical brand before the colon`() {

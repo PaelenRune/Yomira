@@ -232,4 +232,32 @@ class WaterfallMetadataAggregatorTest {
         assertEquals("${MetadataSources.KITSU}:1", manga.id)
         assertEquals("One Piece", manga.title)
     }
+
+    @Test fun sharedScoringMergesProviderSpellingVariantsOfTheSameSeries() = runTest {
+        // The unified matcher (not a waterfall-local heuristic) decides that
+        // `Shippuuden!!` is `Shippuden`: the same engine the source router
+        // uses. The legacy exact-membership check rejected this record.
+        val providers = listOf(
+            provider(MetadataSources.BAKA_UPDATES) { listOf(record(MetadataSources.BAKA_UPDATES, "Naruto Shippuden")) },
+            provider(MetadataSources.MANGADEX) {
+                listOf(record(MetadataSources.MANGADEX, "Naruto Shippuuden!!").copy(description = "Filled by merge"))
+            },
+        )
+        val manga = WaterfallMetadataAggregator(providers, Cache(), clock = clock).aggregate("Naruto Shippuden")!!
+        assertEquals("${MetadataSources.BAKA_UPDATES}:1", manga.id)
+        // The second provider's record was merged, not dropped…
+        assertEquals("Filled by merge", manga.synopsis)
+        // …and its spelling folded onto the canonical one instead of doubling it.
+        assertFalse(manga.altTitles.any { it.contains("Shippuuden") })
+    }
+
+    @Test fun sharedScoringStillRejectsSequelsAsIdentityMatches() = runTest {
+        val providers = listOf(
+            provider(MetadataSources.BAKA_UPDATES) { listOf(record(MetadataSources.BAKA_UPDATES, "A Series")) },
+            provider(MetadataSources.MANGADEX) { listOf(record(MetadataSources.MANGADEX, "A Series 2")) },
+        )
+        val manga = WaterfallMetadataAggregator(providers, Cache(), clock = clock).aggregate("A Series")!!
+        assertEquals("${MetadataSources.BAKA_UPDATES}:1", manga.id)
+        assertFalse(manga.altTitles.contains("A Series 2"))
+    }
 }

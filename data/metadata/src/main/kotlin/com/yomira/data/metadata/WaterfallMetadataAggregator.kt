@@ -8,7 +8,8 @@ import com.yomira.core.network.ProviderFailure
 import com.yomira.core.network.RemoteMetadata
 import com.yomira.domain.classifier.ClassificationInput
 import com.yomira.domain.classifier.ContentRatingClassifier
-import java.text.Normalizer
+import com.yomira.domain.extension.TitleMatcher
+import com.yomira.domain.extension.TitleNormalizer
 import java.time.Clock
 import java.time.Duration
 import java.util.Locale
@@ -64,10 +65,21 @@ class WaterfallMetadataAggregator(
         for (provider in providers) {
             if (!provider.isAvailable) continue
             val results = guarded(provider.sourceId) { provider.search(query, 5) }.orEmpty()
-            val acceptedTitles = (records.flatMap { it.allTitles() } + query).map(::normalize).toSet()
+            val accepted = TitleMatcher.Subject(
+                records.flatMap { it.allTitles() } + query,
+                year = records.firstOrNull()?.year,
+                genres = records.flatMap { it.genres }.toSet(),
+            )
             val anchorYear = records.firstOrNull()?.year
             val match = results.firstOrNull { candidate ->
-                candidate.allTitles().any { normalize(it) in acceptedTitles } &&
+                // Shared scoring across search paths: the waterfall accepts a
+                // provider record exactly when the unified matcher would call
+                // it the same series, with year/genre evidence breaking ties.
+                val evidence = TitleMatcher.Evidence(
+                    year = candidate.year,
+                    genres = (candidate.genres + candidate.tags).toSet(),
+                )
+                candidate.allTitles().any { title -> TitleMatcher.matches(title, accepted, evidence) } &&
                     (anchorYear == null || candidate.year == null || anchorYear == candidate.year)
             }
             // Same remote id from the same provider can never be merged twice, even
@@ -125,10 +137,10 @@ class WaterfallMetadataAggregator(
         // `Boku no Hero Academia` as `My Hero Academia`. The romaji survives as an alt title,
         // so search and cross-provider identity matching keep working.
         val displayTitle = TitleLocalizer.select(records) ?: first.title
-        val titles = records.flatMap { it.allTitles() }.distinctBy(::normalize)
+        val titles = records.flatMap { it.allTitles() }.distinctBy(TitleNormalizer::canonical)
         return Manga(
             id = "${first.sourceId}:${first.remoteId}", title = displayTitle,
-            altTitles = titles.filterNot { normalize(it) == normalize(displayTitle) },
+            altTitles = titles.filterNot { TitleNormalizer.canonical(it) == TitleNormalizer.canonical(displayTitle) },
             coverUrl = ArtworkResolver.cover(records), bannerUrl = ArtworkResolver.backdrop(records),
             author = text { it.author }, artist = text { it.artist }, synopsis = text { it.description },
             score = records.firstNotNullOfOrNull { it.score },
@@ -156,6 +168,6 @@ class WaterfallMetadataAggregator(
         null
     }
 
-    private fun normalize(value: String) = Normalizer.normalize(value, Normalizer.Form.NFKC)
-        .lowercase(Locale.ROOT).replace(Regex("[^\\p{L}\\p{N}]+"), " ").trim()
+    /** Cache key: the unified engine's fold, so `One Piece` and `one piece` share an entry. */
+    private fun normalize(value: String) = TitleNormalizer.canonical(value)
 }

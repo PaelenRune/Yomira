@@ -419,10 +419,28 @@ class YomiraViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Shelf search gate. Titles go through the shared [TitleMatcher] typing
+     * gate (looser than identity, so a half-typed word still counts as known
+     * and the live import waits); genres keep their plain contains check.
+     */
     private fun isLocallyKnown(query: String): Boolean = catalog.value.manga.any { manga ->
-        manga.title.contains(query, ignoreCase = true) ||
-            manga.altTitles.any { it.contains(query, ignoreCase = true) } ||
+        TitleMatcher.knownWhileTyping(query, subjectFor(manga)) ||
             manga.genres.any { it.contains(query, ignoreCase = true) }
+    }
+
+    /**
+     * Cached [TitleMatcher.Subject] per shelf id: every keystroke walks the
+     * whole catalog and folding every title is regex work, so each series is
+     * folded once and reused until its names change.
+     */
+    private val titleSubjects = HashMap<String, Pair<List<String>, TitleMatcher.Subject>>()
+
+    private fun subjectFor(manga: Manga): TitleMatcher.Subject {
+        val names = listOf(manga.title) + manga.altTitles
+        val cached = titleSubjects[manga.id]
+        if (cached != null && cached.first == names) return cached.second
+        return TitleMatcher.Subject(names).also { titleSubjects[manga.id] = names to it }
     }
 
     fun checkForUpdates() {
@@ -667,8 +685,9 @@ class YomiraViewModel @Inject constructor(
         }
     }
 
+    /** Same shared matcher as the source router: fuzzy identity against title and aliases. */
     private fun Manga.matchesTitle(title: String): Boolean =
-        this.title.equals(title, true) || altTitles.any { it.equals(title, true) }
+        TitleMatcher.matches(title, subjectFor(this))
 
     private companion object {
         const val MIN_LIVE_QUERY_LENGTH = 3

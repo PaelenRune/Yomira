@@ -46,14 +46,16 @@ class SmartSourceMatcher(
         }
         val candidates = mutableListOf<SourceCandidate>()
         val chaptersBySource = mutableMapOf<Pair<String, String>, List<SourceChapter>>()
-        val names = queries(series).map(::normalize).toSet()
+        // One shared subject: every name of the series folded by the unified
+        // normalization engine and scored by the shared TitleMatcher.
+        val subject = TitleMatcher.Subject(listOf(series.title) + series.aliases)
         val observations = coroutineScope {
             val permits = Semaphore(8)
             eligible.flatMap { extension ->
                 extension.sources.filter {
                     accepts(it, preferences) && (extension.packageName to it.id) !in excluded
                 }.map { source ->
-                    async { permits.withPermit { probe(extension, source, series, names) } }
+                    async { permits.withPermit { probe(extension, source, series, subject) } }
                 }
             }.awaitAll()
         }
@@ -85,15 +87,15 @@ class SmartSourceMatcher(
         extension: ExtensionDescriptor,
         source: ExtensionSource,
         series: SeriesIdentity,
-        names: Set<String>,
+        subject: TitleMatcher.Subject,
     ): Observation = try {
         withTimeout(15_000L) {
             val startedAt = nanoTime()
             val visited = mutableSetOf<String>()
             for (query in queries(series)) {
                 val results = bridge.getMangaList(extension.packageName, source.id, query)
-                    .filter { matches(it.title, names) }
-                    .sortedByDescending { title -> names.maxOf { similarity(normalize(title.title), it) } }
+                    .filter { TitleMatcher.matches(it.title, subject) }
+                    .sortedByDescending { title -> TitleMatcher.score(title.title, subject) }
                 for (manga in results) {
                     if (!visited.add(manga.id)) continue
                     val chapters = bridge.getChapterList(extension.packageName, source.id, manga).distinctBy { it.id }
@@ -149,78 +151,12 @@ class SmartSourceMatcher(
     companion object {
         /** Use every supplied localized name; translation cannot be inferred from Romaji alone. */
         private fun queries(series: SeriesIdentity): List<String> =
-            expandedQueries(listOf(series.title) + series.aliases)
-
-        private fun expandedQueries(titles: Collection<String>): List<String> = titles.flatMap { title ->
-            val romanized = title.replace("ō", "ou").replace("Ō", "Ou")
-                .replace("ū", "uu").replace("Ū", "Uu")
-            listOf(title, romanized).flatMap { spelling ->
-                val clean = java.text.Normalizer.normalize(spelling, java.text.Normalizer.Form.NFD)
-                    .replace(DIACRITICS, "")
-                    .replace(EDITORIAL_SUFFIX, " ")
-                    .replace(PUNCTUATION, " ").replace(WHITESPACE, " ").trim()
-                val shortVowels = clean.replace(LONG_VOWELS, "$1")
-                listOf(clean, shortVowels, shortVowels.replace(ROMAJI_OU, "o"),
-                    shortVowels.replace(TERMINAL_U, "uu"))
-            }
-        }.filter { it.isNotBlank() }.distinct()
+            ((listOf(series.title) + series.aliases))
+                .flatMap(TitleNormalizer::searchVariants)
+                .distinct()
 
         /** Shared by discovery adapters so they do not discard fuzzy matches before routing. */
         fun matchesTitle(title: String, aliases: Collection<String>): Boolean =
-            matches(title, expandedQueries(aliases).map(::normalize).toSet())
-
-        private fun normalize(title: String): String = java.text.Normalizer.normalize(title, java.text.Normalizer.Form.NFD)
-            .replace(DIACRITICS, "").trim().lowercase(java.util.Locale.ROOT)
-            .replace(EDITORIAL_SUFFIX, " ")
-            .replace(PUNCTUATION, " ")
-            .replace(WHITESPACE, " ").trim()
-
-        private fun matches(title: String, names: Set<String>): Boolean {
-            val normalized = normalize(title)
-            return normalized.isNotEmpty() && names.any { similarity(normalized, it) >= 0.75 }
-        }
-
-        private fun similarity(left: String, right: String): Double {
-            if (left == right) return 1.0
-            if (left.isEmpty() || right.isEmpty()) return 0.0
-            // Volume metadata, years and intrinsic large numbers are not sequel identifiers.
-            val leftCore = left.replace(VOLUME_NUMBER, " ").replace(HARMLESS_NUMBER, " ")
-                .replace(WHITESPACE, " ").trim()
-            val rightCore = right.replace(VOLUME_NUMBER, " ").replace(HARMLESS_NUMBER, " ")
-                .replace(WHITESPACE, " ").trim()
-            // Keep "A Series", "A Series 1" and "A Series 2" distinct, even under containment.
-            if (SEQUEL_NUMBER.findAll(leftCore).map { it.value }.toList() !=
-                SEQUEL_NUMBER.findAll(rightCore).map { it.value }.toList()) return 0.0
-            val leftTokens = leftCore.split(' ').filter { it.isNotEmpty() }.toSet()
-            val rightTokens = rightCore.split(' ').filter { it.isNotEmpty() }.toSet()
-            if (rightTokens.isNotEmpty() && leftTokens.containsAll(rightTokens)) return 1.0
-            val a = leftCore.replace(" ", "")
-            val b = rightCore.replace(" ", "")
-            if (a.isEmpty() || b.isEmpty()) return 0.0
-            var previous = IntArray(b.length + 1) { it }
-            for (i in a.indices) {
-                val row = IntArray(b.length + 1)
-                row[0] = i + 1
-                for (j in b.indices) {
-                    row[j + 1] = minOf(row[j] + 1, previous[j + 1] + 1,
-                        previous[j] + if (a[i] == b[j]) 0 else 1)
-                }
-                previous = row
-            }
-            val editSimilarity = 1.0 - previous[b.length].toDouble() / maxOf(a.length, b.length)
-            val tokenSimilarity = leftTokens.intersect(rightTokens).size.toDouble() / maxOf(leftTokens.size, rightTokens.size)
-            return maxOf(editSimilarity, tokenSimilarity)
-        }
-
-        private val EDITORIAL_SUFFIX = Regex("(?:\\s*(?:\\((?:official|color|webtoon|digital)\\)|\\bscanlation\\b)\\s*)+$", RegexOption.IGNORE_CASE)
-        private val PUNCTUATION = Regex("[^\\p{L}\\p{N}\\s]")
-        private val WHITESPACE = Regex("\\s+")
-        private val DIACRITICS = Regex("\\p{M}+")
-        private val LONG_VOWELS = Regex("([aeiou])\\1+", RegexOption.IGNORE_CASE)
-        private val ROMAJI_OU = Regex("ou", RegexOption.IGNORE_CASE)
-        private val TERMINAL_U = Regex("(?<=[a-z])u\\b", RegexOption.IGNORE_CASE)
-        private val VOLUME_NUMBER = Regex("\\b(?:vol(?:ume)?|chapter|ch)\\s+\\d+\\b")
-        private val HARMLESS_NUMBER = Regex("\\b(?:0|\\d{3,})\\b")
-        private val SEQUEL_NUMBER = Regex("\\b[1-9]\\d?\\b")
+            TitleMatcher.matches(title, TitleMatcher.Subject(aliases))
     }
 }
