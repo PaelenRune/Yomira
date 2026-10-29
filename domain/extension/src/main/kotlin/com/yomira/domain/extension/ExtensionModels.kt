@@ -35,6 +35,9 @@ data class ExtensionDescriptor(
     val versionCode: Long,
     val apkUrl: String,
     val sources: List<ExtensionSource>,
+    /** Optional display artwork; never participates in extension identity or trust. */
+    val iconUrl: String? = null,
+    val repositoryUrl: String? = null,
 ) {
     init {
         require(packageName.isNotBlank() && versionCode > 0)

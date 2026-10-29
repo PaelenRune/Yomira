@@ -73,13 +73,15 @@ class ProtoRepositoryParserTest {
         fun bytes(field: Int, value: ByteArray) = varint((field * 8L) + 2) + varint(value.size.toLong()) + value
         fun text(field: Int, value: String) = bytes(field, value.toByteArray())
         val source = number(1, Long.MIN_VALUE) + text(2, "Example") + text(3, "en")
-        val resources = text(1, "https://example.org/source.apk") + text(501, "ignored")
+        val resources = text(1, "https://example.org/source.apk") + text(2, "icon/example.png") + text(501, "ignored")
         val entry = text(1, "Example") + text(2, "example.package") + bytes(3, resources) + number(5, 42) + text(6, "1.4.1") + number(7, 3) + bytes(8, source)
         val index = text(1, "Test") + bytes(101, bytes(1, entry)) + number(200, 7)
         val item = KeiyoushiRepoParser().parse(RepositoryResponse(index), url).single()
         assertEquals(Long.MIN_VALUE.toString(), item.sources.single().id)
         assertTrue(item.nsfw)
         assertEquals(42L, item.versionCode)
+        assertEquals("https://raw.githubusercontent.com/keiyoushi/extensions/repo/icon/example.png", item.iconUrl)
+        assertEquals(url, item.repositoryUrl)
         for (warning in 0L..3L) {
             val warningEntry = text(1, "Example") + text(2, "example.package") + bytes(3, resources) +
                 number(5, 42) + number(7, warning) + bytes(8, source)

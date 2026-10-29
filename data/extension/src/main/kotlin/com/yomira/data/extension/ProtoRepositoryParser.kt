@@ -2,6 +2,7 @@ package com.yomira.data.extension
 
 import com.yomira.domain.extension.ExtensionDescriptor
 import com.yomira.domain.extension.ExtensionSource
+import com.yomira.domain.extension.ExtensionLogo
 import com.yomira.domain.extension.requireHttps
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -60,6 +61,8 @@ internal object ProtoRepositoryParser {
             nsfw = warning == 2L || warning == 3L, versionName = text(6),
             versionCode = fields.lastOrNull { it.number == 5 }?.numberValue() ?: 0,
             apkUrl = apkUrl, sources = sources,
+            iconUrl = ExtensionLogo.resolveIcon(resources.lastOrNull { it.number == 2 }?.text(), indexUrl),
+            repositoryUrl = indexUrl,
         )
     }
 

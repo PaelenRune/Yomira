@@ -24,6 +24,23 @@ class KeiyoushiRepoParserTest {
 
     @Test fun `empty repository is valid`() { assertTrue(parser.parse("[]", url).isEmpty()) }
 
+    @Test fun `index icon field variants resolve to HTTPS artwork`() {
+        for (field in listOf("icon", "icon_url", "iconUrl")) {
+            val withIcon = entry.replace("\"unknown\":true", "\"$field\":\"icon/example.png\"")
+            val result = parser.parse("[$withIcon]", url).single()
+            assertEquals("https://example.org/repo/icon/example.png", result.iconUrl)
+            assertEquals(url, result.repositoryUrl)
+        }
+    }
+
+    @Test fun `invalid optional icon keeps entry and repo favicon available`() {
+        val withIcon = entry.replace("\"unknown\":true", "\"icon_url\":\"http://unsafe.test/icon.png\"")
+        val result = parser.parse("[$withIcon]", url).single()
+        assertNull(result.iconUrl)
+        assertEquals(listOf("https://example.org/favicon.ico"),
+            com.yomira.domain.extension.ExtensionLogo.candidates(result.iconUrl, result.repositoryUrl))
+    }
+
     @Test(expected = OutdatedRepositoryClientException::class)
     fun `identifies upstream outdated app placeholder before parsing legacy fields`() {
         parser.parse("""[{"name":"Outdated App","pkg":"stub"},{"name":"Update to Mihon 0.20.1+","pkg":"stub2"}]""", url)

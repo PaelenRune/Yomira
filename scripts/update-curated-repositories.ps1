@@ -27,6 +27,7 @@ $entries = @($extensions | Sort-Object packageName | ForEach-Object {
         name = $extension.name
         pkgName = $extension.packageName
         apkUrl = $extension.resources.apkUrl
+        iconUrl = $(if ($extension.resources.iconUrl) { [Uri]::new([Uri]$SourceIndexUrl, [string]$extension.resources.iconUrl).AbsoluteUri } else { $null })
         lang = $(if (@($extension.sources).Count -gt 0) { @($extension.sources)[0].language } else { 'all' })
         nsfw = $(if ($extension.contentWarning -eq 'CONTENT_WARNING_NSFW') { 1 } else { 0 })
         version = $extension.versionName

@@ -52,6 +52,8 @@ data class JsonSourceManifest(
     /** SHA-256 of a v1 signing certificate DER; null means unknown, never verified trust. */
     val publisherFingerprint: String? = null,
     val publisherFingerprintReason: String? = null,
+    /** Optional artwork survives offline/installed-only lists; old manifests default to no icon. */
+    val iconUrl: String? = null,
 ) {
     init {
         require(packageName.isNotBlank() && name.isNotBlank() && language.isNotBlank()) {
@@ -106,6 +108,8 @@ data class JsonSourceManifest(
         versionCode = versionCode,
         apkUrl = apkUrl,
         sources = sources.map { ExtensionSource(it.id, it.name, it.language) },
+        iconUrl = com.yomira.domain.extension.ExtensionLogo.resolveIcon(iconUrl, repositoryUrl),
+        repositoryUrl = repositoryUrl,
     )
 
     companion object {
@@ -128,6 +132,7 @@ data class JsonSourceManifest(
             versionName = descriptor.versionName,
             versionCode = descriptor.versionCode,
             apkUrl = descriptor.apkUrl,
+            iconUrl = descriptor.iconUrl,
             repositoryUrl = repositoryUrl,
             installedAt = installedAt,
             dexFiles = dexFiles,

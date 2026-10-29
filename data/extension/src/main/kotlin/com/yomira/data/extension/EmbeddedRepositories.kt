@@ -1,11 +1,13 @@
 package com.yomira.data.extension
 
 import com.yomira.domain.extension.OnboardingWizardManager
+import com.yomira.domain.extension.ExtensionLogo
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -65,6 +67,8 @@ object EmbeddedRepositories {
                 put("name", entry.getValue("name"))
                 put("pkgName", entry.getValue("packageName"))
                 put("apkUrl", entry.getValue("resources").jsonObject.getValue("apkUrl"))
+                ExtensionLogo.resolveIcon(entry.getValue("resources").jsonObject["iconUrl"]?.jsonPrimitive?.contentOrNull,
+                    UPSTREAM_URL)?.let { put("iconUrl", it) }
                 put("lang", sources.firstOrNull()?.jsonObject?.get("language") ?: JsonPrimitive("all"))
                 put("nsfw", if (entry["contentWarning"]?.jsonPrimitive?.content == "CONTENT_WARNING_NSFW") 1 else 0)
                 put("version", entry.getValue("versionName"))

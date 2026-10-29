@@ -2,6 +2,7 @@ package com.yomira.data.extension
 
 import com.yomira.domain.extension.ExtensionDescriptor
 import com.yomira.domain.extension.ExtensionSource
+import com.yomira.domain.extension.ExtensionLogo
 import com.yomira.domain.extension.requireHttps
 import java.net.URI
 import kotlinx.serialization.json.Json
@@ -64,6 +65,9 @@ class KeiyoushiRepoParser {
                     versionCode = entry.required("code").toLong(),
                     apkUrl = url,
                     sources = sources,
+                    iconUrl = sequenceOf("icon", "icon_url", "iconUrl")
+                        .mapNotNull { ExtensionLogo.resolveIcon(entry.text(it), indexUrl) }.firstOrNull(),
+                    repositoryUrl = indexUrl,
                 )
             } catch (error: Exception) {
                 throw IllegalArgumentException("Invalid repository entry at index $index", error)

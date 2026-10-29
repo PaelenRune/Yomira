@@ -59,6 +59,7 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
                                 val curated = CuratedRepositories.ALL.firstOrNull { it.indexUrl == url }
                                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    ExtensionLogoImage(curated?.title ?: url, iconUrl = null, repositoryUrl = url)
                                     Column(Modifier.weight(1f)) {
                                         Text(curated?.title ?: url, style = MaterialTheme.typography.bodyMedium)
                                         if (curated == null) Text(url, style = MaterialTheme.typography.bodySmall)
@@ -116,6 +117,7 @@ fun ExtensionsScreen(state: ExtensionsUiState, onBack: () -> Unit, onRefresh: ()
                 Column {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ExtensionLogoImage(descriptor.name, descriptor.iconUrl, descriptor.repositoryUrl)
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(descriptor.name, style = MaterialTheme.typography.titleMedium)
                             Text("v${descriptor.versionName} · ${descriptor.language.uppercase()}", style = MaterialTheme.typography.bodySmall)
