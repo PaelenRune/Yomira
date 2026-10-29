@@ -12,10 +12,31 @@ class ContentFiltersTest {
             "yaoi" to listOf("Yaoi", "BL", "Boys' Love", "Shōnen-ai"),
             "yuri" to listOf("GL", "Girls Love", "Shoujo Ai"),
             "futanari" to listOf("Futanari", "Futa"),
-            "ntr" to listOf("Netorare", "NTR"),
-            "gore" to listOf("Gore", "Graphic Violence", "Aşırı Şiddet"),
-            "harem" to listOf("Reverse Harem"),
         ).forEach { (key, aliases) -> aliases.forEach { assertTrue("$key / $it", manga(it).hasExcludedTags(setOf(key))) } }
+    }
+
+    @Test fun `hard aliases hide while style aliases only penalize`() {
+        listOf("futanari" to "Futa", "incest" to "Incest", "beastiality" to "Bestiality", "rape" to "Non-con", "loli" to "Lolicon", "shota" to "Shotacon").forEach { (key, label) ->
+            assertTrue(label, manga(label).hasExcludedTags(setOf(key)))
+        }
+        listOf("harem" to "Reverse Harem", "ntr" to "Netorare", "gore" to "Guro", "ecchi" to "Etchi", "gore" to "Graphic Violence").forEach { (key, label) ->
+            val item = manga(label)
+            assertFalse(label, item.hasExcludedTags(setOf(key)))
+            assertTrue(label, item.stylePenalty(setOf(key)) > 0)
+        }
+        listOf("Drama", "Romance", "Supernatural").forEach { label ->
+            assertFalse(label, manga(label).hasExcludedTags(setOf("futanari", "incest", "rape", "loli", "shota")))
+        }
+    }
+
+    @Test fun `hard core is independent of preferences and rating`() {
+        listOf("Futa", "Incest", "Bestiality", "Non-con", "Lolicon", "Shotacon").forEach { label ->
+            ContentRating.entries.forEach { rating ->
+                listOf(emptySet(), setOf("harem"), setOf("futanari", "yaoi", "ntr")).forEach { preferences ->
+                    assertFalse("$label $rating $preferences", manga(label, rating = rating).isVisibleForReader(preferences, true, true))
+                }
+            }
+        }
     }
 
     @Test fun `blacklist wins regardless of age or adult consent`() {

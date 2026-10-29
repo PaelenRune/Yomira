@@ -1,6 +1,7 @@
 package com.yomira.feature.vault
 
 import androidx.compose.foundation.layout.*
+import android.util.Log
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
@@ -111,6 +112,7 @@ data class VaultCopy(
     val railWestern3D: String = "🌐 Western & 3D Erotic Comics",
     val railPopular: String = "Popular in Vault",
     val emptyRail: String = "No series on this shelf yet. Sync your sources or change the filter.",
+    val sparseRail: String = "Bu raf yavaş doldu; daha fazla sonuç için kaynakları eşitle.",
 ) {
     fun railTitle(style: String): String = when (style) {
         "Adult Webtoons" -> railTrendingWebtoons
@@ -123,7 +125,7 @@ data class VaultCopy(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true, showAdultContent: Boolean = true) {
+fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: (Int) -> Unit, onUnlock: () -> Unit, onPanic: () -> Unit, onManga: (Manga) -> Unit, authError: String? = null, loading: Boolean = false, error: String? = null, onRetry: () -> Unit, discovered: List<Manga> = emptyList(), loadingMore: Boolean = false, hasMore: Boolean = true, pagingError: String? = null, onLoadMore: () -> Unit = {}, copy: VaultCopy = VaultCopy(), onMangaLongClick: (Manga) -> Unit = {}, adaptationBadges: Map<String, String> = emptyMap(), onPosterVisible: (Manga) -> Unit = {}, excludedTags: Set<String> = emptySet(), isAdult: Boolean = true, allowAdultContent: Boolean = true, showAdultContent: Boolean = true, diagnosticInput: List<Manga> = manga + discovered) {
     val eligible = isAdult && allowAdultContent
     if (!eligible) {
         Column(Modifier.fillMaxSize().padding(28.dp), verticalArrangement = Arrangement.Center) {
@@ -155,10 +157,15 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
         if (contentVisible) buildVaultHome(
             vaultCatalog(manga, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
             vaultCatalog(discovered, unlocked, excludedTags = excludedTags, isAdult = isAdult, allowAdultContent = allowAdultContent),
-            unlocked, selected,
+            unlocked, selected, excludedTags = excludedTags,
         ) else buildVaultHome(emptyList(), emptyList(), unlocked, selected)
     }
     val visible = home.collection
+    LaunchedEffect(diagnosticInput, excludedTags, contentVisible, isAdult, allowAdultContent) {
+        if (contentVisible) {
+            vaultRailDiagnostics(diagnosticInput, excludedTags, isAdult, allowAdultContent).forEach { Log.d("VaultDiagnostics", it) }
+        }
+    }
     val gridState = rememberLazyGridState()
     val nearBottom by remember(gridState) {
         derivedStateOf {
@@ -214,7 +221,7 @@ fun VaultScreen(unlocked: Boolean, manga: List<Manga>, columns: Int, onColumns: 
                 Text(copy.hiddenTitle, style = MaterialTheme.typography.titleMedium, color = NeonFuchsia)
                 Text(copy.hiddenMessage, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-        } else if (visible.isEmpty() && !loading && error == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState(copy.emptyTitle, copy.emptyMessage) }
+        } else if (visible.isEmpty() && !loading && !loadingMore && error == null && pagingError == null) item(span = { GridItemSpan(maxLineSpan) }) { CatalogEmptyState(copy.emptyTitle, copy.emptyMessage) }
         if (contentVisible) items(visible, key = { it.id }) { item ->
             LaunchedEffect(item.id) { onPosterVisible(item) }
             MangaCard(item, gridColumns, { onManga(item) }, Modifier.padding(horizontal = 4.dp), copy.catalog, onLongClick = { onMangaLongClick(item) }, adaptationBadge = adaptationBadges[item.id])
@@ -250,6 +257,7 @@ private fun VaultMangaRail(rail: VaultRail, onManga: (Manga) -> Unit, copy: Vaul
         if (rail.items.isEmpty()) {
             Text(copy.emptyRail, Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         } else {
+            if (rail.items.size <= 3) Text(copy.sparseRail, Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
             LazyRow(contentPadding = PaddingValues(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(rail.items, key = { it.id }, contentType = { "manga" }) { item ->
                     LaunchedEffect(item.id) { onPosterVisible(item) }

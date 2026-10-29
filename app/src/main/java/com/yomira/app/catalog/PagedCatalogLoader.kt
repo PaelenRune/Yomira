@@ -27,6 +27,14 @@ data class CatalogPage(
     val hasMore: Boolean,
 )
 
+/** Provider title searches are unioned: no provider is assumed to support an OR operator. */
+internal val vaultSearchVariants = linkedMapOf(
+    "Adult Webtoons" to listOf("adult webtoon", "pornhwa"),
+    "Hentai Manga" to listOf("hentai", "erotic manga"),
+    "Doujinshi" to listOf("doujinshi", "doujin"),
+    "Western / 3D" to listOf("erotic comic", "3d comic"),
+)
+
 /**
  * Endless discovery engine.
  *
@@ -55,7 +63,7 @@ class PagedCatalogLoader @Inject constructor(
 ) {
     suspend fun load(page: Int, adult: Boolean = false): CatalogPage = withContext(ioDispatcher) {
         require(page >= 1) { "Page numbers are 1-based" }
-        val window = PageWindow(page)
+        val window = PageWindow(page, if (adult) PageWindow.MAX_PAGE_SIZE else PageWindow.DEFAULT_PAGE_SIZE)
         val fetched = coroutineScope {
             val aniList = async {
                 attempt {
@@ -87,7 +95,13 @@ class PagedCatalogLoader @Inject constructor(
                 if (adult) null
                 else attempt { openLibraryClient.discover(window.page, window.pageSize) }
             }
-            listOf(aniList.await(), mangaDex.await(), bakaUpdates.await(), mangaDexWestern.await(), comicVine.await(), openLibrary.await())
+            // Search is title-based; union the variants rather than passing a literal OR
+            // that these providers interpret as part of the title. Only do this on the
+            // first Vault page so normal pagination never repeats the same searches.
+            val railSearches = if (adult && page == 1) vaultSearchVariants.values.flatten().distinct().map { query ->
+                async { attempt { PageSlice(mangaDexClient.search(query, 20), false) } }
+            } else emptyList()
+            listOf(aniList.await(), mangaDex.await(), bakaUpdates.await(), mangaDexWestern.await(), comicVine.await(), openLibrary.await()) + railSearches.map { it.await() }
         }
 
         // Every active provider failed: surface an error without advancing the

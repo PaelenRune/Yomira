@@ -6,6 +6,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ReaderSafetyCatalogTest {
+    @Test fun `public catalog always hides hard core`() {
+        val items = listOf("Futa", "Incest", "Bestiality", "Non-con", "Lolicon", "Shotacon").mapIndexed { i, tag ->
+            Manga("$i", "Title", genres = listOf(tag), sourceId = "test")
+        }
+        listOf(emptySet(), setOf("ntr"), setOf("futanari")).forEach { preferences ->
+            assertEquals(emptyList<Manga>(), publicCatalog(items, preferences, isAdult = true))
+        }
+    }
     @Test fun `public catalog respects the tier matrix and the blacklist`() {
         val safe = Manga("safe", "Safe", sourceId = "test")
         val excluded = safe.copy(id = "excluded", genres = listOf("Boys' Love"))

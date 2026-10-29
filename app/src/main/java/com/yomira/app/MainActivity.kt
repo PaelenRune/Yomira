@@ -577,6 +577,7 @@ private fun YomiraNavigation(
                         isAdult = preferences.isAdult,
                         allowAdultContent = preferences.allowAdultContent,
                         showAdultContent = adultContentVisible,
+                        diagnosticInput = if (unlocked && adultContentVisible && maintenanceState.readerPreferences != null) rawCatalog.manga + rawVaultDiscovery.items else emptyList(),
                         adaptationBadges = if (unlocked) adaptationBadges else emptyMap(),
                         onPosterVisible = { if (unlocked && settings.vaultVisible) model.loadPosterAdaptations(listOf(it)) },
                     )
