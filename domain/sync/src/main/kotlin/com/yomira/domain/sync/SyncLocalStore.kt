@@ -81,6 +81,14 @@ class SyncLocalStore @Inject constructor(
     }
 
     suspend fun write(payload: SyncPayload) {
+        writeSyncProjection(payload, false, ::writeDatabase, extensions::write)
+    }
+
+    suspend fun restoreLibrary(payload: SyncPayload) {
+        writeSyncProjection(payload, true, ::writeDatabase, extensions::write)
+    }
+
+    private suspend fun writeDatabase(payload: SyncPayload) {
         database.withTransaction {
             // A user may keep reading during the network call. Never overwrite a newer local edit.
             val currentLibrary = syncDataDao.getAllLibraryEntries().associateBy { it.mangaId }
@@ -122,7 +130,6 @@ class SyncLocalStore @Inject constructor(
                 }
             }
         }
-        extensions.write(payload.extensions)
     }
 }
 

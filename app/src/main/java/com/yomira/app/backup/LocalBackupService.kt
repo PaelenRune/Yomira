@@ -53,7 +53,7 @@ class LocalBackupService @Inject constructor(
                 if (manga.getById(row.id) == null) manga.upsert(row.toEntity())
             }
             // Timestamp-aware merge; never replace local security preferences or install extensions.
-            local.write(native.state.copy(settings = null, extensions = emptyList()))
+            local.restoreLibrary(native.state)
         }
     }
 }
