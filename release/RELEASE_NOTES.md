@@ -1,53 +1,72 @@
-# 🌟 Yomira v8.2.0 — Sürüm Notları
+# 🌟 Yomira v8.2.1 — Sürüm Notları
 
-Bu sürüm içerik derecelendirmesini üç net kademeyle kurar: **SAFE (herkese açık), MATURE
-(16+) ve EXPLICIT (18+)**. Artık 18+ tercih eden kullanıcılar ana sayfa, keşif ve aramada
-yetişkin temalı serileri de görüyor; açık içerik ise her zamanki gibi yalnızca kilitli
-Vault'ta. Vault ilk açılışında tek seferlik bir yetişkin içerik onayı soruyor ve kurulum
-adımları, her sorunun neden sorulduğunu açıklayan metinlerle yenilendi.
+Bu sürüm kütüphanesindeki her seriyi tek bir kimlikte buluşturur: **adlar ve kapaklar
+artık her yerde aynı kurala uyuyor — İngilizce ad öncelikli, yoksa orijinal dil.** Seri
+detayındaki uyarlama rozetleri kalıcı oldu, Ayarlar'a tek dosyalık yedek alıp geri
+yüklemesi geldi; kurulumdaki depo adımı ve okuyucudaki yeniden deneme akışı düzeltildi.
 
-> **TR:** v8.2.0 içerik kademelerini (SAFE/MATURE/EXPLICIT) tek bir eşleme katmanıyla
-> netleştirir; seri detayına 16+/18+ rozetleri ekler, Vault'a ilk-kullanım NSFW onayı
-> getirir ve kurulum adımlarını açıklamalı TR/EN metinlerle yeniler.
+> **TR:** v8.2.1 seri detayında Anime/K-Drama/Donghua gibi uyarlama rozetlerini kalıcı
+> yapar; ad ve kapaklarda İngilizce-öncelikli tek kuralı uygular ve eski kitaplığı
+> otomatik tazeler; Ayarlar'a `.tachibk` yedek oluştur/geri yükle getirir; kurulum
+> depo adımını ve okuyucuda tek dokunuş yeniden denemeyi düzeltir.
 >
-> **EN:** v8.2.0 settles content rating into three tiers (SAFE/MATURE/EXPLICIT) behind a
-> single mapping layer, adds 16+/18+ badges on series detail, brings a first-use NSFW
-> consent to the Vault, and refreshes onboarding with annotated TR/EN copy.
+> **EN:** v8.2.1 makes adaptation badges (Anime/K-Drama/Donghua…) permanent on series
+> detail, applies one EN-first rule to titles and covers everywhere while auto-refreshing
+> the existing library, adds create/restore `.tachibk` backups to Settings, and fixes the
+> onboarding repository step plus one-tap retry in the reader.
 
 ---
 
-### 🎬 Üç Kademe: SAFE / MATURE / EXPLICIT
+### 🎬 Uyarlama Rozetleri Kalıcı
 
-- **Kademeler netleşti:** İçerik artık üç kademede değerlendirilir — herkese açık (SAFE),
-  yetişkin temalı (MATURE, 16+) ve açık (EXPLICIT, 18+). Seri detayında kademe, mevcut
-  rozet düzeninin içinde 16+ / 18+ etiketiyle görünür.
-- **Yerleşim matrisi:** Güvenli mod yalnızca SAFE serilerini gösterir. 18+ tercih ettiysen
-  ana sayfa, keşif, arama ve raflarda MATURE seriler de listelenir. EXPLICIT içerik ise
-  yalnızca Vault kilidinin arkasındadır — v8.1.4'ün herkese açık yüz garantisi aynen korunur.
-- **Tüm kaynaklar tek eşleme katmanında:** MangaDex `contentRating` değeri, AniList
-  `isAdult` bayrağı ve ecchi/nudity/sexual-theme etiketleri, Kitsu `ageRating` + `nsfw`
-  bayrağı ile Baka'nın Mature tür etiketleri tek bir katmanda kademeye çevrilir. Kaynaklar
-  çelişirse ihtiyatlı biçimde üst kademe kazanır.
-- **Kitaplığın yine senin:** Kitaplığa bilerek eklediğin seri hiçbir yerde zorla gizlenmez;
-  kara liste (yaoi, yuri, futanari, NTR, gore, harem) Vault'ta da geçerli kalmaya devam eder.
+- **Seri detayında hangi uyarlamalar olduğu görünür:** Bir serinin Anime, K-Drama,
+  Donghua, OVA gibi uyarlamaları varsa rozetleri seri detayının üst bilgi bloğunda,
+  kademe rozetinin yanında artık kalıcı olarak durur; içeriğe göre gelip gitmez.
+- **Kilit korunur:** Vault kilitliyken kapalı (explicit) uyarlamalar detay sayfasına
+  sızamaz; rozetler yalnızca senin görmeye yetkili olduğun bilgiyi gösterir.
 
-### 🔒 Vault: İlk Kullanımda Yetişkin İçerik Onayı
+### 🏷️ Her Yerde Aynı Ad, Aynı Kapak
 
-- **Tek seferlik soru:** Vault'u ilk açışında, biyometrik/PIN doğrulamasını geçtikten hemen
-  sonra "Vault'ta yetişkin içerik" onayı karşına çıkar. Bu soru bir kez sorulur ve seçimin
-  yalnızca bu cihaza kaydedilir.
-- **Reddetmek de bir tercih:** "Hayır, gizli kalsın" dersen kasa açılır ama raflar boş
-  kalır; giriş her zamanki gibi kilitli kalır. Kararını daha sonra Ayarlar'dan
-  değiştirebilirsin.
-- **Ayarlar'dan yönet:** Ayarlar → Gizlilik ve Kasa → "Vault'ta yetişkin içeriği göster"
-  anahtarı, ilk açılıştaki onayın kararını her zaman değiştirebilir.
+- **İngilizce ad öncelikli:** Kitaplık, akışlar, keşif ve seri detayı artık aynı seriyi
+  her yerde aynı adla anar: sağlayıcının İngilizce adı varsa o, yoksa orijinal dildeki
+  ad (Japonca, Korece, Çince ya da romanize biçim) kullanılır. Sağlayıcı sırası değişse
+  bile raf adı artık değişmez.
+- **Kapaklar da aynı kurala uyar:** İngilizce yerelleştirilmiş kapak varsa o, yoksa
+  orijinal dildeki kapak seçilir. MangaDex'te artık öncelik orijinal dildeki kapağa
+  verilir; kimlik eşleşmesi sağlanmamış kayıtların kapakları etiketleri etkilemez.
+- **Eski kitaplık otomatik tazelenir:** v8.2.1'e ilk girişinde mevcut kitaplığın ad ve
+  kapakları yeni kurala göre arka planda yeniden çözümlenir. Bu tazeleme yalnızca
+  ölçülmeyen ağda, ekran açık ve kilitli değilken çalışır; veri tasarrufunda duraklar.
+  İstediğin an Ayarlar → Depolama'dan "Kitaplık adlarını ve kapaklarını yenile" ile elle
+  de tetikleyebilir, ilerleme görünürken iptal edebilirsin.
 
-### 🧭 Açıklamalı Kurulum Adımları
+### 💾 Yedek Oluştur / Yedek Geri Yükle
 
-- **Her soru gerekçesiyle birlikte:** Kurulum adımlarındaki açıklamalar artık neden
-  sorulduğunu ve cevabın neyi etkilediğini anlatıyor — okuma dili ana sayfayı, keşfi ve
-  aramayı; yaş tercihi kademeleri; dışlama etiketleri akışlarını; favori seriler ise
-  önerileri şekillendirir. Türkçe ve İngilizce metinler eş güncellendi.
+- **Tek dosya, her yerde:** Ayarlar → Depolama'ya "Yedek oluştur" ve "Yedek geri yükle
+  (.tachibk)" geldi. Yedek dosyası `yomira-backup-YYYYMMDD-HHmm.tachibk` adıyla,
+  seçtiğin klasöre kaydedilir (SAF ile).
+- **Kapsam net:** Yedek, kitaplığını ve okuma geçmişini kapsar; indirilen sayfalar ve
+  güvenlik ayarları dahil değildir. Dosya şifrelenmez ve Vault başlıklarını içerebilir —
+  uygulama bunu yedek alırken sana açıkça söyler, dosyayı özel bir yerde sakla.
+- **Temiz kuruluma geri yükleme:** Yeni ya da boş bir kurulumda yedeği geri yüklediğinde
+  ad/kapak, içerik kademesi (SAFE/MATURE/EXPLICIT), favoriler/etiketler ve okuma geçmişi
+  korunur. Geri yükleme, uzantılar kurulu olmasa bile kitaplığını olduğu gibi getirir.
+
+### 🧭 Kurulum: Depo Adımı Düzeltildi
+
+- **Ana eylem artık depo eklemek:** Kurulumun son adımında ana düğme "Depo ekle"; "Atla"
+  ikincil bir metin düğmesine taşındı. Ana düğme yalnızca onay diyaloğunu açar; iptal
+  edersen aynı adımda kalırsın.
+- **Çift dokunma koruması:** Depo kaydedilirken ikinci dokunma engellenir; onaydan
+  sonra depo bir kez eklenir ve kurulum tamamlanır. Geri/ileri gidersen favori
+  seçimlerin korunur. Ayarlardan anketi tekrarlarsan depo adımı bir daha gösterilmez.
+
+### 🔄 Okuyucuda Tek Dokunuş Yeniden Dene
+
+- **"Kaynağa erişilemedi" artık çıkmaz sokak değil:** Kaynak geçici olarak erişilemez
+  olduğunda okuyucudaki hata ekranına tek dokunuşla "Yeniden dene" geldi. Ağ düzelince
+  aynı yerden devam edersin; çözümleme sürerken düğme kaybolur, tekrar hata alırsan yine
+  aynı akış çalışır ve Geri her zamanki gibi işler.
 
 ---
 
@@ -55,13 +74,14 @@ adımları, her sorunun neden sorulduğunu açıklayan metinlerle yenilendi.
 
 | Bilgi | Değer |
 | --- | --- |
-| Sürüm | `8.2.0` (versionCode `25`) |
-| Testler | Tam modül süpürmesi: 172 suit / 1046 test / 0 hata; kabul kapısı `assembleRelease` + `assembleDebug` BUILD SUCCESSFUL, `:app:testReleaseUnitTest` 167/167 (sürüm kaynağında yeşil) |
-| Ekli APK | `yomira-v8.2.0.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
-| Doğrulama raporu | `release/VALIDATION_v8.2.0.md` — ham sayılar ve cihaz kontrol listesi |
+| Sürüm | `8.2.1` (versionCode `26`) |
+| Testler | Release Android+JVM tam süpürmesi: **748 test / 0 başarısız / 0 hata / 0 atlanan**; kök test süpürmesi ve `assembleRelease` başarılı; kabul kapısı `:app:testReleaseUnitTest` **182/182** (sürüm kaynağında yeşil). Bu sürümde **36 yeni birim testi + 1 yeni Compose testi** |
+| Ekli APK | `yomira-v8.2.1.apk` — boyutu ve SHA-256'sı için bu sürüme iliştirilen `SHA256SUMS.txt` (CI, yayın anında eklediği APK için üretir) |
+| Doğrulama raporu | `release/VALIDATION_v8.2.1.md` — ham sayılar, commit envanteri ve cihaz kontrol listesi |
 
 APK, sürüm commit'i üzerinden repodaki imza anahtarıyla derlenmiştir; imza sertifikası
-önceki sürümlerle aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir. Yeni
-kademeli modelin, Vault onay akışının ve açıklamalı kurulum metinlerinin cihaz üzeri görsel
-doğrulaması henüz yapılmadı; madde madde durum [VALIDATION_v8.2.0.md](VALIDATION_v8.2.0.md)
-içindeki telefon kontrol listesinde "bekliyor" olarak işaretlidir.
+önceki sürümlerle aynı olduğundan mevcut kurulumların üzerine sorunsuz güncellenir.
+Uyarlama rozetlerinin, ad/kapak kuralının, yedek akışının, kurulum depo adımının ve
+yeniden deneme ekranının cihaz üzeri görsel doğrulaması henüz yapılmadı; madde madde
+durum [VALIDATION_v8.2.1.md](VALIDATION_v8.2.1.md) içindeki telefon kontrol listesinde
+"bekliyor" olarak işaretlidir.
