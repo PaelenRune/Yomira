@@ -28,6 +28,8 @@ dependencies {
     api(project(":core:model"))
     // RoomMetadataCache adapts the shared pure-JVM waterfall cache contract to Room.
     api(project(":data:metadata"))
+    // RoomSeriesAliasSink folds aliases through the shared normalization engine.
+    implementation(project(":domain:extension"))
     api(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     api(libs.kotlinx.coroutines.core)

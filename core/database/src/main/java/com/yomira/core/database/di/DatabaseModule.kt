@@ -7,12 +7,14 @@ import com.yomira.core.database.MIGRATION_2_3
 import com.yomira.core.database.MIGRATION_3_4
 import com.yomira.core.database.MIGRATION_4_5
 import com.yomira.core.database.MIGRATION_5_6
+import com.yomira.core.database.MIGRATION_6_7
 import com.yomira.core.database.dao.ChapterDao
 import com.yomira.core.database.dao.JourneyProfileDao
 import com.yomira.core.database.dao.MangaDao
 import com.yomira.core.database.dao.MetadataCacheDao
 import com.yomira.core.database.dao.ReadChapterDao
 import com.yomira.core.database.dao.ReadingActivityDao
+import com.yomira.core.database.dao.SeriesAliasDao
 import com.yomira.core.database.dao.SyncDao
 import com.yomira.core.database.dao.SyncDataDao
 import com.yomira.core.database.dao.UnlockedBadgeDao
@@ -30,7 +32,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): YomiraDatabase =
         Room.databaseBuilder(context, YomiraDatabase::class.java, "yomira.db")
-            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+            .addMigrations(YomiraDatabase.MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
             // A device that carries an older, partially migrated or otherwise incompatible
             // schema must still start: rebuild the cache-like tables instead of throwing
             // IllegalStateException out of Room during the first launch.
@@ -64,4 +66,7 @@ object DatabaseModule {
 
     @Provides
     fun provideUnlockedBadgeDao(database: YomiraDatabase): UnlockedBadgeDao = database.unlockedBadgeDao()
+
+    @Provides
+    fun provideSeriesAliasDao(database: YomiraDatabase): SeriesAliasDao = database.seriesAliasDao()
 }

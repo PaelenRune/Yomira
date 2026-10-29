@@ -37,6 +37,7 @@ class WaterfallMetadataAggregator(
     private val clock: Clock = Clock.systemUTC(),
     private val ttl: Duration = Duration.ofHours(24),
     private val onFailure: (ProviderFailure) -> Unit = {},
+    private val aliasSink: SeriesAliasSink? = null,
 ) {
     private val order = listOf(MetadataSources.BAKA_UPDATES, MetadataSources.ANILIST,
         MetadataSources.MANGADEX, MetadataSources.KITSU, MetadataSources.COMICVINE,
@@ -54,7 +55,10 @@ class WaterfallMetadataAggregator(
             val cached = guarded("metadata-cache") {
                 cache.read(key, now)?.let { json.decodeFromString<List<RemoteMetadata>>(it) }
             }
-            if (!cached.isNullOrEmpty()) return merge(distinctRecords(cached))
+            if (!cached.isNullOrEmpty()) {
+                recordAliases(distinctRecords(cached))
+                return merge(distinctRecords(cached))
+            }
         }
         val records = mutableListOf<RemoteMetadata>()
         for (provider in providers) {
@@ -77,7 +81,35 @@ class WaterfallMetadataAggregator(
         // Keep cleanup isolated: a failed sweep must not prevent caching fresh metadata.
         guarded("metadata-cache") { cache.pruneExpired(now) }
         guarded("metadata-cache") { cache.write(key, json.encodeToString(records), now, Math.addExact(now, ttl.toMillis())) }
+        recordAliases(distinctRecords(records))
         return merge(distinctRecords(records))
+    }
+
+    /**
+     * Feeds every observed title to the alias dictionary sink. Pure evidence
+     * for matching: never influences the merged display title, which
+     * [TitleLocalizer] owns. A failing sink must not break aggregation.
+     */
+    private suspend fun recordAliases(records: List<RemoteMetadata>) {
+        val sink = aliasSink ?: return
+        val aliases = records.flatMap { record ->
+            val seriesId = "${record.sourceId}:${record.remoteId}"
+            buildList {
+                add(SeriesAlias(seriesId, record.title, source = record.sourceId))
+                record.englishTitle?.let { add(SeriesAlias(seriesId, it, "en", record.sourceId)) }
+                record.altTitles.forEach { (lang, titles) ->
+                    titles.forEach { add(SeriesAlias(seriesId, it, lang, record.sourceId)) }
+                }
+            }
+        }.filter { it.title.isNotBlank() }
+        if (aliases.isEmpty()) return
+        try {
+            sink.record(aliases)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            onFailure(ProviderFailure("alias-sink", "Alias recording failed"))
+        }
     }
 
     /** Drops exact duplicate provider records so one series never merges into two cards. */

@@ -1,7 +1,9 @@
 package com.yomira.app.di
 
 import com.yomira.core.database.dao.MetadataCacheDao
+import com.yomira.core.database.dao.SeriesAliasDao
 import com.yomira.core.database.metadata.RoomMetadataCache
+import com.yomira.core.database.metadata.RoomSeriesAliasSink
 import com.yomira.core.network.AniListClient
 import com.yomira.core.network.BakaUpdatesClient
 import com.yomira.core.network.ComicVineClient
@@ -64,6 +66,7 @@ object MetadataModule {
     fun provideAggregator(
         client: OkHttpClient,
         cache: MetadataCacheDao,
+        aliasDao: SeriesAliasDao,
         aniList: AniListClient,
         mangaDex: MangaDexClient,
         bakaUpdates: BakaUpdatesClient,
@@ -80,5 +83,8 @@ object MetadataModule {
                 openLibrary,
             ),
             RoomMetadataCache(cache),
+            // The waterfall is the sole writer of the alias dictionary; reads
+            // happen through SeriesAliasDao wherever a lookup resolves names.
+            aliasSink = RoomSeriesAliasSink(aliasDao),
         )
 }
