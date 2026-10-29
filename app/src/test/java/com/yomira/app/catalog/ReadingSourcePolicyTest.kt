@@ -22,8 +22,8 @@ class ReadingSourcePolicyTest {
 
     @Test fun `blacklist wins for every rating even with adult consent and vault unlocked`() {
         ContentRating.entries.forEach { rating ->
-            assertNull(readingSourcePreferences(frieren.copy(genres = listOf("Netorare"), contentRating = rating),
-                allowed.copy(excludedTags = setOf("ntr")), unlocked = true))
+            assertNull(readingSourcePreferences(frieren.copy(genres = listOf("Futanari"), contentRating = rating),
+                allowed.copy(excludedTags = setOf("futanari")), unlocked = true))
         }
     }
 

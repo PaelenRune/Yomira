@@ -187,6 +187,8 @@ class PagedCatalogLoaderTest {
             assertTrue(dao.rows.none { it.id == "anilist:1" })
             val requests = generateSequence { aniList.takeRequest(1, java.util.concurrent.TimeUnit.SECONDS) }.toList()
             assertTrue(requests.none { it.path.orEmpty().startsWith("/baka") })
+            val titles = requests.mapNotNull { it.requestUrl?.queryParameter("title") }.toSet()
+            assertEquals(vaultSearchVariants.values.flatten().toSet(), titles)
         } finally {
             aniList.shutdown()
         }

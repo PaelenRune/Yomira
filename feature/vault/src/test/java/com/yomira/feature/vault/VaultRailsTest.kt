@@ -6,6 +6,28 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class VaultRailsTest {
+    @org.junit.Test fun `diagnostics count each filtering stage`() {
+        org.junit.Assert.assertEquals("vault input=10 nonExplicit=3 excluded=2 unmatched=4 matched=1", vaultDiagnostics(10, 7, 5, 1))
+    }
+    @Test fun `diagnostics break down each source and rail`() {
+        val rows = listOf(
+            manga("ok", "Manhwa"),
+            manga("hard", "Futa"),
+            manga("safe", "Manhwa", rating = ContentRating.SAFE),
+            manga("other", "Doujinshi").copy(sourceId = "other"),
+        )
+        val diagnostics = vaultRailDiagnostics(rows, emptySet(), true, true)
+        assertEquals(8, diagnostics.size)
+        assertTrue(diagnostics.contains("source=source rail=Adult Webtoons vault input=3 nonExplicit=1 excluded=1 unmatched=0 matched=1"))
+        assertTrue(diagnostics.contains("source=other rail=Doujinshi vault input=1 nonExplicit=0 excluded=0 unmatched=0 matched=1"))
+    }
+    @Test fun `style preference demotes without hiding`() {
+        val penalized = manga("a", "Manhwa").copy(genres = listOf("Manhwa", "NTR"))
+        val neutral = manga("b", "Manhwa")
+        val home = buildVaultHome(listOf(penalized, neutral), emptyList(), true, excludedTags = setOf("ntr"))
+        assertEquals(listOf(neutral, penalized), home.rails.single { it.style == "Adult Webtoons" }.items)
+        assertEquals(setOf(neutral, penalized), home.collection.toSet())
+    }
     private fun manga(id: String, genre: String, score: Double = 7.0, rating: ContentRating = ContentRating.EXPLICIT) =
         Manga(id, id, genres = listOf(genre), score = score, contentRating = rating, sourceId = "source")
 
