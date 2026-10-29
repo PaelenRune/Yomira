@@ -343,6 +343,7 @@ private fun YomiraNavigation(
     val libraryRefreshing by model.libraryRefreshing.collectAsStateWithLifecycle()
     val libraryRefreshError by model.libraryRefreshError.collectAsStateWithLifecycle()
     val adaptationBadges by model.adaptationBadges.collectAsStateWithLifecycle()
+    val readingIds by model.readingIds.collectAsStateWithLifecycle()
     val read by model.read.collectAsStateWithLifecycle()
     val matching by model.matching.collectAsStateWithLifecycle()
     val liveSearch by model.liveSearch.collectAsStateWithLifecycle()
@@ -466,6 +467,12 @@ private fun YomiraNavigation(
                     // user deliberately saved; only the blacklist still filters it there.
                     val items = if (route == "library") catalog.manga.filter { it.id in saved && !it.hasExcludedTags(preferences.excludedTags) }
                         else publicCatalog(catalog.manga, preferences.excludedTags, preferences.isAdult)
+                    // Reading counts as membership before saving: a series the user is
+                    // reading (reader progress exists) stays findable from the library
+                    // search even when it was never added to the shelf. The public
+                    // placement matrix still applies to these non-shelf results.
+                    val searchBeyond = if (route == "library") catalog.manga.filter { it.id in readingIds && it.id !in saved }
+                        else emptyList()
                     val resume by model.continueReading.collectAsStateWithLifecycle()
                     val resumeItem = resume?.takeIf { entry ->
                         catalog.manga.firstOrNull { it.id == entry.mangaId }?.let { allowed(it) && it.contentRating != ContentRating.EXPLICIT } == true
@@ -494,6 +501,7 @@ private fun YomiraNavigation(
                             unreadCounts = if (route == "library") libraryUpdates.groupingBy { it.manga.id }.eachCount() else emptyMap(),
                             excludedTags = preferences.excludedTags,
                             isAdult = preferences.isAdult,
+                            searchBeyond = searchBeyond,
                         ),
                         onQuery = { value -> query = value; model.onQueryChanged(value) }, onColumns = { model.setColumns(it) }, onManga = ::details, onRetry = model::refresh,
                         title = when (route) { "discover" -> stringResource(R.string.title_discover); "library" -> stringResource(R.string.title_library); else -> stringResource(R.string.app_name) },

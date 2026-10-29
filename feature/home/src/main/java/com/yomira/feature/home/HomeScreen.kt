@@ -53,6 +53,15 @@ fun publicCatalog(items: List<Manga>, excludedTags: Set<String> = emptySet(), is
     items.filter { it.contentRating != ContentRating.EXPLICIT && it.isVisibleForReader(excludedTags, isAdult, false) }
 
 /**
+ * The set a query may match. The quiet shelf (blank query) stays exactly the
+ * screen's own collection, but a typed query also searches beyond it — a series
+ * the user is reading (reader progress exists) must stay findable even before
+ * it is saved to the library. The beyond-set is deduplicated against the shelf.
+ */
+fun searchableCatalog(shelf: List<Manga>, beyond: List<Manga>, query: String): List<Manga> =
+    if (query.isBlank()) shelf else (shelf + beyond).distinctBy { it.id }
+
+/**
  * The single "pick up where you left off" entry of the home shelf. It is a plain
  * UI model: the app maps the newest reader-progress row plus its series/chapter
  * into it, so the card never holds database types and previews stay trivial.
@@ -101,6 +110,12 @@ data class HomeUiState(
     val unreadCounts: Map<String, Int> = emptyMap(),
     val excludedTags: Set<String> = emptySet(),
     val isAdult: Boolean = true,
+    /**
+     * Series outside [manga] that a typed query may still match: reading
+     * progress counts as membership before the user taps "add to library".
+     * The quiet shelf never shows them; only search does.
+     */
+    val searchBeyond: List<Manga> = emptyList(),
 )
 
 /**
@@ -171,8 +186,12 @@ fun HomeScreen(
     val all = remember(state.manga, state.discovery, state.excludedTags, state.isAdult) {
         publicCatalog(state.manga + state.discovery, state.excludedTags, state.isAdult).distinctBy { it.id }
     }
-    val visible = remember(all, state.query, state.selectedTags) {
-        searchLocalCatalog(all, state.query).let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
+    val visible = remember(all, state.searchBeyond, state.query, state.selectedTags) {
+        // A typed query also searches beyond the shelf (read-but-unsaved series);
+        // the quiet shelf below stays exactly the screen's own collection.
+        val beyond = publicCatalog(state.searchBeyond, state.excludedTags, state.isAdult)
+        searchLocalCatalog(searchableCatalog(all, beyond, state.query), state.query)
+            .let { filtered -> filterByTags(filtered, state.selectedTags, matchAll = true) }
     }
     val gridState = rememberLazyGridState()
     val nearBottom by remember(gridState) {

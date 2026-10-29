@@ -112,6 +112,11 @@ class YomiraViewModel @Inject constructor(
     val matching = MutableStateFlow(false)
     val liveSearch = MutableStateFlow(LiveSearchState())
     val connections = MutableStateFlow(SeriesConnectionState())
+
+    /** Series with reader progress: searchable from the library before they are saved. */
+    val readingIds: StateFlow<Set<String>> = syncDao.observeReadingMangaIds()
+        .map { it.toSet() }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
     val adaptationBadges = MutableStateFlow(preferences.all.entries.mapNotNull { (key, value) ->
         if (key.startsWith("poster_adaptation:") && value is String) key.removePrefix("poster_adaptation:") to value else null
     }.toMap())

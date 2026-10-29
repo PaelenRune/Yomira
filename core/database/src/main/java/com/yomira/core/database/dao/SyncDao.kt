@@ -17,6 +17,10 @@ interface SyncDao {
     @Query("SELECT * FROM reader_progress ORDER BY updatedAt DESC LIMIT 1")
     fun observeLatestReaderProgress(): Flow<ReaderProgressEntity?>
 
+    /** Every series with at least one opened page; reading counts as library membership for search. */
+    @Query("SELECT DISTINCT mangaId FROM reader_progress")
+    fun observeReadingMangaIds(): Flow<List<String>>
+
     @Query("SELECT * FROM reader_progress WHERE mangaId = :mangaId ORDER BY updatedAt DESC")
     fun observeReaderProgress(mangaId: String): Flow<List<ReaderProgressEntity>>
 
