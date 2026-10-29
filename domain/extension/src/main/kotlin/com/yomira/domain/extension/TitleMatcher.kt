@@ -39,6 +39,8 @@ object TitleMatcher {
     /** Head keys (text before a colon) are weaker than full-title equality. */
     private const val HEAD_WEIGHT = 0.95
     private const val CONTAINMENT_BONUS = 0.15
+    /** Same brand *and* the same non-empty season marker set is strong evidence. */
+    private const val SEQUEL_AGREEMENT_BONUS = 0.10
     private const val ABBREVIATION_EXACT = 0.9
     private const val ABBREVIATION_PREFIX = 0.8
     private const val ABBREVIATION_SUBSEQUENCE = 0.75
@@ -131,7 +133,14 @@ object TitleMatcher {
         val abbreviation = abbreviationSimilarity(squashedQuery, queryTokens, nameTokens)
         val best = maxOf(jaccard, edit, abbreviation)
         if (best <= 0.0) return 0.0
-        return (best + if (contained) CONTAINMENT_BONUS else 0.0).coerceAtMost(1.0)
+        var bonus = if (contained) CONTAINMENT_BONUS else 0.0
+        // `Re:Zero 2nd Season` carries the same `s 2` marker as the full
+        // `Re:Zero - Starting Life in Another World 2nd Season`: the brand and
+        // the season both agree, which a bare franchise prefix (`Naruto` inside
+        // `Naruto Shippuden`) never does. The sequel gate above has already
+        // proven the marker sets equal, so an `s:` marker here means agreement.
+        if (contained && sequelMarkers(query).any { it.startsWith("s:") }) bonus += SEQUEL_AGREEMENT_BONUS
+        return (best + bonus).coerceAtMost(1.0)
     }
 
     private fun evidenceBonus(evidence: Evidence, subject: Subject): Double {
