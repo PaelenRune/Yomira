@@ -88,6 +88,7 @@ class MainActivity : AppCompatActivity() {
     private val onboardingModel: OnboardingViewModel by viewModels()
     private val settingsModel: SettingsViewModel by viewModels()
     private val maintenanceModel: SettingsMaintenanceViewModel by viewModels()
+    private val backupModel: com.yomira.app.backup.LocalBackupViewModel by viewModels()
     private val journeyModel: JourneyViewModel by viewModels()
     private val extensionsModel: ExtensionsViewModel by viewModels()
     private var authError by mutableStateOf<String?>(null)
@@ -192,7 +193,7 @@ class MainActivity : AppCompatActivity() {
                 else -> {
                     val settings by settingsModel.settings.collectAsStateWithLifecycle()
                     YomiraNavigation(
-                        model, readerModel, settingsModel, maintenanceModel, journeyModel, extensionsModel, settings, authError,
+                        model, readerModel, settingsModel, maintenanceModel, backupModel, journeyModel, extensionsModel, settings, authError,
                         onUnlockVault = {
                             if (settings.vaultVisible && maintenanceModel.state.value.readerPreferences?.let { it.isAdult && it.allowAdultContent } == true) {
                                 // "Protect with device lock" is the user's call; default is on.
@@ -299,6 +300,7 @@ private fun YomiraNavigation(
     readerModel: ReaderViewModel,
     settingsModel: SettingsViewModel,
     maintenanceModel: SettingsMaintenanceViewModel,
+    backupModel: com.yomira.app.backup.LocalBackupViewModel,
     journeyModel: JourneyViewModel,
     extensionsModel: ExtensionsViewModel,
     settings: AppSettings,
@@ -715,6 +717,7 @@ private fun YomiraNavigation(
                     onClearCache = maintenanceModel::clearCache,
                     onStartMetadataBackfill = maintenanceModel::startMetadataBackfill,
                     onCancelMetadataBackfill = maintenanceModel::cancelMetadataBackfill,
+                    backupActions = { com.yomira.app.backup.LocalBackupActions(backupModel, enabled = !maintenance.resetBusy) },
                     onFactoryReset = maintenanceModel::factoryReset,
                     onCheckUpdates = settingsModel::checkUpdates,
                     onOpenLink = { openReference(it) },

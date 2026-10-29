@@ -1,0 +1,8 @@
+<resources>
+    <string name="backup_create">Create backup</string>
+    <string name="backup_restore">Restore backup (.tachibk)</string>
+    <string name="backup_created">Yomira backup created.</string>
+    <string name="backup_restored">Backup restored.</string>
+    <string name="backup_failed">Backup could not be completed. Check the file and storage access.</string>
+    <string name="backup_scope">Library and reading history only; downloaded pages and security settings are not included. The file is unencrypted and may include Vault titles. Store it privately.</string>
+</resources>

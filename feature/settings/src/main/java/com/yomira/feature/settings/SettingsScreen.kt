@@ -94,6 +94,7 @@ fun SettingsScreen(
     onDisconnectDrive: () -> Unit = {},
     onStartMetadataBackfill: () -> Unit = {},
     onCancelMetadataBackfill: () -> Unit = {},
+    backupActions: @Composable () -> Unit = {},
 ) {
     val contentCopy = SettingsContentCopy.forLanguage(currentLanguage)
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
@@ -342,6 +343,7 @@ fun SettingsScreen(
                             Text(copy.backfillTitle)
                         }
                         RowDivider()
+                        backupActions()
                         Text(if (maintenance.cacheSizeFailed) copy.cacheSizeFailed else
                             copy.cacheSize.format(maintenance.cacheBytes?.let(::formatCacheSize) ?: copy.loading),
                             style = MaterialTheme.typography.titleMedium)

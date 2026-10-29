@@ -1,0 +1,8 @@
+<resources>
+    <string name="backup_create">Yedek oluştur</string>
+    <string name="backup_restore">Yedek geri yükle (.tachibk)</string>
+    <string name="backup_created">Yomira yedeği oluşturuldu.</string>
+    <string name="backup_restored">Yedek geri yüklendi.</string>
+    <string name="backup_failed">Yedek işlemi tamamlanamadı. Dosyayı ve depolama erişimini kontrol edin.</string>
+    <string name="backup_scope">Yalnız kitaplık ve okuma geçmişi; indirilen sayfalar ve güvenlik ayarları dahil değildir. Dosya şifrelenmez ve Vault başlıklarını içerebilir. Özel bir yerde saklayın.</string>
+</resources>
